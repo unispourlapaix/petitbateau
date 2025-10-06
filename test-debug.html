@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Debug</title>
+</head>
+<body>
+    <h1>Test Debug JavaScript</h1>
+    <canvas id="canvas" width="800" height="600" style="border: 1px solid black; background: lightblue;"></canvas>
+    <div id="log"></div>
+
+    <script>
+        console.log("JavaScript démarre...");
+
+        try {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            console.log("Canvas trouvé:", canvas);
+            console.log("Context trouvé:", ctx);
+
+            // Test de base
+            ctx.fillStyle = 'red';
+            ctx.fillRect(100, 100, 100, 100);
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText('Canvas fonctionne!', 50, 50);
+
+            // Test des variables de base
+            let projectiles = [], munitions = 10, rechargement = 0;
+            console.log("Variables créées:", {projectiles, munitions, rechargement});
+
+            // Test fonction
+            function tirerProjectile(mouseX, mouseY) {
+                console.log("Tir vers:", mouseX, mouseY);
+                return true;
+            }
+
+            console.log("Fonction tirerProjectile:", typeof tirerProjectile);
+
+            // Test event
+            canvas.addEventListener('click', (e) => {
+                console.log("Clic détecté:", e.clientX, e.clientY);
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                tirerProjectile(mouseX, mouseY);
+            });
+
+            document.getElementById('log').innerHTML = 'JavaScript fonctionne - tout OK!';
+            console.log("Test terminé avec succès");
+
+        } catch (error) {
+            console.error("Erreur détectée:", error);
+            document.getElementById('log').innerHTML = 'ERREUR: ' + error.message;
+        }
+    </script>
+</body>
+</html>

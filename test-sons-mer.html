@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sons de la Mer 🌊⛵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #2193b0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 45px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-size: 38px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 35px;
+            font-size: 15px;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .sound-btn {
+            background: linear-gradient(145deg, #2193b0, #6dd5ed);
+            border: none;
+            border-radius: 16px;
+            padding: 30px 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(33, 147, 176, 0.4);
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 30px rgba(33, 147, 176, 0.6);
+        }
+
+        .sound-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .sound-name {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .sound-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .section-title {
+            color: #2193b0;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 35px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #6dd5ed;
+        }
+
+        .volume-control {
+            text-align: center;
+            margin-top: 35px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+        }
+
+        .volume-control label {
+            color: #2193b0;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .volume-control input {
+            width: 250px;
+        }
+
+        .info {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .ocean-emoji {
+            text-align: center;
+            font-size: 50px;
+            margin-bottom: 15px;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ocean-emoji">🌊⛵🐟</div>
+        <h1>Sons de la Mer</h1>
+        <p class="subtitle">Bruits marins apaisants et réalistes</p>
+
+        <div class="section-title">🌊 Vagues & Océan</div>
+        <div class="sound-grid">
+            <button class="sound-btn" onclick="playVagueDouce()">
+                <span class="sound-name">Vague Douce</span>
+                <span class="sound-desc">Plage calme</span>
+            </button>
+            <button class="sound-btn" onclick="playVaguePuissante()">
+                <span class="sound-name">Vague Puissante</span>
+                <span class="sound-desc">Océan fort</span>
+            </button>
+            <button class="sound-btn" onclick="playRessac()">
+                <span class="sound-name">Ressac</span>
+                <span class="sound-desc">Va-et-vient</span>
+            </button>
+            <button class="sound-btn" onclick="playEcume()">
+                <span class="sound-name">Écume</span>
+                <span class="sound-desc">Mousse qui pétille</span>
+            </button>
+        </div>
+
+        <div class="section-title">⛵ Bateau & Navigation</div>
+        <div class="sound-grid">
+            <button class="sound-btn" onclick="playBateauCreak()">
+                <span class="sound-name">Craquements</span>
+                <span class="sound-desc">Bois qui grince</span>
+            </button>
+            <button class="sound-btn" onclick="playVoile()">
+                <span class="sound-name">Voile</span>
+                <span class="sound-desc">Vent dans la toile</span>
+            </button>
+            <button class="sound-btn" onclick="playRames()">
+                <span class="sound-name">Rames</span>
+                <span class="sound-desc">Avirons dans l'eau</span>
+            </button>
+            <button class="sound-btn" onclick="playCorde()">
+                <span class="sound-name">Corde</span>
+                <span class="sound-desc">Cordage tendu</span>
+            </button>
+        </div>
+
+        <div class="section-title">🐟 Vie Marine</div>
+        <div class="sound-grid">
+            <button class="sound-btn" onclick="playPoissonBulle()">
+                <span class="sound-name">Poisson Bulle</span>
+                <span class="sound-desc">Gloup gloup</span>
+            </button>
+            <button class="sound-btn" onclick="playDauphin()">
+                <span class="sound-name">Dauphin</span>
+                <span class="sound-desc">Sifflement doux</span>
+            </button>
+            <button class="sound-btn" onclick="playBaleine()">
+                <span class="sound-name">Baleine</span>
+                <span class="sound-desc">Chant profond</span>
+            </button>
+            <button class="sound-btn" onclick="playMouette()">
+                <span class="sound-name">Mouette</span>
+                <span class="sound-desc">Cri d'oiseau marin</span>
+            </button>
+        </div>
+
+        <div class="section-title">🌅 Ambiances Marines</div>
+        <div class="sound-grid">
+            <button class="sound-btn" onclick="playPortMatin()">
+                <span class="sound-name">Port au Matin</span>
+                <span class="sound-desc">Calme et brumeux</span>
+            </button>
+            <button class="sound-btn" onclick="playTempete()">
+                <span class="sound-name">Tempête</span>
+                <span class="sound-desc">Mer agitée</span>
+            </button>
+            <button class="sound-btn" onclick="playCloches()">
+                <span class="sound-name">Cloches de Bouée</span>
+                <span class="sound-desc">Balancement doux</span>
+            </button>
+            <button class="sound-btn" onclick="playProfondeur()">
+                <span class="sound-name">Profondeur</span>
+                <span class="sound-desc">Sous-marin</span>
+            </button>
+        </div>
+
+        <div class="volume-control">
+            <label for="volume">🔊 Volume :</label>
+            <input type="range" id="volume" min="0" max="100" value="60">
+            <span id="volumeValue">60%</span>
+        </div>
+
+        <p class="info">Sons authentiques de la mer pour ton jeu du bateau ! ⛵🌊</p>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let masterVolume = 0.6;
+
+        document.getElementById('volume').addEventListener('input', (e) => {
+            masterVolume = e.target.value / 100;
+            document.getElementById('volumeValue').textContent = e.target.value + '%';
+        });
+
+        // === VAGUES & OCÉAN ===
+
+        // Vague Douce - Plage calme
+        function playVagueDouce() {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const wave = Math.sin(t * Math.PI / 3) * 0.7 + 0.3;
+                data[i] = (Math.random() * 2 - 1) * wave * 0.6;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(300, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 1.5);
+            filter.frequency.linearRampToValueAtTime(250, audioCtx.currentTime + 3);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.2, audioCtx.currentTime + 0.8);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 2.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // Vague Puissante
+        function playVaguePuissante() {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 4, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const wave = Math.pow(Math.sin(t * Math.PI / 4), 2);
+                data[i] = (Math.random() * 2 - 1) * wave * 0.8;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(500, audioCtx.currentTime + 2);
+            filter.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 4);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.35, audioCtx.currentTime + 1.5);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.25, audioCtx.currentTime + 3);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+
+            // Résonance grave
+            const osc = audioCtx.createOscillator();
+            const gainOsc = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(40, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(70, audioCtx.currentTime + 2);
+            osc.frequency.linearRampToValueAtTime(35, audioCtx.currentTime + 4);
+
+            gainOsc.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainOsc.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 1.2);
+            gainOsc.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+            osc.connect(gainOsc);
+            gainOsc.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 4);
+        }
+
+        // Ressac - Va-et-vient
+        function playRessac() {
+            for (let i = 0; i < 2; i++) {
+                setTimeout(() => {
+                    const noise = audioCtx.createBufferSource();
+                    const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+
+                    for (let j = 0; j < buffer.length; j++) {
+                        const t = j / buffer.length;
+                        const wave = i === 0 ? t : (1 - t);
+                        data[j] = (Math.random() * 2 - 1) * wave * 0.5;
+                    }
+
+                    noise.buffer = buffer;
+
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = i === 0 ? 'lowpass' : 'highpass';
+                    filter.frequency.value = i === 0 ? 400 : 600;
+
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(masterVolume * 0.18, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    noise.start();
+                }, i * 2200);
+            }
+        }
+
+        // Écume - Mousse qui pétille
+        function playEcume() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
+                    osc.type = 'sine';
+                    filter.type = 'highpass';
+                    filter.frequency.value = 2000 + Math.random() * 1000;
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.frequency.value = 3000 + Math.random() * 2000;
+
+                    gain.gain.setValueAtTime(masterVolume * 0.03, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }, i * 30);
+            }
+        }
+
+        // === BATEAU & NAVIGATION ===
+
+        // Craquements du bateau
+        function playBateauCreak() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
+                    osc.type = 'sawtooth';
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 300 + Math.random() * 200;
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    const freq = 80 + Math.random() * 60;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(freq * 0.9, audioCtx.currentTime + 0.3);
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                }, i * 600);
+            }
+        }
+
+        // Voile dans le vent
+        function playVoile() {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const flutter = Math.sin(t * 8) * 0.3 + 0.7;
+                data[i] = (Math.random() * 2 - 1) * flutter * 0.5;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 1);
+            filter.frequency.linearRampToValueAtTime(700, audioCtx.currentTime + 2);
+            filter.Q.value = 3;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(masterVolume * 0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // Rames dans l'eau
+        function playRames() {
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const noise = audioCtx.createBufferSource();
+                    const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.4, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+
+                    for (let j = 0; j < buffer.length; j++) {
+                        const t = j / buffer.length;
+                        const splash = t < 0.2 ? t * 5 : Math.exp(-(t - 0.2) * 8);
+                        data[j] = (Math.random() * 2 - 1) * splash * 0.6;
+                    }
+
+                    noise.buffer = buffer;
+
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 600;
+
+                    const gain = audioCtx.createGain();
+                    gain.gain.value = masterVolume * 0.2;
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    noise.start();
+                }, i * 800);
+            }
+        }
+
+        // Corde qui grince
+        function playCorde() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'square';
+            filter.type = 'bandpass';
+            filter.frequency.value = 400;
+            filter.Q.value = 5;
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(250, audioCtx.currentTime + 0.3);
+            osc.frequency.linearRampToValueAtTime(180, audioCtx.currentTime + 0.6);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.08, audioCtx.currentTime + 0.1);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.06, audioCtx.currentTime + 0.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.7);
+        }
+
+        // === VIE MARINE ===
+
+        // Poisson qui fait des bulles
+        function playPoissonBulle() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    const freq = 250 + Math.random() * 150;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 2, audioCtx.currentTime + 0.12);
+
+                    gain.gain.setValueAtTime(masterVolume * 0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                }, i * 200);
+            }
+        }
+
+        // Dauphin
+        function playDauphin() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.frequency.setValueAtTime(2000, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(3500, audioCtx.currentTime + 0.15);
+                    osc.frequency.linearRampToValueAtTime(2500, audioCtx.currentTime + 0.3);
+
+                    gain.gain.setValueAtTime(masterVolume * 0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                }, i * 400);
+            }
+        }
+
+        // Baleine
+        function playBaleine() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            filter.type = 'lowpass';
+            filter.frequency.value = 400;
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(350, audioCtx.currentTime + 1.5);
+            osc.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 3);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.5);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.12, audioCtx.currentTime + 2.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.5);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 3.5);
+        }
+
+        // Mouette
+        function playMouette() {
+            for (let i = 0; i < 2; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
+                    osc.type = 'square';
+                    filter.type = 'bandpass';
+                    filter.frequency.value = 1500;
+                    filter.Q.value = 2;
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(1800, audioCtx.currentTime + 0.15);
+                    osc.frequency.linearRampToValueAtTime(1100, audioCtx.currentTime + 0.4);
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.1, audioCtx.currentTime + 0.05);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.08, audioCtx.currentTime + 0.3);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.45);
+                }, i * 500);
+            }
+        }
+
+        // === AMBIANCES MARINES ===
+
+        // Port au matin
+        function playPortMatin() {
+            // Cloches lointaines
+            setTimeout(() => playCloches(), 500);
+
+            // Vague douce de fond
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 5, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.2;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+
+            const gain = audioCtx.createGain();
+            gain.gain.value = masterVolume * 0.08;
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // Tempête
+        function playTempete() {
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 4, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const chaos = Math.sin(t * 3) * 0.3 + 0.7;
+                data[i] = (Math.random() * 2 - 1) * chaos;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 2);
+            filter.frequency.linearRampToValueAtTime(300, audioCtx.currentTime + 4);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(masterVolume * 0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // Cloches de bouée
+        function playCloches() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    const freq = 400 + i * 150;
+                    osc.frequency.value = freq;
+
+                    gain.gain.setValueAtTime(masterVolume * 0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 2);
+                }, i * 300);
+            }
+        }
+
+        // Profondeur sous-marine
+        function playProfondeur() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            filter.type = 'lowpass';
+            filter.frequency.value = 100;
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.frequency.setValueAtTime(50, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 2);
+            osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 4);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.18, audioCtx.currentTime + 1);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 3);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 5);
+
+            // Bulles lointaines
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const bubble = audioCtx.createOscillator();
+                    const gainBubble = audioCtx.createGain();
+
+                    bubble.type = 'sine';
+                    bubble.connect(gainBubble);
+                    gainBubble.connect(audioCtx.destination);
+
+                    const freq = 200 + Math.random() * 300;
+                    bubble.frequency.value = freq;
+
+                    gainBubble.gain.setValueAtTime(masterVolume * 0.03, audioCtx.currentTime);
+                    gainBubble.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+                    bubble.start();
+                    bubble.stop(audioCtx.currentTime + 0.3);
+                }, i * 400);
+            }
+        }
+    </script>
+</body>
+</html>

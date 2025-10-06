@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "language": "English",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "See the Truth",
+    "subtitle": "A journey through humanity",
+    "loading": "Loading...",
+    "start": "Start",
+    "continue": "Continue",
+    "restart": "Restart"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Enigmas: {collected}/{total} ({percent}%)",
+    "language": "🌍 Language"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Journey — The Dawn of Doubt",
+      "narrative": "🌟 \"They told me they were all monsters...\n✨ They told me so much evil, so much misfortune about them...\n🔍 But I chose to go see with my own eyes.\""
+    },
+    "phase2": {
+      "title": "Journey — The Light",
+      "narrative": "🤔 \"Who were they really?...\nAnd I saw...\n\n👨‍👩‍👧‍👦 A father... a mother... children...\n\n💙 All simply seeking\nto live\ntheir best life...\nLike me.\""
+    },
+    "phase3": {
+      "title": "Journey — The Shadow of Clouds",
+      "narrative": "🌙 \"Then, the moon appeared.\n📖 The sky darkened like a page burned by time.\n🦈 A fin split the dark waves...\n⚡ Lightning streaked the gray clouds.\""
+    },
+    "phase4": {
+      "title": "Journey — The Black Clouds",
+      "narrative": "⚡ \"Chapter 2 began in darkness...\n🌊 The waves grew higher, more threatening.\n💀 And in this darkness, I saw something else...\n👁️ Eyes that stared at me from the depths.\""
+    },
+    "phase5": {
+      "title": "Journey — The Silence of the Soul",
+      "narrative": "👁️ \"In the darkness, a first vision appeared to me...\n🔮 Strange forms danced in the shadows.\n🌟 Was it real? Was it a dream?\n❓ I could no longer tell the difference.\""
+    },
+    "phase6": {
+      "title": "Journey — Crossing the Night",
+      "narrative": "🤷 \"But the further I went, the more my certainties wavered...\n💭 Who was right? Who was wrong?\n🌊 The waves carried away my convictions.\n🔍 I needed to dig deeper.\""
+    },
+    "phase7": {
+      "title": "Journey — The Humanity of Hearts",
+      "narrative": "💡 \"Suddenly, a light pierced the clouds...\n📜 A partial truth was revealed to me.\n⚖️ Neither all white, nor all black...\n🌈 But a gradient of complex colors.\""
+    },
+    "phase8": {
+      "title": "Journey — The Extended Hand",
+      "narrative": "📖 \"Thus ended the first chapter of my journey...\n🎭 Between masks and real faces.\n🚪 A door opened to new mysteries.\n➡️ It was time to continue exploring.\""
+    },
+    "phase9": {
+      "title": "Journey — True Hospitality",
+      "narrative": "💭 \"They told me...\nthat humanity no longer existed,\nthat it was lost in wars and grudges.\n🏠 They told me that men no longer welcomed anyone,\nthat they locked themselves behind walls of iron and fear.\""
+    },
+    "phase10": {
+      "title": "Journey — Freedom of the Soul",
+      "narrative": "✋ \"But I saw…\nA hand extended to a stranger.\n😊 A smile shared despite hunger.\n🚪 A door opened for one who trembled in the night.\""
+    },
+    "phase11": {
+      "title": "Journey — Shared Strength",
+      "narrative": "🤝 \"This is hospitality:\nnot giving what you have too much of,\nbut sharing even what is lacking.\""
+    },
+    "phase12": {
+      "title": "Journey — Love Stronger",
+      "narrative": "🗽 \"They told me freedom was just a word,\nan illusion that the powerful sold to the weak.\n🏃‍♂️ But I saw…\nA child running barefoot in the rain,\nlaughing without chains,\n✨ and in their laughter, I understood that freedom lives first in the soul.\""
+    },
+    "phase13": {
+      "title": "Journey — Tolerance Wisdom",
+      "narrative": "💪 \"They told me that men no longer helped,\nthat each lived only for themselves.\n🪨 But I saw…\nStrangers lifting together a stone too heavy,\n❤️ and in this shared strength, I saw love being born.\""
+    },
+    "phase14": {
+      "title": "Journey — Diversity Treasure",
+      "narrative": "💔 \"They told me love was fragile,\n💝 but I saw that it is stronger than hatred,\n🏗️ because it builds when hatred destroys.\""
+    },
+    "phase15": {
+      "title": "Journey — One People",
+      "narrative": "🤝 \"They told me tolerance was weakness,\n🧠 but I saw that it is wisdom,\nthe wisdom to recognize that we are not all alike,\n🌈 and that it is good that way.\""
+    },
+    "phase16": {
+      "title": "End of Journey — Truth Revealed",
+      "narrative": "🌅 \"Thus ends my first journey...\n\n🌈 I saw diversity as a treasure,\nhumanity as a family,\nand truth as a rainbow of nuances.\n\n⚓ My boat now touches the shore...\nBut in the distance, in the mist,\nI see something strange...\n\n🧱 A wall... in the sea...\""
+    },
+    "phase17": {
+      "title": "The Wall — Vision",
+      "narrative": "🌊 \"In the distance… I see a wall.\nA wall erected in the sea like a scar.\nA wall not made of stones,\nbut of laws, papers and closed eyes.\""
+    },
+    "phase18": {
+      "title": "The Wall — Prison of Freedom",
+      "narrative": "⛓️ \"This wall is the prison of human freedom.\nIt separates those who can run without chains,\nand those locked in invisible borders.\""
+    },
+    "phase19": {
+      "title": "The Wall — Barbed Wire of Refusal",
+      "narrative": "💔 \"For the poor, it is barbed with refusal,\nclosed like a rusted door.\nThey knock with their bare hands,\ntheir dreams broken by the silence of guards.\""
+    },
+    "phase20": {
+      "title": "The Wall — Golden Door",
+      "narrative": "💰 \"For the rich, it is a golden door.\nIt opens effortlessly,\nand lets them circulate like wind that has no homeland.\""
+    },
+    "phase21": {
+      "title": "The Wall — Questioning",
+      "narrative": "❓ \"So I wonder…\nIs freedom really a right,\nor has it become a privilege sold to the highest bidders?\""
+    },
+    "phase22": {
+      "title": "The Wall — Hope",
+      "narrative": "🌊 \"But in the heart of the waves,\nthe sea whispers a truth:\nno wall is eternal.\nFor water always ends up wearing down stone,\nand freedom, sooner or later,\nwill find its way again.\""
+    },
+    "phase23": {
+      "title": "The Wall — Ultimate Truth",
+      "narrative": "🧱 \"The wall in the sea holds back neither waves nor dreams.\nIt rises, proud and vain,\nand deprives humanity of its freedom.\""
+    }
+  },
+  "intro": {
+    "title": "See the Truth",
+    "subtitle": "A philosophical journey",
+    "message": "Embark on a journey to discover the truth about humanity...",
+    "start_button": "Begin the journey"
+  }
+}

@@ -1,0 +1,52 @@
+CONTEXTE DU PROJET :
+====================
+Dossier: C:\QueteDeVerite
+Timestamp: --_~8,2dt:~10,2dt:~12,2--
+
+PREFERENCES DE DESIGN D'EMMANUEL :
+================================
+- Style visuel : Thème pur blanc, géométrique, simple mais détaillé
+- Esthétique : Futuriste, épuré, lignes nettes
+- Narration : Toujours à la 3ème personne pour l'immersion
+- Ambiance : Moderne, technologique, immersive
+
+SPECIFICATIONS TECHNIQUES :
+===========================
+- Interface : Une seule fenêtre, tout dedans
+- Contrôles : Mobile tactile + souris PC
+- Format : Ratio fixe, orientation portrait
+- Responsive : Adaptation mobile/desktop
+
+ARCHITECTURE MODULAIRE :
+========================
+- Fonctions en modules désactivables facilement
+- Modules stables réutilisables entre projets
+- Architecture plug-and-play
+- Séparation claire des responsabilités
+
+FICHIERS PRINCIPAUX :
+debug-mobile.html
+debug.html
+fixed-mobile.html
+index-fixed.html
+index-mobile.html
+index.html
+liberer-la-verite.html
+mobile-9-16.html
+portrait-scroll.html
+simple-game.html
+simple-mobile.html
+test-basic.html
+test-modules.html
+test-narrator.html
+test-simple.html
+test-white-theme.html
+universal.html
+voir-la-verite-responsive.html
+voir-la-verite.html
+working-mobile.html
+sw-mobile.js
+manifest.json
+package.json
+
+QUE DOIS-JE FAIRE DANS CE PROJET ?

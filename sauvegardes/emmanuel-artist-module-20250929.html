@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📜 Rubrique des Énigmes - Emmanuel Artist Module</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .enigme-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .enigme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .enigme-title {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+
+        .enigme-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .phase-requise {
+            display: inline-block;
+            background: linear-gradient(135deg, #4169E1, #1E90FF);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .section {
+            margin: 15px 0;
+        }
+
+        .section-title {
+            color: #87CEEB;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .section-content {
+            line-height: 1.6;
+            font-style: italic;
+            padding-left: 20px;
+            border-left: 3px solid #FFD700;
+        }
+
+        .mystere {
+            background: rgba(138, 43, 226, 0.2);
+            border-left: 3px solid #8A2BE2;
+        }
+
+        .revelation {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 3px solid #FFD700;
+        }
+
+        .sagesse {
+            background: rgba(135, 206, 235, 0.2);
+            border-left: 3px solid #87CEEB;
+        }
+
+        .stats {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .phase-group {
+            margin: 40px 0;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .phase-group-title {
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .artist-signature {
+            text-align: center;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 40px;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📜 "Voir la Vérité" - Rubrique des Énigmes 📜</h1>
+        <p><strong>🎨 Vision Artistique :</strong> Emmanuel Payet</p>
+        <p><strong>✨ Signature Artistique :</strong> Dreamer Unisona</p>
+        <p><strong>🌟 Fable Interactive :</strong> Une réflexion poétique sur les préjugés</p>
+    </div>
+
+    <div class="stats">
+        <h2>📊 Statistiques du Recueil</h2>
+        <p><strong>Total d'énigmes :</strong> 10 révélations poétiques</p>
+        <p><strong>Phases de déverrouillage :</strong> 4 étapes du voyage</p>
+        <p><strong>Système de collection :</strong> Progression sauvegardée localement</p>
+    </div>
+
+    <!-- PHASE COEURS -->
+    <div class="phase-group">
+        <div class="phase-group-title">💖 Phase Cœurs - L'Éveil du Cœur</div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🤝</span>
+                Humanité
+            </div>
+            <div class="phase-requise">Phase : coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">La force qui unit tous les cœurs</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Qu'est-ce qui nous rend véritablement humains ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">L'humanité réside dans notre capacité à ressentir de la compassion pour autrui, même pour ceux qui nous sont différents.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Un père, une mère, des enfants... Tous cherchant simplement à vivre leur meilleure vie, comme nous.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🌈</span>
+                Diversité
+            </div>
+            <div class="phase-requise">Phase : coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">La beauté de nos différences</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Pourquoi craignons-nous ce qui est différent ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La diversité est la richesse du monde. Chaque couleur, chaque culture apporte sa propre beauté à l'arc-en-ciel humain.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">On m'a dit tant de mal sur eux... Mais j'ai préféré aller voir de mes propres yeux.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🤲</span>
+                Respect
+            </div>
+            <div class="phase-requise">Phase : coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">La dignité accordée à chaque être</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment respecter ceux que nous ne comprenons pas ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">Le respect naît de la reconnaissance que chaque être porte en lui une étincelle divine.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Ils s'enfermaient derrière des murs de fer et de peur... Mais l'humanité existait encore.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🌱</span>
+                Restauration
+            </div>
+            <div class="phase-requise">Phase : coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">Le renouveau après la destruction</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment rebâtir après la dévastation ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">Chaque fin contient en elle les graines d'un nouveau commencement.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Une lumière dans l'obscurité... L'espoir possible quand on choisit d'aimer.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE BRIQUES -->
+    <div class="phase-group">
+        <div class="phase-group-title">🧱 Phase Briques - La Construction de la Sagesse</div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🕊️</span>
+                Paix
+            </div>
+            <div class="phase-requise">Phase : briques</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">L'harmonie qui transcende les conflits</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment trouve-t-on la paix dans un monde de chaos ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La paix naît lorsque nous choisissons d'aimer plutôt que de haïr, de comprendre plutôt que de juger.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Au-delà des nuages, il existe toujours une lumière. Mais pour la voir, il faut d'abord traverser la nuit.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🙏</span>
+                Foi
+            </div>
+            <div class="phase-requise">Phase : briques</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">L'espoir qui guide dans l'obscurité</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment garder foi quand tout semble perdu ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La foi n'est pas l'absence de doute, mais la décision de continuer malgré l'incertitude.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">L'orage, aussi bruyant qu'il soit, ne dure jamais éternellement.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🏥</span>
+                Guérison
+            </div>
+            <div class="phase-requise">Phase : briques</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">Le pouvoir de soigner les blessures</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment guérit-on les blessures invisibles ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La véritable guérison commence par l'acceptation et se poursuit par le pardon.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Si la tempête gronde, c'est pour rappeler qu'au-delà des nuages, il existe toujours une lumière.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE NUIT COEURS -->
+    <div class="phase-group">
+        <div class="phase-group-title">🌙💖 Phase Nuit Cœurs - L'Amour dans l'Obscurité</div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🗽</span>
+                Liberté
+            </div>
+            <div class="phase-requise">Phase : nuit_coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">Le droit de vivre sans chaînes</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Qu'est-ce que la vraie liberté ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La liberté n'est pas l'absence de contraintes, mais la capacité de choisir l'amour malgré la peur.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">La cupidité et l'avidité, comme des chaînes invisibles, serrent le cœur des hommes.</div>
+            </div>
+        </div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">💞</span>
+                Entraide
+            </div>
+            <div class="phase-requise">Phase : nuit_coeurs</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">La force de l'union solidaire</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Pourquoi aider ceux qui ne peuvent rien nous donner ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">Dans l'entraide, nous découvrons que donner nous enrichit plus que recevoir.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">L'amour, plus fort que toutes les barrières, unit au-delà des différences.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE LANTERNE -->
+    <div class="phase-group">
+        <div class="phase-group-title">🏮 Phase Lanterne - La Révélation Ultime</div>
+
+        <div class="enigme-card">
+            <div class="enigme-title">
+                <span class="enigme-icon">🦇👼</span>
+                Ange Gardien
+            </div>
+            <div class="phase-requise">Phase : lanterne (Collection spéciale)</div>
+
+            <div class="section">
+                <div class="section-title">📝 Description :</div>
+                <div class="section-content">La protection divine révélée</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">❓ Mystère :</div>
+                <div class="section-content mystere">Comment distinguer le bien du mal dans l'obscurité ?</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 Révélation :</div>
+                <div class="section-content revelation">La perception du bien ou du mal est conditionnée à notre cœur. Un mauvais cœur cache de profondes ténèbres et la manipulation obscurcit même le plus blanc des anges.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 Sagesse Poétique :</div>
+                <div class="section-content sagesse">Rester éveillé dans l'amour. Bien que tout ne soit ni tout noir ni tout blanc, le cœur blessé fait du mal.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">⚠️ Note Spéciale :</div>
+                <div class="section-content">Cette énigme ne se déverrouille que par la transformation d'une chauve-souris en ange gardien (+1000 XP)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="artist-signature">
+        <h3>✨ Module Artistique Emmanuel ✨</h3>
+        <p><strong>🎨 Conception :</strong> Emmanuel Payet</p>
+        <p><strong>📜 Narration Poétique :</strong> Dreamer Unisona</p>
+        <p><strong>🌟 Fable Interactive :</strong> "Voir la Vérité"</p>
+        <p><strong>📅 Création :</strong> 2025</p>
+        <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.3);">
+        <p><em>"Dans chaque énigme se cache une vérité, dans chaque vérité se révèle notre humanité."</em></p>
+    </div>
+</body>
+</html>

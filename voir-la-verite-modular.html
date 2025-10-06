@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👁️ Voir la Vérité - Version Modulaire 👁️</title>
+
+    <!-- Styles modulaires -->
+    <link rel="stylesheet" href="modules/styles/ui-styles.css">
+
+    <style>
+        /* Styles spécifiques à cette version */
+        .module-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .module-info.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="message" class="message"></div>
+
+        <!-- Informations sur les modules -->
+        <div id="moduleInfo" class="module-info">
+            <div>🎮 Version Modulaire</div>
+            <div id="moduleStats">Chargement...</div>
+            <div><small>Cliquez pour masquer</small></div>
+        </div>
+    </div>
+
+    <!-- Chargement des modules -->
+    <script type="module">
+        // Import du gestionnaire de modules
+        import ModuleManager from './modules/index.js';
+
+        // Configuration du jeu avec modules
+        const GameModular = {
+            // Configuration depuis les modules
+            config: ModuleManager.config,
+
+            // Références aux modules
+            modules: ModuleManager,
+
+            // Variables de jeu (reprises du jeu original)
+            canvas: null,
+            ctx: null,
+            size: { width: 0, height: 0 },
+            C: {},
+
+            // État du jeu
+            score: 0,
+            vies: 3,
+            brises: 0,
+            jeu: false,
+            chapitre: 1,
+            phaseJeu: 'tir_coeurs_haut',
+
+            // Objets de jeu
+            raquette: {},
+            balle: { visible: true },
+            briques: [],
+            lanterne: { active: false, intensite: 0 },
+
+            // Animation du bateau
+            animationBateau: {
+                active: true,
+                phase: 'arrivee',
+                positionCible: 0,
+                tempsDebut: 0,
+                dureeArret: 20000
+            },
+
+            /**
+             * Initialiser le jeu modulaire
+             */
+            init() {
+                console.log('🎮 Initialisation du jeu modulaire');
+
+                // Configuration du canvas
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupCanvas();
+
+                // Utiliser la configuration modulaire
+                this.C = this.config.RESPONSIVE.calculateConstants(this.size.width, this.size.height);
+
+                // Initialiser les positions
+                this.initPositions();
+
+                // Afficher les stats des modules
+                this.updateModuleInfo();
+
+                // Démarrer la boucle de jeu
+                this.gameLoop();
+
+                console.log('✅ Jeu modulaire initialisé');
+            },
+
+            /**
+             * Configuration responsive du canvas
+             */
+            setupCanvas() {
+                const container = document.querySelector('.game-container');
+                this.size = this.config.RESPONSIVE.setupCanvas(container);
+
+                this.canvas.width = this.size.width;
+                this.canvas.height = this.size.height;
+                this.canvas.style.width = this.size.width + 'px';
+                this.canvas.style.height = this.size.height + 'px';
+            },
+
+            /**
+             * Initialiser les positions des objets
+             */
+            initPositions() {
+                // Position initiale du bateau
+                if(this.animationBateau.active && this.animationBateau.phase === 'arrivee') {
+                    this.raquette = { x: -this.C.PW, y: this.C.H - this.C.PH - 25 };
+                    this.animationBateau.positionCible = this.C.W/2 - this.C.PW/2;
+                    this.animationBateau.tempsDebut = Date.now();
+                } else {
+                    this.raquette = { x: this.C.W/2 - this.C.PW/2, y: this.C.H - this.C.PH - 25 };
+                }
+
+                // Position de la balle/étoile
+                this.balle = {
+                    x: this.raquette.x + this.C.PW * 0.7,
+                    y: this.raquette.y - this.C.BS - 12,
+                    visible: true
+                };
+            },
+
+            /**
+             * Mettre à jour les informations des modules
+             */
+            updateModuleInfo() {
+                const stats = this.modules.getStats();
+                const statsDiv = document.getElementById('moduleStats');
+
+                if (statsDiv) {
+                    statsDiv.innerHTML = `
+                        Graphics: ${stats.graphics}<br>
+                        Systems: ${stats.systems}<br>
+                        Particules: ${stats.totalParticles}
+                    `;
+                }
+            },
+
+            /**
+             * Gestion de l'animation du bateau (version modulaire)
+             */
+            updateBoatAnimation() {
+                if (!this.animationBateau.active) return;
+
+                const tempsActuel = Date.now();
+                const tempsEcoule = tempsActuel - this.animationBateau.tempsDebut;
+
+                switch(this.animationBateau.phase) {
+                    case 'arrivee':
+                        const dureeArrivee = this.config.GAMEPLAY.ANIMATION_BATEAU.DUREE_ARRIVEE;
+                        const progression = Math.min(tempsEcoule / dureeArrivee, 1);
+                        const easeProgress = 1 - Math.pow(1 - progression, 3);
+
+                        this.raquette.x = -this.C.PW + (this.animationBateau.positionCible + this.C.PW) * easeProgress;
+
+                        if (progression >= 1) {
+                            this.raquette.x = this.animationBateau.positionCible;
+                            this.animationBateau.phase = 'arret';
+                            this.animationBateau.tempsDebut = tempsActuel;
+                            this.showIntroMessage();
+                        }
+                        break;
+
+                    case 'arret':
+                        if (tempsEcoule >= this.animationBateau.dureeArret) {
+                            this.animationBateau.phase = 'depart';
+                            this.animationBateau.tempsDebut = tempsActuel;
+                            this.hideMessage();
+                        }
+                        break;
+
+                    case 'depart':
+                        const dureeDepart = this.config.GAMEPLAY.ANIMATION_BATEAU.DUREE_DEPART;
+                        const progressionDepart = Math.min(tempsEcoule / dureeDepart, 1);
+
+                        this.raquette.x = this.animationBateau.positionCible + (this.C.W + this.C.PW) * progressionDepart;
+
+                        if (progressionDepart >= 1) {
+                            this.animationBateau.active = false;
+                            this.raquette.x = this.C.W/2 - this.C.PW/2;
+                            this.jeu = true;
+                        }
+                        break;
+                }
+
+                // Mettre à jour la position de la balle
+                if (this.animationBateau.active) {
+                    this.balle.x = this.raquette.x + this.C.PW * 0.7;
+                    this.balle.y = this.raquette.y - this.C.BS - 12;
+                }
+            },
+
+            /**
+             * Afficher le message d'introduction
+             */
+            showIntroMessage() {
+                const msg = document.getElementById('message');
+                msg.innerHTML = this.config.MESSAGES_INTRO[0];
+                msg.classList.add('show');
+            },
+
+            /**
+             * Masquer le message
+             */
+            hideMessage() {
+                document.getElementById('message').classList.remove('show');
+            },
+
+            /**
+             * Rendu avec modules graphiques
+             */
+            render() {
+                // Fond dégradé selon le chapitre
+                const gradColors = this.config.COLORS.BACKGROUNDS[`CHAPITRE${this.chapitre}`].gradient;
+                const grad = this.ctx.createLinearGradient(0, 0, 0, this.C.H);
+                gradColors.forEach((color, index) => {
+                    grad.addColorStop(index / (gradColors.length - 1), color);
+                });
+
+                this.ctx.fillStyle = grad;
+                this.ctx.fillRect(0, 0, this.C.W, this.C.H);
+
+                // Utiliser les modules de rendu
+                this.modules.graphics.environment.drawSky(
+                    this.ctx, this.C, this.chapitre, this.brises,
+                    this.config[`CHAPITRE${this.chapitre}`],
+                    { clignotement: false, tempsClignotement: 0 },
+                    this.animationBateau.active
+                );
+
+                this.modules.graphics.environment.drawSea(this.ctx, this.C, this.chapitre);
+
+                this.modules.graphics.boat.render(
+                    this.ctx, this.raquette, this.C, false
+                );
+
+                this.modules.graphics.lantern.render(
+                    this.ctx, this.balle, this.lanterne, this.C,
+                    this.animationBateau.active, this.phaseJeu
+                );
+
+                // Mettre à jour et dessiner les particules
+                this.modules.systems.particles.update(this.animationBateau.active);
+                this.modules.systems.particles.render(this.ctx, this.animationBateau.active);
+
+                // Interface simple
+                this.drawSimpleInterface();
+            },
+
+            /**
+             * Interface simplifiée pour la démo
+             */
+            drawSimpleInterface() {
+                this.ctx.save();
+
+                // Header
+                this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                this.ctx.fillRect(0, 0, this.C.W, 60);
+
+                // Titre
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.font = 'bold 18px sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('👁️ VOIR LA VÉRITÉ - VERSION MODULAIRE 👁️', this.C.W/2, 25);
+
+                // Stats
+                this.ctx.font = '14px sans-serif';
+                this.ctx.textAlign = 'left';
+                this.ctx.fillText(`🕊️ Score: ${this.score}`, 15, 45);
+
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(`Chapitre ${this.chapitre}`, this.C.W/2, 45);
+
+                this.ctx.textAlign = 'right';
+                const coeurs = this.vies > 0 ? '❤️'.repeat(this.vies) : '💔';
+                this.ctx.fillText(coeurs, this.C.W - 15, 45);
+
+                this.ctx.restore();
+            },
+
+            /**
+             * Boucle de jeu principale
+             */
+            gameLoop() {
+                // Mettre à jour l'animation du bateau
+                this.updateBoatAnimation();
+
+                // Mettre à jour les stats des modules
+                this.updateModuleInfo();
+
+                // Rendu
+                this.render();
+
+                // Continuer la boucle
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        };
+
+        // Gestion des événements
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialiser le jeu modulaire
+            GameModular.init();
+
+            // Masquer les infos modules au clic
+            document.getElementById('moduleInfo').addEventListener('click', (e) => {
+                e.target.closest('.module-info').classList.add('hidden');
+            });
+
+            // Contrôles simplifiés
+            const canvas = document.getElementById('gameCanvas');
+
+            canvas.addEventListener('click', () => {
+                // Ajouter des particules au clic pour la démo
+                const rect = canvas.getBoundingClientRect();
+                GameModular.modules.systems.particles.addHeartParticles(
+                    Math.random() * GameModular.C.W,
+                    Math.random() * GameModular.C.H,
+                    GameModular.config.COLORS.HEART_COLORS[Math.floor(Math.random() * GameModular.config.COLORS.HEART_COLORS.length)],
+                    5
+                );
+            });
+
+            // Redimensionnement
+            window.addEventListener('resize', () => {
+                GameModular.setupCanvas();
+                GameModular.C = GameModular.config.RESPONSIVE.calculateConstants(GameModular.size.width, GameModular.size.height);
+                GameModular.initPositions();
+            });
+        });
+
+        // Export global pour débuggage
+        window.GameModular = GameModular;
+    </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "language": "Français",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "Voir la Vérité",
+    "subtitle": "Un voyage à travers l'humanité",
+    "loading": "Chargement...",
+    "start": "Commencer",
+    "continue": "Continuer",
+    "restart": "Recommencer"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Énigmes: {collected}/{total} ({percent}%)",
+    "language": "🌍 Langue"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Voyage — L'aube des doutes",
+      "narrative": "🌟 \"On m'a dit qu'ils étaient tous des monstres...\n✨ On m'a dit tant de mal, tant de malheurs sur eux...\n🔍 Mais moi, j'ai préféré aller voir de mes propres yeux.\""
+    },
+    "phase2": {
+      "title": "Voyage — La lumière",
+      "narrative": "🤔 \"Qui étaient-ils vraiment ?...\nEt j'ai vu...\n\n👨‍👩‍👧‍👦 Un père... une mère... des enfants...\n\n💙 Tous cherchant simplement\nà vivre\nleur meilleure vie...\nComme moi.\""
+    },
+    "phase3": {
+      "title": "Voyage — L'ombre des nuages",
+      "narrative": "🌙 \"Alors, la lune apparut.\n📖 Le ciel s'assombrit comme une page brûlée par le temps.\n🦈 Un aileron fendit les vagues sombres...\n⚡ Des éclairs zébrèrent les nuages gris.\""
+    },
+    "phase4": {
+      "title": "Voyage — Les nuages noirs",
+      "narrative": "⚡ \"Le chapitre 2 commença dans l'obscurité...\n🌊 Les vagues devinrent plus hautes, plus menaçantes.\n💀 Et dans cette obscurité, j'ai vu autre chose...\n👁️ Des regards qui me fixaient depuis les profondeurs.\""
+    },
+    "phase5": {
+      "title": "Voyage — Le silence de l'âme",
+      "narrative": "👁️ \"Dans l'obscurité, une première vision m'apparut...\n🔮 Des formes étranges dansaient dans les ténèbres.\n🌟 Était-ce réel ? Était-ce un rêve ?\n❓ Je ne savais plus faire la différence.\""
+    },
+    "phase6": {
+      "title": "Voyage — La traversée de la nuit",
+      "narrative": "🤷 \"Mais plus j'avançais, plus mes certitudes s'ébranlaient...\n💭 Qui avait raison ? Qui avait tort ?\n🌊 Les vagues emportaient mes convictions.\n🔍 Il me fallait creuser plus profond.\""
+    },
+    "phase7": {
+      "title": "Voyage — L'humanité des cœurs",
+      "narrative": "💡 \"Soudain, une lumière perça les nuages...\n📜 Une vérité partielle se révéla à moi.\n⚖️ Ni tout blanc, ni tout noir...\n🌈 Mais un dégradé de couleurs complexes.\""
+    },
+    "phase8": {
+      "title": "Voyage — La main tendue",
+      "narrative": "📖 \"Ainsi se termina le premier chapitre de mon voyage...\n🎭 Entre les masques et les visages réels.\n🚪 Une porte s'ouvrait vers de nouveaux mystères.\n➡️ Il était temps de continuer l'exploration.\""
+    },
+    "phase9": {
+      "title": "Voyage — L'hospitalité vraie",
+      "narrative": "💭 \"On m'a dit...\nque l'humanité n'existait plus,\nqu'elle s'était perdue dans les guerres et les rancunes.\n🏠 On m'a dit que les hommes n'accueillaient plus personne,\nqu'ils s'enfermaient derrière des murs de fer et de peur.\""
+    },
+    "phase10": {
+      "title": "Voyage — La liberté de l'âme",
+      "narrative": "✋ \"Mais moi, j'ai vu…\nUne main tendue à un étranger.\n😊 Un sourire partagé malgré la faim.\n🚪 Une porte ouverte pour celui qui tremblait dans la nuit.\""
+    },
+    "phase11": {
+      "title": "Voyage — La force partagée",
+      "narrative": "🤝 \"C'est cela, l'hospitalité :\nnon pas donner ce qu'on a de trop,\nmais partager même ce qui manque.\""
+    },
+    "phase12": {
+      "title": "Voyage — L'amour plus fort",
+      "narrative": "🗽 \"On m'a dit que la liberté n'était qu'un mot,\nune illusion que les puissants vendaient aux faibles.\n🏃‍♂️ Mais j'ai vu…\nUn enfant courir pieds nus sous la pluie,\nriant sans chaînes,\n✨ et dans ses rires, j'ai compris que la liberté vit d'abord dans l'âme.\""
+    },
+    "phase13": {
+      "title": "Voyage — La tolérance sagesse",
+      "narrative": "💪 \"On m'a dit que les hommes n'aidaient plus,\nque chacun ne vivait que pour soi.\n🪨 Mais j'ai vu…\nDes inconnus soulever ensemble une pierre trop lourde,\n❤️ et dans cette force partagée, j'ai vu l'amour naître.\""
+    },
+    "phase14": {
+      "title": "Voyage — La diversité trésor",
+      "narrative": "💔 \"On m'a dit que l'amour était fragile,\n💝 mais j'ai vu qu'il est plus fort que la haine,\n🏗️ car il construit quand la haine détruit.\""
+    },
+    "phase15": {
+      "title": "Voyage — Un seul peuple",
+      "narrative": "🤝 \"On m'a dit que la tolérance était une faiblesse,\n🧠 mais j'ai vu qu'elle est une sagesse,\ncelle de reconnaître que nous ne sommes pas tous semblables,\n🌈 et que c'est bien ainsi.\""
+    },
+    "phase16": {
+      "title": "Fin du Voyage — La Vérité Révélée",
+      "narrative": "🌅 \"Ainsi se termine mon premier voyage...\n\n🌈 J'ai vu la diversité comme un trésor,\nl'humanité comme une famille,\net la vérité comme un arc-en-ciel de nuances.\n\n⚓ Mon bateau touche maintenant le rivage...\nMais au loin, dans la brume,\nje vois quelque chose d'étrange...\n\n🧱 Un mur... dans la mer...\""
+    },
+    "phase17": {
+      "title": "Le Mur — Vision",
+      "narrative": "🌊 \"Au loin… je vois un mur.\nUn mur dressé dans la mer comme une cicatrice.\nUn mur qui n'est pas fait de pierres,\nmais de lois, de papiers et de regards fermés.\""
+    },
+    "phase18": {
+      "title": "Le Mur — Prison de la Liberté",
+      "narrative": "⛓️ \"Ce mur est la prison de la liberté des hommes.\nIl sépare ceux qui peuvent courir sans chaînes,\net ceux qu'on enferme dans des frontières invisibles.\""
+    },
+    "phase19": {
+      "title": "Le Mur — Barbelés de Refus",
+      "narrative": "💔 \"Pour les pauvres, il est barbelé de refus,\nfermé comme une porte rouillée.\nIls y frappent de leurs mains nues,\nleurs rêves brisés par le silence des gardiens.\""
+    },
+    "phase20": {
+      "title": "Le Mur — Porte d'Or",
+      "narrative": "💰 \"Pour les riches, il est une porte d'or.\nElle s'ouvre sans effort,\net les laisse circuler comme le vent qui n'a pas de patrie.\""
+    },
+    "phase21": {
+      "title": "Le Mur — Questionnement",
+      "narrative": "❓ \"Alors je me demande…\nLa liberté est-elle vraiment un droit,\nou est-elle devenue un privilège vendu aux plus offrants ?\""
+    },
+    "phase22": {
+      "title": "Le Mur — L'Espérance",
+      "narrative": "🌊 \"Mais dans le cœur des vagues,\nla mer murmure une vérité :\naucun mur n'est éternel.\nCar l'eau finit toujours par user la pierre,\net la liberté, tôt ou tard,\nreprendra son chemin.\""
+    },
+    "phase23": {
+      "title": "Le Mur — Vérité Ultime",
+      "narrative": "🧱 \"Le mur dans la mer ne retient ni les vagues ni les rêves.\nIl s'élève, orgueilleux et vain,\net prive l'humanité de sa liberté.\""
+    }
+  },
+  "intro": {
+    "title": "Voir la Vérité",
+    "subtitle": "Un voyage philosophique",
+    "message": "Partez à la découverte de la vérité sur l'humanité...",
+    "start_button": "Commencer le voyage"
+  }
+}

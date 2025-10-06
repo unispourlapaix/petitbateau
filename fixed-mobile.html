@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>La Quête de Vérité - Mobile Corrigé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #2d3436;
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 4px;
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px 20px;
+        }
+
+        #canvas {
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.8));
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,255,255,0.2);
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 120px);
+        }
+
+        .stats {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 50;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: calc(100vw - 40px);
+            text-align: center;
+            z-index: 200;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+            animation: messageIn 0.3s ease-out;
+        }
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .message-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: #636e72;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .message-button {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .message-button:active {
+            transform: translateY(1px);
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #74b9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+    </style>
+</head>
+<body>
+    <!-- Écran de chargement -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Chargement...</div>
+    </div>
+
+    <!-- En-tête -->
+    <header class="header">
+        <div class="title">La Quête de Vérité</div>
+        <div class="subtitle">Transcendez vos frontières intérieures</div>
+    </header>
+
+    <!-- Statistiques -->
+    <div class="stats">
+        <div class="stat-item">
+            <span>😇</span>
+            <span id="level">Niv. 1</span>
+        </div>
+        <div class="stat-item">
+            <span id="hearts">❤️❤️❤️</span>
+        </div>
+        <div class="stat-item">
+            <span>🏰</span>
+            <span id="progress">0/10</span>
+        </div>
+    </div>
+
+    <!-- Zone de jeu -->
+    <div class="game-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- Messages -->
+    <div id="message" class="message">
+        <div class="message-title" id="messageTitle">Bienvenue</div>
+        <div class="message-text" id="messageText">Prêt pour votre quête ?</div>
+        <button class="message-button" id="messageButton">Commencer</button>
+    </div>
+
+    <script>
+        console.log('🚀 Initialisation de la version mobile corrigée...');
+
+        // Variables globales
+        let gameInstance = null;
+        const elements = {
+            loading: document.getElementById('loading'),
+            canvas: document.getElementById('canvas'),
+            message: document.getElementById('message'),
+            messageTitle: document.getElementById('messageTitle'),
+            messageText: document.getElementById('messageText'),
+            messageButton: document.getElementById('messageButton'),
+            level: document.getElementById('level'),
+            hearts: document.getElementById('hearts'),
+            progress: document.getElementById('progress')
+        };
+
+        // Configuration canvas mobile
+        function setupCanvas() {
+            const canvas = elements.canvas;
+            const maxWidth = window.innerWidth - 40;
+            const maxHeight = window.innerHeight - 140;
+            
+            // Ratio mobile optimisé
+            const aspectRatio = window.innerHeight > window.innerWidth ? 3/4 : 4/3;
+            
+            let width = maxWidth;
+            let height = width / aspectRatio;
+            
+            if (height > maxHeight) {
+                height = maxHeight;
+                width = height * aspectRatio;
+            }
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            
+            // Résolution interne
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            
+            console.log('✅ Canvas configuré:', width + 'x' + height);
+        }
+
+        // Afficher un message
+        function showMessage(title, text, buttonText = 'OK') {
+            elements.messageTitle.textContent = title;
+            elements.messageText.innerHTML = text;
+            elements.messageButton.textContent = buttonText;
+            elements.message.classList.add('show');
+        }
+
+        // Cacher le message
+        function hideMessage() {
+            elements.message.classList.remove('show');
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats(level = 1, hearts = '❤️❤️❤️', progress = '0/10') {
+            elements.level.textContent = `Niv. ${level}`;
+            elements.hearts.textContent = hearts;
+            elements.progress.textContent = progress;
+        }
+
+        // Chargement des modules avec gestion d'erreurs robuste
+        async function loadGame() {
+            try {
+                console.log('📦 Chargement du module principal...');
+                
+                // Import du module avec destructuring correct
+                const { QueteDeVerite } = await import('./js/modules/game.js');
+                console.log('✅ Module game.js chargé', QueteDeVerite);
+                
+                // Créer l'instance de jeu
+                gameInstance = new QueteDeVerite(elements.canvas);
+                console.log('✅ Instance de jeu créée');
+                
+                // Attendre que le jeu soit initialisé
+                await new Promise(resolve => {
+                    const checkInit = () => {
+                        if (gameInstance.gameState && gameInstance.gameState.initialized) {
+                            resolve();
+                        } else {
+                            setTimeout(checkInit, 100);
+                        }
+                    };
+                    checkInit();
+                });
+                
+                console.log('✅ Jeu initialisé');
+                
+                // Démarrer le jeu
+                if (gameInstance.start) {
+                    gameInstance.start();
+                    console.log('✅ Jeu démarré');
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Erreur de chargement:', error);
+                showMessage(
+                    'Erreur de Chargement',
+                    'Impossible de charger le jeu. Vérifiez votre connexion et réessayez.<br><br>Erreur: ' + error.message,
+                    'Réessayer'
+                );
+                return false;
+            }
+        }
+
+        // Gestionnaire de clic sur le bouton de message
+        elements.messageButton.addEventListener('click', async () => {
+            hideMessage();
+            
+            if (!gameInstance) {
+                // Premier clic - démarrer le chargement
+                elements.loading.classList.remove('hidden');
+                
+                const success = await loadGame();
+                
+                elements.loading.classList.add('hidden');
+                
+                if (!success) {
+                    // En cas d'échec, permettre de réessayer
+                    setTimeout(() => {
+                        showMessage(
+                            'Chargement Échoué',
+                            'Le jeu n\'a pas pu se charger. Voulez-vous réessayer ?',
+                            'Réessayer'
+                        );
+                    }, 1000);
+                }
+            } else if (gameInstance.startNewQuest) {
+                // Jeu déjà chargé - nouvelle quête
+                gameInstance.startNewQuest();
+            }
+        });
+
+        // Initialisation
+        async function init() {
+            console.log('🎯 Initialisation...');
+            
+            // Configuration du canvas
+            setupCanvas();
+            
+            // Gestion du redimensionnement
+            window.addEventListener('resize', () => {
+                setupCanvas();
+                if (gameInstance && gameInstance.handleResize) {
+                    gameInstance.handleResize();
+                }
+            });
+            
+            // Cacher le loading et afficher le message de bienvenue
+            setTimeout(() => {
+                elements.loading.classList.add('hidden');
+                showMessage(
+                    'Bienvenue dans votre Quête',
+                    '🏰 Transcendez vos frontières intérieures<br>✨ Libérez votre potentiel spirituel<br>💎 Découvrez la vérité en vous',
+                    'Commencer la Quête'
+                );
+                console.log('✅ Interface initialisée');
+            }, 1000);
+        }
+
+        // Démarrage
+        init();
+
+        // Gestion des erreurs globales
+        window.addEventListener('error', (event) => {
+            console.error('❌ Erreur globale:', event.error);
+            showMessage(
+                'Erreur Technique',
+                'Une erreur technique s\'est produite.<br><br>Détails: ' + event.message,
+                'Recharger'
+            );
+            elements.messageButton.onclick = () => location.reload();
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Promise rejetée:', event.reason);
+        });
+
+        console.log('📱 Version mobile corrigée initialisée');
+    </script>
+</body>
+</html>

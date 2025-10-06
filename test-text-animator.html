@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Text Animator Module</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .demo-box {
+            border: 2px solid #64ffda;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #64ffda;
+            border: none;
+            color: black;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #4ecdc4;
+        }
+
+        .example-code {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            border-left: 4px solid #64ffda;
+        }
+
+        h1, h2 {
+            color: #64ffda;
+            text-align: center;
+        }
+
+        h3 {
+            color: #ffa500;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 TextAnimator Module - Démo</h1>
+
+        <div class="example-code">
+            // Utilisation simple :<br>
+            const anim = new TextAnimator('monDiv');<br>
+            anim.typewriter('Hello Emmanuel !');
+        </div>
+
+        <h3>💻 Animation Typewriter</h3>
+        <div id="demo1" class="demo-box">Cliquez sur "Typewriter" pour voir l'animation...</div>
+
+
+        <h3>🔢 Animation Digital</h3>
+        <div id="demo3" class="demo-box">Cliquez sur "Digital" pour voir l'animation...</div>
+
+        <h3>⚡ Animation Glitch</h3>
+        <div id="demo4" class="demo-box">Cliquez sur "Glitch" pour voir l'animation...</div>
+
+        <h2>🎨 Effets Visuels</h2>
+
+        <h3>🌑 Effet Shadow 3D</h3>
+        <div id="demo5" class="demo-box">Cliquez sur "Shadow 3D" pour voir l'effet...</div>
+
+        <h3>💡 Effet Neon</h3>
+        <div id="demo6" class="demo-box">Cliquez sur "Neon" pour voir l'effet...</div>
+
+        <h3>🏔️ Effet Emboss</h3>
+        <div id="demo7" class="demo-box">Cliquez sur "Emboss" pour voir l'effet...</div>
+
+        <h3>⭕ Effet Outline</h3>
+        <div id="demo8" class="demo-box">Cliquez sur "Outline" pour voir l'effet...</div>
+
+        <h3>🔥 Effet Fire</h3>
+        <div id="demo9" class="demo-box">Cliquez sur "Fire" pour voir l'effet...</div>
+
+        <h3>❄️ Effet Ice</h3>
+        <div id="demo10" class="demo-box">Cliquez sur "Ice" pour voir l'effet...</div>
+
+        <div class="controls">
+            <h4>🎬 Animations</h4>
+            <button onclick="testTypewriter()">🎬 Typewriter</button>
+            <button onclick="testDigital()">🔢 Digital</button>
+            <button onclick="testGlitch()">⚡ Glitch</button>
+
+            <h4>🎨 Effets Visuels</h4>
+            <button onclick="testShadow3D()">🌑 Shadow 3D</button>
+            <button onclick="testNeon()">💡 Neon</button>
+            <button onclick="testEmboss()">🏔️ Emboss</button>
+            <button onclick="testOutline()">⭕ Outline</button>
+            <button onclick="testFire()">🔥 Fire</button>
+            <button onclick="testIce()">❄️ Ice</button>
+
+            <h4>🎯 Actions</h4>
+            <button onclick="testAll()">🎯 Tout tester</button>
+            <button onclick="stopAll()">⏹️ Arrêter</button>
+        </div>
+
+        <h3>📝 Exemples d'utilisation</h3>
+        <div class="example-code">
+            // Typewriter avec callback<br>
+            const anim1 = new TextAnimator('demo1');<br>
+            anim1.typewriter('Hello Emmanuel !', 50, () => {<br>
+            &nbsp;&nbsp;console.log('Animation terminée!');<br>
+            });
+        </div>
+
+        <div class="example-code">
+            // Animation digital avec couleurs<br>
+            const anim2 = new TextAnimator('demo3');<br>
+            anim2.setColors('#00cc44', '#64ffda')<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.digital('Texte avec couleurs personnalisées', 40);
+        </div>
+
+        <div class="example-code">
+            // Support HTML<br>
+            const anim3 = new TextAnimator('demo3');<br>
+            anim3.typewriter('&lt;strong&gt;Texte en gras&lt;/strong&gt;\nAvec saut de ligne');
+        </div>
+    </div>
+
+    <!-- Import du module -->
+    <script src="text-animator.js"></script>
+
+    <script>
+        // Instances pour chaque démo
+        const anim1 = new TextAnimator('demo1');
+        const anim3 = new TextAnimator('demo3');
+        const anim4 = new TextAnimator('demo4');
+        const anim5 = new TextAnimator('demo5');
+        const anim6 = new TextAnimator('demo6');
+        const anim7 = new TextAnimator('demo7');
+        const anim8 = new TextAnimator('demo8');
+        const anim9 = new TextAnimator('demo9');
+        const anim10 = new TextAnimator('demo10');
+
+        function testTypewriter() {
+            const texte = '👁️✨ VOIR LA VÉRITÉ ✨👁️\n\n🌅 Hello Emmanuel !\n\n💭 "Ceci est un test de l\'animation typewriter avec support HTML et sauts de ligne.\nChaque caractère apparaît progressivement..."';
+            anim1.typewriter(texte, 50, () => {
+                console.log('Typewriter terminé!');
+            });
+        }
+
+
+        function testDigital() {
+            const texte = '🖥️ MATRIX MODE ACTIVATED\n\nEffet digital/matrix...\nLes caractères se stabilisent progressivement.\n01001000 01100101 01101100 01101100 01101111';
+            anim3.digital(texte, 40, () => {
+                console.log('Digital terminé!');
+            });
+        }
+
+        function testGlitch() {
+            const texte = '⚡ GLITCH EFFECT\n\nSystème corrompu...\nDonnées altérées...\nRestauration en cours...';
+            anim4.glitch(texte, 3000, () => {
+                console.log('Glitch terminé!');
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 🎨 TESTS DES NOUVEAUX EFFETS VISUELS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function testShadow3D() {
+            const texte = '🌑 SHADOW 3D EFFECT\n\nTexte avec ombre 3D\nProfondeur et relief !';
+            anim5.shadow3d(texte, 8, '#333333', () => {
+                console.log('Shadow 3D terminé!');
+            });
+        }
+
+        function testNeon() {
+            const texte = '💡 NEON GLOW\n\nÉclat néon futuriste\nBrillance électrique !';
+            anim6.neon(texte, '#00ffff', 4, () => {
+                console.log('Neon terminé!');
+            });
+        }
+
+        function testEmboss() {
+            const texte = '🏔️ EMBOSS RELIEF\n\nTexte en relief\nEffet gravé dans la pierre !';
+            anim7.emboss(texte, '#ffffff', '#666666', () => {
+                console.log('Emboss terminé!');
+            });
+        }
+
+        function testOutline() {
+            const texte = '⭕ OUTLINE EFFECT\n\nContour épais\nTexte bien délimité !';
+            anim8.outline(texte, '#000000', 3, () => {
+                console.log('Outline terminé!');
+            });
+        }
+
+        function testFire() {
+            const texte = '🔥 FIRE EFFECT\n\nFlammes dansantes\nTexte enflammé !';
+            anim9.fire(texte, 4000, () => {
+                console.log('Fire terminé!');
+            });
+        }
+
+        function testIce() {
+            const texte = '❄️ ICE CRYSTAL\n\nGlace scintillante\nFroid cristallin !';
+            anim10.ice(texte, 3000, () => {
+                console.log('Ice terminé!');
+            });
+        }
+
+        function testAll() {
+            // Animations d'abord
+            setTimeout(() => testTypewriter(), 0);
+            setTimeout(() => testDigital(), 2000);
+            setTimeout(() => testGlitch(), 4000);
+
+            // Puis effets visuels
+            setTimeout(() => testShadow3D(), 7000);
+            setTimeout(() => testNeon(), 8000);
+            setTimeout(() => testEmboss(), 9000);
+            setTimeout(() => testOutline(), 10000);
+            setTimeout(() => testFire(), 11000);
+            setTimeout(() => testIce(), 15000);
+        }
+
+        function stopAll() {
+            // Arrêter toutes les animations
+            anim1.stop();
+            anim3.stop();
+            anim4.stop();
+            anim5.stop();
+            anim6.stop();
+            anim7.stop();
+            anim8.stop();
+            anim9.stop();
+            anim10.stop();
+
+            // Nettoyer les contenus
+            document.getElementById('demo1').innerHTML = 'Animation arrêtée.';
+            document.getElementById('demo3').innerHTML = 'Animation arrêtée.';
+            document.getElementById('demo4').innerHTML = 'Animation arrêtée.';
+            document.getElementById('demo5').innerHTML = 'Effet arrêté.';
+            document.getElementById('demo6').innerHTML = 'Effet arrêté.';
+            document.getElementById('demo7').innerHTML = 'Effet arrêté.';
+            document.getElementById('demo8').innerHTML = 'Effet arrêté.';
+            document.getElementById('demo9').innerHTML = 'Effet arrêté.';
+            document.getElementById('demo10').innerHTML = 'Effet arrêté.';
+        }
+
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            console.log('TextAnimator module chargé!');
+            setTimeout(() => {
+                testTypewriter();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

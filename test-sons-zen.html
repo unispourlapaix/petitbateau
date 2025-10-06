@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧘 Sons de Relaxation Zen</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-control input {
+            width: 150px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .category {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .category h2 {
+            margin-top: 0;
+            color: #667eea;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .sound-btn {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .sound-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧘 Sons de Relaxation Zen</h1>
+    <p class="subtitle">Petits bruits agréables pour se détendre</p>
+
+    <div class="controls">
+        <div class="volume-control">
+            <label for="volume">🔊 Volume:</label>
+            <input type="range" id="volume" min="0" max="100" value="65">
+            <span id="volumeValue">65%</span>
+        </div>
+    </div>
+
+    <div class="categories">
+        <div class="category">
+            <h2>🌊 Eau Douce</h2>
+            <button class="sound-btn" onclick="playGoutteEau()">💧 Goutte d'Eau</button>
+            <button class="sound-btn" onclick="playRuisselet()">🏞️ Ruisselet</button>
+            <button class="sound-btn" onclick="playPluieDouce()">🌧️ Pluie Douce</button>
+            <button class="sound-btn" onclick="playSourceEau()">⛲ Source d'Eau</button>
+        </div>
+
+        <div class="category">
+            <h2>🎐 Carillons & Tintements</h2>
+            <button class="sound-btn" onclick="playCarillonVent()">🎐 Carillon du Vent</button>
+            <button class="sound-btn" onclick="playBolTibetain()">🔔 Bol Tibétain</button>
+            <button class="sound-btn" onclick="playClochetteArgent()">🔔 Clochette d'Argent</button>
+            <button class="sound-btn" onclick="playGongDoux()">🌙 Gong Doux</button>
+        </div>
+
+        <div class="category">
+            <h2>🍃 Nature Zen</h2>
+            <button class="sound-btn" onclick="playVentFeuilles()">🍃 Vent dans les Feuilles</button>
+            <button class="sound-btn" onclick="playOiseauCalme()">🐦 Oiseau Calme</button>
+            <button class="sound-btn" onclick="playGrillonSoir()">🦗 Grillon du Soir</button>
+            <button class="sound-btn" onclick="playBambouCreak()">🎋 Bambou qui Craque</button>
+        </div>
+
+        <div class="category">
+            <h2>✨ Sons Magiques</h2>
+            <button class="sound-btn" onclick="playRespiration()">🌬️ Respiration Profonde</button>
+            <button class="sound-btn" onclick="playOm()">🕉️ Om Harmonique</button>
+            <button class="sound-btn" onclick="playCristalResonance()">💎 Cristal Résonant</button>
+            <button class="sound-btn" onclick="playPoussiereDEtoiles()">⭐ Poussière d'Étoiles</button>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let masterVolume = 0.65;
+
+        // Mise à jour du volume
+        document.getElementById('volume').addEventListener('input', (e) => {
+            masterVolume = e.target.value / 100;
+            document.getElementById('volumeValue').textContent = e.target.value + '%';
+        });
+
+        // ===== EAU DOUCE =====
+
+        function playGoutteEau() {
+            // Une goutte d'eau qui tombe et fait des ondes
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.3, audioCtx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+
+            // Ondulations (3 petites vagues)
+            for (let i = 1; i <= 3; i++) {
+                setTimeout(() => {
+                    const ripple = audioCtx.createOscillator();
+                    const rippleGain = audioCtx.createGain();
+
+                    ripple.frequency.value = 600 - (i * 100);
+                    rippleGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    rippleGain.gain.linearRampToValueAtTime(masterVolume * (0.1 / i), audioCtx.currentTime + 0.02);
+                    rippleGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+                    ripple.connect(rippleGain);
+                    rippleGain.connect(audioCtx.destination);
+
+                    ripple.start();
+                    ripple.stop(audioCtx.currentTime + 0.15);
+                }, i * 80);
+            }
+        }
+
+        function playRuisselet() {
+            // Petit ruisseau qui coule - bruit doux avec variations
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const wave = Math.sin(t * 3) * 0.3 + 0.7;
+                data[i] = (Math.random() * 2 - 1) * wave * 0.4;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(1500, audioCtx.currentTime + 1);
+            filter.frequency.linearRampToValueAtTime(1000, audioCtx.currentTime + 2);
+            filter.Q.value = 2;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.3);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.12, audioCtx.currentTime + 1.7);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        function playPluieDouce() {
+            // Pluie légère et apaisante
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.5;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 2000;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.2, audioCtx.currentTime + 0.5);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.18, audioCtx.currentTime + 2.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        function playSourceEau() {
+            // Source d'eau avec bulles douces
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2.5, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const modulation = Math.sin(t * 8) * 0.4 + 0.6;
+                data[i] = (Math.random() * 2 - 1) * modulation * 0.3;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1800;
+            filter.Q.value = 3;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.18, audioCtx.currentTime + 0.4);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // ===== CARILLONS & TINTEMENTS =====
+
+        function playCarillonVent() {
+            // 5 tubes de carillon avec harmoniques
+            const notes = [523, 659, 784, 880, 1047]; // C, E, G, A, C
+
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    // Fondamentale
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.frequency.value = freq;
+                    osc.type = 'sine';
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 2);
+
+                    // Harmonique
+                    const harm = audioCtx.createOscillator();
+                    const harmGain = audioCtx.createGain();
+
+                    harm.frequency.value = freq * 2;
+                    harmGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    harmGain.gain.linearRampToValueAtTime(masterVolume * 0.05, audioCtx.currentTime + 0.02);
+                    harmGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+                    harm.connect(harmGain);
+                    harmGain.connect(audioCtx.destination);
+
+                    harm.start();
+                    harm.stop(audioCtx.currentTime + 1.5);
+                }, i * 150);
+            });
+        }
+
+        function playBolTibetain() {
+            // Son profond et résonant d'un bol chantant
+            const fundamental = 196; // G3
+
+            // Note fondamentale
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+
+            osc1.frequency.value = fundamental;
+            gain1.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain1.gain.linearRampToValueAtTime(masterVolume * 0.25, audioCtx.currentTime + 0.1);
+            gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+
+            osc1.start();
+            osc1.stop(audioCtx.currentTime + 4);
+
+            // Harmoniques
+            [2, 3, 4, 5].forEach((mult, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.frequency.value = fundamental * mult;
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(masterVolume * (0.1 / mult), audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (4 - i * 0.3));
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + (4 - i * 0.3));
+            });
+        }
+
+        function playClochetteArgent() {
+            // Clochette cristalline avec battant
+            const freq = 2000;
+
+            // Battant (impact)
+            const impact = audioCtx.createOscillator();
+            const impactGain = audioCtx.createGain();
+
+            impact.frequency.value = 150;
+            impactGain.gain.setValueAtTime(masterVolume * 0.1, audioCtx.currentTime);
+            impactGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+            impact.connect(impactGain);
+            impactGain.connect(audioCtx.destination);
+
+            impact.start();
+            impact.stop(audioCtx.currentTime + 0.05);
+
+            // Cloche principale
+            setTimeout(() => {
+                for (let i = 1; i <= 4; i++) {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.frequency.value = freq * i;
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * (0.2 / i), audioCtx.currentTime + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (1.5 / i));
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + (1.5 / i));
+                }
+            }, 20);
+        }
+
+        function playGongDoux() {
+            // Gong doux avec vibration lente
+            const base = 100;
+
+            // Note grave
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const vibrato = audioCtx.createOscillator();
+            const vibratoGain = audioCtx.createGain();
+
+            osc.frequency.value = base;
+            vibrato.frequency.value = 3; // 3Hz vibrato
+            vibratoGain.gain.value = 8;
+
+            vibrato.connect(vibratoGain);
+            vibratoGain.connect(osc.frequency);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.3, audioCtx.currentTime + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 5);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            vibrato.start();
+            osc.stop(audioCtx.currentTime + 5);
+            vibrato.stop(audioCtx.currentTime + 5);
+        }
+
+        // ===== NATURE ZEN =====
+
+        function playVentFeuilles() {
+            // Vent doux à travers les feuilles
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / audioCtx.sampleRate;
+                const wave = Math.sin(t * 2) * 0.3 + 0.7;
+                data[i] = (Math.random() * 2 - 1) * wave * 0.3;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 1.5);
+            filter.frequency.linearRampToValueAtTime(700, audioCtx.currentTime + 3);
+            filter.Q.value = 2;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.2, audioCtx.currentTime + 0.5);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 2.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        function playOiseauCalme() {
+            // Oiseau qui chante doucement - 3 notes descendantes
+            const notes = [1800, 1600, 1400];
+
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(freq * 1.1, audioCtx.currentTime + 0.08);
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }, i * 180);
+            });
+        }
+
+        function playGrillonSoir() {
+            // Grillon qui chante - crissement rythmé
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.frequency.value = 4000 + Math.random() * 200;
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.08, audioCtx.currentTime + 0.01);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.06);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.06);
+                }, i * 80);
+            }
+        }
+
+        function playBambouCreak() {
+            // Bambou qui craque sous le vent
+            const noise = audioCtx.createBufferSource();
+            const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.8, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < buffer.length; i++) {
+                const t = i / buffer.length;
+                const creak = Math.sin(t * 40) * (1 - t);
+                data[i] = (Math.random() * 2 - 1) * creak * 0.3;
+            }
+
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 600;
+            filter.Q.value = 5;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(masterVolume * 0.2, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        // ===== SONS MAGIQUES =====
+
+        function playRespiration() {
+            // Respiration profonde - inspiration et expiration
+
+            // Inspiration (montée)
+            const inhale = audioCtx.createBufferSource();
+            const inhaleBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+            const inhaleData = inhaleBuffer.getChannelData(0);
+
+            for (let i = 0; i < inhaleBuffer.length; i++) {
+                const t = i / inhaleBuffer.length;
+                const envelope = Math.sin(t * Math.PI);
+                inhaleData[i] = (Math.random() * 2 - 1) * envelope * 0.15;
+            }
+
+            inhale.buffer = inhaleBuffer;
+
+            const inhaleFilter = audioCtx.createBiquadFilter();
+            inhaleFilter.type = 'lowpass';
+            inhaleFilter.frequency.setValueAtTime(200, audioCtx.currentTime);
+            inhaleFilter.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 3);
+
+            const inhaleGain = audioCtx.createGain();
+            inhaleGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            inhaleGain.gain.linearRampToValueAtTime(masterVolume * 0.25, audioCtx.currentTime + 1.5);
+            inhaleGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+            inhale.connect(inhaleFilter);
+            inhaleFilter.connect(inhaleGain);
+            inhaleGain.connect(audioCtx.destination);
+
+            inhale.start();
+
+            // Expiration (descente)
+            setTimeout(() => {
+                const exhale = audioCtx.createBufferSource();
+                const exhaleBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 4, audioCtx.sampleRate);
+                const exhaleData = exhaleBuffer.getChannelData(0);
+
+                for (let i = 0; i < exhaleBuffer.length; i++) {
+                    const t = i / exhaleBuffer.length;
+                    const envelope = Math.sin(t * Math.PI);
+                    exhaleData[i] = (Math.random() * 2 - 1) * envelope * 0.12;
+                }
+
+                exhale.buffer = exhaleBuffer;
+
+                const exhaleFilter = audioCtx.createBiquadFilter();
+                exhaleFilter.type = 'lowpass';
+                exhaleFilter.frequency.setValueAtTime(400, audioCtx.currentTime);
+                exhaleFilter.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 4);
+
+                const exhaleGain = audioCtx.createGain();
+                exhaleGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                exhaleGain.gain.linearRampToValueAtTime(masterVolume * 0.2, audioCtx.currentTime + 2);
+                exhaleGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+                exhale.connect(exhaleFilter);
+                exhaleFilter.connect(exhaleGain);
+                exhaleGain.connect(audioCtx.destination);
+
+                exhale.start();
+            }, 3200);
+        }
+
+        function playOm() {
+            // Om sacré - harmoniques multiples
+            const fundamental = 110; // A2
+
+            // Fondamentale et harmoniques
+            [1, 2, 3, 4, 5, 6].forEach((mult, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.frequency.value = fundamental * mult;
+                osc.type = 'sine';
+
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(masterVolume * (0.25 / mult), audioCtx.currentTime + 0.3);
+                gain.gain.linearRampToValueAtTime(masterVolume * (0.2 / mult), audioCtx.currentTime + 4);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 6);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 6);
+            });
+        }
+
+        function playCristalResonance() {
+            // Cristal qui résonne - harmoniques pures
+            const base = 432; // Fréquence sacrée
+
+            [1, 1.5, 2, 2.5, 3].forEach((mult, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.frequency.value = base * mult;
+                    osc.type = 'sine';
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * (0.15 / (i + 1)), audioCtx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 3);
+                }, i * 200);
+            });
+        }
+
+        function playPoussiereDEtoiles() {
+            // Pluie de micro-sons scintillants
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    const freq = 2000 + Math.random() * 2000;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 1.3, audioCtx.currentTime + 0.1);
+
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(masterVolume * 0.08, audioCtx.currentTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }, i * 120);
+            }
+        }
+    </script>
+</body>
+</html>

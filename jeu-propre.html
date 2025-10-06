@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👁️ Voir la Vérité 👁️</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            touch-action: none; user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 25%, #f1f3f4 75%, #e9ecef 100%);
+            min-height: 100vh; width: 100%; margin: 0; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #2c3e50; overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 30%, #ffffff 70%, #f1f3f4 100%);
+            border: none; border-radius: 0;
+            image-rendering: crisp-edges; image-rendering: pixelated;
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            aspect-ratio: 9/16;
+        }
+
+        .error-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,0,0,0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 80%;
+            z-index: 1000;
+            display: none;
+        }
+
+        .debug-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 150;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="450" height="800"></canvas>
+        <div class="error-display" id="errorDisplay"></div>
+        <div class="debug-info" id="debugInfo">Chargement...</div>
+    </div>
+
+    <script type="module">
+        // Gestionnaire d'erreurs global
+        window.addEventListener('error', (e) => {
+            const errorDisplay = document.getElementById('errorDisplay');
+            errorDisplay.style.display = 'block';
+            errorDisplay.innerHTML = `
+                <strong>ERREUR:</strong><br>
+                ${e.message}<br>
+                <strong>Fichier:</strong> ${e.filename}<br>
+                <strong>Ligne:</strong> ${e.lineno}<br>
+                <strong>Stack:</strong><br>
+                <pre>${e.error?.stack || 'Pas de stack trace'}</pre>
+            `;
+        });
+
+        const debugInfo = document.getElementById('debugInfo');
+
+        async function testModules() {
+            try {
+                debugInfo.innerHTML = 'Test 1: Import du ModuleManager...';
+
+                // Test import
+                const timestamp = Date.now();
+                const moduleImport = await import(`./modules/index.js?v=${timestamp}`);
+                const ModuleManager = moduleImport.default;
+
+                debugInfo.innerHTML = 'Test 2: Vérification des modules...';
+
+                // Test ModuleManager
+                if (!ModuleManager) {
+                    throw new Error('ModuleManager non trouvé');
+                }
+
+                // Test config
+                const config = ModuleManager.config;
+                if (!config) {
+                    throw new Error('Config non trouvée');
+                }
+
+                debugInfo.innerHTML = 'Test 3: Vérification de la config...';
+
+                // Test des propriétés de config
+                const tests = [
+                    { prop: 'CHAPITRE1', value: config.CHAPITRE1 },
+                    { prop: 'CHAPITRE2', value: config.CHAPITRE2 },
+                    { prop: 'MESSAGES_INTRO', value: config.MESSAGES_INTRO },
+                    { prop: 'COLORS', value: config.COLORS },
+                    { prop: 'GAMEPLAY', value: config.GAMEPLAY },
+                    { prop: 'RESPONSIVE', value: config.RESPONSIVE }
+                ];
+
+                let results = '';
+                tests.forEach(test => {
+                    const status = test.value ? '✅' : '❌';
+                    results += `${status} ${test.prop}<br>`;
+                });
+
+                debugInfo.innerHTML = 'Test 4: Test des constantes responsives...';
+
+                // Test des constantes responsives
+                if (config.RESPONSIVE && config.RESPONSIVE.calculateConstants) {
+                    const C = config.RESPONSIVE.calculateConstants(800, 600);
+                    results += `<br>Constantes calculées:<br>`;
+                    Object.keys(C).forEach(key => {
+                        results += `${key}: ${C[key]}<br>`;
+                    });
+                } else {
+                    results += `❌ RESPONSIVE.calculateConstants manquant<br>`;
+                }
+
+                debugInfo.innerHTML = 'Test 5: Test des modules graphiques...';
+
+                // Test des modules graphiques
+                const graphics = ModuleManager.graphics;
+                if (graphics) {
+                    results += `<br>Modules graphiques:<br>`;
+                    Object.keys(graphics).forEach(key => {
+                        const status = graphics[key] ? '✅' : '❌';
+                        results += `${status} ${key}<br>`;
+                    });
+                } else {
+                    results += `❌ Modules graphiques manquants<br>`;
+                }
+
+                debugInfo.innerHTML = results + '<br>✅ Tous les tests terminés !';
+
+            } catch (error) {
+                debugInfo.innerHTML = `❌ ERREUR: ${error.message}<br><br>Stack:<br><pre>${error.stack}</pre>`;
+            }
+        }
+
+        // Lancer les tests
+        testModules();
+    </script>
+</body>
+</html>

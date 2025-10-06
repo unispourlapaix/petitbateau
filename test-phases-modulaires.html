@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👁️ Voir la Vérité - Phases Modulaires 👁️</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            touch-action: none; user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 25%, #f1f3f4 75%, #e9ecef 100%);
+            min-height: 100vh; width: 100%; margin: 0; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #2c3e50; overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 30%, #ffffff 70%, #f1f3f4 100%);
+            border: none; border-radius: 0;
+            image-rendering: crisp-edges; image-rendering: pixelated;
+        }
+
+        .message {
+            position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%);
+            background: transparent;
+            backdrop-filter: none; -webkit-backdrop-filter: none;
+            border: none;
+            border-radius: 0; padding: 25px 30px;
+            box-shadow: none;
+            max-width: calc(100% - 20px); width: 95%; text-align: center; z-index: 200;
+            display: none; font-size: clamp(14px, 3.5vw, 16px); color: #ffffff;
+            line-height: 1.4; box-sizing: border-box; font-weight: bold;
+            text-shadow: 0 0 10px #4da6ff, 0 0 20px #4da6ff, 0 0 30px #4da6ff;
+        }
+
+        .message.narratif {
+            bottom: 80px; top: auto; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: none;
+            background: linear-gradient(145deg, rgba(0,0,0,0.3), rgba(20,20,20,0.25));
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 15px; padding: 20px 25px;
+            color: #ffffff; font-size: clamp(13px, 3vw, 15px);
+            text-align: left; line-height: 1.5;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @media (min-width: 500px) {
+            .message {
+                max-width: 420px; width: auto;
+                font-size: clamp(14px, 1.8vw, 16px);
+                padding: 20px 25px;
+            }
+
+            .message.narratif {
+                max-width: 380px; width: auto;
+                font-size: 14px; padding: 18px 22px;
+            }
+        }
+
+        .message-button {
+            background: linear-gradient(145deg, #4f46e5, #7c3aed);
+            border: none; border-radius: 18px; padding: 15px 30px; margin-top: 25px;
+            color: white; font-size: clamp(16px, 4vw, 18px); font-weight: 700; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s ease; display: inline-block;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .message-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.5);
+            background: linear-gradient(145deg, #6366f1, #8b5cf6);
+        }
+
+        .message-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
+        }
+
+        @media (min-width: 500px) {
+            .message-button {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+        }
+
+        /* Contrôles de navigation pour les phases */
+        .phase-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 300;
+            display: flex;
+            gap: 10px;
+        }
+
+        .phase-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #4f46e5;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #4f46e5;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .phase-button:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .phase-button.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        /* Indicateur de phase actuelle */
+        .phase-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Message d'affichage -->
+        <div class="message"></div>
+
+        <!-- Contrôles de navigation -->
+        <div class="phase-controls">
+            <button class="phase-button active" onclick="goToPhase(0)">Phase 1</button>
+            <button class="phase-button" onclick="goToPhase(1)">Phase 2</button>
+            <button class="phase-button" onclick="goToPhase(2)">Phase 3</button>
+        </div>
+
+        <!-- Indicateur de phase -->
+        <div class="phase-indicator">
+            Phase <span id="currentPhaseNumber">1</span>
+        </div>
+    </div>
+
+    <!-- Chargement des modules -->
+    <script src="modules/phase1-intro.js"></script>
+    <script src="modules/phase2-exploration.js"></script>
+    <script src="modules/phase3-revelation.js"></script>
+    <script src="modules/game-manager.js"></script>
+
+    <script>
+        // Variables globales
+        let gameManager;
+
+        // Fonction d'initialisation
+        function initGame() {
+            console.log('Initialisation du jeu avec phases modulaires');
+
+            try {
+                gameManager = new GameManager();
+
+                if (gameManager.init('gameCanvas')) {
+                    gameManager.start();
+                    window.gameManager = gameManager; // Pour les contrôles externes
+                    console.log('Jeu initialisé avec succès');
+                } else {
+                    console.error('Échec de l\'initialisation du jeu');
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation:', error);
+            }
+        }
+
+        // Fonction pour naviguer entre les phases
+        function goToPhase(phaseIndex) {
+            if (gameManager) {
+                gameManager.goToPhase(phaseIndex);
+                updatePhaseControls(phaseIndex);
+            }
+        }
+
+        // Mise à jour des contrôles visuels
+        function updatePhaseControls(activePhase) {
+            // Mettre à jour les boutons
+            const buttons = document.querySelectorAll('.phase-button');
+            buttons.forEach((button, index) => {
+                if (index === activePhase) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Mettre à jour l'indicateur
+            const indicator = document.getElementById('currentPhaseNumber');
+            if (indicator) {
+                indicator.textContent = activePhase + 1;
+            }
+        }
+
+        // Fonctions exposées globalement pour les modules
+        window.goToPhase = goToPhase;
+        window.updatePhaseControls = updatePhaseControls;
+
+        // Gestion des événements de navigation clavier
+        document.addEventListener('keydown', (e) => {
+            if (!gameManager) return;
+
+            switch(e.key) {
+                case '1':
+                    goToPhase(0);
+                    break;
+                case '2':
+                    goToPhase(1);
+                    break;
+                case '3':
+                    goToPhase(2);
+                    break;
+                case 'ArrowLeft':
+                    gameManager.previousPhase();
+                    updatePhaseControls(gameManager.getCurrentPhase());
+                    break;
+                case 'ArrowRight':
+                    gameManager.nextPhase();
+                    updatePhaseControls(gameManager.getCurrentPhase());
+                    break;
+            }
+        });
+
+        // Démarrage automatique quand la page est chargée
+        document.addEventListener('DOMContentLoaded', initGame);
+
+        // Gestion du redimensionnement
+        window.addEventListener('resize', () => {
+            if (gameManager && gameManager.canvas) {
+                // Le redimensionnement est géré dans GameManager
+                console.log('Fenêtre redimensionnée');
+            }
+        });
+
+        // Nettoyage avant fermeture
+        window.addEventListener('beforeunload', () => {
+            if (gameManager) {
+                gameManager.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌧️ Sons de Pluie</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4A5568 0%, #2D3748 50%, #1A202C 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .volume-control input {
+            width: 150px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .category {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .category h2 {
+            margin-top: 0;
+            color: #63B3ED;
+            font-size: 1.3em;
+            border-bottom: 2px solid #63B3ED;
+            padding-bottom: 10px;
+        }
+
+        .sound-btn {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.5);
+        }
+
+        .sound-btn:active {
+            transform: translateY(0);
+        }
+
+        .sound-btn.active {
+            background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.5);
+        }
+
+        .stop-all {
+            background: linear-gradient(135deg, #F56565 0%, #E53E3E 100%);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌧️ Sons de Pluie</h1>
+    <p class="subtitle">Bruits de pluie longs et apaisants</p>
+
+    <div class="controls">
+        <div class="volume-control">
+            <label for="volume">🔊 Volume:</label>
+            <input type="range" id="volume" min="0" max="100" value="60">
+            <span id="volumeValue">60%</span>
+        </div>
+    </div>
+
+    <div class="categories">
+        <div class="category">
+            <h2>☔ Pluie Légère</h2>
+            <button class="sound-btn" onclick="togglePluieDouce(this)">💧 Pluie Douce (boucle)</button>
+            <button class="sound-btn" onclick="toggleBruine(this)">🌫️ Bruine Fine (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieFeuilles(this)">🍃 Pluie sur Feuilles (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieVitres(this)">🪟 Pluie sur Vitres (boucle)</button>
+        </div>
+
+        <div class="category">
+            <h2>🌧️ Pluie Moyenne</h2>
+            <button class="sound-btn" onclick="togglePluieReguliere(this)">🌧️ Pluie Régulière (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieForet(this)">🌲 Pluie en Forêt (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieToit(this)">🏠 Pluie sur Toit (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieNuit(this)">🌙 Pluie de Nuit (boucle)</button>
+        </div>
+
+        <div class="category">
+            <h2>⛈️ Pluie Forte</h2>
+            <button class="sound-btn" onclick="togglePluieForte(this)">⛈️ Pluie Battante (boucle)</button>
+            <button class="sound-btn" onclick="toggleAverse(this)">🌊 Averse Intense (boucle)</button>
+            <button class="sound-btn" onclick="toggleOrage(this)">⚡ Orage avec Tonnerre (boucle)</button>
+            <button class="sound-btn" onclick="toggleTempete(this)">🌪️ Tempête (boucle)</button>
+        </div>
+
+        <div class="category">
+            <h2>🎵 Variations Spéciales</h2>
+            <button class="sound-btn" onclick="togglePluieGouttiere(this)">💦 Pluie + Gouttière (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieVent(this)">🌬️ Pluie + Vent (boucle)</button>
+            <button class="sound-btn" onclick="togglePluieOiseaux(this)">🐦 Pluie + Oiseaux (boucle)</button>
+            <button class="sound-btn stop-all" onclick="stopAll()">⏹️ Arrêter Tous les Sons</button>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let masterVolume = 0.6;
+
+        // Stockage des sources actives
+        const activeSounds = new Map();
+
+        // Mise à jour du volume
+        document.getElementById('volume').addEventListener('input', (e) => {
+            masterVolume = e.target.value / 100;
+            document.getElementById('volumeValue').textContent = e.target.value + '%';
+
+            // Mettre à jour le volume de tous les sons actifs
+            activeSounds.forEach((sound, id) => {
+                if (sound.gainNode) {
+                    sound.gainNode.gain.value = masterVolume * sound.baseVolume;
+                }
+            });
+        });
+
+        function createRainNoise(duration, density = 1, lowFreq = 2000, highFreq = 8000) {
+            const bufferSize = audioCtx.sampleRate * duration;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                if (Math.random() < density) {
+                    data[i] = (Math.random() * 2 - 1) * 0.3;
+                } else {
+                    data[i] = 0;
+                }
+            }
+
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = (lowFreq + highFreq) / 2;
+            filter.Q.value = 1;
+
+            source.connect(filter);
+            return { source, filter };
+        }
+
+        function toggleSound(id, createFn, button, baseVolume = 0.3) {
+            if (activeSounds.has(id)) {
+                // Arrêter le son
+                const sound = activeSounds.get(id);
+                sound.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                setTimeout(() => {
+                    sound.sources.forEach(src => src.stop());
+                    activeSounds.delete(id);
+                }, 500);
+                button.classList.remove('active');
+            } else {
+                // Démarrer le son
+                const sound = createFn();
+                sound.baseVolume = baseVolume;
+                activeSounds.set(id, sound);
+                button.classList.add('active');
+            }
+        }
+
+        function stopAll() {
+            activeSounds.forEach((sound, id) => {
+                sound.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                setTimeout(() => {
+                    sound.sources.forEach(src => src.stop());
+                }, 500);
+            });
+            activeSounds.clear();
+            document.querySelectorAll('.sound-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // ===== PLUIE LÉGÈRE =====
+
+        function togglePluieDouce(btn) {
+            toggleSound('pluieDouce', () => {
+                const { source, filter } = createRainNoise(4, 0.15, 3000, 6000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.25, audioCtx.currentTime + 1);
+
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                source.start();
+                return { sources: [source], gainNode, baseVolume: 0.25 };
+            }, btn);
+        }
+
+        function toggleBruine(btn) {
+            toggleSound('bruine', () => {
+                const { source, filter } = createRainNoise(5, 0.08, 4000, 8000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.18, audioCtx.currentTime + 1);
+
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                source.start();
+                return { sources: [source], gainNode, baseVolume: 0.18 };
+            }, btn);
+        }
+
+        function togglePluieFeuilles(btn) {
+            toggleSound('pluieFeuilles', () => {
+                const sources = [];
+
+                // Pluie de base
+                const { source: rain, filter: rainFilter } = createRainNoise(4, 0.12, 2500, 5000);
+                sources.push(rain);
+
+                // Gouttes sur feuilles (basses fréquences)
+                const { source: leaves, filter: leavesFilter } = createRainNoise(3, 0.05, 400, 1200);
+                sources.push(leaves);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.28, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                leavesFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.28 };
+            }, btn);
+        }
+
+        function togglePluieVitres(btn) {
+            toggleSound('pluieVitres', () => {
+                const sources = [];
+
+                // Pluie sur vitre (aigus)
+                const { source: glass, filter: glassFilter } = createRainNoise(3, 0.2, 5000, 9000);
+                sources.push(glass);
+
+                // Ruissellement
+                const { source: stream, filter: streamFilter } = createRainNoise(6, 0.08, 1000, 2000);
+                sources.push(stream);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.3, audioCtx.currentTime + 1);
+
+                glassFilter.connect(gainNode);
+                streamFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.3 };
+            }, btn);
+        }
+
+        // ===== PLUIE MOYENNE =====
+
+        function togglePluieReguliere(btn) {
+            toggleSound('pluieReguliere', () => {
+                const { source, filter } = createRainNoise(4, 0.3, 2000, 7000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.35, audioCtx.currentTime + 1);
+
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                source.start();
+                return { sources: [source], gainNode, baseVolume: 0.35 };
+            }, btn);
+        }
+
+        function togglePluieForet(btn) {
+            toggleSound('pluieForet', () => {
+                const sources = [];
+
+                // Pluie principale
+                const { source: rain, filter: rainFilter } = createRainNoise(5, 0.25, 2000, 6000);
+                sources.push(rain);
+
+                // Gouttes sur feuillage
+                const { source: foliage, filter: foliageFilter } = createRainNoise(4, 0.15, 800, 2500);
+                sources.push(foliage);
+
+                // Ambiance grave
+                const { source: low, filter: lowFilter } = createRainNoise(8, 0.05, 200, 800);
+                sources.push(low);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.4, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                foliageFilter.connect(gainNode);
+                lowFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.4 };
+            }, btn);
+        }
+
+        function togglePluieToit(btn) {
+            toggleSound('pluieToit', () => {
+                const sources = [];
+
+                // Impacts sur toit
+                const { source: roof, filter: roofFilter } = createRainNoise(3, 0.35, 1500, 4000);
+                sources.push(roof);
+
+                // Résonance
+                const osc = audioCtx.createOscillator();
+                osc.frequency.value = 400;
+                osc.type = 'triangle';
+                sources.push(osc);
+
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.value = 0.03;
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.38, audioCtx.currentTime + 1);
+
+                roofFilter.connect(gainNode);
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.38 };
+            }, btn);
+        }
+
+        function togglePluieNuit(btn) {
+            toggleSound('pluieNuit', () => {
+                const sources = [];
+
+                // Pluie principale (plus douce)
+                const { source: rain, filter: rainFilter } = createRainNoise(5, 0.2, 2500, 6000);
+                sources.push(rain);
+
+                // Ambiance nocturne
+                const { source: night, filter: nightFilter } = createRainNoise(10, 0.03, 150, 500);
+                sources.push(night);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.32, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                nightFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.32 };
+            }, btn);
+        }
+
+        // ===== PLUIE FORTE =====
+
+        function togglePluieForte(btn) {
+            toggleSound('pluieForte', () => {
+                const { source, filter } = createRainNoise(3, 0.5, 1500, 8000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.5, audioCtx.currentTime + 1);
+
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                source.start();
+                return { sources: [source], gainNode, baseVolume: 0.5 };
+            }, btn);
+        }
+
+        function toggleAverse(btn) {
+            toggleSound('averse', () => {
+                const sources = [];
+
+                // Pluie très dense
+                const { source: rain, filter: rainFilter } = createRainNoise(2, 0.65, 1000, 9000);
+                sources.push(rain);
+
+                // Basse pour la puissance
+                const osc = audioCtx.createOscillator();
+                osc.frequency.value = 80;
+                osc.type = 'sawtooth';
+                sources.push(osc);
+
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.value = 0.08;
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.55, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.55 };
+            }, btn);
+        }
+
+        function toggleOrage(btn) {
+            toggleSound('orage', () => {
+                const sources = [];
+
+                // Pluie d'orage
+                const { source: rain, filter: rainFilter } = createRainNoise(3, 0.45, 1500, 8000);
+                sources.push(rain);
+
+                // Tonnerre lointain (grondement)
+                const thunder = audioCtx.createOscillator();
+                thunder.frequency.value = 60;
+                thunder.type = 'sawtooth';
+                sources.push(thunder);
+
+                const thunderGain = audioCtx.createGain();
+                thunderGain.gain.value = 0.12;
+
+                // Tonnerre périodique
+                setInterval(() => {
+                    if (activeSounds.has('orage')) {
+                        const burst = audioCtx.createOscillator();
+                        const burstGain = audioCtx.createGain();
+
+                        burst.frequency.setValueAtTime(80, audioCtx.currentTime);
+                        burst.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.5);
+
+                        burstGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                        burstGain.gain.linearRampToValueAtTime(masterVolume * 0.15, audioCtx.currentTime + 0.1);
+                        burstGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+                        burst.connect(burstGain);
+                        burstGain.connect(audioCtx.destination);
+
+                        burst.start();
+                        burst.stop(audioCtx.currentTime + 1.5);
+                    }
+                }, 8000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.48, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                thunder.connect(thunderGain);
+                thunderGain.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.48 };
+            }, btn);
+        }
+
+        function toggleTempete(btn) {
+            toggleSound('tempete', () => {
+                const sources = [];
+
+                // Pluie violente
+                const { source: rain, filter: rainFilter } = createRainNoise(2, 0.7, 1000, 10000);
+                sources.push(rain);
+
+                // Vent fort
+                const { source: wind, filter: windFilter } = createRainNoise(6, 0.3, 200, 1500);
+                sources.push(wind);
+
+                // Grondement
+                const rumble = audioCtx.createOscillator();
+                rumble.frequency.value = 50;
+                rumble.type = 'sawtooth';
+                sources.push(rumble);
+
+                const rumbleGain = audioCtx.createGain();
+                rumbleGain.gain.value = 0.15;
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.6, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                windFilter.connect(gainNode);
+                rumble.connect(rumbleGain);
+                rumbleGain.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.6 };
+            }, btn);
+        }
+
+        // ===== VARIATIONS SPÉCIALES =====
+
+        function togglePluieGouttiere(btn) {
+            toggleSound('pluieGouttiere', () => {
+                const sources = [];
+
+                // Pluie de fond
+                const { source: rain, filter: rainFilter } = createRainNoise(4, 0.3, 2500, 6000);
+                sources.push(rain);
+
+                // Gouttière (gouttes régulières)
+                const dropInterval = setInterval(() => {
+                    if (activeSounds.has('pluieGouttiere')) {
+                        const drop = audioCtx.createOscillator();
+                        const dropGain = audioCtx.createGain();
+
+                        drop.frequency.setValueAtTime(800, audioCtx.currentTime);
+                        drop.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+
+                        dropGain.gain.setValueAtTime(masterVolume * 0.12, audioCtx.currentTime);
+                        dropGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+                        drop.connect(dropGain);
+                        dropGain.connect(audioCtx.destination);
+
+                        drop.start();
+                        drop.stop(audioCtx.currentTime + 0.15);
+                    }
+                }, 400);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.35, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.35 };
+            }, btn);
+        }
+
+        function togglePluieVent(btn) {
+            toggleSound('pluieVent', () => {
+                const sources = [];
+
+                // Pluie
+                const { source: rain, filter: rainFilter } = createRainNoise(4, 0.35, 2000, 7000);
+                sources.push(rain);
+
+                // Vent
+                const { source: wind, filter: windFilter } = createRainNoise(8, 0.2, 300, 1800);
+                sources.push(wind);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.42, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                windFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.42 };
+            }, btn);
+        }
+
+        function togglePluieOiseaux(btn) {
+            toggleSound('pluieOiseaux', () => {
+                const sources = [];
+
+                // Pluie légère
+                const { source: rain, filter: rainFilter } = createRainNoise(5, 0.2, 3000, 6000);
+                sources.push(rain);
+
+                // Oiseaux (sifflement périodique)
+                const birdInterval = setInterval(() => {
+                    if (activeSounds.has('pluieOiseaux') && Math.random() > 0.5) {
+                        const bird = audioCtx.createOscillator();
+                        const birdGain = audioCtx.createGain();
+
+                        const freq = 1800 + Math.random() * 800;
+                        bird.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                        bird.frequency.linearRampToValueAtTime(freq * 1.2, audioCtx.currentTime + 0.1);
+
+                        birdGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                        birdGain.gain.linearRampToValueAtTime(masterVolume * 0.08, audioCtx.currentTime + 0.05);
+                        birdGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+                        bird.connect(birdGain);
+                        birdGain.connect(audioCtx.destination);
+
+                        bird.start();
+                        bird.stop(audioCtx.currentTime + 0.2);
+                    }
+                }, 2000);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolume * 0.3, audioCtx.currentTime + 1);
+
+                rainFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                sources.forEach(s => s.start());
+                return { sources, gainNode, baseVolume: 0.3 };
+            }, btn);
+        }
+    </script>
+</body>
+</html>

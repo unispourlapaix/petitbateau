@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Breaking Life's Walls: Metaphorical Bricks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: pan-y;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 25%, #f1f3f4 75%, #e9ecef 100%);
+            min-height: 100vh;
+            color: #2d3436;
+            /* Suppression des contraintes de largeur pour bord à bord */
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .stats-overlay {
+            position: fixed;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #2d3436;
+            z-index: 100;
+            box-shadow: 
+                0 4px 20px rgba(0,0,0,0.08),
+                0 1px 3px rgba(0,0,0,0.05),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.05);
+            max-width: calc(100vw - 16px);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-section {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            width: 100%;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #canvas {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 30%, #ffffff 70%, #f1f3f4 100%);
+            display: block;
+            position: relative;
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: calc(100vw - 40px);
+            text-align: center;
+            z-index: 200;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+            animation: messageIn 0.4s ease-out;
+        }
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .message-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #2d3436;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: #636e72;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .message-button {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #2d3436;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        /* Mode très petit écran */
+        @media (max-width: 350px) {
+
+        }
+
+        /* Mode desktop */
+        @media (min-width: 500px) {
+            body {
+                max-width: 450px;
+                margin: 0 auto;
+                border-left: 1px solid rgba(255,255,255,0.1);
+                border-right: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            }
+
+            .stats-overlay {
+                left: calc(50vw - 225px + 8px);
+                right: calc(50vw - 225px + 8px);
+                max-width: calc(450px - 16px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Écran de chargement -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Breaking walls...</div>
+    </div>
+
+    <!-- Zone de jeu principale -->
+    <section class="game-section">
+        <div class="canvas-container">
+            <!-- Statistiques flottantes en overlay -->
+            <div class="stats-overlay">
+                <div class="stat-item">
+                    <span>🧱</span>
+                    <span id="level">Level 1</span>
+                </div>
+                <div class="stat-item">
+                    <span id="hearts">💙💙💙</span>
+                </div>
+                <div class="stat-item">
+                    <span>🔨</span>
+                    <span id="progress">0/10</span>
+                </div>
+            </div>
+            <canvas id="canvas"></canvas>
+        </div>
+
+    </section>
+
+    <!-- Messages -->
+    <div id="message" class="message">
+        <div class="message-title" id="messageTitle">Ready to Break Life's Walls?</div>
+        <div class="message-text" id="messageText">Your metaphorical journey awaits...</div>
+        <button class="message-button" id="messageButton">Start Breaking</button>
+    </div>
+
+    <script>
+        console.log('🧱 Initializing: Breaking Life\'s Walls...');
+
+        // Variables globales
+        let gameInstance = null;
+        const elements = {
+            loading: document.getElementById('loading'),
+            canvas: document.getElementById('canvas'),
+            message: document.getElementById('message'),
+            messageTitle: document.getElementById('messageTitle'),
+            messageText: document.getElementById('messageText'),
+            messageButton: document.getElementById('messageButton'),
+            level: document.getElementById('level'),
+            hearts: document.getElementById('hearts'),
+            progress: document.getElementById('progress')
+        };
+
+        // Configuration canvas pixel art format fixe optimal
+        function setupCanvas() {
+            const canvas = elements.canvas;
+
+            // Dimensions de l'écran
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Format pixel art optimal 16:9 ou mobile selon l'écran
+            let gameWidth, gameHeight;
+
+            if (screenWidth > screenHeight) {
+                // Format paysage/desktop - 16:9
+                gameWidth = 320;
+                gameHeight = 180;
+            } else {
+                // Format portrait/mobile - 9:16
+                gameWidth = 180;
+                gameHeight = 320;
+            }
+
+            // Calcul du scale pour s'adapter à l'écran
+            const scaleX = Math.floor(screenWidth / gameWidth);
+            const scaleY = Math.floor(screenHeight / gameHeight);
+            const pixelScale = Math.max(1, Math.min(scaleX, scaleY));
+
+            // Configuration du canvas
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+
+            // Taille d'affichage
+            const displayWidth = gameWidth * pixelScale;
+            const displayHeight = gameHeight * pixelScale;
+
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+
+            console.log(`✨ Canvas: ${gameWidth}x${gameHeight} scale x${pixelScale} → ${displayWidth}x${displayHeight}`);
+
+            return { width: gameWidth, height: gameHeight, scale: pixelScale };
+        }
+
+        // Afficher un message spirituel
+        function showMessage(title, text, buttonText = 'OK') {
+            elements.messageTitle.textContent = title;
+            elements.messageText.innerHTML = text;
+            elements.messageButton.textContent = buttonText;
+            elements.message.classList.add('show');
+        }
+
+        // Cacher le message
+        function hideMessage() {
+            elements.message.classList.remove('show');
+        }
+
+        // Update breaking progress stats
+        function updateStats(level = 1, hearts = '💙💙💙', progress = '0/10') {
+            elements.level.textContent = `Level ${level}`;
+            elements.hearts.textContent = hearts;
+            elements.progress.textContent = progress;
+        }
+
+        // Chargement des modules spirituels
+        async function loadGame() {
+            try {
+                console.log('📦 Chargement des modules de libération...');
+                
+                const { QueteDeVerite } = await import('./js/modules/game.js');
+                console.log('✅ Module de vérité chargé');
+                
+                gameInstance = new QueteDeVerite(elements.canvas);
+                console.log('✅ Instance de libération créée');
+                
+                await new Promise(resolve => {
+                    const checkInit = () => {
+                        if (gameInstance.gameState && gameInstance.gameState.initialized) {
+                            resolve();
+                        } else {
+                            setTimeout(checkInit, 100);
+                        }
+                    };
+                    checkInit();
+                });
+                
+                console.log('✅ Système de libération initialisé');
+                
+                if (gameInstance.start) {
+                    gameInstance.start();
+                    console.log('✅ Quête de vérité démarrée');
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Erreur de libération:', error);
+                showMessage(
+                    'Blocage Spirituel',
+                    'La vérité ne peut être libérée pour le moment.<br><br>Erreur: ' + error.message,
+                    'Réessayer'
+                );
+                return false;
+            }
+        }
+
+        // Gestionnaires d'événements spirituels
+        elements.messageButton.addEventListener('click', async () => {
+            hideMessage();
+            
+            if (!gameInstance) {
+                elements.loading.classList.remove('hidden');
+                const success = await loadGame();
+                elements.loading.classList.add('hidden');
+                
+                if (!success) {
+                    setTimeout(() => {
+                        showMessage('Libération Bloquée', 'Voulez-vous réessayer de libérer la vérité ?', 'Réessayer');
+                    }, 1000);
+                }
+            }
+        });
+
+
+        // Initialisation spirituelle
+        async function init() {
+            console.log('🌟 Initialisation : Libération de la Vérité...');
+
+            const canvasInfo = setupCanvas();
+            
+            // Redimensionnement adaptatif
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const canvasInfo = setupCanvas();
+                    if (gameInstance && gameInstance.handleResize) {
+                        gameInstance.handleResize(canvasInfo);
+                    }
+                }, 300);
+            });
+            
+            // Interface spirituelle prête
+            setTimeout(() => {
+                elements.loading.classList.add('hidden');
+                showMessage(
+                    '🧱 Break Life\'s Walls 🧱',
+                    '🔨 Shatter metaphorical barriers<br>💪 Overcome life\'s obstacles<br>🌟 Break free from limitations',
+                    'Start Breaking'
+                );
+                console.log('✅ Wall Breaking System Ready');
+            }, 1000);
+        }
+
+        // Démarrage de la libération
+        init();
+
+        // Gestion des obstacles à la vérité
+        window.addEventListener('error', (event) => {
+            console.error('❌ Obstacle à la vérité:', event.error);
+            showMessage('Blocage Spirituel', 'Un obstacle empêche la libération de la vérité.', 'Transcender');
+            elements.messageButton.onclick = () => location.reload();
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Résistance spirituelle:', event.reason);
+        });
+
+        console.log('🧱 Breaking Life\'s Walls System Activated');
+    </script>
+</body>
+</html>

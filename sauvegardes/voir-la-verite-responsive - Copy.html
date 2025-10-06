@@ -1,0 +1,3283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👁️ Voir la Vérité 👁️</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            touch-action: none; user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 25%, #f1f3f4 75%, #e9ecef 100%);
+            min-height: 100vh; width: 100%; margin: 0; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #2c3e50; overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 30%, #ffffff 70%, #f1f3f4 100%);
+            border: none; border-radius: 0;
+            image-rendering: crisp-edges; image-rendering: pixelated;
+        }
+
+        .message {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(250,251,252,0.96));
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 3px solid rgba(255,255,255,0.4);
+            border-radius: 20px; padding: 25px 30px;
+            box-shadow:
+                0 30px 60px rgba(0,0,0,0.2),
+                0 0 0 1px rgba(255,255,255,0.3),
+                inset 0 2px 0 rgba(255,255,255,0.9);
+            max-width: calc(100% - 20px); width: 95%; text-align: center; z-index: 200;
+            display: none; font-size: clamp(14px, 3.5vw, 16px); color: #1a202c;
+            line-height: 1.4; box-sizing: border-box; font-weight: bold;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+        }
+
+        /* Messages narratifs - style cinématique */
+        .message.narratif {
+            bottom: 80px; top: auto; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: none;
+            background: linear-gradient(145deg, rgba(0,0,0,0.3), rgba(20,20,20,0.25));
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 15px; padding: 20px 25px;
+            color: #ffffff; font-size: clamp(13px, 3vw, 15px);
+            text-align: left; line-height: 1.5;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Adaptations pour PC */
+        @media (min-width: 500px) {
+            .message {
+                max-width: 420px; width: auto;
+                font-size: clamp(14px, 1.8vw, 16px);
+                padding: 20px 25px;
+            }
+
+            .message.narratif {
+                max-width: 380px; width: auto;
+                font-size: 14px; padding: 18px 22px;
+            }
+        }
+
+        .message-button {
+            background: linear-gradient(145deg, #4f46e5, #7c3aed);
+            border: none; border-radius: 18px; padding: 15px 30px; margin-top: 25px;
+            color: white; font-size: clamp(16px, 4vw, 18px); font-weight: 700; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s ease; display: inline-block;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .message-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.5);
+            background: linear-gradient(145deg, #6366f1, #8b5cf6);
+        }
+
+        .message-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
+        }
+
+        @media (min-width: 500px) {
+            .message-button {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+        }
+
+        .message.show {
+            display: block; animation: messageIn 0.4s ease-out;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Mode PC - Ratio fixe portrait 9:16 */
+        @media (min-width: 500px) {
+            .game-container {
+                width: 450px; height: 800px;
+                margin: 0 auto; border-radius: 20px; overflow: hidden;
+                box-shadow: 0 0 40px rgba(0,0,0,0.3);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configuration responsive avec ratio fixe
+        function setupCanvas() {
+            const container = document.querySelector('.game-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            return { width, height };
+        }
+
+        let size = setupCanvas();
+        const C = {
+            W: size.width, H: size.height,
+            PW: Math.max(size.width * 0.3, 100),  // Plus large
+            PH: Math.max(size.height * 0.025, 15), // Plus haut
+            BS: Math.max(Math.min(size.width, size.height) * 0.025, 10),
+            SP: Math.max(Math.min(size.width, size.height) * 0.002, 1.5)
+        };
+
+        // Voyage de découverte de la vérité - Chapitre 1 : La Lumière
+        const CHAPITRE1 = [
+            { nom: 'ON M\'A DIT...', couleur: '#FFB6C1', msg: '🗣️ Les manipulations s\'effacent devant la vérité !' },
+            { nom: 'DES MONSTRES', couleur: '#87CEEB', msg: '👨‍👩‍👧‍👦 Non... des humains comme nous !' },
+            { nom: 'PRÉJUGÉS', couleur: '#DDA0DD', msg: '🎭 Les masques tombent un à un...' },
+            { nom: 'PEURS', couleur: '#98FB98', msg: '👁️ J\'ai choisi de voir par moi-même !' },
+            { nom: 'MÉFIANCE', couleur: '#FFCCCB', msg: '🤝 La méfiance cède à la compation...' },
+            { nom: 'QUI SONT-ILS ?', couleur: '#F0E68C', msg: '❓ Cette question hante mes nuits...' },
+            { nom: 'J\'AI VU...', couleur: '#E6E6FA', msg: '👁️ Et mes yeux se sont ouverts...' },
+            { nom: 'UN PÈRE', couleur: '#FFDAB9', msg: '👨 Un homme qui aime ses enfants...' },
+            { nom: 'UNE MÈRE', couleur: '#AFEEEE', msg: '👩 Une femme courageuse...' },
+            { nom: 'DES ENFANTS', couleur: '#F5DEB3', msg: '👶 Des rires purs et innocents...' },
+            { nom: 'L\'HUMANITÉ', couleur: '#FFE4E1', msg: '💫 L\'essence même de ce que nous sommes...' },
+            { nom: 'L\'AMOUR', couleur: '#E0FFFF', msg: '❤️ Plus fort que toutes les barrières...' },
+            { nom: 'LA COMPASSION', couleur: '#FFF8DC', msg: '🤗 Qui unit au-delà des différences...' },
+            { nom: 'L\'ESPOIR', couleur: '#F0FFF0', msg: '🌅 Une lumière dans l\'obscurité...' },
+            { nom: 'LA PAIX', couleur: '#F5F5DC', msg: '🕊️ Possible quand on choisis d\'aimer...' },
+            { nom: 'COMME MOI', couleur: '#FFFACD', msg: '🌍 On est tous des immigrés...' }
+        ];
+
+        // Chapitre 2 : L'Obscurité - Les maux qui tentent de corrompre
+        const CHAPITRE2 = [
+            { nom: 'DISCORD', couleur: '#8B0000', msg: '⚡ On m\'a dit de ne pas les écouter...' },
+            { nom: 'HAINE', couleur: '#4B0000', msg: '🌩️ Ne pas laisser l\'orage me faire peur...' },
+            { nom: 'DESTRUCTION', couleur: '#2F1B14', msg: '🦈 Mais les requins rodent dans les eaux sombres...' },
+            { nom: 'MENSONGE', couleur: '#36454F', msg: '⛈️ Les mensonges éclatent comme la foudre...' },
+            { nom: 'MANIPULATION', couleur: '#2F2F2F', msg: '🕷️ Les fils invisibles tirent les cœurs...' },
+            { nom: 'CUPIDITÉ', couleur: '#654321', msg: '💰 L\'or ternit même la plus pure lumière...' },
+            { nom: 'AVIDITÉ', couleur: '#483C32', msg: '🕳️ L\'avidité dévore tout sur son passage...' },
+            { nom: 'JALOUSIE', couleur: '#2E4B2E', msg: '💚 Le poison vert de l\'envie...' },
+            { nom: 'ORGUEIL', couleur: '#191970', msg: '👑 La couronne qui aveugle...' },
+            { nom: 'COLÈRE', couleur: '#8B1538', msg: '🔥 Les flammes qui consument la raison...' },
+            { nom: 'VENGEANCE', couleur: '#4A4A4A', msg: '⚔️ La spirale sans fin de la souffrance...' },
+            { nom: 'INDIFFÉRENCE', couleur: '#708090', msg: '🧊 Le froid qui glace les âmes...' },
+            { nom: 'ÉGOÏSME', couleur: '#5D5D5D', msg: '🪞 Ne voir que son propre reflet...' },
+            { nom: 'IGNORANCE', couleur: '#2F4F4F', msg: '🙈 Choisir de fermer les yeux...' },
+            { nom: 'RÉSISTANCE', couleur: '#1C1C1C', msg: '🛡️ Mais je garde mon cœur pur dans la tempête...' },
+            { nom: 'LUMIÈRE', couleur: '#483D8B', msg: '✨ Car au-delà des nuages, elle existe toujours...' }
+        ];
+
+        // Voyage actuel selon le chapitre
+        let VOYAGE = CHAPITRE1;
+
+        // Variables de jeu
+        let score = 0, vies = 3, brises = 0, jeu = false, tactile = false;
+        let raquette = {}, balle = {}, briques = [], particules = [];
+        let projectiles = [], munitions = 10, rechargement = 0;
+        let powerUps = [], lanterne = { active: false, intensite: 0 };
+        let coeursBateau = []; // Cœurs lancés par le bateau
+        let derniereCreeRafale = 0; // Temps de la dernière rafale
+        let petitsCoeurs = []; // Petits cœurs décoratifs en haut
+        let pauseBalle = { active: false, fin: 0 }; // Pause après explosion
+        let textesVolants = []; // Textes qui montent au ciel
+        let corbeau = { actif: false, x: 0, y: 0, touches: 0, type: 'corbeau', tempsApparition: 0, prochainPassage: 10000 }; // Corbeau secret (10s pour test)
+        let soleil = { clignotement: false, tempsClignotement: 0 }; // État du soleil
+        let messageCorbeauBas = { actif: false, texte: '', tempsFin: 0 }; // Message discret en bas pour corbeau
+        let modeNarration = true; // Mode narration actif au début
+        let messageNarratif = { actif: false, texte: '', etape: 0 }; // Système de messages narratifs
+        let chapitre = 1; // Chapitre actuel
+        let transitionChapitre = { active: false, progression: 0 };
+        let phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: 0 }; // Phase d'introduction
+        let pointsConnaissance = 0; // Points de connaissance
+        let phaseJeu = 'tir_coeurs_haut'; // 'tir_coeurs_haut' -> 'petits_coeurs' -> 'jeu_briques' -> 'feux_artifice'
+
+        // Animation du bateau
+        let animationBateau = {
+            active: true,
+            phase: 'arrivee', // 'arrivee', 'arret', 'attente', 'depart'
+            positionCible: 0,
+            tempsDebut: 0,
+            dureeArret: 20000 // 20 secondes d'arrêt
+        };
+
+        // Initialisation
+        function initJeu() {
+            // Recalculer les constantes
+            C.W = size.width; C.H = size.height;
+            C.PW = Math.max(C.W * 0.3, 100);  // Plus large
+            C.PH = Math.max(C.H * 0.025, 15); // Plus haut
+            C.BS = Math.max(Math.min(C.W, C.H) * 0.04, 16); // Taille de balle agrandie
+            C.SP = Math.max(Math.min(C.W, C.H) * 0.006, 4); // Vitesse augmentée
+
+            // Position initiale selon l'animation
+            if(animationBateau.active && animationBateau.phase === 'arrivee') {
+                raquette = { x: -C.PW, y: C.H - C.PH - 25 }; // Commence hors écran à gauche
+                animationBateau.positionCible = C.W/2 - C.PW/2; // Position centrale
+                animationBateau.tempsDebut = Date.now();
+            } else {
+                raquette = { x: C.W/2 - C.PW/2, y: C.H - C.PH - 25 }; // Position normale
+            }
+            projectiles = [];
+            munitions = 10;
+            rechargement = 0;
+
+            briques = [];
+            const startY = Math.max(C.H * 0.15, 80);
+            const zoneH = C.H * 0.5; // Zone disponible pour les cœurs
+            const zoneW = C.W - 40;
+
+            // Positions dispersées et tailles différentes pour chaque cœur
+            const positions = [
+                { x: 0.15, y: 0.2, taille: 0.8 },
+                { x: 0.7, y: 0.15, taille: 1.2 },
+                { x: 0.25, y: 0.45, taille: 0.9 },
+                { x: 0.8, y: 0.4, taille: 1.0 },
+                { x: 0.05, y: 0.65, taille: 1.1 },
+                { x: 0.45, y: 0.25, taille: 0.7 },
+                { x: 0.6, y: 0.6, taille: 1.3 },
+                { x: 0.35, y: 0.7, taille: 0.85 },
+                { x: 0.85, y: 0.65, taille: 0.95 },
+                { x: 0.15, y: 0.85, taille: 1.05 }
+            ];
+
+            // Les briques seront créées à partir des petits cœurs du haut
+            // Initialisation vide, elles apparaîtront lors du dédoublement des cœurs
+            briques = [];
+            particules = [];
+            powerUps = [];
+            lanterne = { active: false, intensite: 0 };
+            coeursBateau = [];
+            derniereCreeRafale = 0;
+            pauseBalle = { active: false, fin: 0 };
+            textesVolants = [];
+
+            // Créer les 10 petits cœurs décoratifs en haut (cachés pendant l'animation)
+            creerPetitsCoeurs();
+
+            // Cacher les cœurs et nettoyer les particules pendant l'animation du bateau
+            if(animationBateau.active) {
+                petitsCoeurs.forEach(coeur => coeur.visible = false);
+                particules = []; // Nettoyer toutes les particules
+            }
+
+            // Réinitialiser la phase d'intro (désactivée pendant l'animation du bateau)
+            phaseIntro = { active: false, etape: 'arrivee_bateau', tempsDebut: Date.now() };
+        }
+
+        // Gestion de l'animation du bateau
+        function gererAnimationBateau() {
+            if (!animationBateau.active) return;
+
+            const tempsActuel = Date.now();
+            const tempsEcoule = tempsActuel - animationBateau.tempsDebut;
+
+            switch(animationBateau.phase) {
+                case 'arrivee':
+                    // Animation d'arrivée depuis la gauche vers le centre
+                    const dureeArrivee = 2000; // 2 secondes pour arriver
+                    const progression = Math.min(tempsEcoule / dureeArrivee, 1);
+
+                    // Easing pour une arrivée fluide
+                    const easeProgress = 1 - Math.pow(1 - progression, 3);
+
+                    raquette.x = -C.PW + (animationBateau.positionCible + C.PW) * easeProgress;
+
+                    if (progression >= 1) {
+                        // Bateau arrivé au centre
+                        raquette.x = animationBateau.positionCible;
+                        animationBateau.phase = 'arret';
+                        animationBateau.tempsDebut = tempsActuel;
+
+                        // Déclencher l'affichage du premier message
+                        etapeIntro = 0;
+                        afficherEtapeIntro();
+                    }
+                    break;
+
+                case 'arret':
+                    // Bateau arrêté, attendre la fin du texte
+                    if (tempsEcoule >= animationBateau.dureeArret) {
+                        animationBateau.phase = 'depart';
+                        animationBateau.tempsDebut = tempsActuel;
+
+                        // Cacher le message et commencer le jeu
+                        cacherMessage();
+                    }
+                    break;
+
+                case 'depart':
+                    // Animation de départ vers l'avant
+                    const dureeDepart = 1500; // 1.5 secondes pour partir
+                    const progressionDepart = Math.min(tempsEcoule / dureeDepart, 1);
+
+                    // Le bateau continue vers la droite et sort de l'écran
+                    raquette.x = animationBateau.positionCible + (C.W + C.PW) * progressionDepart;
+
+                    if (progressionDepart >= 1) {
+                        // Animation terminée, démarrer le jeu
+                        animationBateau.active = false;
+                        phaseIntro.active = false;
+                        etapeIntro = 3; // Phase de jeu
+
+                        // Repositionner le bateau normalement et démarrer la phase 1
+                        raquette.x = C.W/2 - C.PW/2;
+                        balle.visible = true;
+                        jeu = true; // Activer le jeu
+                        phaseJeu = 'tir_coeurs_haut'; // Commencer par la première phase
+
+                        // Révéler les petits cœurs du haut
+                        petitsCoeurs.forEach(coeur => coeur.visible = true);
+                    }
+                    break;
+            }
+
+            // Mettre à jour la position de la balle par rapport au bateau
+            if (animationBateau.active) {
+                balle.x = raquette.x + C.PW * 0.7;
+                balle.y = raquette.y - C.BS - 12;
+            }
+        }
+
+        // Gestion de la phase d'introduction
+        function gererPhaseIntro() {
+            if (!phaseIntro.active || animationBateau.active) return; // Désactivé pendant l'animation du bateau
+
+            const tempsEcoule = Date.now() - phaseIntro.tempsDebut;
+
+            if (phaseIntro.etape === 'rafales') {
+                // Phase 1: Attendre 2 secondes puis passer au jeu
+                if (tempsEcoule >= 2000) {
+                    phaseIntro.etape = 'apparition_balle';
+                    phaseIntro.tempsDebut = Date.now();
+                }
+            } else if (phaseIntro.etape === 'apparition_balle') {
+                // Phase 3: Apparition de la balle
+                if (tempsEcoule >= 1000) {
+                    balle.visible = true;
+                    phaseIntro.active = false;
+                    jeu = true; // Démarrer le jeu
+                    phaseJeu = 'tir_coeurs_haut'; // Commencer par tirer sur les cœurs du haut
+                    afficherMessage('✨ PHASE 1 : ÉVEIL DE LA CONNAISSANCE ✨<br><br>🌸 Envoie des vagues d\'amour vers les cœurs du haut !<br>🧠 Éveille ta connaissance intérieure !<br><br>👆 Clique pour libérer des vagues de compassion !', 4000);
+                }
+            }
+        }
+
+        // Interface intégrée complète
+        function dessinerInterface() {
+            ctx.save();
+
+            // Header avec gradient
+            const headerH = Math.max(C.H * 0.12, 60);
+            const grad = ctx.createLinearGradient(0, 0, 0, headerH);
+            grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+            grad.addColorStop(1, 'rgba(248,250,255,0.8)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, C.W, headerH);
+
+            // Bordure header
+            ctx.strokeStyle = 'rgba(102,126,234,0.3)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, C.W, headerH);
+
+            // Titre principal
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = `800 ${Math.max(C.H * 0.025, 16)}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('👁️ VOIR LA VÉRITÉ 👁️', C.W/2, Math.max(C.H * 0.035, 22));
+
+            // Citation inspirante
+            ctx.fillStyle = '#7f8c8d';
+            ctx.font = `italic ${Math.max(C.H * 0.018, 11)}px sans-serif`;
+            ctx.fillText('"J\'ai préféré voir de mes propres yeux"', C.W/2, Math.max(C.H * 0.055, 35));
+
+            // Stats ligne
+            ctx.font = `600 ${Math.max(C.H * 0.02, 12)}px sans-serif`;
+            ctx.fillStyle = '#2c3e50';
+
+            // Score et Points de connaissance
+            ctx.textAlign = 'left';
+            if(phaseJeu === 'tir_coeurs_haut') {
+                ctx.fillText(`🧠 Connaissance: ${pointsConnaissance}`, 15, Math.max(C.H * 0.085, 52));
+            } else {
+                ctx.fillText(`🕊️ ${score}`, 15, Math.max(C.H * 0.085, 52));
+            }
+
+            // Progression
+            ctx.textAlign = 'center';
+            ctx.fillText(`🧱 ${brises}/${VOYAGE.length}`, C.W/2, Math.max(C.H * 0.085, 52));
+
+            // Vies
+            ctx.textAlign = 'right';
+            const coeurs = vies > 0 ? '❤️'.repeat(vies) : '💔';
+            ctx.fillText(coeurs, C.W - 15, Math.max(C.H * 0.085, 52));
+
+            ctx.restore();
+        }
+
+        // Vraie lanterne volante avec halo bougie et nouveaux effets
+        function dessinerLanterne() {
+            // Ne dessiner la lanterne que si on est dans la phase des briques et pas pendant l'animation
+            if (animationBateau.active || !balle.visible || phaseJeu !== 'jeu_briques') return;
+
+            ctx.save();
+
+            const posX = balle.x;
+            const posY = balle.y;
+            const temps = Date.now() * 0.001;
+
+            // 1. HALO DE BOUGIE SIMPLE
+            if(lanterne.active) {
+                // Halo simple statique
+                const haloSize = C.BS * 3;
+                const haloIntensity = 0.4;
+
+                // Halo principal simple
+                const haloGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, haloSize);
+                haloGrad.addColorStop(0, `rgba(255, 220, 150, ${haloIntensity})`);
+                haloGrad.addColorStop(0.3, `rgba(255, 180, 100, ${haloIntensity * 0.7})`);
+                haloGrad.addColorStop(0.7, `rgba(255, 140, 60, ${haloIntensity * 0.3})`);
+                haloGrad.addColorStop(1, 'rgba(255, 100, 30, 0)');
+
+                ctx.fillStyle = haloGrad;
+                ctx.beginPath();
+                ctx.arc(posX, posY, haloSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 2. LANTERNE CYLINDRIQUE CLASSIQUE
+
+            // Dimensions de la lanterne cylindrique plus haute et plus petite
+            const rayon = C.BS * 0.8;        // Rayon du cylindre (plus petit)
+            const corpsH = C.BS * 2.4;       // Hauteur du corps cylindrique (plus haute)
+            const domeH = C.BS * 0.4;        // Hauteur du dôme
+            const baseH = C.BS * 0.2;        // Hauteur de la base
+
+            // LUEUR DOUCE AUTOUR DE LA LANTERNE
+            if(lanterne.active) {
+                // Halo de lueur douce adapté à la taille
+                const lueurSize = rayon * 2.5;
+                const lueurGrad = ctx.createRadialGradient(posX, posY, rayon, posX, posY, lueurSize);
+                lueurGrad.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+                lueurGrad.addColorStop(0.5, 'rgba(255, 180, 0, 0.2)');
+                lueurGrad.addColorStop(1, 'rgba(255, 140, 0, 0)');
+                ctx.fillStyle = lueurGrad;
+                ctx.beginPath();
+                ctx.arc(posX, posY, lueurSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Armature métallique de la lanterne
+            const armatureColor = lanterne.active ? '#B8860B' : '#654321';
+            ctx.strokeStyle = armatureColor;
+            ctx.lineWidth = 2;
+
+            // BASE RONDE plus petite
+            const baseY = posY + corpsH/2;
+            ctx.fillStyle = armatureColor;
+            ctx.beginPath();
+            ctx.ellipse(posX, baseY, rayon * 1.05, baseH, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // CORPS CYLINDRIQUE
+            const corpsTop = posY - corpsH/2;
+            const corpsBottom = posY + corpsH/2;
+
+            // Vitres cylindriques
+            if(lanterne.active) {
+                // Vitres dorées lumineuses
+                const vitreGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, rayon);
+                vitreGrad.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+                vitreGrad.addColorStop(0.7, 'rgba(255, 200, 0, 0.6)');
+                vitreGrad.addColorStop(1, 'rgba(255, 180, 0, 0.4)');
+                ctx.fillStyle = vitreGrad;
+            } else {
+                // Vitres éteintes
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            }
+            ctx.beginPath();
+            ctx.ellipse(posX, posY, rayon, corpsH/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Contour du cylindre
+            ctx.strokeStyle = armatureColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Barreaux en forme de croix
+            ctx.beginPath();
+            // Barre verticale
+            ctx.moveTo(posX, corpsTop);
+            ctx.lineTo(posX, corpsBottom);
+            // Barre horizontale
+            ctx.moveTo(posX - rayon, posY);
+            ctx.lineTo(posX + rayon, posY);
+            ctx.stroke();
+
+            // DÔME SUPÉRIEUR
+            const domeTop = corpsTop - domeH;
+            ctx.fillStyle = armatureColor;
+            ctx.strokeStyle = '#CD7F32';
+            ctx.lineWidth = 2;
+
+            // Dôme en forme d'ellipse plus petit
+            ctx.beginPath();
+            ctx.ellipse(posX, domeTop + domeH/2, rayon * 0.9, domeH/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // 3. FLAMME AVEC ANIMATIONS TRÈS LENTES
+            if(lanterne.active) {
+                // Flamme avec mouvement très lent et doux
+                const flammeX = posX + Math.sin(temps * 0.3) * 1; // Très lent
+                const flammeY = posY - C.BS * 0.3;
+                const flammeH = C.BS * 0.6;
+                const flammeW = C.BS * 0.3;
+
+                // Flamme principale avec danse très douce
+                const flammeGrad = ctx.createRadialGradient(flammeX, flammeY, 0, flammeX, flammeY, flammeH);
+                flammeGrad.addColorStop(0, '#FFFF99');
+                flammeGrad.addColorStop(0.3, '#FFD700');
+                flammeGrad.addColorStop(0.6, '#FFA500');
+                flammeGrad.addColorStop(1, '#FF6347');
+
+                ctx.fillStyle = flammeGrad;
+                ctx.beginPath();
+                // Forme de flamme avec variations très lentes
+                ctx.ellipse(flammeX, flammeY, flammeW * (0.6 + Math.sin(temps * 0.4) * 0.05), flammeH * (0.8 + Math.cos(temps * 0.35) * 0.05), Math.sin(temps * 0.2) * 0.05, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Cœur de la flamme plus lumineux
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(flammeX, flammeY, flammeW * 0.3, flammeH * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Mèche de la bougie
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(posX - 1, posY, 2, C.BS * 0.2);
+            } else {
+                // Mèche éteinte
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(posX - 1, posY - 2, 2, 4);
+
+                // Cœur d'humanité au repos
+                const coeurSize = C.BS * 0.4;
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.moveTo(posX, posY + coeurSize*0.3);
+                ctx.bezierCurveTo(posX, posY, posX - coeurSize*0.5, posY, posX - coeurSize*0.5, posY + coeurSize*0.3);
+                ctx.bezierCurveTo(posX - coeurSize*0.5, posY + coeurSize*0.7, posX, posY + coeurSize*0.7, posX, posY + coeurSize);
+                ctx.bezierCurveTo(posX, posY + coeurSize*0.7, posX + coeurSize*0.5, posY + coeurSize*0.7, posX + coeurSize*0.5, posY + coeurSize*0.3);
+                ctx.bezierCurveTo(posX + coeurSize*0.5, posY, posX, posY, posX, posY + coeurSize*0.3);
+                ctx.fill();
+            }
+
+            // 4. SYSTÈME DE SUSPENSION SIMPLE
+            const cordeLength = C.BS * 2;
+            ctx.strokeStyle = lanterne.active ? '#8B4513' : '#4a4a4a';
+            ctx.lineWidth = 2;
+
+            // Cordes depuis le dôme adaptées à la taille
+            ctx.beginPath();
+            ctx.moveTo(posX - rayon*0.6, domeTop); // Gauche du dôme
+            ctx.lineTo(posX - rayon*0.2, posY - cordeLength);
+            ctx.moveTo(posX + rayon*0.6, domeTop); // Droite du dôme
+            ctx.lineTo(posX + rayon*0.2, posY - cordeLength);
+            ctx.stroke();
+
+            // Corde centrale
+            ctx.beginPath();
+            ctx.moveTo(posX, domeTop); // Centre du dôme
+            ctx.lineTo(posX, posY - cordeLength);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Petit bateau élégant géométrique rouge avec voile blanche
+        function dessinerBateau() {
+            ctx.save();
+
+            // Ombre du bateau
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(raquette.x + 3, raquette.y + 3, C.PW, C.PH);
+
+            if(modeSecret) {
+                // === BATEAU MILITAIRE POUR LE MODE SECRET ===
+
+                // Coque du destroyer - forme militaire avec étrave pointue
+                const coquePoints = [
+                    [raquette.x + C.PW * 0.1, raquette.y + C.PH],        // Arrière gauche
+                    [raquette.x, raquette.y + C.PH * 0.6],               // Pointe arrière
+                    [raquette.x + C.PW * 0.2, raquette.y],               // Proue gauche
+                    [raquette.x + C.PW * 0.8, raquette.y],               // Proue droite
+                    [raquette.x + C.PW, raquette.y + C.PH * 0.6],        // Pointe avant
+                    [raquette.x + C.PW * 0.9, raquette.y + C.PH]         // Arrière droite
+                ];
+
+                // Gradient bleu pour la coque
+                const coqueGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH);
+                coqueGrad.addColorStop(0, '#74b9ff'); // Bleu clair
+                coqueGrad.addColorStop(0.5, '#0984e3'); // Bleu moyen
+                coqueGrad.addColorStop(1, '#2d3436'); // Bleu foncé
+
+                ctx.fillStyle = coqueGrad;
+                ctx.beginPath();
+                ctx.moveTo(coquePoints[0][0], coquePoints[0][1]);
+                for(let i = 1; i < coquePoints.length; i++) {
+                    ctx.lineTo(coquePoints[i][0], coquePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Bordure de la coque
+                ctx.strokeStyle = '#2d3436';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Reflet sur la coque
+                const refletGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH*0.4);
+                refletGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
+                refletGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = refletGrad;
+                ctx.beginPath();
+                ctx.moveTo(coquePoints[0][0], coquePoints[0][1]);
+                for(let i = 1; i < coquePoints.length; i++) {
+                    ctx.lineTo(coquePoints[i][0], coquePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Mât central plus haut
+                const matX = raquette.x + C.PW/2;
+                const matY = raquette.y - C.PH * 3.75; // Voile 1.5x plus haute
+                const matH = C.PH * 4.5;
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(matX, raquette.y + C.PH*0.3);
+                ctx.lineTo(matX, matY);
+                ctx.stroke();
+
+                // Voile blanche triangulaire plus haute
+                const voilePoints = [
+                    [matX, matY],                              // Haut du mât
+                    [matX - C.PW*0.4, raquette.y - C.PH*0.5], // Bas gauche plus haut
+                    [matX + C.PW*0.25, raquette.y - C.PH*0.1] // Bas droite plus haut
+                ];
+
+                // Gradient blanc pour la voile
+                const voileGrad = ctx.createLinearGradient(matX - C.PW*0.4, matY, matX + C.PW*0.25, raquette.y);
+                voileGrad.addColorStop(0, '#ffffff');
+                voileGrad.addColorStop(0.6, '#f8f9fa');
+                voileGrad.addColorStop(1, '#e9ecef');
+                ctx.fillStyle = voileGrad;
+                ctx.beginPath();
+                ctx.moveTo(voilePoints[0][0], voilePoints[0][1]);
+                for(let i = 1; i < voilePoints.length; i++) {
+                    ctx.lineTo(voilePoints[i][0], voilePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Bordure de la voile
+                ctx.strokeStyle = '#ced4da';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Lignes de contrainte de la voile
+                ctx.strokeStyle = '#adb5bd';
+                ctx.lineWidth = 1;
+                for(let i = 0; i < 3; i++) {
+                    const y = matY + (raquette.y - C.PH*0.5 - matY) * (i + 1) / 4;
+                    ctx.beginPath();
+                    ctx.moveTo(matX - C.PW*0.3 * (1 - i/3), y);
+                    ctx.lineTo(matX + C.PW*0.2 * (1 - i/3), y);
+                    ctx.stroke();
+                }
+
+                // Hublots géométriques
+                ctx.fillStyle = '#457b9d';
+                for(let i = 0; i < 3; i++) {
+                    const hublotX = raquette.x + C.PW*0.25 + i * C.PW*0.25;
+                    const hublotY = raquette.y + C.PH*0.5;
+                    ctx.beginPath();
+                    ctx.arc(hublotX, hublotY, C.PH*0.1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+            } else {
+                // === BATEAU ROUGE NORMAL ===
+
+                // Coque du bateau - forme géométrique élégante
+                const coquePoints = [
+                    [raquette.x + C.PW * 0.1, raquette.y + C.PH],        // Arrière gauche
+                    [raquette.x, raquette.y + C.PH * 0.6],               // Pointe arrière
+                    [raquette.x + C.PW * 0.2, raquette.y],               // Proue gauche
+                    [raquette.x + C.PW * 0.8, raquette.y],               // Proue droite
+                    [raquette.x + C.PW, raquette.y + C.PH * 0.6],        // Pointe avant
+                    [raquette.x + C.PW * 0.9, raquette.y + C.PH]         // Arrière droite
+                ];
+
+                // Gradient rouge pour la coque
+                const coqueGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH);
+                coqueGrad.addColorStop(0, '#ff6b6b');
+                coqueGrad.addColorStop(0.5, '#e74c3c');
+                coqueGrad.addColorStop(1, '#c0392b');
+
+                ctx.fillStyle = coqueGrad;
+                ctx.beginPath();
+                ctx.moveTo(coquePoints[0][0], coquePoints[0][1]);
+                for(let i = 1; i < coquePoints.length; i++) {
+                    ctx.lineTo(coquePoints[i][0], coquePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Bordure de la coque
+                ctx.strokeStyle = '#a93226';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Reflet sur la coque
+                const refletGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH*0.4);
+                refletGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
+                refletGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = refletGrad;
+                ctx.beginPath();
+                ctx.moveTo(coquePoints[0][0], coquePoints[0][1]);
+                for(let i = 1; i < coquePoints.length; i++) {
+                    ctx.lineTo(coquePoints[i][0], coquePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Mât central plus haut
+                const matX = raquette.x + C.PW/2;
+                const matY = raquette.y - C.PH * 3.75; // Voile 1.5x plus haute
+                const matH = C.PH * 4.5;
+
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(matX, raquette.y + C.PH*0.3);
+                ctx.lineTo(matX, matY);
+                ctx.stroke();
+
+                // Voile blanche triangulaire plus haute
+                const voilePoints = [
+                    [matX, matY],                              // Haut du mât
+                    [matX - C.PW*0.4, raquette.y - C.PH*0.5], // Bas gauche plus haut
+                    [matX + C.PW*0.25, raquette.y - C.PH*0.1] // Bas droite plus haut
+                ];
+
+                // Gradient blanc pour la voile
+                const voileGrad = ctx.createLinearGradient(matX - C.PW*0.4, matY, matX + C.PW*0.25, raquette.y);
+                voileGrad.addColorStop(0, '#ffffff');
+                voileGrad.addColorStop(0.6, '#f8f9fa');
+                voileGrad.addColorStop(1, '#e9ecef');
+
+                ctx.fillStyle = voileGrad;
+                ctx.beginPath();
+                ctx.moveTo(voilePoints[0][0], voilePoints[0][1]);
+                for(let i = 1; i < voilePoints.length; i++) {
+                    ctx.lineTo(voilePoints[i][0], voilePoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // Bordure de la voile
+                ctx.strokeStyle = '#ced4da';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Lignes de contrainte de la voile
+                ctx.strokeStyle = '#adb5bd';
+                ctx.lineWidth = 1;
+                for(let i = 0; i < 3; i++) {
+                    const y = matY + (raquette.y - C.PH*0.5 - matY) * (i + 1) / 4;
+                    ctx.beginPath();
+                    ctx.moveTo(matX - C.PW*0.3 * (1 - i/3), y);
+                    ctx.lineTo(matX + C.PW*0.2 * (1 - i/3), y);
+                    ctx.stroke();
+                }
+
+                // Hublots géométriques
+                ctx.fillStyle = '#457b9d';
+                for(let i = 0; i < 3; i++) {
+                    const hublotX = raquette.x + C.PW*0.25 + i * C.PW*0.25;
+                    const hublotY = raquette.y + C.PH*0.5;
+                    ctx.beginPath();
+                    ctx.arc(hublotX, hublotY, C.PH*0.1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // Vraies briques avec cœurs à l'intérieur pour le casse-brique
+        function dessinerPrejuges() {
+            briques.forEach(brique => {
+                if(!brique.visible) return;
+
+                const centreX = brique.x + brique.w/2;
+                const centreY = brique.y + brique.h/2;
+                const couleur = brique.couleur || brique.etape.couleur;
+
+                // Dessiner la brique rectangulaire avec état de dégâts
+                ctx.save();
+
+                // Couleur selon la vie restante
+                let couleurBrique = couleur;
+                if (brique.vie === 2) {
+                    // Brique légèrement endommagée (1er coup reçu)
+                    couleurBrique = `rgba(${parseInt(couleur.slice(1,3), 16)}, ${parseInt(couleur.slice(3,5), 16)}, ${parseInt(couleur.slice(5,7), 16)}, 0.8)`;
+                } else if (brique.vie === 1) {
+                    // Brique très endommagée (2ème coup reçu)
+                    couleurBrique = `rgba(${parseInt(couleur.slice(1,3), 16)}, ${parseInt(couleur.slice(3,5), 16)}, ${parseInt(couleur.slice(5,7), 16)}, 0.5)`;
+                }
+
+                ctx.fillStyle = couleurBrique;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+
+                // Clignotement si récemment touchée
+                if (brique.clignotement > 0) {
+                    ctx.fillStyle = '#FFFFFF';
+                    brique.clignotement--;
+                }
+
+                // Rectangle de brique
+                ctx.fillRect(brique.x, brique.y, brique.w, brique.h);
+                ctx.strokeRect(brique.x, brique.y, brique.w, brique.h);
+
+                // Effet 3D de brique
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.3); // Highlight du haut
+
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(brique.x, brique.y + brique.h * 0.8, brique.w, brique.h * 0.2); // Ombre du bas
+
+                // Dessiner les fissures zigzag blanches selon les dégâts
+                if (brique.vie <= 2) {
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 2;
+                    // Première fissure zigzag après le 1er coup
+                    ctx.beginPath();
+                    const startX1 = brique.x + brique.w * 0.3;
+                    const endX1 = brique.x + brique.w * 0.2;
+                    const segments = 4; // Nombre de segments zigzag
+                    for(let i = 0; i <= segments; i++) {
+                        const progress = i / segments;
+                        const y = brique.y + progress * brique.h;
+                        const x = startX1 + (endX1 - startX1) * progress + (i % 2 === 0 ? 0 : brique.w * 0.05) * Math.sin(progress * Math.PI);
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+
+                if (brique.vie <= 1) {
+                    // Deuxième fissure zigzag après le 2ème coup
+                    ctx.beginPath();
+                    const startX2 = brique.x + brique.w * 0.7;
+                    const endX2 = brique.x + brique.w * 0.8;
+                    const segments = 4;
+                    for(let i = 0; i <= segments; i++) {
+                        const progress = i / segments;
+                        const y = brique.y + progress * brique.h;
+                        const x = startX2 + (endX2 - startX2) * progress + (i % 2 === 1 ? 0 : brique.w * 0.04) * Math.cos(progress * Math.PI);
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+
+                // Dessiner le cœur à l'intérieur de la brique
+                dessinerCoeurPixelArt(centreX, centreY, brique.taille * 0.6, couleur);
+
+                // Le texte reste caché - il n'apparaît que lors de l'explosion
+                // Le mystère reste entier jusqu'à la libération du cœur !
+            });
+        }
+
+        // Power-Up Bleu Étincelant
+        function creerPowerUp(x, y) {
+            powerUps.push({
+                x, y,
+                w: C.BS * 1.5, h: C.BS * 1.5,
+                type: 'bug',
+                temps: 0,
+                etincelles: []
+            });
+        }
+
+        function dessinerPowerUps() {
+            powerUps.forEach(power => {
+                ctx.save();
+
+                // Ombre
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(power.x + 3, power.y + 3, power.w, power.h);
+
+                // Cube bleu étincelant
+                const bleuGrad = ctx.createLinearGradient(power.x, power.y, power.x + power.w, power.y + power.h);
+                bleuGrad.addColorStop(0, `hsl(${(power.temps * 5) % 360}, 100%, 80%)`);
+                bleuGrad.addColorStop(0.5, '#00aaff');
+                bleuGrad.addColorStop(1, `hsl(${(power.temps * 8) % 360}, 100%, 60%)`);
+
+                ctx.fillStyle = bleuGrad;
+                ctx.fillRect(power.x, power.y, power.w, power.h);
+
+                // Bordure scintillante
+                ctx.strokeStyle = `hsl(${(power.temps * 15) % 360}, 100%, 90%)`;
+                ctx.lineWidth = 3;
+                ctx.shadowColor = ctx.strokeStyle;
+                ctx.shadowBlur = 10;
+                ctx.strokeRect(power.x, power.y, power.w, power.h);
+                ctx.shadowBlur = 0;
+
+                // Icône lanterne 🏮
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `${power.h * 0.6}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('🏮', power.x + power.w/2, power.y + power.h*0.7);
+
+                // Étincelles autour
+                for(let i = 0; i < 3; i++) {
+                    const angle = (power.temps * 0.05 + i * Math.PI * 2 / 3) % (Math.PI * 2);
+                    const dist = power.w * 0.8;
+                    const ex = power.x + power.w/2 + Math.cos(angle) * dist;
+                    const ey = power.y + power.h/2 + Math.sin(angle) * dist;
+
+                    ctx.fillStyle = `hsl(${(power.temps * 10 + i * 120) % 360}, 100%, 80%)`;
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                power.temps += 1;
+                ctx.restore();
+            });
+        }
+
+        function mettreAJourPowerUps() {
+            // Collision avec la balle
+            for(let i = powerUps.length - 1; i >= 0; i--) {
+                const power = powerUps[i];
+                if(balle.x + C.BS >= power.x && balle.x - C.BS <= power.x + power.w &&
+                   balle.y + C.BS >= power.y && balle.y - C.BS <= power.y + power.h) {
+
+                    // Activer la lanterne seulement dans la phase des briques
+                    if(phaseJeu === 'jeu_briques' && !lanterne.active) {
+                        lanterne.active = true;
+                        lanterne.intensite = 1;
+
+                        // Afficher le message seulement si la lanterne n'était pas déjà allumée
+                        afficherMessage('🏮 LANTERNE ALLUMÉE ! 🏮<br>✨ La vérité brille maintenant !', 2500);
+                    }
+
+                    // Explosion de particules dorées
+                    ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFD700', 15);
+
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+
+        function mettreAJourLanterne() {
+            if(animationBateau.active) return; // Pas de mise à jour pendant l'animation
+            if(lanterne.active) {
+                // Effet de pulsation douce
+                lanterne.intensite = 0.7 + 0.3 * Math.sin(Date.now() * 0.005);
+
+                // Créer quelques particules dorées occasionnellement
+                if(Math.random() < 0.1) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = C.BS + Math.random() * 10;
+                    ajouterParticules(
+                        balle.x + Math.cos(angle) * dist,
+                        balle.y + Math.sin(angle) * dist,
+                        '#FFD700', 1
+                    );
+                }
+            }
+        }
+
+        // Vagues d'amour multicolores qui dansent vers le ciel
+        function creerRafaleCoeurs() {
+            const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'];
+
+            // Créer une rafale de 1-3 cœurs
+            const nombreCoeurs = 1 + Math.floor(Math.random() * 3);
+
+            for(let i = 0; i < nombreCoeurs; i++) {
+                setTimeout(() => {
+                    const angle = -Math.PI/2 + (Math.random() - 0.5) * Math.PI/6; // Éventail plus large
+                    const couleur = couleurs[Math.floor(Math.random() * couleurs.length)];
+
+                    coeursBateau.push({
+                        x: raquette.x + C.PW/2 + (Math.random() - 0.5) * C.PW/4, // Départ légèrement dispersé
+                        y: raquette.y,
+                        vx: Math.sin(angle) * C.SP * (0.3 + Math.random() * 0.4), // Plus de mouvement horizontal
+                        vy: -Math.abs(Math.cos(angle) * C.SP * (1.5 + Math.random() * 1)), // Vitesses variables
+                        taille: C.BS * [1.2, 1.5, 1.8][Math.floor(Math.random() * 3)], // 3 tailles plus grosses: moyen, grand, très grand
+                        couleur: couleur,
+                        flottemment: Math.random() * Math.PI * 2, // Phase de flottement
+                        vitesseFlottement: 0.02 + Math.random() * 0.02, // Vitesse de flottement
+                        vie: 1,
+                        luminosite: 1,
+                        scintillement: Math.random() * Math.PI * 2
+                    });
+                }, i * 100); // Délai entre chaque cœur de la rafale
+            }
+        }
+
+        function mettreAJourCoeursBateau() {
+            const tempsActuel = Date.now();
+
+            // Plus de cœurs automatiques pendant l'intro
+            // Pendant le jeu normal : plus de déclenchement automatique
+            // Les rafales se déclenchent seulement sur clic/touche
+
+            // Mettre à jour les cœurs de lumière
+            for(let i = coeursBateau.length - 1; i >= 0; i--) {
+                const coeur = coeursBateau[i];
+                coeur.x += coeur.vx;
+                coeur.y += coeur.vy; // Montée rapide
+                coeur.vx *= 0.98; // Convergence vers le centre
+
+                // Animation de flottement gauche-droite
+                if(coeur.vitesseFlottement !== undefined) {
+                    coeur.flottemment += coeur.vitesseFlottement;
+                    // Ajouter un mouvement oscillant horizontal
+                    coeur.x += Math.sin(coeur.flottemment) * 0.5;
+                }
+
+                // Animation de scintillement
+                coeur.scintillement += 0.2;
+                coeur.luminosite = 0.7 + 0.3 * Math.sin(coeur.scintillement);
+
+                // Supprimer si sort de l'écran par le haut
+                if(coeur.y < -100) {
+                    coeursBateau.splice(i, 1);
+                    continue;
+                }
+
+                // Collision avec les petits cœurs du haut (phase 1)
+                if(phaseJeu === 'tir_coeurs_haut') {
+                    petitsCoeurs.forEach((petitCoeur, j) => {
+                        if(!petitCoeur.visible) return;
+
+                        // Vérifier collision
+                        if(coeur.x + coeur.taille/2 >= petitCoeur.x - petitCoeur.w/2 &&
+                           coeur.x - coeur.taille/2 <= petitCoeur.x + petitCoeur.w/2 &&
+                           coeur.y + coeur.taille/2 >= petitCoeur.y - petitCoeur.h/2 &&
+                           coeur.y - coeur.taille/2 <= petitCoeur.y + petitCoeur.h/2) {
+
+                            // Cœur touché !
+                            petitCoeur.visible = false;
+                            pointsConnaissance += 10;
+
+                            // Effets visuels
+                            ajouterParticulesCoeurs(petitCoeur.x, petitCoeur.y, petitCoeur.couleur, 8);
+                            ajouterTexteVolant(`+${petitCoeur.etape.nom}`, petitCoeur.x, petitCoeur.y);
+
+                            // Supprimer le cœur du bateau
+                            coeursBateau.splice(i, 1);
+
+                            // Vérifier si tous les cœurs du haut sont touchés
+                            const coeurRestants = petitsCoeurs.filter(c => c.visible).length;
+                            if(coeurRestants === 0) {
+                                // Passer à la phase suivante
+                                setTimeout(() => {
+                                    phaseJeu = 'petits_coeurs';
+                                    dernierNiveauAtteint = Math.max(dernierNiveauAtteint, 1);
+                                    afficherMessage('✨ CONNAISSANCE ACQUISE ! ✨<br><br>🧠 Points de connaissance: ' + pointsConnaissance + '<br><br>💝 PHASE 2 : Moment de contemplation...<br><br>⏳ Les cœurs libérés dansent dans le ciel...', 3000);
+
+                                    // Créer quelques cœurs décoratifs qui flottent (différents de ceux du haut)
+                                    setTimeout(() => {
+                                        // Créer des cœurs décoratifs flottants au lieu de recréer les cœurs du haut
+                                        for(let i = 0; i < 10; i++) {
+                                            particules.push({
+                                                x: Math.random() * C.W,
+                                                y: C.H + Math.random() * 50,
+                                                vx: (Math.random() - 0.5) * 2,
+                                                vy: -(Math.random() * 3 + 1),
+                                                couleur: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57'][i % 5],
+                                                vie: 1,
+                                                taille: Math.random() * 4 + 3,
+                                                type: 'coeur'
+                                            });
+                                        }
+
+                                        afficherMessage('💝 Les cœurs montent vers la lumière !<br><br>✨ Préparation de la transformation...<br><br>🧱 Les briques apparaissent dans 3 secondes !', 3000);
+
+                                        // Transition vers le jeu de briques après 3 secondes
+                                        setTimeout(() => {
+                                            phaseJeu = 'jeu_briques';
+                                            dernierNiveauAtteint = Math.max(dernierNiveauAtteint, 2);
+                                            dedoublerCoeursEnBriques();
+                                            // Activer la lanterne maintenant qu'on est dans la phase des briques
+                                            lanterne.active = true;
+                                            lanterne.intensite = 1;
+                                            afficherMessage('🌸 PHASE 3 : TRANSFORMATION DES PRÉJUGÉS 🌸<br><br>💎 Transforme les préjugés avec la lanterne lumineuse !<br>❤️ Libère l\'amour quand il reste 1 préjugé !<br><br>✨ La danse de la transformation commence !', 4000);
+                                        }, 3000);
+                                    }, 3000);
+                                }, 1000);
+                            }
+                            return;
+                        }
+                    });
+                }
+
+                // Collision avec les briques
+                briques.forEach(brique => {
+                    if(!brique.visible) return;
+
+                    const dx = coeur.x - (brique.x + brique.w/2);
+                    const dy = coeur.y - (brique.y + brique.h/2);
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+
+                    if(distance < coeur.taille + brique.w/4) {
+                        // Endommager la brique
+                        brique.vie--;
+                        brique.clignotement = 10; // Clignotement pour 10 frames
+
+                        // Supprimer le cœur volant
+                        coeursBateau.splice(i, 1);
+
+                        // Si la brique est détruite
+                        if (brique.vie <= 0) {
+                            brique.visible = false;
+                            brises++;
+
+                            // Explosion en 3 petits cœurs seulement
+                            for(let j = 0; j < 3; j++) {
+                                particules.push({
+                                    x: brique.x + brique.w/2 + (Math.random() - 0.5) * 20,
+                                    y: brique.y + brique.h/2 + (Math.random() - 0.5) * 20,
+                                    vx: (Math.random() - 0.5) * 6,
+                                    vy: -(Math.random() * 8 + 4),
+                                    couleur: brique.couleur,
+                                    vie: 1,
+                                    taille: Math.random() * 3 + 4,
+                                    type: 'coeur'
+                                });
+                            }
+
+                            // Texte du cœur qui grossit et monte au ciel
+                            ajouterTexteVolant(brique.etape.nom, brique.x + brique.w/2, brique.y + brique.h/2);
+
+                            afficherMessage(brique.etape.msg, 4000, brique.etape.nom); // Affichage 4s avec mot en rouge
+                        }
+
+                        score += 50; // 50 points par coup
+
+                        if(brises >= VOYAGE.length) {
+                            if(phaseJeu === 'jeu_briques') {
+                                // Phase finale : feux d'artifice spectaculaires !
+                                phaseJeu = 'feux_artifice';
+                                dernierNiveauAtteint = Math.max(dernierNiveauAtteint, 3);
+                                jeu = false;
+                                // Désactiver la lanterne maintenant que la phase des briques est terminée
+                                lanterne.active = false;
+                                lanterne.intensite = 0;
+
+                                // Créer de gros feux d'artifice
+                                for(let i = 0; i < 20; i++) {
+                                    setTimeout(() => {
+                                        const x = Math.random() * C.W;
+                                        const y = Math.random() * C.H * 0.7;
+                                        const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'];
+                                        const couleur = couleurs[Math.floor(Math.random() * couleurs.length)];
+                                        ajouterParticules(x, y, couleur, 15);
+                                    }, i * 200);
+                                }
+
+                                setTimeout(() => {
+                                    afficherMessage('🎆✨ ILLUMINATION COMPLÈTE ! ✨🎆<br><br>🧠 Sagesse totale acquise !<br>💖 Tous les préjugés transformés en amour !<br>🌟 Célébration cosmique d\'étoiles dansantes !<br><br>🕊️ Tu as accompli le voyage de l\'éveil !<br><br>👆 Clique pour un nouveau voyage', 8000);
+                                }, 4000);
+                            } else {
+                                veriteLiberee();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function dessinerCoeursBateau() {
+            coeursBateau.forEach(coeur => {
+                const couleurCoeur = coeur.couleur || '#FFFFFF';
+
+                // Forme étoile/diamant pour les cœurs du bateau
+                ctx.save();
+                ctx.fillStyle = couleurCoeur;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+
+                const t = coeur.taille;
+
+                ctx.translate(coeur.x, coeur.y);
+
+                // Cœur en polygone pour le bateau
+                ctx.beginPath();
+
+                // Lobe gauche
+                ctx.moveTo(-t * 0.25, 0);
+                ctx.lineTo(-t * 0.15, -t * 0.15);
+                ctx.lineTo(-t * 0.05, -t * 0.1);
+                ctx.lineTo(-t * 0.02, 0);
+
+                // Lobe droit
+                ctx.lineTo(t * 0.02, 0);
+                ctx.lineTo(t * 0.05, -t * 0.1);
+                ctx.lineTo(t * 0.15, -t * 0.15);
+                ctx.lineTo(t * 0.25, 0);
+
+                // Descente vers la pointe
+                ctx.lineTo(t * 0.1, t * 0.15);
+                ctx.lineTo(0, t * 0.3);
+                ctx.lineTo(-t * 0.1, t * 0.15);
+
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
+            });
+        }
+
+        // Petits cœurs décoratifs en haut
+        function creerPetitsCoeurs() {
+            petitsCoeurs = [];
+            const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF', '#FFA502', '#26de81', '#fd79a8'];
+
+            for(let i = 0; i < 30; i++) {
+                const taille = C.BS * (1.5 + Math.random() * 2.5); // Tailles beaucoup plus grosses et variées
+                petitsCoeurs.push({
+                    x: Math.random() * (C.W - 100) + 50, // Espacement complètement aléatoire
+                    y: C.H * 0.25 + Math.random() * 100 - 50, // Plus bas avec plus de variation
+                    w: taille, h: taille, // Dimensions pour collision
+                    taille: taille,
+                    couleur: couleurs[i % couleurs.length],
+                    visible: true, // Peut être cassé
+                    etape: VOYAGE[Math.min(i, VOYAGE.length - 1)], // Associer une étape narrative
+                    scintillement: Math.random() * Math.PI * 2,
+                    vitesseScintillement: 0.05 + Math.random() * 0.05,
+                    rotation: Math.random() * Math.PI * 2,
+                    vitesseRotation: (Math.random() - 0.5) * 0.02,
+                    pulsation: Math.random() * Math.PI * 2,
+                    vitessePulsation: 0.03 + Math.random() * 0.02
+                });
+            }
+        }
+
+        // Générer des positions en forme de cœur
+        function genererPositionsCoeur(nbBriques, largeurBrique, hauteurBrique, espacement, margeHaut) {
+            const positions = [];
+            const centreX = C.W / 2;
+            const centreY = margeHaut + C.H * 0.15;
+            const taille = Math.min(C.W, C.H) * 0.3; // Taille du cœur
+
+            // Générer des positions selon l'équation paramétrique d'un cœur
+            for(let i = 0; i < nbBriques; i++) {
+                const t = (i / nbBriques) * 2 * Math.PI; // Paramètre de 0 à 2π
+
+                // Équation paramétrique d'un cœur : x = 16sin³(t), y = 13cos(t) - 5cos(2t) - 2cos(3t) - cos(4t)
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                // Mise à l'échelle et centrage
+                const posX = centreX + (x * taille / 32) - largeurBrique / 2;
+                const posY = centreY + (y * taille / 32) - hauteurBrique / 2;
+
+                positions.push({ x: posX, y: posY });
+            }
+
+            return positions;
+        }
+
+        function dedoublerCoeursEnBriques() {
+            // Cacher/supprimer tous les petits cœurs du haut avant le jeu de briques
+            petitsCoeurs = [];
+
+            // Supprimer tous les cœurs résiduels du bateau
+            coeursBateau = [];
+
+            // Taille des briques
+            const tailleUniforme = Math.min(C.W, C.H) * 0.06; // Plus petites pour le cœur
+            const largeurBrique = tailleUniforme * 1.2;
+            const hauteurBrique = tailleUniforme * 0.8;
+            const espacement = 5;
+            const margeHaut = C.H * 0.15;
+
+            // Générer les positions en forme de cœur
+            const positionsCoeur = genererPositionsCoeur(VOYAGE.length, largeurBrique, hauteurBrique, espacement, margeHaut);
+
+            // Créer les briques selon la disposition en cœur
+            for(let i = 0; i < VOYAGE.length; i++) {
+                const etape = VOYAGE[i];
+                const couleur = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF', '#FFA502'][i % 8];
+                const pos = positionsCoeur[i];
+
+                briques.push({
+                    x: pos.x,
+                    y: pos.y,
+                    w: largeurBrique,
+                    h: hauteurBrique,
+                    visible: true,
+                    etape: etape,
+                    taille: tailleUniforme,
+                    couleur: couleur,
+                    vieMax: 3,     // 3 coups pour casser
+                    vie: 3,        // Vie actuelle
+                    clignotement: 0, // Animation quand touchée
+                    // Animation de dédoublement
+                    animationDedoublement: {
+                        originX: C.W / 2,
+                        originY: C.H * 0.15,
+                        progress: 0,
+                        duree: 2000
+                    }
+                });
+            }
+        }
+
+        function libererVaguesAmour() {
+            // Ne libérer des vagues d'amour que si le jeu est actif
+            if (!jeu || phaseIntro.active) return;
+
+            const tempsActuel = Date.now();
+
+            // Empêcher la précipitation - l'amour prend son temps
+            if (tempsActuel - derniereCreeRafale >= 500) { // Au minimum 0.5s entre les vagues
+                if(phaseJeu === 'tir_coeurs_haut') {
+                    // Phase 1 : toujours libérer des vagues d'amour
+                    creerRafaleCoeurs();
+                    derniereCreeRafale = tempsActuel;
+                } else if(phaseJeu === 'jeu_briques' && briques.filter(b => b.active).length === 1) {
+                    // Phase 3 : libérer l'amour seulement pour la dernière brique
+                    creerRafaleCoeurs();
+                    derniereCreeRafale = tempsActuel;
+                }
+            }
+        }
+
+        function mettreAJourPetitsCoeurs() {
+            petitsCoeurs.forEach(coeur => {
+                // Animation de scintillement
+                coeur.scintillement += coeur.vitesseScintillement;
+
+                // Animation de rotation
+                coeur.rotation += coeur.vitesseRotation;
+
+                // Animation de pulsation (taille)
+                coeur.pulsation += coeur.vitessePulsation;
+            });
+        }
+
+        // Fonction pour dessiner des cœurs avec 20 triangles (pour les briques)
+        function dessinerCoeurPixelArt(x, y, taille, couleur) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            const t = taille;
+            const temps = Date.now() * 0.003;
+            const pulsation = 1 + Math.sin(temps) * 0.15; // Pulsation douce
+
+            // Appliquer la pulsation
+            ctx.scale(pulsation, pulsation);
+
+            // Style simple et clair
+            ctx.fillStyle = couleur;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1;
+
+            const triangleSize = t * 0.08;
+
+            // Cœur super mignon pour les briques qui pulse
+            ctx.beginPath();
+
+            // Lobe gauche (forme arrondie avec segments)
+            ctx.moveTo(-t * 0.3, -t * 0.02);
+            ctx.lineTo(-t * 0.22, -t * 0.18);
+            ctx.lineTo(-t * 0.12, -t * 0.2);
+            ctx.lineTo(-t * 0.05, -t * 0.1);
+            ctx.lineTo(-t * 0.02, -t * 0.02);
+
+            // Lobe droit (forme arrondie avec segments)
+            ctx.lineTo(t * 0.02, -t * 0.02);
+            ctx.lineTo(t * 0.05, -t * 0.1);
+            ctx.lineTo(t * 0.12, -t * 0.2);
+            ctx.lineTo(t * 0.22, -t * 0.18);
+            ctx.lineTo(t * 0.3, -t * 0.02);
+
+            // Descente vers la pointe avec courbe
+            ctx.lineTo(t * 0.18, t * 0.15);
+            ctx.lineTo(t * 0.08, t * 0.3);
+            ctx.lineTo(0, t * 0.4);
+            ctx.lineTo(-t * 0.08, t * 0.3);
+            ctx.lineTo(-t * 0.18, t * 0.15);
+
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Détails mignons - petits cœurs à l'intérieur
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+
+            // Petit cœur gauche
+            ctx.beginPath();
+            ctx.moveTo(-t * 0.15, -t * 0.05);
+            ctx.lineTo(-t * 0.12, -t * 0.08);
+            ctx.lineTo(-t * 0.09, -t * 0.05);
+            ctx.lineTo(-t * 0.12, t * 0.02);
+            ctx.closePath();
+            ctx.fill();
+
+            // Petit cœur droit
+            ctx.beginPath();
+            ctx.moveTo(t * 0.09, -t * 0.05);
+            ctx.lineTo(t * 0.12, -t * 0.08);
+            ctx.lineTo(t * 0.15, -t * 0.05);
+            ctx.lineTo(t * 0.12, t * 0.02);
+            ctx.closePath();
+            ctx.fill();
+
+            // Point lumineux central
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(0, t * 0.05, t * 0.02, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function dessinerCoeurPolygonal(x, y, taille, couleur, rotation = 0, intensite = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            if(rotation) ctx.rotate(rotation);
+
+            const t = taille;
+
+            // Style simple
+            ctx.fillStyle = couleur;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+
+            // Cœur fait avec plusieurs triangles pour former une vraie forme
+            ctx.beginPath();
+
+            // Lobe gauche (plusieurs triangles pour arrondir)
+            ctx.moveTo(-t * 0.3, -t * 0.05);
+            ctx.lineTo(-t * 0.2, -t * 0.2);
+            ctx.lineTo(-t * 0.1, -t * 0.15);
+            ctx.lineTo(-t * 0.05, -t * 0.05);
+
+            // Lobe droit (plusieurs triangles pour arrondir)
+            ctx.lineTo(t * 0.05, -t * 0.05);
+            ctx.lineTo(t * 0.1, -t * 0.15);
+            ctx.lineTo(t * 0.2, -t * 0.2);
+            ctx.lineTo(t * 0.3, -t * 0.05);
+
+            // Côtés qui descendent vers la pointe
+            ctx.lineTo(t * 0.15, t * 0.1);
+            ctx.lineTo(0, t * 0.4);
+            ctx.lineTo(-t * 0.15, t * 0.1);
+
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function dessinerPetitsCoeurs() {
+            // Ne pas dessiner les petits cœurs pendant l'animation du bateau ou la phase briques
+            if(animationBateau.active || phaseJeu === 'jeu_briques') return;
+
+            petitsCoeurs.forEach(coeur => {
+                if(!coeur.visible) return;
+
+                // Calculs d'animation
+                const intensite = (Math.sin(coeur.scintillement) + 1) * 0.5;
+                const taillePulsee = coeur.taille * (1 + Math.sin(coeur.pulsation) * 0.1);
+
+                // Dessiner le cœur polygonal
+                dessinerCoeurPolygonal(coeur.x, coeur.y, taillePulsee, coeur.couleur, coeur.rotation, intensite);
+            });
+        }
+
+        // Système de particules d'espoir
+        function ajouterParticules(x, y, couleur, nombre = 8) {
+            // Limiter le nombre total de particules pour les performances
+            const maxParticules = 200;
+            if(particules.length >= maxParticules) {
+                particules.splice(0, nombre); // Supprimer les plus anciennes
+            }
+
+            for(let i = 0; i < nombre; i++) {
+                particules.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    couleur, vie: 1,
+                    taille: Math.random() * 4 + 2,
+                    type: 'rond'
+                });
+            }
+        }
+
+        // Particules en forme de petits cœurs qui volent vers le haut
+        function ajouterParticulesCoeurs(x, y, couleur, nombre = 8) {
+            // Limiter le nombre total de particules pour les performances
+            const maxParticules = 200;
+            if(particules.length >= maxParticules) {
+                particules.splice(0, nombre); // Supprimer les plus anciennes
+            }
+
+            for(let i = 0; i < nombre; i++) {
+                particules.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 6, // Moins de dispersion horizontale
+                    vy: -(Math.random() * 8 + 4),  // Toujours vers le haut
+                    couleur, vie: 1,
+                    taille: Math.random() * 3 + 2,
+                    type: 'coeur'
+                });
+            }
+        }
+
+        function mettreAJourParticules() {
+            if(animationBateau.active) return; // Pas de particules pendant l'animation du bateau
+
+            for(let i = particules.length - 1; i >= 0; i--) {
+                const p = particules[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if(p.type === 'coeur') {
+                    // Cœurs : pas de gravité, continuent vers le haut
+                    p.vy *= 0.99; // Légère décélération
+                } else {
+                    // Particules normales : gravité
+                    p.vy += 0.15;
+                }
+
+                p.vie -= 0.02;
+
+                // Supprimer les particules qui sortent de l'écran ou qui ont fini leur vie
+                if(p.vie <= 0 || p.x < -50 || p.x > C.W + 50 || p.y < -50 || p.y > C.H + 50) {
+                    particules.splice(i, 1);
+                }
+            }
+        }
+
+        function dessinerParticules() {
+            if(animationBateau.active) return; // Pas de particules pendant l'animation du bateau
+
+            particules.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.vie * 0.8;
+                ctx.fillStyle = p.couleur;
+
+                if(p.type === 'coeur') {
+                    // Dessiner petit cœur
+                    const taille = p.taille;
+                    ctx.beginPath();
+                    // Partie gauche du cœur
+                    ctx.arc(p.x - taille*0.3, p.y - taille*0.2, taille*0.4, 0, Math.PI, true);
+                    // Partie droite du cœur
+                    ctx.arc(p.x + taille*0.3, p.y - taille*0.2, taille*0.4, 0, Math.PI, true);
+                    // Pointe du cœur
+                    ctx.lineTo(p.x, p.y + taille*0.6);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    // Particule ronde normale
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.taille, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            });
+        }
+
+        // Afficher les munitions
+        function afficherMunitions() {
+            if (animationBateau.active || phaseJeu !== 'jeu_briques') return;
+
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Étoiles: ${munitions}`, 10, 30);
+        }
+
+        // Dessiner les projectiles étoiles
+        function dessinerProjectiles() {
+            projectiles.forEach(projectile => {
+                ctx.save();
+
+                const posX = projectile.x;
+                const posY = projectile.y;
+                const rayonEtoile = 8;
+
+                // Calcul pour l'effet de rotation scintillante
+                const rotation = Date.now() * 0.01;
+
+                ctx.translate(posX, posY);
+                ctx.rotate(rotation);
+
+                // Dessiner l'étoile dorée avec effet de lueur
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile + 3);
+                gradient.addColorStop(0, '#FFD700');
+                gradient.addColorStop(0.7, '#FFA500');
+                gradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 1;
+
+                // Étoile à 5 branches
+                ctx.beginPath();
+                for(let i = 0; i < 5; i++) {
+                    const angle1 = (i * 2 * Math.PI) / 5;
+                    const angle2 = ((i + 0.5) * 2 * Math.PI) / 5;
+
+                    if(i === 0) {
+                        ctx.moveTo(Math.cos(angle1) * rayonEtoile, Math.sin(angle1) * rayonEtoile);
+                    } else {
+                        ctx.lineTo(Math.cos(angle1) * rayonEtoile, Math.sin(angle1) * rayonEtoile);
+                    }
+
+                    ctx.lineTo(Math.cos(angle2) * rayonEtoile * 0.4, Math.sin(angle2) * rayonEtoile * 0.4);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
+            });
+        }
+
+        // Tirer un projectile étoile depuis le bateau
+        function tirerProjectile(mouseX, mouseY) {
+            if (munitions <= 0 || rechargement > 0) return;
+
+            // Position de tir depuis l'avant du bateau
+            const startX = raquette.x + C.PW * 0.7;
+            const startY = raquette.y - 10;
+
+            // Calculer la direction vers la souris
+            const dx = mouseX - startX;
+            const dy = mouseY - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Normaliser et appliquer la vitesse
+            const vitesse = 8;
+            const velX = (dx / distance) * vitesse;
+            const velY = (dy / distance) * vitesse;
+
+            // Créer un nouveau projectile
+            projectiles.push({
+                x: startX,
+                y: startY,
+                dx: velX,
+                dy: velY
+            });
+
+            munitions--;
+            rechargement = 20; // Délai entre les tirs
+        }
+
+        // Mettre à jour les projectiles
+        function mettreAJourProjectiles() {
+            if (animationBateau.active || phaseJeu !== 'jeu_briques') return;
+
+            // Déplacer les projectiles
+            for(let i = projectiles.length - 1; i >= 0; i--) {
+                const proj = projectiles[i];
+                proj.x += proj.dx;
+                proj.y += proj.dy;
+
+                // Supprimer les projectiles qui sortent de l'écran
+                if(proj.x < 0 || proj.x > C.W || proj.y < 0 || proj.y > C.H) {
+                    projectiles.splice(i, 1);
+                    continue;
+                }
+
+                // Collision avec les briques
+                let briqueTouchee = false;
+                briques.forEach(brique => {
+                    if(briqueTouchee) return;
+                    if(!brique.visible) return;
+
+                    if(proj.x >= brique.x && proj.x <= brique.x + brique.w &&
+                       proj.y >= brique.y && proj.y <= brique.y + brique.h) {
+
+                        const tempsActuel = Date.now();
+                        if(!brique.dernierCoup || tempsActuel - brique.dernierCoup > 500) {
+                            briqueTouchee = true;
+
+                            // Endommager la brique
+                            brique.vie--;
+                            brique.clignotement = 10;
+                            brique.dernierCoup = tempsActuel;
+
+                            // Supprimer le projectile
+                            projectiles.splice(i, 1);
+
+                            // Si la brique est détruite
+                            if (brique.vie <= 0) {
+                                brique.visible = false;
+                                brises++;
+
+                                // Explosion en 3 petits cœurs
+                                for(let j = 0; j < 3; j++) {
+                                    particules.push({
+                                        x: brique.x + brique.w/2 + (Math.random() - 0.5) * 20,
+                                        y: brique.y + brique.h/2 + (Math.random() - 0.5) * 20,
+                                        vx: (Math.random() - 0.5) * 6,
+                                        vy: -(Math.random() * 8 + 4),
+                                        couleur: brique.couleur,
+                                        vie: 1,
+                                        taille: Math.random() * 3 + 4,
+                                        type: 'coeur'
+                                    });
+                                }
+
+                                // Power-ups occasionnels
+                                if(Math.random() < 0.3) {
+                                    creerPowerUp(brique.x + brique.w/2, brique.y + brique.h/2);
+                                }
+
+                                // Vérifier si toutes les briques sont détruites
+                                if(briques.every(b => !b.visible)) {
+                                    phaseJeu = 'fin_niveau';
+                                    setTimeout(() => {
+                                        activerPetitsCoeurs();
+                                    }, 1000);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Réduire le rechargement
+            if(rechargement > 0) {
+                rechargement--;
+            }
+        }
+
+        // Physique zen de la bulle
+        function mettreAJourBulle() {
+            // Vérifier si la pause est active
+            if(pauseBalle.active) {
+                if(Date.now() > pauseBalle.fin) {
+                    pauseBalle.active = false;
+                }
+                return; // Ne pas bouger pendant la pause
+            }
+
+            balle.x += balle.dx;
+            balle.y += balle.dy;
+
+            // L'étoile traverse les bords sans rebondir
+            // Réapparaître de l'autre côté comme un portail magique
+            if(balle.x < -C.BS) {
+                balle.x = C.W + C.BS; // Réapparaît à droite
+                ajouterParticules(balle.x, balle.y, '#FFD700', 8);
+            }
+            if(balle.x > C.W + C.BS) {
+                balle.x = -C.BS; // Réapparaît à gauche
+                ajouterParticules(balle.x, balle.y, '#FFD700', 8);
+            }
+
+            // Téléportation verticale aussi
+            const hauteurInterface = Math.max(C.H * 0.12, 60);
+            if(balle.y < hauteurInterface - C.BS) {
+                balle.y = C.H + C.BS; // Réapparaît en bas
+                ajouterParticules(balle.x, balle.y, '#FFD700', 8);
+            }
+
+            // Perte de vérité (bas) - seulement dans les phases où la balle rebondit
+            if(balle.y >= C.H && phaseJeu !== 'tir_coeurs_haut' && phaseJeu !== 'petits_coeurs') {
+                perdreVie();
+                return;
+            }
+
+            // L'étoile traverse aussi le bateau sans rebondir
+            // Effet magique lors du passage
+            if(balle.y + C.BS >= raquette.y &&
+               balle.y <= raquette.y + C.PH + C.BS &&
+               balle.x >= raquette.x - C.BS &&
+               balle.x <= raquette.x + C.PW + C.BS) {
+
+                // Effet magique de passage
+                ajouterParticules(balle.x, balle.y, '#e74c3c', 10);
+                ajouterParticules(balle.x, balle.y, '#27ae60', 8);
+                ajouterParticules(balle.x, balle.y, '#FFD700', 12);
+
+                // Pas de rebond, l'étoile continue sa trajectoire
+            }
+
+            // Briser les préjugés - une seule brique par frame maximum
+            let briqueTouchee = false;
+            briques.forEach(brique => {
+                if(briqueTouchee) return; // Arrêter si on a déjà touché une brique
+                if(!brique.visible) return;
+
+                if(balle.x + C.BS >= brique.x && balle.x - C.BS <= brique.x + brique.w &&
+                   balle.y + C.BS >= brique.y && balle.y - C.BS <= brique.y + brique.h) {
+
+                    // Protection anti-rebond multiple - temps minimum entre coups
+                    const tempsActuel = Date.now();
+                    if(!brique.dernierCoup || tempsActuel - brique.dernierCoup > 1000) {
+                        // Marquer qu'on a touché une brique
+                        briqueTouchee = true;
+
+                        // Endommager la brique
+                        brique.vie--;
+                        brique.clignotement = 10; // Clignotement pour 10 frames
+                        brique.dernierCoup = tempsActuel;
+
+                        // Rebond plus précis selon la position de contact
+                        const centreBalleX = balle.x;
+                        const centreBriqueX = brique.x + brique.w/2;
+                        const centreBalleY = balle.y;
+                        const centreBriqueY = brique.y + brique.h/2;
+
+                        // L'étoile traverse sans rebondir
+                        // Effet magique de passage à travers les préjugés
+
+                        // Si la brique est détruite
+                        if (brique.vie <= 0) {
+                        brique.visible = false;
+                        brises++;
+
+                        // Explosion en 3 petits cœurs seulement
+                        for(let i = 0; i < 3; i++) {
+                            particules.push({
+                                x: brique.x + brique.w/2 + (Math.random() - 0.5) * 20,
+                                y: brique.y + brique.h/2 + (Math.random() - 0.5) * 20,
+                                vx: (Math.random() - 0.5) * 6,
+                                vy: -(Math.random() * 8 + 4),
+                                couleur: brique.couleur,
+                                vie: 1,
+                                taille: Math.random() * 3 + 4,
+                                type: 'coeur'
+                            });
+                        }
+
+                        // Texte du cœur qui grossit et monte au ciel
+                        ajouterTexteVolant(brique.etape.nom, brique.x + brique.w/2, brique.y + brique.h/2);
+
+                        afficherMessage(brique.etape.msg, 4000, brique.etape.nom); // Affichage 4s avec mot en rouge
+
+                        // Pause de la balle pendant 4 secondes
+                        pauseBalle.active = true;
+                        pauseBalle.fin = Date.now() + 4000;
+                        }
+
+                        score += 50; // 50 points par coup (au lieu de 100 pour destruction)
+
+                        // Chance de créer un power-up bleu
+                        if(Math.random() < 0.3) {
+                            creerPowerUp(brique.x + brique.w/2 - C.BS*0.75, brique.y + brique.h/2 - C.BS*0.75);
+                        }
+                    }
+
+                    if(brises >= VOYAGE.length) {
+                        if(phaseJeu === 'jeu_briques') {
+                            // Phase finale : feux d'artifice spectaculaires !
+                            phaseJeu = 'feux_artifice';
+                            jeu = false;
+                            // Désactiver la lanterne maintenant que la phase des briques est terminée
+                            lanterne.active = false;
+                            lanterne.intensite = 0;
+
+                            // Créer de gros feux d'artifice
+                            for(let i = 0; i < 20; i++) {
+                                setTimeout(() => {
+                                    const x = Math.random() * C.W;
+                                    const y = Math.random() * C.H * 0.7;
+                                    const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'];
+                                    const couleur = couleurs[Math.floor(Math.random() * couleurs.length)];
+                                    ajouterParticules(x, y, couleur, 15);
+                                }, i * 200);
+                            }
+
+                            setTimeout(() => {
+                                afficherMessage('🎆✨ ILLUMINATION COMPLÈTE ! ✨🎆<br><br>🧠 Sagesse totale acquise !<br>💖 Tous les préjugés transformés en amour !<br>🌟 Célébration cosmique d\'étoiles dansantes !<br><br>🕊️ Tu as accompli le voyage de l\'éveil !<br><br>👆 Clique pour un nouveau voyage', 8000);
+                            }, 4000);
+                        } else {
+                            veriteLiberee();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Événements
+        function perdreVie() {
+            vies--;
+            if(vies <= 0) {
+                finDuVoyage();
+                return;
+            }
+
+            balle.x = raquette.x + C.PW * 0.7; // Position à l'avant du bateau
+            balle.y = raquette.y - C.BS - 12;
+            balle.dx = C.SP * (Math.random() > 0.5 ? 1 : -1);
+            balle.dy = -C.SP;
+
+            afficherMessage('💔 Les mensonges résistent ! Continue à chercher la vérité ! 👁️', 3000);
+        }
+
+        function finDuVoyage() {
+            jeu = false;
+            afficherMessage('😢 Le voyage vers la vérité continue...<br><br>💪 "La vérité finit toujours par triompher !"<br><br>✨ Touchez pour recommencer ✨', 6000);
+        }
+
+        function veriteLiberee() {
+            jeu = false;
+            ajouterParticules(C.W/2, C.H/2, '#FFD700', chapitre === 1 ? 30 : 50);
+
+            // Délai de 5 secondes avant l'affichage du message final
+            setTimeout(() => {
+                if(chapitre === 1) {
+                    // Fin du chapitre 1 : transition vers le chapitre 2
+                    afficherMessage('🎉✨ CHAPITRE 1 TERMINÉ ! ✨🎉<br><br>👁️ Tu as vu de tes propres yeux !<br>👨‍👩‍👧‍👦 Un père, une mère, des enfants<br>❤️ Qui veulent juste vivre comme toi !<br><br>🌑 Mais la nuit tombe... Le deuxième chapitre commence...<br><br>👆 Touchez pour continuer', 8000);
+                } else {
+                    // Fin du chapitre 2 : victoire finale
+                    afficherMessage('🎆✨ VÉRITÉ COMPLÈTE ! ✨🎆<br><br>🌑 Tu as traversé l\'obscurité !<br>⛈️ Résisté aux tempêtes de haine !<br>🦈 Échappé aux requins de la cupidité !<br><br>✨ La lumière triomphe des ténèbres !<br>🌅 L\'aube se lève sur un monde meilleur !<br><br>👆 Touchez pour recommencer le voyage', 8000);
+                }
+            }, 5000); // 5 secondes de délai
+        }
+
+        function reprendreAuDernierNiveau() {
+            switch(dernierNiveauAtteint) {
+                case 0:
+                    // Recommencer depuis le début
+                    chapitre = 1;
+                    VOYAGE = CHAPITRE1;
+                    score = 0; vies = 3; brises = 0; jeu = true;
+                    phaseJeu = 'tir_coeurs_haut';
+                    initJeu();
+                    cacherMessage();
+                    break;
+
+                case 1:
+                    // Reprendre à la phase petits cœurs
+                    chapitre = 1;
+                    VOYAGE = CHAPITRE1;
+                    score = 0; vies = 3; brises = 0; jeu = true;
+                    phaseJeu = 'petits_coeurs';
+                    initJeu();
+                    creerPetitsCoeurs();
+                    cacherMessage();
+                    afficherMessage('🔄 REPRISE NIVEAU 1<br><br>💝 Phase petits cœurs<br>✨ Continuez votre progression !', 2000);
+                    break;
+
+                case 2:
+                    // Reprendre au jeu de briques
+                    chapitre = 1;
+                    VOYAGE = CHAPITRE1;
+                    score = 0; vies = 3; brises = 0; jeu = true;
+                    phaseJeu = 'jeu_briques';
+                    initJeu();
+                    dedoublerCoeursEnBriques();
+                    lanterne.active = true;
+                    lanterne.intensite = 1;
+                    cacherMessage();
+                    afficherMessage('🔄 REPRISE NIVEAU 2<br><br>🧱 Phase briques<br>🏮 Lanterne activée !', 2000);
+                    break;
+
+                case 3:
+                    // Reprendre aux feux d'artifice
+                    chapitre = 1;
+                    VOYAGE = CHAPITRE1;
+                    score = 0; vies = 3; brises = VOYAGE.length; jeu = false;
+                    phaseJeu = 'feux_artifice';
+                    initJeu();
+                    cacherMessage();
+                    afficherMessage('🔄 REPRISE NIVEAU 3<br><br>🎆 Phase feux d\'artifice<br>✨ Spectacle final !', 2000);
+                    break;
+
+                case 4:
+                    // Reprendre au niveau secret
+                    lancerNiveauSecret();
+                    afficherMessage('🔄 REPRISE NIVEAU SECRET<br><br>🎯 Mode tir de précision<br>🚀 Niveau débloqué !', 2000);
+                    break;
+
+                default:
+                    // Fallback : recommencer depuis le début
+                    chapitre = 1;
+                    VOYAGE = CHAPITRE1;
+                    score = 0; vies = 3; brises = 0; jeu = true;
+                    phaseJeu = 'tir_coeurs_haut';
+                    initJeu();
+                    cacherMessage();
+                    break;
+            }
+        }
+
+        function recommencer() {
+            if(chapitre === 1 && brises >= VOYAGE.length) {
+                // Transition vers le chapitre 2
+                chapitre = 2;
+                VOYAGE = CHAPITRE2;
+                score = 0; vies = 3; brises = 0; jeu = true;
+                initJeu();
+
+                // Recréer les petits cœurs du haut pour le nouveau chapitre
+                creerPetitsCoeurs();
+
+                cacherMessage();
+                afficherMessage('🌑 CHAPITRE 2 : L\'OBSCURITÉ 🌑<br><br>⛈️ Des orages de discord éclatent...<br>🦈 Les requins de la cupidité rôdent...<br>🌊 Mais garde ton cœur pur dans la tempête !<br><br>👆 Touchez pour affronter l\'obscurité', 7000);
+            } else {
+                // Reprendre au dernier niveau atteint au lieu de restart complet
+                reprendreAuDernierNiveau();
+            }
+        }
+
+        function afficherMessage(texte, duree, motRouge = null) {
+            const msg = document.getElementById('message');
+
+            // Retirer la classe narratif si elle existe
+            msg.classList.remove('narratif');
+
+            // Ajouter le mot du cœur en rouge au début si spécifié
+            let texteComplet = texte;
+            if(motRouge) {
+                texteComplet = `<span style="color: #FF4444; font-weight: bold; text-shadow: 0 0 8px #FF4444; font-size: 1.2em;">💔 ${motRouge.toUpperCase()} 💔</span><br><br>${texte}`;
+
+                // Mettre aussi en surbrillance le mot s'il apparaît dans le texte original
+                const regex = new RegExp(`\\b${motRouge}\\b`, 'gi');
+                texteComplet = texteComplet.replace(regex, `<span style="color: #FF4444; font-weight: bold; text-shadow: 0 0 8px #FF4444;">${motRouge.toUpperCase()}</span>`);
+            }
+
+            msg.innerHTML = texteComplet;
+            msg.classList.add('show');
+
+            // Garder le texte à sa taille normale
+            msg.style.transform = 'translate(-50%, -50%) scale(1)';
+            msg.style.transition = '';
+
+            if(duree > 0) {
+                setTimeout(() => {
+                    msg.classList.remove('show');
+                }, duree);
+            }
+        }
+
+        function afficherMessageAvecBoutons(texte, onRejouer, onContinuer) {
+            const msg = document.getElementById('message');
+
+            // Retirer la classe narratif si elle existe
+            msg.classList.remove('narratif');
+
+            // Créer le contenu avec boutons
+            const boutonsHTML = `
+                <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="cacherMessage(); (${onRejouer})()"
+                            style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+                                   color: white; border: none; padding: 12px 24px;
+                                   border-radius: 25px; font-size: 16px; font-weight: bold;
+                                   cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+                                   transition: all 0.3s ease;">
+                        🔄 Rejouer
+                    </button>
+                    <button onclick="cacherMessage(); (${onContinuer})()"
+                            style="background: linear-gradient(45deg, #00b894, #00a085);
+                                   color: white; border: none; padding: 12px 24px;
+                                   border-radius: 25px; font-size: 16px; font-weight: bold;
+                                   cursor: pointer; box-shadow: 0 4px 15px rgba(0,184,148,0.4);
+                                   transition: all 0.3s ease;">
+                        ➡️ Continuer
+                    </button>
+                </div>
+            `;
+
+            msg.innerHTML = texte + boutonsHTML;
+            msg.classList.add('show');
+
+            // Garder le texte à sa taille normale
+            msg.style.transform = 'translate(-50%, -50%) scale(1)';
+            msg.style.transition = '';
+
+            // Ajouter les effets hover via CSS inline
+            const style = document.createElement('style');
+            style.textContent = `
+                #message button:hover {
+                    transform: translateY(-2px) scale(1.05);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function afficherMessageNarratif(texte, duree = 0) {
+            const msg = document.getElementById('message');
+
+            // Ajouter la classe narratif pour le style cinématique
+            msg.classList.remove('show');
+            msg.classList.add('narratif');
+            msg.innerHTML = texte;
+            msg.classList.add('show');
+
+            if(duree > 0) {
+                setTimeout(() => {
+                    msg.classList.remove('show');
+                    setTimeout(() => {
+                        msg.classList.remove('narratif');
+                    }, 300);
+                }, duree);
+            }
+        }
+
+        function cacherMessage() {
+            document.getElementById('message').classList.remove('show');
+        }
+
+        // Mer avec mouvement simplifié et ailerons de requin
+        function dessinerMer() {
+            const temps = Date.now() * 0.0005;
+            const merY = C.H - 60;
+
+            // Couleur de la mer selon le chapitre
+            const merGrad = ctx.createLinearGradient(0, merY, 0, C.H);
+            if(chapitre === 1) {
+                // Mer bleue paisible
+                merGrad.addColorStop(0, 'rgba(70, 130, 180, 0.8)');
+                merGrad.addColorStop(0.5, 'rgba(100, 150, 200, 0.9)');
+                merGrad.addColorStop(1, 'rgba(30, 100, 140, 0.95)');
+            } else {
+                // Mer sombre et menaçante
+                merGrad.addColorStop(0, 'rgba(47, 79, 79, 0.9)');
+                merGrad.addColorStop(0.5, 'rgba(25, 25, 112, 0.95)');
+                merGrad.addColorStop(1, 'rgba(0, 0, 139, 0.98)');
+            }
+            ctx.fillStyle = merGrad;
+            ctx.fillRect(0, merY, C.W, C.H - merY);
+
+            // Vagues selon le chapitre
+            if(chapitre === 1) {
+                // Vagues paisibles
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 2;
+            } else {
+                // Vagues agitées
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+                ctx.lineWidth = 3;
+            }
+
+            // Lignes de vagues
+            for(let ligne = 0; ligne < 3; ligne++) {
+                const y = merY + ligne * 15;
+                const amplitude = chapitre === 1 ? (8 - ligne * 2) : (12 - ligne * 3);
+                const fréquence = 0.01 + ligne * 0.005;
+                const vitesse = chapitre === 1 ? 1 : 1.5;
+                const offset = temps * vitesse * (1 + ligne * 0.3);
+
+                ctx.beginPath();
+                for(let x = 0; x <= C.W; x += 10) {
+                    const vague = Math.sin(x * fréquence + offset) * amplitude;
+                    if(x === 0) ctx.moveTo(x, y + vague);
+                    else ctx.lineTo(x, y + vague);
+                }
+                ctx.stroke();
+            }
+
+            // Ailerons de requin dans le chapitre 2
+            if(chapitre === 2) {
+                const requins = [
+                    { x: 0.2, vitesse: 0.3, taille: 1.0 },
+                    { x: 0.6, vitesse: 0.5, taille: 0.8 },
+                    { x: 0.9, vitesse: 0.4, taille: 1.2 }
+                ];
+
+                requins.forEach(requin => {
+                    const reqX = (C.W * requin.x + temps * requin.vitesse * 80) % (C.W + 100) - 50;
+                    const reqY = merY + 25 + Math.sin(temps * 2 + requin.x * 10) * 8;
+                    const taille = Math.min(C.W, C.H) * 0.03 * requin.taille;
+
+                    // Aileron de requin
+                    ctx.fillStyle = '#2F4F4F';
+                    ctx.strokeStyle = '#1C1C1C';
+                    ctx.lineWidth = 2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(reqX - taille*0.5, reqY + taille*0.8); // Base gauche
+                    ctx.lineTo(reqX, reqY - taille); // Pointe
+                    ctx.lineTo(reqX + taille*0.3, reqY + taille*0.5); // Base droite
+                    ctx.lineTo(reqX - taille*0.2, reqY + taille*0.8); // Retour base
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Sillage du requin
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(reqX - taille, reqY + taille*0.5);
+                    ctx.lineTo(reqX - taille*2, reqY + taille*0.3);
+                    ctx.stroke();
+                });
+            }
+        }
+
+        // Ciel qui s'adapte au chapitre
+        function dessinerCiel() {
+            const temps = Date.now() * 0.0003;
+
+            // Ne pas dessiner le soleil pendant l'animation du bateau
+            if(animationBateau.active) return;
+
+            // Déclarer les variables pour éviter les erreurs
+            let soleilX, soleilY, soleilR, luneX, luneY, luneR;
+
+            if(chapitre === 1) {
+                // CHAPITRE 1: Soleil heureux
+                soleilX = C.W * 0.8;
+                soleilY = C.H * 0.15;
+                soleilR = Math.min(C.W, C.H) * 0.06;
+
+                // Corps du soleil
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(soleilX, soleilY, soleilR, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Rayons du soleil
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3;
+                for(let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const x1 = soleilX + Math.cos(angle) * (soleilR + 5);
+                    const y1 = soleilY + Math.sin(angle) * (soleilR + 5);
+                    const x2 = soleilX + Math.cos(angle) * (soleilR + 15);
+                    const y2 = soleilY + Math.sin(angle) * (soleilR + 15);
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+            } else {
+                // CHAPITRE 2: Lune inquiétante
+                luneX = C.W * 0.2;
+                luneY = C.H * 0.15;
+                luneR = Math.min(C.W, C.H) * 0.06;
+
+                // Corps de la lune
+                ctx.fillStyle = '#E6E6FA';
+                ctx.beginPath();
+                ctx.arc(luneX, luneY, luneR, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ombre de la lune (croissant)
+                ctx.fillStyle = '#B0C4DE';
+                ctx.beginPath();
+                ctx.arc(luneX + luneR * 0.3, luneY, luneR * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Halo lunaire
+                const haloGrad = ctx.createRadialGradient(luneX, luneY, luneR, luneX, luneY, luneR * 2);
+                haloGrad.addColorStop(0, 'rgba(230, 230, 250, 0.3)');
+                haloGrad.addColorStop(1, 'rgba(230, 230, 250, 0)');
+                ctx.fillStyle = haloGrad;
+                ctx.beginPath();
+                ctx.arc(luneX, luneY, luneR * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Visage selon le chapitre et la progression
+            if(chapitre === 1) {
+                // Vérifier si le soleil fait un clin d'œil
+                const tempsClignotement = Date.now() - soleil.tempsClignotement;
+                const faitClinOeil = soleil.clignotement && tempsClignotement < 2000; // Clin d'œil pendant 2 secondes
+
+                // Arrêter le clignotement après 2 secondes
+                if(tempsClignotement > 2000) {
+                    soleil.clignotement = false;
+                }
+
+                // Visage du soleil (progresse avec le joueur)
+                if(brises >= VOYAGE.length) {
+                    // Soleil paisible et bienveillant à la fin
+                    ctx.fillStyle = '#FF8C00';
+
+                    // Yeux doux et fermés (paix)
+                    ctx.strokeStyle = '#FF8C00';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    // Yeux fermés paisibles en forme de croissants
+                    ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
+                    ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
+                    ctx.stroke();
+
+                    // Sourire doux et modéré
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(soleilX, soleilY + soleilR*0.2, soleilR*0.3, 0.2, Math.PI - 0.2);
+                    ctx.stroke();
+                } else if(brises > 0) {
+                    // Soleil qui commence à sourire
+                    ctx.fillStyle = '#FF8C00';
+                    ctx.beginPath();
+
+                    if(faitClinOeil) {
+                        // Clin d'œil ! Œil gauche fermé, œil droit ouvert
+                        // Œil gauche fermé (clin d'œil)
+                        ctx.strokeStyle = '#FF8C00';
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0.3, Math.PI - 0.3);
+                        ctx.stroke();
+
+                        // Œil droit ouvert (normal)
+                        ctx.fillStyle = '#FF8C00';
+                        ctx.beginPath();
+                        ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Sourire extra large pour le clin d'œil
+                        ctx.strokeStyle = '#FF8C00';
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.5, 0, Math.PI);
+                        ctx.stroke();
+                    } else {
+                        // Yeux normaux
+                        ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#FF8C00';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.4, 0, Math.PI);
+                        ctx.stroke();
+                    }
+                } else {
+                    // Soleil qui boude au début
+                    ctx.fillStyle = '#FF8C00';
+                    ctx.beginPath();
+                    ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
+                    ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#FF8C00';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(soleilX, soleilY + soleilR*0.3, soleilR*0.3, Math.PI, 0, true);
+                    ctx.stroke();
+                }
+            } else {
+                // Visage de la lune inquiétante
+                ctx.fillStyle = '#8B8B8B';
+                // Yeux sombres et inquiets
+                ctx.beginPath();
+                ctx.arc(luneX - luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
+                ctx.arc(luneX + luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sourire malsain
+                ctx.strokeStyle = '#696969';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(luneX, luneY + luneR*0.2, luneR*0.3, 0, Math.PI);
+                ctx.stroke();
+            }
+
+            // Nuages selon le chapitre
+            if(chapitre === 1) {
+                // Nuages blancs paisibles
+                const nuages = [
+                    { x: 0.2, y: 0.2, taille: 0.8, vitesse: 1 },
+                    { x: 0.6, y: 0.25, taille: 1, vitesse: 0.7 },
+                    { x: 0.1, y: 0.35, taille: 0.6, vitesse: 1.2 }
+                ];
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+                ctx.lineWidth = 2;
+
+                nuages.forEach(nuage => {
+                    const nuageX = (C.W * nuage.x + temps * nuage.vitesse * 50) % (C.W + 100) - 50;
+                    const nuageY = C.H * nuage.y;
+                    const taille = Math.min(C.W, C.H) * 0.04 * nuage.taille;
+
+                    for(let i = 0; i < 3; i++) {
+                        const offsetX = (i - 1) * taille * 0.8;
+                        const rayonNuage = taille * (0.8 + i * 0.1);
+                        ctx.beginPath();
+                        ctx.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                });
+            } else {
+                // Nuages d'orage gris avec éclairs
+                const nuagesOrage = [
+                    { x: 0.3, y: 0.25, taille: 1.2, vitesse: 0.8 },
+                    { x: 0.7, y: 0.2, taille: 1.5, vitesse: 0.5 },
+                    { x: 0.1, y: 0.3, taille: 1.0, vitesse: 1.0 }
+                ];
+
+                nuagesOrage.forEach(nuage => {
+                    const nuageX = (C.W * nuage.x + temps * nuage.vitesse * 30) % (C.W + 150) - 75;
+                    const nuageY = C.H * nuage.y;
+                    const taille = Math.min(C.W, C.H) * 0.05 * nuage.taille;
+
+                    // Nuages gris menaçants
+                    ctx.fillStyle = 'rgba(80, 80, 80, 0.9)';
+                    ctx.strokeStyle = 'rgba(60, 60, 60, 0.8)';
+                    ctx.lineWidth = 2;
+
+                    for(let i = 0; i < 4; i++) {
+                        const offsetX = (i - 1.5) * taille * 0.6;
+                        const rayonNuage = taille * (0.7 + i * 0.1);
+                        ctx.beginPath();
+                        ctx.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+
+                    // Éclairs occasionnels
+                    if(Math.random() < 0.02) {
+                        ctx.strokeStyle = '#FFFF00';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(nuageX, nuageY + taille);
+                        ctx.lineTo(nuageX + (Math.random() - 0.5) * 60, nuageY + taille + Math.random() * 80);
+                        ctx.lineTo(nuageX + (Math.random() - 0.5) * 40, nuageY + taille + Math.random() * 120);
+                        ctx.stroke();
+                    }
+                });
+            }
+        }
+
+        // Rendu principal
+        function dessiner() {
+            // Fond dégradé selon le chapitre
+            const grad = ctx.createLinearGradient(0, 0, 0, C.H);
+            if(chapitre === 1) {
+                // Ciel diurne
+                grad.addColorStop(0, 'rgba(135, 206, 250, 0.98)');
+                grad.addColorStop(0.7, 'rgba(176, 224, 230, 0.98)');
+                grad.addColorStop(1, 'rgba(240,248,255,0.98)');
+            } else {
+                // Ciel nocturne orageux
+                grad.addColorStop(0, 'rgba(25, 25, 112, 0.98)'); // Bleu nuit
+                grad.addColorStop(0.5, 'rgba(47, 79, 79, 0.98)'); // Gris sombre
+                grad.addColorStop(1, 'rgba(105, 105, 105, 0.98)'); // Gris
+            }
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, C.W, C.H);
+
+            dessinerCiel();
+            dessinerMer();
+            dessinerInterface();
+            dessinerPrejuges();
+            dessinerPowerUps();
+            dessinerCoeursBateau();
+            dessinerPetitsCoeurs();
+            dessinerBateau();
+            afficherMunitions();
+            dessinerProjectiles();
+            dessinerLanterne();
+            dessinerCorbeau(); // Corbeau secret
+            dessinerObstacles(); // Mode secret obstacles
+            dessinerParticules();
+            dessinerTextesVolants();
+            dessinerMessageCorbeauBas(); // Messages discrets du corbeau
+        }
+
+        // Contrôles tactiles et souris unifiés
+        function obtenirPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return { x: touch.clientX - rect.left };
+        }
+
+        function deplacerRaquette(x) {
+            if(!jeu) return;
+            raquette.x = x - C.PW/2;
+            raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
+        }
+
+        // Événements tactiles
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault(); tactile = true;
+            if(animationBateau.active || etapeIntro < 3) { return; } // Bloquer pendant l'animation et l'intro
+            if(!jeu && etapeIntro >= 3) { recommencer(); return; } // Ne recommencer que si l'intro est terminée
+            const pos = obtenirPosition(e);
+            deplacerRaquette(pos.x);
+            libererVaguesAmour(); // Libérer une vague d'amour
+        });
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
+            const pos = obtenirPosition(e);
+            deplacerRaquette(pos.x);
+        });
+
+        canvas.addEventListener('touchend', e => {
+            e.preventDefault(); tactile = false;
+        });
+
+        // Événements souris
+        canvas.addEventListener('mousemove', e => {
+            if(animationBateau.active || tactile) return; // Bloquer pendant l'animation
+            const rect = canvas.getBoundingClientRect();
+
+
+            deplacerRaquette(e.clientX - rect.left);
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if(animationBateau.active || etapeIntro < 3) { return; } // Bloquer pendant l'animation et l'intro
+            if(!jeu && etapeIntro >= 3) { // Ne recommencer que si l'intro est terminée
+                recommencer();
+            } else if(phaseJeu === 'jeu_briques') {
+                // Tirer une étoile depuis le bateau dans la phase briques
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                tirerProjectile(mouseX, mouseY);
+            } else {
+                let corbeauTouche = false;
+
+                // Vérifier si on a cliqué sur le corbeau
+                if(corbeau.actif) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+                    const dx = x - corbeau.x;
+                    const dy = y - corbeau.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+
+                    if(distance < 40) { // Rayon de collision du corbeau
+                        corbeauTouche = true;
+                        corbeau.touches++;
+                        score += 100; // Points bonus pour toucher le corbeau
+
+                        // Effet visuel
+                        ajouterParticules(corbeau.x, corbeau.y, '#FFD700', 8);
+
+                        if(corbeau.touches >= 3) {
+                            // Transformer en colombe !
+                            corbeau.type = 'colombe';
+                            score += 1000; // Gros bonus pour la transformation
+
+                            // Débloquer le niveau secret !
+                            niveauSecretDebloque = true;
+
+                            afficherMessage('🕊️ MIRACLE ! 🕊️<br><br>✨ Le corbeau s\'est transformé en colombe !<br>💎 +1000 points bonus !<br>☀️ Le soleil vous fait un clin d\'œil !<br><br>🔓 NIVEAU SECRET DÉBLOQUÉ !<br>🎮 Mode Pacman activé !', 3000);
+
+                            // Le soleil fait un clin d'œil
+                            soleil.clignotement = true;
+                            soleil.tempsClignotement = Date.now();
+
+                            // Déclencher le niveau secret après un délai
+                            setTimeout(() => {
+                                lancerNiveauSecret();
+                            }, 4000);
+                        } else {
+                            // Message discret en bas à droite
+                            afficherMessageCorbeauBas(`🎯 ${corbeau.touches}/3 💰 +100`, 1000);
+                        }
+                    }
+                }
+
+                // Toujours libérer une vague d'amour, même si on a touché le corbeau
+                if(!modeSecret) {
+                    libererVaguesAmour();
+                } else {
+                    // En mode secret, tirer un projectile à chaque clic
+                    creerProjectile();
+                }
+            }
+        });
+
+        // Redimensionnement responsive
+        window.addEventListener('resize', () => {
+            size = setupCanvas();
+            if(!jeu) initJeu();
+        });
+
+        // ========== CORBEAU SECRET ==========
+        function afficherMessageCorbeauBas(texte, duree) {
+            messageCorbeauBas.actif = true;
+            messageCorbeauBas.texte = texte;
+            messageCorbeauBas.tempsFin = Date.now() + duree;
+        }
+
+        function mettreAJourMessageCorbeauBas() {
+            if(messageCorbeauBas.actif && Date.now() > messageCorbeauBas.tempsFin) {
+                messageCorbeauBas.actif = false;
+            }
+        }
+
+        function dessinerMessageCorbeauBas() {
+            if(!messageCorbeauBas.actif) return;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Position en bas à droite
+            const x = C.W - 120;
+            const y = C.H - 40;
+
+            // Fond semi-transparent
+            const largeur = 200;
+            const hauteur = 30;
+            ctx.fillRect(x - largeur/2, y - hauteur/2, largeur, hauteur);
+
+            // Texte en blanc
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText(messageCorbeauBas.texte, x, y);
+
+            ctx.restore();
+        }
+
+        function mettreAJourCorbeau() {
+            if(!jeu) return;
+
+            // Initialiser le temps de départ si pas encore fait
+            if(corbeau.tempsApparition === 0) {
+                corbeau.tempsApparition = Date.now();
+            }
+
+            const tempsJeu = Date.now() - corbeau.tempsApparition;
+
+            // Faire apparaître le corbeau toutes les 30 secondes
+            if(!corbeau.actif && tempsJeu >= corbeau.prochainPassage) {
+                corbeau.actif = true;
+                corbeau.x = -100; // Commence hors écran à gauche
+                corbeau.y = C.H * 0.4; // Vers le milieu de l'écran
+                corbeau.vx = 0.8 / 1.5; // Vitesse 1.5x plus lente
+                corbeau.touches = 0; // Réinitialiser le compteur de touches
+                // Garder le type actuel (corbeau ou colombe) - ne pas forcer le retour en corbeau
+
+                // Prochain passage dans 30 secondes
+                corbeau.prochainPassage += 30000;
+            }
+
+            // Animer le corbeau s'il est actif
+            if(corbeau.actif) {
+                corbeau.x += corbeau.vx;
+                corbeau.y += Math.sin(Date.now() * 0.0005) * 0.25; // Mouvement ondulant très doux et petit
+
+                // Retirer le corbeau s'il sort de l'écran
+                if(corbeau.x > C.W + 100) {
+                    corbeau.actif = false;
+                    corbeau.x = 0;
+                    corbeau.y = 0;
+                }
+            }
+        }
+
+        function dessinerCorbeau() {
+            if(!corbeau.actif) return;
+
+            ctx.save();
+
+            const taille = 40;
+            const x = corbeau.x;
+            const y = corbeau.y;
+
+            if(corbeau.type === 'corbeau') {
+                // Corbeau noir style manga
+                ctx.fillStyle = '#000000';
+
+                // Corps du corbeau
+                ctx.beginPath();
+                ctx.ellipse(x, y, taille * 0.6, taille * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ailes déployées
+                ctx.beginPath();
+                ctx.ellipse(x - taille * 0.3, y - taille * 0.1, taille * 0.4, taille * 0.2, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(x + taille * 0.3, y - taille * 0.1, taille * 0.4, taille * 0.2, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Bec
+                ctx.fillStyle = '#FFAA00';
+                ctx.beginPath();
+                ctx.moveTo(x + taille * 0.6, y);
+                ctx.lineTo(x + taille * 0.8, y);
+                ctx.lineTo(x + taille * 0.6, y + 5);
+                ctx.fill();
+
+                // Œil manga
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(x + taille * 0.2, y - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.arc(x + taille * 0.2, y - 5, 4, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Colombe blanche
+                ctx.fillStyle = '#FFFFFF';
+                ctx.strokeStyle = '#DDDDDD';
+                ctx.lineWidth = 1;
+
+                // Corps de la colombe
+                ctx.beginPath();
+                ctx.ellipse(x, y, taille * 0.6, taille * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Ailes blanches
+                ctx.beginPath();
+                ctx.ellipse(x - taille * 0.3, y - taille * 0.1, taille * 0.4, taille * 0.2, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.ellipse(x + taille * 0.3, y - taille * 0.1, taille * 0.4, taille * 0.2, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Bec doré
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.moveTo(x + taille * 0.6, y);
+                ctx.lineTo(x + taille * 0.8, y);
+                ctx.lineTo(x + taille * 0.6, y + 5);
+                ctx.fill();
+
+                // Œil doux
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(x + taille * 0.2, y - 5, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Halo de lumière
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, taille * 0.8, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // Textes volants qui grossissent et montent tout doucement vers le centre
+        function ajouterTexteVolant(texte, x, y) {
+            textesVolants.push({
+                texte: texte,
+                x: x,
+                y: y,
+                xDepart: x,
+                yDepart: y,
+                vy: 0, // Vitesse calculée dynamiquement
+                taille: 12, // Taille initiale
+                alpha: 1, // Opacité
+                temps: 0,
+                phase: 'descente' // 'descente' puis 'montee'
+            });
+        }
+
+        function mettreAJourTextesVolants() {
+            for(let i = textesVolants.length - 1; i >= 0; i--) {
+                const texte = textesVolants[i];
+                texte.temps += 0.004; // Progression plus lente
+
+                // Mouvement vers le centre horizontal
+                const centreX = C.W / 2;
+                const progression = Math.min(1, texte.temps * 1.5); // Progression plus lente vers le centre
+                texte.x = texte.xDepart + (centreX - texte.xDepart) * progression;
+
+                // Animation en deux phases : descente puis montée
+                if(texte.phase === 'descente') {
+                    // Phase 1 : Le texte descend lentement et plus bas
+                    texte.y = texte.yDepart + (texte.temps * 200); // Descend plus bas (200px max)
+
+                    // Fondu pendant la descente
+                    texte.alpha = Math.max(0.3, 1 - texte.temps * 2); // Fondu plus marqué
+
+                    // Passer à la phase montée après plus de temps
+                    if(texte.temps > 0.2) {
+                        texte.phase = 'montee';
+                        texte.yTournant = texte.y; // Marquer le point de retournement
+                        texte.tempsRetournement = texte.temps;
+                        texte.alpha = 0.3; // Alpha minimum au tournant
+                    }
+                } else {
+                    // Phase 2 : Le texte remonte vers le haut avec fondu retour
+                    const tempsDepuisRetournement = texte.temps - texte.tempsRetournement;
+                    texte.y = texte.yTournant - (tempsDepuisRetournement * 120); // Remonte moins vite
+
+                    // Fondu retour pendant la montée
+                    texte.alpha = Math.min(1, 0.3 + tempsDepuisRetournement * 3);
+                }
+
+                // Grossissement très progressif et doux
+                texte.taille = 12 + texte.temps * 20;
+
+                // Disparition finale très progressive
+                if(texte.temps > 0.6) {
+                    texte.alpha = Math.max(0, texte.alpha - (texte.temps - 0.6) * 2);
+                }
+
+                // Supprimer si invisible ou trop haut
+                if(texte.alpha <= 0 || texte.y < -50) {
+                    textesVolants.splice(i, 1);
+                }
+            }
+        }
+
+        function dessinerTextesVolants() {
+            textesVolants.forEach(texte => {
+                ctx.save();
+                ctx.globalAlpha = texte.alpha;
+                ctx.font = `800 ${texte.taille}px monospace`;
+                ctx.textAlign = 'center';
+
+                // Contour blanc
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = Math.max(2, texte.taille * 0.1);
+                ctx.strokeText(texte.texte, texte.x, texte.y);
+
+                // Texte principal
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillText(texte.texte, texte.x, texte.y);
+
+                ctx.restore();
+            });
+        }
+
+        // Boucle de jeu
+        function boucleJeu() {
+            // Gérer l'animation du bateau
+            gererAnimationBateau();
+
+            // Gérer la phase d'introduction
+            gererPhaseIntro();
+
+            if(jeu || phaseIntro.active) {
+                if(jeu) {
+                    mettreAJourProjectiles(); // Nouveau système de projectiles
+                    mettreAJourBulle(); // Ancien système pour les autres phases
+                }
+                mettreAJourParticules();
+                mettreAJourPowerUps();
+                mettreAJourLanterne();
+                mettreAJourCoeursBateau();
+                mettreAJourPetitsCoeurs();
+                mettreAJourTextesVolants();
+                mettreAJourCorbeau(); // Gestion du corbeau secret
+                mettreAJourMessageCorbeauBas(); // Messages discrets du corbeau
+                mettreAJourObstacles(); // Mode secret obstacles
+                mettreAJourProjectiles(); // Projectiles du mode secret
+            }
+            dessiner();
+            requestAnimationFrame(boucleJeu);
+        }
+
+        // Démarrage
+        initJeu();
+        // Afficher l'introduction en trois parties avec bouton Suivant
+        let etapeIntro = 0;
+        let niveauSecretDebloque = false;
+        let modeSecret = false;
+        let dernierNiveauAtteint = 0; // Sauvegarder le dernier niveau atteint
+        let obstacles = [];
+        let projectiles = [];
+        let tempsDebutSecret = 0;
+        let tempsDernierObstacle = 0;
+
+        const messagesIntro = [
+            '👁️✨ VOIR LA VÉRITÉ ✨👁️<br><br>🌅 CHAPITRE 1 : LA LUMIÈRE<br><br>💭 "On m\'a dit qu\'ils étaient tous des monstres...<br>On m\'a dit tant de mal, tant de malheurs sur eux...<br>Mais moi, j\'ai préféré aller voir de mes propres yeux.<br>Qui étaient ces gens-là ?..."',
+            '💭 "Et j\'ai vu...<br>Un père... une mère... des enfants...<br>Tous cherchant simplement à vivre leur meilleure vie... Comme moi."',
+            '🌑 Puis viendra l\'obscurité... ⛈️<br>🎮 Brise les préjugés, résiste aux tempêtes !<br><br>👆 Touchez pour commencer le voyage !'
+        ];
+
+        function afficherEtapeIntro() {
+            if(etapeIntro < messagesIntro.length) {
+                const duree = 0; // Toujours permanent - ne disparaît que lors du clic "suivant"
+                let messageAvecBouton = messagesIntro[etapeIntro];
+
+                // Ajouter le bouton "Passer" pour les 2 premières étapes seulement
+                if(etapeIntro < 2) {
+                    messageAvecBouton += '<br><br><button class="message-button" onclick="suivantIntro()" title="Non! On ne peut pas laisser passer ça">Passer ➜</button>';
+                } else if(etapeIntro === 2) {
+                    // Dernière étape : bouton pour commencer le jeu
+                    messageAvecBouton += '<br><br><button class="message-button" onclick="commencerJeu()" style="background: linear-gradient(45deg, #27ae60, #2ecc71);">🚀 Commencer l\'aventure</button>';
+                }
+
+                // Utiliser le mode narratif pour l'introduction
+                afficherMessage(messageAvecBouton, duree);
+
+                // Plus de passage automatique - seul l'utilisateur contrôle
+            }
+        }
+
+        // Fonction pour avancer manuellement (accessible globalement)
+        window.suivantIntro = function() {
+            if(animationBateau.active) {
+                // Message d'interdiction pendant l'animation
+                afficherMessage('❌ NON !<br><br>🚫 On ne peut pas laisser passer ça !<br><br>⏳ Profitez de ce moment...', 3000);
+                return;
+            }
+            if(etapeIntro < 2) {
+                etapeIntro++;
+                afficherEtapeIntro();
+            }
+        }
+
+        // Fonction pour commencer le jeu depuis la dernière étape d'intro
+        window.commencerJeu = function() {
+            cacherMessage();
+            etapeIntro = 3; // Marquer l'intro comme terminée
+            // Le jeu démarrera automatiquement grâce à l'animation du bateau
+        }
+
+        // Gestionnaire désactivé - seuls les boutons fonctionnent
+        // document.addEventListener('keydown', (e) => {
+        //     if(e.key === ' ' || e.key === 'Enter') { // Espace ou Entrée pour suivant
+        //         suivantIntro();
+        //     }
+        // });
+
+        // ======== NIVEAU SECRET : PACMAN ========
+        function lancerNiveauSecret() {
+            modeSecret = true;
+            tempsDebutSecret = Date.now();
+            tempsDernierObstacle = Date.now();
+            obstacles = [];
+
+            // Changer l'ambiance pour le mode secret
+            phaseJeu = 'secret_obstacles';
+            dernierNiveauAtteint = Math.max(dernierNiveauAtteint, 4);
+            jeu = true;
+
+            // Créer 3 obstacles marins de départ à différentes profondeurs
+            for(let i = 0; i < 3; i++) {
+                creerObstaclesMarins();
+                // Espacer les obstacles dans la profondeur
+                if(obstacles.length > 0) {
+                    obstacles[obstacles.length - 1].z = 0.1 + i * 0.1;
+                }
+            }
+
+            afficherMessage('🎯 NIVEAU SECRET : TIR DE PRÉCISION ! 🎯<br><br>🧊 Tirez sur les icebergs et poubelles ! ♻<br>🐋 ATTENTION : Les baleines sont protégées !<br>🚫 Tirer sur une baleine = "NO GREAT!" et perte de vie<br>👆 Chaque clic = un tir précis<br>💰 +100 points par obstacle détruit !', 5000);
+        }
+
+
+
+        function creerProjectile() {
+            // Créer un projectile depuis le bateau
+            projectiles.push({
+                x: raquette.x + C.PW/2, // Centre du bateau
+                y: raquette.y,
+                vitesse: 8, // Vitesse vers le haut
+                taille: 5
+            });
+        }
+
+        function mettreAJourProjectiles() {
+            if(!modeSecret) return;
+
+            projectiles.forEach((projectile, pIndex) => {
+                // Faire monter le projectile
+                projectile.y -= projectile.vitesse;
+
+                // Supprimer les projectiles qui sortent en haut
+                if(projectile.y < -10) {
+                    projectiles.splice(pIndex, 1);
+                    return;
+                }
+
+                // Vérifier collision avec les obstacles
+                obstacles.forEach((obstacle, oIndex) => {
+                    if(obstacle.touche) return; // Obstacle déjà touché
+
+                    const distance = Math.sqrt(
+                        Math.pow(projectile.x - obstacle.x, 2) +
+                        Math.pow(projectile.y - obstacle.y, 2)
+                    );
+
+                    if(distance < obstacle.taille/2 + projectile.taille) {
+                        // Collision détectée !
+                        projectiles.splice(pIndex, 1); // Supprimer le projectile
+
+                        if(obstacle.type === 'baleine') {
+                            // Baleine protégée ! Perdre une vie
+                            vies--;
+
+                            // Messages amusants variés
+                            const messagesRigolo = [
+                                'NO GREAT! HAAAH!',
+                                'BOOOO! PAS BIEN!',
+                                'OOOH NON! VILAIN!',
+                                'HAAAH! CATASTROPHE!',
+                                'BEURK! MECHANT!',
+                                'AIEEEE! MONSTER!',
+                                'GRRRR! STUPID!',
+                                'PFFFFFF! IDIOT!',
+                                'TSSS TSSS! SHAME!'
+                            ];
+                            const messageAleatoire = messagesRigolo[Math.floor(Math.random() * messagesRigolo.length)];
+
+                            if(vies <= 0) {
+                                modeSecret = false;
+                                jeu = false;
+                                afficherMessageAvecBoutons(`💀 ${messageAleatoire} 💀<br><br>🐋 Tu as tiré sur une baleine protégée !<br>😱 Toutes tes vies sont épuisées !<br>🚫 Les baleines ne se tirent pas !<br>🤪 HAHAHAHA! GAME OVER!`,
+                                    'lancerNiveauSecret', 'recommencer');
+                            } else {
+                                const messagesVie = [
+                                    `🚫 ${messageAleatoire} 🚫<br><br>🐋 Les baleines sont protégées !<br>💔 Vie perdue : ${vies} restantes<br>😤 Tire seulement sur les icebergs !<br>🙄 TSSS TSSS!`,
+                                    `🚫 ${messageAleatoire} 🚫<br><br>🐋 BALEINE = INTERDITE !<br>💔 Oups : ${vies} vies restantes<br>😤 ICEBERGS SEULEMENT !<br>🤦‍♂️ PFFFFFF!`,
+                                    `🚫 ${messageAleatoire} 🚫<br><br>🐋 PAUVRE BALEINE !<br>💔 Punition : ${vies} vies left<br>😤 GLACE = OK, BALEINE = NON !<br>😂 HAHAHAHA!`
+                                ];
+                                const messageVieAleatoire = messagesVie[Math.floor(Math.random() * messagesVie.length)];
+                                afficherMessage(messageVieAleatoire, 3000);
+                            }
+
+                            // Effet visuel rouge (colère)
+                            ajouterParticules(obstacle.x, obstacle.y, '#FF0000', 8);
+                        } else {
+                            // Iceberg ou Poubelle : OK à détruire
+                            obstacle.vie--;
+                            if(obstacle.vie <= 0) {
+                                // Obstacle détruit
+                                obstacles.splice(oIndex, 1);
+                                score += 100; // Points bonus
+
+                                // Effet visuel vert (succès)
+                                ajouterParticules(obstacle.x, obstacle.y, '#00FF00', 6);
+                            } else {
+                                obstacle.touche = true; // Marquer comme touché temporairement
+                                setTimeout(() => { obstacle.touche = false; }, 200);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function dessinerProjectiles() {
+            if(!modeSecret) return;
+
+            projectiles.forEach(projectile => {
+                ctx.save();
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.taille, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function creerObstaclesMarins() {
+            // Créer obstacle qui tombe du ciel
+            const types = ['baleine', 'iceberg', 'poubelle'];
+
+            // Position horizontale aléatoire
+            const x = 50 + Math.random() * (C.W - 100);
+
+            // Obstacle qui tombe du haut vers le bas
+            obstacles.push({
+                x: x,
+                y: -50, // Commence au-dessus de l'écran
+                vitesse: 2 + Math.random() * 2, // Vitesse de chute variable
+                type: types[Math.floor(Math.random() * types.length)],
+                taille: 30 + Math.random() * 20, // Taille variable
+                vie: 1, // Points de vie
+                touche: false // Pour éviter plusieurs hits
+            });
+        }
+
+        function mettreAJourObstacles() {
+            if(!modeSecret) return;
+
+            // Ajouter de nouveaux obstacles régulièrement
+            if(obstacles.length < 3 && Date.now() - tempsDernierObstacle > 1500) {
+                creerObstaclesMarins();
+                tempsDernierObstacle = Date.now();
+            }
+
+            // Mettre à jour chaque obstacle
+            obstacles.forEach((obstacle, index) => {
+                // Faire tomber l'obstacle
+                obstacle.y += obstacle.vitesse;
+
+                // Supprimer les obstacles qui sortent en bas
+                if(obstacle.y > C.H + 50) {
+                    obstacles.splice(index, 1);
+                    return;
+                }
+            });
+
+            // Vérifier si on a survécu 30 secondes
+            if(Date.now() - tempsDebutSecret > 30000) {
+                // Victoire !
+                modeSecret = false;
+                jeu = false;
+                score += 5000; // Gros bonus !
+                afficherMessageAvecBoutons('🏆 VICTOIRE SECRÈTE ! 🏆<br><br>🎉 Vous avez survécu aux obstacles marins !<br>💎 +5000 points bonus !<br>🌟 Maître de la navigation !',
+                    'lancerNiveauSecret', 'recommencer');
+            }
+        }
+
+        // ========== MODULE OBSTACLES ==========
+        const ObstacleSystem = {
+            // Système de rendu
+            renderers: {
+            baleine: function(ctx, taille) {
+                // Corps principal
+                ctx.fillStyle = '#2d3436';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, taille, taille * 0.6, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Yeux
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(-taille * 0.3, -taille * 0.2, taille * 0.1, 0, Math.PI * 2);
+                ctx.arc(taille * 0.3, -taille * 0.2, taille * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Pupilles
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(-taille * 0.3, -taille * 0.2, taille * 0.05, 0, Math.PI * 2);
+                ctx.arc(taille * 0.3, -taille * 0.2, taille * 0.05, 0, Math.PI * 2);
+                ctx.fill();
+            },
+
+            iceberg: function(ctx, taille) {
+                // Corps principal
+                ctx.fillStyle = '#74b9ff';
+                ctx.strokeStyle = '#0984e3';
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                ctx.moveTo(0, -taille);
+                ctx.lineTo(taille * 0.7, taille * 0.8);
+                ctx.lineTo(-taille * 0.7, taille * 0.8);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Lignes de glace
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(-taille * 0.3, -taille * 0.2);
+                ctx.lineTo(taille * 0.4, taille * 0.3);
+                ctx.moveTo(taille * 0.2, -taille * 0.4);
+                ctx.lineTo(-taille * 0.2, taille * 0.5);
+                ctx.stroke();
+            },
+
+            poubelle: function(ctx, taille) {
+                // Corps de la poubelle
+                ctx.fillStyle = '#2d3436';
+                ctx.fillRect(-taille * 0.6, -taille * 0.4, taille * 1.2, taille * 1.2);
+
+                // Couvercle
+                ctx.fillStyle = '#636e72';
+                ctx.fillRect(-taille * 0.7, -taille * 0.6, taille * 1.4, taille * 0.2);
+
+                // Poignée du couvercle
+                ctx.strokeStyle = '#636e72';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, -taille * 0.5, taille * 0.2, Math.PI, 0, false);
+                ctx.stroke();
+
+                // Rayures sur la poubelle
+                ctx.strokeStyle = '#636e72';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for(let i = -2; i <= 2; i++) {
+                    ctx.moveTo(i * taille * 0.15, -taille * 0.2);
+                    ctx.lineTo(i * taille * 0.15, taille * 0.6);
+                }
+                ctx.stroke();
+
+                // Symbole recyclage
+                ctx.fillStyle = '#00b894';
+                ctx.font = `${taille * 0.3}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('♻', 0, taille * 0.2);
+            }
+            }
+        };
+
+        function dessinerObstacles() {
+            if(!modeSecret) return;
+
+            obstacles.forEach(obstacle => {
+                ctx.save();
+                ctx.translate(obstacle.x, obstacle.y);
+
+                const renderer = ObstacleSystem.renderers[obstacle.type];
+                if(renderer) {
+                    renderer(ctx, obstacle.taille);
+                }
+
+                ctx.restore();
+            });
+
+            // Afficher le temps restant
+            ctx.save();
+            ctx.fillStyle = '#FF0000';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            const tempsRestant = Math.max(0, 30 - Math.floor((Date.now() - tempsDebutSecret) / 1000));
+            ctx.fillText(`⏰ ${tempsRestant}s`, C.W/2, 50);
+            ctx.restore();
+        }
+
+        // L'animation démarre automatiquement via gererAnimationBateau()
+        boucleJeu();
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Test Minimal</title>
+    <style>
+        body { margin: 0; background: lightblue; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        canvas { border: 2px solid black; background: white; }
+    </style>
+</head>
+<body>
+    <div class="game-container" style="width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <script>
+        console.log("Script démarre...");
+
+        try {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+
+            console.log("Canvas:", canvas, "Context:", ctx);
+
+            // Variables de base
+            let projectiles = [], munitions = 10, rechargement = 0;
+            let raquette = { x: 300, y: 500 };
+
+            console.log("Variables créées");
+
+            // Test fonction de tir
+            function tirerProjectile(mouseX, mouseY) {
+                console.log("Tir vers:", mouseX, mouseY);
+
+                if (munitions <= 0 || rechargement > 0) return;
+
+                const startX = raquette.x + 50;
+                const startY = raquette.y;
+
+                const dx = mouseX - startX;
+                const dy = mouseY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                const vitesse = 8;
+                const velX = (dx / distance) * vitesse;
+                const velY = (dy / distance) * vitesse;
+
+                projectiles.push({
+                    x: startX,
+                    y: startY,
+                    dx: velX,
+                    dy: velY
+                });
+
+                munitions--;
+                rechargement = 20;
+            }
+
+            console.log("Fonction tirerProjectile créée");
+
+            // Fonction de dessin
+            function dessiner() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Bateau simple
+                ctx.fillStyle = 'brown';
+                ctx.fillRect(raquette.x, raquette.y, 100, 30);
+
+                // Projectiles
+                projectiles.forEach(proj => {
+                    ctx.fillStyle = 'gold';
+                    ctx.beginPath();
+                    ctx.arc(proj.x, proj.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Munitions
+                ctx.fillStyle = 'black';
+                ctx.font = '16px Arial';
+                ctx.fillText(`Étoiles: ${munitions}`, 10, 30);
+            }
+
+            console.log("Fonction dessiner créée");
+
+            // Fonction de mise à jour
+            function mettreAJour() {
+                // Déplacer projectiles
+                for(let i = projectiles.length - 1; i >= 0; i--) {
+                    const proj = projectiles[i];
+                    proj.x += proj.dx;
+                    proj.y += proj.dy;
+
+                    // Supprimer si hors écran
+                    if(proj.x < 0 || proj.x > canvas.width || proj.y < 0 || proj.y > canvas.height) {
+                        projectiles.splice(i, 1);
+                    }
+                }
+
+                // Réduire rechargement
+                if(rechargement > 0) {
+                    rechargement--;
+                }
+            }
+
+            console.log("Fonction mettreAJour créée");
+
+            // Contrôles
+            canvas.addEventListener('click', (e) => {
+                console.log("Clic détecté");
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                tirerProjectile(mouseX, mouseY);
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                const rect = canvas.getBoundingClientRect();
+                raquette.x = e.clientX - rect.left - 50;
+            });
+
+            console.log("Événements ajoutés");
+
+            // Boucle de jeu
+            function boucleJeu() {
+                mettreAJour();
+                dessiner();
+                requestAnimationFrame(boucleJeu);
+            }
+
+            console.log("Démarrage de la boucle de jeu");
+            boucleJeu();
+
+        } catch (error) {
+            console.error("Erreur:", error);
+            document.body.innerHTML = `<h1>ERREUR: ${error.message}</h1><pre>${error.stack}</pre>`;
+        }
+    </script>
+</body>
+</html>

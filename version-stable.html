@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Voir la Vérité - Version de Secours</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 500px;
+        }
+        h1 { margin-bottom: 1rem; font-size: 2rem; }
+        .subtitle { margin-bottom: 2rem; opacity: 0.8; }
+        .btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .emergency {
+            background: rgba(255,50,50,0.3);
+            border-color: rgba(255,100,100,0.5);
+        }
+        .recovery {
+            background: rgba(50,255,50,0.3);
+            border-color: rgba(100,255,100,0.5);
+        }
+        .info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Version de Secours</h1>
+        <p class="subtitle">La Quête de Vérité - Mode Récupération</p>
+
+        <button class="btn recovery" onclick="recoverFromBrowser()">
+            🔄 Récupérer depuis l'historique
+        </button>
+
+        <button class="btn emergency" onclick="createMinimalGame()">
+            🎮 Créer version minimale
+        </button>
+
+        <button class="btn" onclick="downloadBackup()">
+            💾 Télécharger cette version
+        </button>
+
+        <div class="info">
+            <strong>🆘 Que faire si rien ne marche:</strong><br>
+            1. Vérifier l'historique du navigateur<br>
+            2. Chercher dans les fichiers temporaires<br>
+            3. Utiliser la version minimale ci-dessous<br>
+            4. Recréer à partir de la conversation Claude
+        </div>
+    </div>
+
+    <script>
+        function recoverFromBrowser() {
+            alert('🔍 RÉCUPÉRATION DEPUIS L\'HISTORIQUE:\n\n1. Appuyez sur CTRL+H\n2. Cherchez "voir-la-verite"\n3. Regardez les versions en cache\n4. Sauvegardez le code source (CTRL+U)');
+        }
+
+        function createMinimalGame() {
+            // Créer un jeu de base fonctionnel
+            const minimalGame = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Voir la Vérité - Version Minimale</title>
+    <style>
+        body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
+        canvas { border:2px solid #fff; background:#001122; }
+    </style>
+</head>
+<body>
+    <canvas id="jeu" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('jeu');
+        const ctx = canvas.getContext('2d');
+
+        // Bateau simple
+        let bateau = {x: 400, y: 500, largeur: 60, hauteur: 30};
+
+        // Balle simple
+        let balle = {x: 400, y: 480, rayon: 10, dx: 3, dy: -3};
+
+        // Briques simples
+        let briques = [];
+        for(let i = 0; i < 10; i++) {
+            for(let j = 0; j < 5; j++) {
+                briques.push({
+                    x: i * 80 + 10,
+                    y: j * 30 + 50,
+                    largeur: 70,
+                    hauteur: 25,
+                    actif: true
+                });
+            }
+        }
+
+        function dessiner() {
+            // Effacer
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Bateau
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(bateau.x - bateau.largeur/2, bateau.y, bateau.largeur, bateau.hauteur);
+
+            // Balle
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(balle.x, balle.y, balle.rayon, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Briques
+            briques.forEach(brique => {
+                if(brique.actif) {
+                    ctx.fillStyle = '#FF6B6B';
+                    ctx.fillRect(brique.x, brique.y, brique.largeur, brique.hauteur);
+                }
+            });
+        }
+
+        function animer() {
+            // Mouvement balle
+            balle.x += balle.dx;
+            balle.y += balle.dy;
+
+            // Rebonds
+            if(balle.x <= balle.rayon || balle.x >= canvas.width - balle.rayon) balle.dx = -balle.dx;
+            if(balle.y <= balle.rayon) balle.dy = -balle.dy;
+
+            // Collision bateau
+            if(balle.y + balle.rayon >= bateau.y &&
+               balle.x >= bateau.x - bateau.largeur/2 &&
+               balle.x <= bateau.x + bateau.largeur/2) {
+                balle.dy = -Math.abs(balle.dy);
+            }
+
+            // Reset si balle sort
+            if(balle.y > canvas.height) {
+                balle.x = 400;
+                balle.y = 480;
+                balle.dy = -3;
+            }
+
+            // Collisions briques
+            briques.forEach(brique => {
+                if(brique.actif &&
+                   balle.x > brique.x && balle.x < brique.x + brique.largeur &&
+                   balle.y > brique.y && balle.y < brique.y + brique.hauteur) {
+                    brique.actif = false;
+                    balle.dy = -balle.dy;
+                }
+            });
+
+            dessiner();
+            requestAnimationFrame(animer);
+        }
+
+        // Contrôles souris
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            bateau.x = e.clientX - rect.left;
+        });
+
+        animer();
+    </script>
+</body>
+</html>`;
+
+            // Télécharger le fichier
+            const blob = new Blob([minimalGame], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'voir-la-verite-minimal.html';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('✅ Version minimale téléchargée!\nVous pouvez maintenant développer à partir de cette base.');
+        }
+
+        function downloadBackup() {
+            const currentPage = document.documentElement.outerHTML;
+            const blob = new Blob([currentPage], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'version-secours-' + new Date().toISOString().slice(0,10) + '.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

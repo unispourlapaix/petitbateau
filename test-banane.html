@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌 Test Banane Kawaii 🍌</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #001a3e 0%, #002a5c 25%, #003d82 50%, #002a5c 75%, #001a3e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FFD700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .test-area {
+            background: rgba(0, 30, 60, 0.3);
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: linear-gradient(145deg, #FFD700, #FFA000);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            margin: 10px;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(145deg, #FFC107, #FF8F00);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .banane-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        #debugOutput {
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍌 Test de la Banane Kawaii 🍌</h1>
+
+        <div class="controls">
+            <button onclick="testSingleBanana()">🍌 Créer Une Banane</button>
+            <button onclick="testMultipleBananas()">🍌🍌🍌 Créer 5 Bananes</button>
+            <button onclick="clearBananas()">🧹 Nettoyer</button>
+            <button onclick="showBananaInfo()">📊 Info Banane</button>
+        </div>
+
+        <div class="test-area" id="testArea">
+            <h3>Zone de Test des Bananes</h3>
+            <div class="banane-container" id="bananeContainer"></div>
+        </div>
+
+        <div class="info">
+            <h3>🍌 Informations sur la Banane Kawaii:</h3>
+            <ul>
+                <li><strong>Type:</strong> innocent (ne peut pas tirer)</li>
+                <li><strong>Nom:</strong> Banane Kawaii 🍌</li>
+                <li><strong>Style:</strong> Gradient doré réaliste avec courbure</li>
+                <li><strong>Animation:</strong> Rotation douce et lueur naturelle</li>
+                <li><strong>Taille:</strong> 70x30px avec rotation -25°</li>
+            </ul>
+
+            <div id="debugOutput">
+                <strong>Debug Output:</strong><br>
+                Prêt pour les tests...
+            </div>
+        </div>
+    </div>
+
+    <!-- Chargement du module kawaii -->
+    <script src="modules/kawaii_objects_module.js"></script>
+
+    <script>
+        let kawaiiObjects = null;
+        let bananaCount = 0;
+
+        // Initialisation
+        window.addEventListener('load', function() {
+            log('🚀 Page chargée');
+
+            if (typeof KawaiiObjects !== 'undefined') {
+                kawaiiObjects = new KawaiiObjects();
+
+                // Injecter le CSS
+                const style = document.createElement('style');
+                style.id = 'kawaii-styles';
+                style.textContent = kawaiiObjects.getCSS();
+                document.head.appendChild(style);
+
+                log('✅ Module KawaiiObjects initialisé');
+                log('✅ CSS injecté');
+
+                showBananaInfo();
+            } else {
+                log('❌ Module KawaiiObjects non trouvé !');
+            }
+        });
+
+        function log(message) {
+            console.log(message);
+            const debugOutput = document.getElementById('debugOutput');
+            debugOutput.innerHTML += '<div>' + new Date().toLocaleTimeString() + ' - ' + message + '</div>';
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+        }
+
+        function testSingleBanana() {
+            if (!kawaiiObjects) {
+                log('❌ Module non initialisé');
+                return;
+            }
+
+            log('🍌 Création d\'une banane...');
+
+            const container = document.getElementById('bananeContainer');
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            try {
+                const banane = kawaiiObjects.createObject('banane', x, y);
+
+                if (banane && banane.element) {
+                    // Positionner dans le conteneur
+                    banane.element.style.position = 'relative';
+                    banane.element.style.margin = '10px';
+
+                    container.appendChild(banane.element);
+                    bananaCount++;
+
+                    log(`✅ Banane créée avec succès (ID: ${banane.id})`);
+                    log(`📊 Total bananes: ${bananaCount}`);
+                } else {
+                    log('❌ Échec de création de la banane');
+                }
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+            }
+        }
+
+        function testMultipleBananas() {
+            log('🍌🍌🍌 Création de 5 bananes...');
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    testSingleBanana();
+                }, i * 300);
+            }
+        }
+
+        function clearBananas() {
+            const container = document.getElementById('bananeContainer');
+            container.innerHTML = '';
+            bananaCount = 0;
+            log('🧹 Toutes les bananes supprimées');
+        }
+
+        function showBananaInfo() {
+            if (!kawaiiObjects) {
+                log('❌ Module non initialisé');
+                return;
+            }
+
+            const bananeInfo = kawaiiObjects.objects['banane'];
+            if (bananeInfo) {
+                log('📊 INFO BANANE:');
+                log(`  - Type: ${bananeInfo.type}`);
+                log(`  - Peut tirer: ${bananeInfo.canShoot ? 'Oui' : 'Non'}`);
+                log(`  - Nom: ${bananeInfo.name}`);
+                log(`  - Classe CSS: .obj-banane`);
+            } else {
+                log('❌ Informations banane non trouvées');
+            }
+        }
+    </script>
+</body>
+</html>
