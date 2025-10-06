@@ -2,11 +2,17 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+nul
 
-# Éditeurs
+# Éditeurs et IDE
 .vscode/
 .idea/
 *.swp
+*.swo
+
+# Claude Code
+.claude/
+.claude-context/
 
 # Logs
 *.log
@@ -14,4 +20,51 @@ desktop.ini
 # Fichiers temporaires
 *.tmp
 *.bak
-nul
+
+# Sauvegardes de développement
+sauvegardes/
+
+# Fichiers de test
+test-*.html
+debug-*.html
+*-debug.html
+
+# Scripts de développement
+*.bat
+*.sh
+launch-claude.bat
+surveillance*.bat
+sauvegarde*.bat
+demarrage*.bat
+
+# Fichiers de développement
+backup-*.html
+*-URGENCE.html
+*-SAUVE.html
+version-stable.html
+simple-*.html
+working-*.html
+fixed-*.html
+universal.html
+portrait-scroll.html
+mobile-*.html
+index-*.html
+liberer-la-verite.html
+jeu-propre.html
+
+# Documentation de dev
+CLAUDE.md
+HISTORIQUE-DEVELOPPEMENT.md
+PROGRESSION.md
+SYSTEMES_SCORE.md
+README-MODULES.md
+TEXT-ANIMATOR-README.md
+text-animator-module-claude-code-examples.md
+mes-pensees.txt
+narration.txt
+narration-fr.txt
+
+# Fichiers dupliqués/anciens
+voir-la-verite*.html
+👁️*.htm
+kawaii_objects_moduleS.js
