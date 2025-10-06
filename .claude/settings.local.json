@@ -68,7 +68,12 @@
       "Bash(start http://localhost:8086/test-sons-relax.html)",
       "Bash(start http://localhost:8086/test-sons-mer.html)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
