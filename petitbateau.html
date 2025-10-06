@@ -11650,25 +11650,27 @@ de mes propres yeux...`, 12000);
             }
 
             // 🔊 Vérifier les clics sur les boutons audio
-            // Chanson précédente −
+            // Volume −
             if (window.prevSongZone) {
                 const btn = window.prevSongZone;
                 if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
                     if (musicManager) {
-                        musicManager.playNext(); // Utilise playNext pour passer à la chanson suivante dans la playlist
-                        console.log('− Chanson précédente (suivante dans la playlist)');
+                        const newVol = Math.max(0, musicManager.volume - 0.1);
+                        musicManager.setVolume(newVol);
+                        console.log('🔉 Volume −10%');
                     }
                     return;
                 }
             }
 
-            // Chanson suivante +
+            // Volume +
             if (window.nextSongZone) {
                 const btn = window.nextSongZone;
                 if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
                     if (musicManager) {
-                        musicManager.playNext();
-                        console.log('+ Chanson suivante');
+                        const newVol = Math.min(1, musicManager.volume + 0.1);
+                        musicManager.setVolume(newVol);
+                        console.log('🔊 Volume +10%');
                     }
                     return;
                 }
