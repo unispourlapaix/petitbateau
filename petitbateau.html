@@ -2004,9 +2004,10 @@
             hoveredCard: null, // Carte actuellement survolée
             topIcons: [], // Positions des icônes en haut pour les clics
             centralIcon: { x: 0, y: 0, width: 60, height: 60, hover: false }, // Zone cliquable de l'icône centrale
-            ongletActif: 'enigmes', // 'enigmes' ou 'info'
+            ongletActif: 'enigmes', // 'enigmes', 'info' ou 'classement'
             onglets: {
                 enigmes: { x: 0, y: 0, width: 0, height: 0, hover: false },
+                classement: { x: 0, y: 0, width: 0, height: 0, hover: false },
                 info: { x: 0, y: 0, width: 0, height: 0, hover: false }
             }
         };
@@ -2398,11 +2399,11 @@
             ctx.fill();
             ctx.stroke();
 
-            // Onglets modernes et élégants - style minimaliste
-            const ongletWidth = (menuWidth - 70) / 2;
-            const ongletHeight = 50;
+            // Onglets modernes et élégants - style minimaliste - 3 onglets
+            const ongletWidth = (menuWidth - 60) / 3; // Divisé par 3 pour 3 onglets
+            const ongletHeight = 45; // Légèrement plus petit
             const ongletY = menuY + 10;
-            const espacementOnglets = 10;
+            const espacementOnglets = 5; // Espacement réduit
 
             // Onglet Énigmes
             const ongletEnigmesX = menuX + 25;
@@ -2445,11 +2446,11 @@
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
 
-            // Texte élégant
-            ctx.font = '18px "Segoe UI", system-ui, sans-serif';
+            // Texte élégant - police plus petite
+            ctx.font = '15px "Segoe UI", system-ui, sans-serif';
             ctx.fillStyle = enigmesActif ? '#1e293b' : '#64748b';
             ctx.textAlign = 'center';
-            ctx.fillText('Énigmes', ongletEnigmesX + ongletWidth / 2, ongletY + 31);
+            ctx.fillText('📋 Énigmes', ongletEnigmesX + ongletWidth / 2, ongletY + 28);
 
             // Indicateur actif sous le texte
             if (enigmesActif) {
@@ -2457,8 +2458,54 @@
                 ctx.fillRect(ongletEnigmesX + ongletWidth / 2 - 25, ongletY + ongletHeight - 3, 50, 3);
             }
 
+            // Onglet Classement
+            const ongletClassementX = menuX + 25 + ongletWidth + espacementOnglets;
+            menuEnigmesCanvas.onglets.classement.x = ongletClassementX;
+            menuEnigmesCanvas.onglets.classement.y = ongletY;
+            menuEnigmesCanvas.onglets.classement.width = ongletWidth;
+            menuEnigmesCanvas.onglets.classement.height = ongletHeight;
+
+            const classementActif = menuEnigmesCanvas.ongletActif === 'classement';
+
+            // Onglet Classement - Style minimaliste
+            if (classementActif) {
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 2;
+            } else {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.beginPath();
+            ctx.roundRect(ongletClassementX, ongletY, ongletWidth, ongletHeight, [8, 8, 0, 0]);
+            ctx.fill();
+
+            if (!classementActif) {
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Texte élégant avec icône - police plus petite
+            ctx.font = '15px "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = classementActif ? '#1e293b' : '#64748b';
+            ctx.fillText('🏆 Scores', ongletClassementX + ongletWidth / 2, ongletY + 28);
+
+            // Indicateur actif
+            if (classementActif) {
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(ongletClassementX + ongletWidth / 2 - 30, ongletY + ongletHeight - 3, 60, 3);
+            }
+
             // Onglet Info
-            const ongletInfoX = menuX + 25 + ongletWidth + espacementOnglets;
+            const ongletInfoX = menuX + 25 + (ongletWidth + espacementOnglets) * 2;
             menuEnigmesCanvas.onglets.info.x = ongletInfoX;
             menuEnigmesCanvas.onglets.info.y = ongletY;
             menuEnigmesCanvas.onglets.info.width = ongletWidth;
@@ -2492,10 +2539,10 @@
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
 
-            // Texte élégant
-            ctx.font = '18px "Segoe UI", system-ui, sans-serif';
+            // Texte élégant - police plus petite
+            ctx.font = '15px "Segoe UI", system-ui, sans-serif';
             ctx.fillStyle = infoActif ? '#1e293b' : '#64748b';
-            ctx.fillText('À propos', ongletInfoX + ongletWidth / 2, ongletY + 31);
+            ctx.fillText('ℹ️ À propos', ongletInfoX + ongletWidth / 2, ongletY + 28);
 
             // Indicateur actif
             if (infoActif) {
@@ -2505,12 +2552,15 @@
 
             ctx.restore();
 
-            // Titre moderne - plus petit et positionné sous les onglets
-            ctx.font = '600 24px "Segoe UI", system-ui, sans-serif';
-            ctx.fillStyle = '#1e293b';
-            ctx.textAlign = 'center';
-            const titre = enigmesActif ? 'Énigmes du Voyage' : 'À propos';
-            ctx.fillText(titre, C.W / 2, menuY + 100);
+            // Titre moderne - plus petit et positionné sous les onglets (sauf classement)
+            if (!classementActif) {
+                ctx.font = '600 24px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#1e293b';
+                ctx.textAlign = 'center';
+                let titre = 'À propos';
+                if (enigmesActif) titre = 'Énigmes du Voyage';
+                ctx.fillText(titre, C.W / 2, menuY + 100);
+            }
 
             // Statistiques (uniquement pour l'onglet Énigmes)
             if (menuEnigmesCanvas.ongletActif === 'enigmes' && enigmaCollector) {
@@ -2621,6 +2671,161 @@
 
                 ctx.fillStyle = '#FF0000';
                 ctx.fillText('🕊️ UnisPourLaPaix', C.W / 2, yPos);
+
+                ctx.restore();
+            } else if (menuEnigmesCanvas.ongletActif === 'classement') {
+                // Afficher le classement des scores
+                ctx.save();
+                ctx.textAlign = 'center';
+
+                let yPos = menuY + 100;
+
+                // Afficher le meilleur score de l'utilisateur s'il existe
+                if (userBestScore) {
+                    ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.fillText('✨ Votre meilleur score', C.W / 2, yPos);
+                    yPos += 25;
+
+                    // Fond
+                    const donnees = userBestScore.donnees_extra;
+                    let bgColor = 'rgba(59, 130, 246, 0.05)';
+                    if (donnees && donnees.sagesse) {
+                        const niveau = getNiveauSagesse(donnees.sagesse);
+                        const hex = niveau.couleur.replace('#', '');
+                        const r = parseInt(hex.substr(0, 2), 16);
+                        const g = parseInt(hex.substr(2, 2), 16);
+                        const b = parseInt(hex.substr(4, 2), 16);
+                        bgColor = `rgba(${r}, ${g}, ${b}, 0.12)`;
+                    }
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(menuX + 30, yPos - 20, menuWidth - 60, 45);
+
+                    // Score
+                    ctx.font = 'bold 24px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(userBestScore.score.toLocaleString(), C.W / 2, yPos);
+
+                    // Niveau de sagesse et énigmes (compact)
+                    if (donnees && donnees.sagesse) {
+                        const niveau = getNiveauSagesse(donnees.sagesse);
+                        ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#64748b';
+                        const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
+                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 18);
+                    }
+
+                    yPos += 55;
+                }
+
+                // Titre
+                ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#1e293b';
+                ctx.fillText('🏆 Top 10 - Petit Bateau', C.W / 2, yPos);
+                yPos += 35;
+
+                // Vérifier si les données sont chargées
+                if (loadingLeaderboard) {
+                    ctx.font = '16px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillText('⏳ Chargement...', C.W / 2, yPos + 60);
+                } else if (!leaderboardData || leaderboardData.length === 0) {
+                    ctx.font = '16px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillText('Aucun score enregistré', C.W / 2, yPos + 40);
+                    yPos += 70;
+                    ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText('Soyez le premier à terminer le jeu !', C.W / 2, yPos);
+                } else {
+                    // Afficher les scores
+                    ctx.textAlign = 'left';
+                    const startX = menuX + 40;
+                    const lineHeight = 55; // Plus haut pour niveau de sagesse
+
+                    leaderboardData.forEach((entry, index) => {
+                        // Position et rang
+                        let medal = '';
+                        if (index === 0) medal = '🥇';
+                        else if (index === 1) medal = '🥈';
+                        else if (index === 2) medal = '🥉';
+                        else medal = `${index + 1}.`;
+
+                        // Fond coloré selon le niveau de sagesse
+                        const donnees = entry.donnees_extra;
+                        let bgColor = 'rgba(0, 0, 0, 0.02)';
+                        if (donnees && donnees.sagesse) {
+                            const niveau = getNiveauSagesse(donnees.sagesse);
+                            // Convertir couleur hex en rgba avec opacité
+                            const hex = niveau.couleur.replace('#', '');
+                            const r = parseInt(hex.substr(0, 2), 16);
+                            const g = parseInt(hex.substr(2, 2), 16);
+                            const b = parseInt(hex.substr(4, 2), 16);
+                            bgColor = `rgba(${r}, ${g}, ${b}, 0.08)`;
+                        }
+                        ctx.fillStyle = bgColor;
+                        ctx.fillRect(menuX + 30, yPos - 25, menuWidth - 60, lineHeight);
+
+                        // Médaille/Rang
+                        ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillText(medal, startX, yPos);
+
+                        // Avatar (si présent)
+                        const avatar = entry.users?.avatar;
+                        let pseudoX = startX + 40;
+                        if (avatar) {
+                            ctx.font = '20px "Segoe UI", system-ui, sans-serif';
+                            ctx.fillText(avatar, startX + 40, yPos);
+                            pseudoX = startX + 68;
+                        }
+
+                        // Pseudo
+                        ctx.font = '16px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#475569';
+                        const pseudo = entry.users?.pseudo || 'Anonyme';
+                        ctx.fillText(pseudo, pseudoX, yPos);
+
+                        // Niveau de sagesse (icône) sous le pseudo
+                        if (donnees && donnees.sagesse) {
+                            const niveau = getNiveauSagesse(donnees.sagesse);
+                            ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+                            ctx.fillStyle = '#94a3b8';
+
+                            // Afficher niveau + énigmes collectées (plus compact)
+                            const enigmesInfo = donnees.enigmes ? `${donnees.enigmes}/18🧩` : '';
+                            const infoText = enigmesInfo ? `${niveau.icone} ${niveau.titre} • ${enigmesInfo}` : `${niveau.icone} ${niveau.titre}`;
+                            ctx.fillText(infoText, pseudoX, yPos + 16);
+
+                            // Badges spéciaux à droite
+                            const badges = getBadges(donnees, index === 0, donnees.enigmes);
+                            let badgeX = menuX + menuWidth - 140;
+                            badges.forEach(badge => {
+                                ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+                                ctx.fillStyle = '#f39c12';
+                                ctx.fillText(badge.icone, badgeX, yPos + 16);
+                                badgeX += 20;
+                            });
+                        }
+
+                        // Score
+                        ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(entry.score.toLocaleString(), menuX + menuWidth - 40, yPos);
+                        ctx.textAlign = 'left';
+
+                        yPos += lineHeight;
+                    });
+                }
+
+                // Message de motivation
+                yPos = menuY + menuHeight - 60;
+                ctx.textAlign = 'center';
+                ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText('Terminez le jeu pour enregistrer votre score', C.W / 2, yPos);
 
                 ctx.restore();
             }
@@ -3154,12 +3359,12 @@
                     {
                         id: 'VDV_NARR_P23_CONCLUSION',
                         phase: 23,
-                        titre: 'Conclusion',
-                        texte: 'Ainsi se termine ce voyage...\nUn voyage qui n\'était pas seulement le mien,\nmais celui de quiconque choisit\nde voir au-delà des apparences.\n\nJ\'ai appris que la vérité\nn\'est ni blanche ni noire,\nmais un arc-en-ciel de nuances\nqui nous invite à\nl\'humilité, à la compassion,\net à l\'amour.\n\n🌊 Le voyage continue...\nPour chacun d\'entre nous.\n\nLa vie est un voyage extraordinaire.\n\n--Origine',
+                        titre: 'Révélation',
+                        texte: '👁️ Ainsi s\'achève ce voyage...\n\nTu as navigué à travers les tempêtes,\nbrisé les murs de l\'ignorance,\net découvert que la vérité\nn\'est pas une fin,\nmais un chemin.\n\nChaque énigme résolue,\nchaque choix posé,\nt\'a rapproché de cette sagesse :\n\n💫 Nous sommes tous\nles gardiens de la lumière.\n\nLa diversité n\'est pas une menace,\nmais le plus beau des trésors.\n\n⛵ Le voyage continue...\nDans ton cœur, dans tes choix,\ndans ta façon de voir le monde.\n\n--Emmanuel Payet',
                         mode: 'final',
-                        duree: 25000,
+                        duree: 30000,
                         transition: 'neon',
-                        speed: 40
+                        speed: 42
                     }
                 ];
             }
@@ -3670,8 +3875,11 @@
                 particules = [];
                 powerUps = [];
 
-                // Passer en mode nuit étoilé pour la phase finale
-                periode = 'nuit';
+                // Passer en mode jour pour la phase finale (fond clair)
+                periode = 'jour';
+
+                // Remettre le fond clair
+                document.body.style.backgroundColor = '';
 
                 setTimeout(() => {
                     this.finalizeNarration();
@@ -3793,27 +4001,17 @@
                                     const random = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0'); // Random en hex
                                     const idUnique = `PB${timestamp}${random}`.toUpperCase();
 
-                                    // Demander nom, ville, pays
-                                    const nom = prompt('Votre nom :') || 'Anonyme';
-                                    const ville = prompt('Votre ville :') || 'Inconnue';
-                                    const pays = prompt('Votre pays :') || 'Inconnu';
+                                    // Afficher le formulaire Supabase avec callback
+                                    if (typeof afficherFormulaireFinDeJeu === 'function') {
+                                        afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique);
+                                    } else {
+                                        // Fallback : ancienne méthode avec prompts
+                                        const nom = prompt('Votre nom :') || 'Anonyme';
+                                        const ville = prompt('Votre ville :') || 'Inconnue';
+                                        const pays = prompt('Votre pays :') || 'Inconnu';
 
-                                    // Sauvegarder dans localStorage comme base de données
-                                    const scoreData = {
-                                        id: idUnique,
-                                        nom: nom,
-                                        ville: ville,
-                                        pays: pays,
-                                        xp: xp,
-                                        score: scoreJeu,
-                                        total: scoreTotal,
-                                        sagesse: scoreSagesse,
-                                        date: new Date().toISOString()
-                                    };
-                                    localStorage.setItem(idUnique, JSON.stringify(scoreData));
-                                    console.log('💾 Score sauvegardé:', scoreData);
-
-                                    afficherMessageNarratifSimple('L\'humanité n\'a pas besoin de murs pour se protéger,\nmais de ponts pour se rencontrer.\n\nConstruisons avec amour, pas avec peur.\nUn monde uni vaut mieux qu\'un monde cloisonné.\n\n- Emmanuel.gallery\n\n[Origine : Le voyage d\'une vie]\n\n' + nom + ' - ' + ville + ', ' + pays + '\n' + xp + ' XP + ' + scoreJeu + ' Score = ' + scoreTotal + '\nConnaissance donnée\nScore de Sagesse : ' + scoreSagesse + '\nID: ' + idUnique + '\n\n[🌍 Partager mon voyage]\n\n[Recommencer]', 999999);
+                                        afficherMessageNarratifSimple('L\'humanité n\'a pas besoin de murs pour se protéger,\nmais de ponts pour se rencontrer.\n\nConstruisons avec amour, pas avec peur.\nUn monde uni vaut mieux qu\'un monde cloisonné.\n\n- Emmanuel.gallery\n\n[Origine : Le voyage d\'une vie]\n\n' + nom + ' - ' + ville + ', ' + pays + '\n' + xp + ' XP + ' + scoreJeu + ' Score = ' + scoreTotal + '\nConnaissance donnée\nScore de Sagesse : ' + scoreSagesse + '\nID: ' + idUnique + '\n\n[🌍 Partager mon voyage]\n\n[Recommencer]', 999999);
+                                    }
 
                                     // Marquer le message comme contenant un bouton restart + lien + partage
                                     if (messageNarratifActif) {
@@ -4464,6 +4662,582 @@
 
         // Variables globales pour les drones
         let droneModule = null;
+
+        // ===============================================
+        // INITIALISATION SUPABASE
+        // ===============================================
+        let supabaseScores = null;
+        let leaderboardData = null;
+        let loadingLeaderboard = false;
+        let userBestScore = null; // Meilleur score de l'utilisateur connecté
+
+        // Initialiser Supabase au démarrage
+        setTimeout(async () => {
+            if (typeof SupabaseScores !== 'undefined') {
+                supabaseScores = new SupabaseScores();
+                console.log('🎮 Supabase initialisé');
+
+                // Attendre que le client soit prêt (augmentation du délai)
+                setTimeout(async () => {
+                    // Vérifier que le client est bien initialisé
+                    if (supabaseScores && supabaseScores.client) {
+                        await supabaseScores.setCurrentGame('Petit Bateau');
+                        console.log('⛵ Jeu "Petit Bateau" défini');
+
+                        // Charger le classement initial
+                        await chargerClassement();
+                    } else {
+                        console.warn('⏳ Client Supabase pas encore prêt, nouvelle tentative...');
+                        setTimeout(async () => {
+                            if (supabaseScores && supabaseScores.client) {
+                                await supabaseScores.setCurrentGame('Petit Bateau');
+                                console.log('⛵ Jeu "Petit Bateau" défini');
+                                await chargerClassement();
+                            }
+                        }, 2000);
+                    }
+                }, 3000);
+            }
+        }, 1000);
+
+        // Fonction pour charger le classement
+        async function chargerClassement() {
+            if (!supabaseScores) return;
+
+            loadingLeaderboard = true;
+            try {
+                leaderboardData = await supabaseScores.getLeaderboard(10);
+                console.log('🏆 Classement chargé:', leaderboardData.length, 'scores');
+            } catch (error) {
+                console.error('❌ Erreur chargement classement:', error);
+                leaderboardData = [];
+            }
+            loadingLeaderboard = false;
+        }
+
+        // Système de niveaux de sagesse (15 niveaux thématiques)
+        function getNiveauSagesse(scoreSagesse) {
+            if (scoreSagesse >= 300) return { titre: 'Robe Blanche', icone: '👼', couleur: '#ffffff', seuil: 300, prochain: null };
+            if (scoreSagesse >= 250) return { titre: 'Saint Navigateur', icone: '⛪', couleur: '#e8f4f8', seuil: 250, prochain: 300 };
+            if (scoreSagesse >= 200) return { titre: 'Prophète des Mers', icone: '🙏', couleur: '#ffd700', seuil: 200, prochain: 250 };
+            if (scoreSagesse >= 175) return { titre: 'Illuminé', icone: '💫', couleur: '#f1c40f', seuil: 175, prochain: 200 };
+            if (scoreSagesse >= 150) return { titre: 'Disciple de la Lumière', icone: '✨', couleur: '#e67e22', seuil: 150, prochain: 175 };
+            if (scoreSagesse >= 125) return { titre: 'Contemplatif', icone: '🧘', couleur: '#9b59b6', seuil: 125, prochain: 150 };
+            if (scoreSagesse >= 100) return { titre: 'Gardien de la Lumière', icone: '🕯️', couleur: '#8e44ad', seuil: 100, prochain: 125 };
+            if (scoreSagesse >= 80) return { titre: 'Méditant', icone: '🕊️', couleur: '#3498db', seuil: 80, prochain: 100 };
+            if (scoreSagesse >= 60) return { titre: 'Capitaine', icone: '⛵', couleur: '#2980b9', seuil: 60, prochain: 80 };
+            if (scoreSagesse >= 45) return { titre: 'Navigateur', icone: '🧭', couleur: '#16a085', seuil: 45, prochain: 60 };
+            if (scoreSagesse >= 30) return { titre: 'Marin Éclairé', icone: '⚓', couleur: '#27ae60', seuil: 30, prochain: 45 };
+            if (scoreSagesse >= 20) return { titre: 'Initié', icone: '🔍', couleur: '#2ecc71', seuil: 20, prochain: 30 };
+            if (scoreSagesse >= 10) return { titre: 'Apprenti', icone: '🌊', couleur: '#7f8c8d', seuil: 10, prochain: 20 };
+            if (scoreSagesse >= 5) return { titre: 'Mousse', icone: '🧙', couleur: '#95a5a6', seuil: 5, prochain: 10 };
+            return { titre: 'Pèlerin', icone: '⛵', couleur: '#bdc3c7', seuil: 0, prochain: 5 };
+        }
+
+        // Fonction pour obtenir les badges spéciaux
+        function getBadges(donnees, isTopPlayer, enigmesCollectees) {
+            const badges = [];
+
+            // Badge Top 1
+            if (isTopPlayer) {
+                badges.push({ icone: '👑', titre: 'Champion' });
+            }
+
+            // Badge Perfectionniste (si toutes les énigmes collectées)
+            if (enigmesCollectees && enigmesCollectees >= 18) { // Nombre total d'énigmes
+                badges.push({ icone: '💎', titre: 'Perfectionniste' });
+            }
+
+            // Badge Contemplatif (si beaucoup de temps passé)
+            if (donnees && donnees.temps_jeu && donnees.temps_jeu > 3600) { // Plus d'1h
+                badges.push({ icone: '⏳', titre: 'Contemplatif' });
+            }
+
+            return badges;
+        }
+
+        // Variable pour savoir si le formulaire a été affiché
+        let formulaireFinAffiche = false;
+
+        // Fonction pour afficher le formulaire avec résumé (appelée après feux d'artifice)
+        function afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique) {
+            if (formulaireFinAffiche) return;
+            formulaireFinAffiche = true;
+
+            const html = `
+                <div id="formulaire-fin-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: flex; align-items: center; justify-content: center; overflow-y: auto;">
+                    <div style="background: white; padding: 40px; border-radius: 20px; max-width: 550px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin: 20px;">
+                        <h2 style="margin: 0 0 15px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif;">🎉 Voyage Terminé !</h2>
+
+                        <!-- Résumé des scores -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: white;">
+                            <div style="text-align: center; font-size: 14px; opacity: 0.9; margin-bottom: 10px;">Votre progression</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 28px; font-weight: bold;">${xp}</div>
+                                    <div style="font-size: 12px; opacity: 0.9;">💡 XP</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 28px; font-weight: bold;">${scoreJeu}</div>
+                                    <div style="font-size: 12px; opacity: 0.9;">🎯 Score</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                                <div style="font-size: 36px; font-weight: bold;">${scoreTotal}</div>
+                                <div style="font-size: 13px; opacity: 0.9;">Total (XP + Score)</div>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                                <div style="font-size: 32px; font-weight: bold;">💎 ${scoreSagesse}</div>
+                                <div style="font-size: 13px; opacity: 0.95;">Score de Sagesse</div>
+                            </div>
+                            <div style="text-align: center; margin-top: 12px; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px;">
+                                <div style="font-size: 24px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.icone; })()}</div>
+                                <div style="font-size: 16px; font-weight: 600; margin-top: 5px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.titre; })()}</div>
+                                <div style="font-size: 11px; opacity: 0.85; margin-top: 3px;">Niveau de sagesse</div>
+                                ${(() => {
+                                    const n = getNiveauSagesse(scoreSagesse);
+                                    if (n.prochain) {
+                                        const prog = scoreSagesse - n.seuil;
+                                        const total = n.prochain - n.seuil;
+                                        const pct = Math.round((prog / total) * 100);
+                                        return '<div style="margin-top: 8px;">' +
+                                            '<div style="font-size: 10px; opacity: 0.8; margin-bottom: 3px;">' + scoreSagesse + '/' + n.prochain + ' vers le prochain niveau</div>' +
+                                            '<div style="width: 100%; height: 6px; background: rgba(0,0,0,0.2); border-radius: 3px; overflow: hidden;">' +
+                                                '<div style="width: ' + pct + '%; height: 100%; background: rgba(255,255,255,0.8); transition: width 0.3s;"></div>' +
+                                            '</div>' +
+                                        '</div>';
+                                    }
+                                    return '';
+                                })()}
+                            </div>
+                            <div style="text-align: center; margin-top: 12px; font-size: 11px; opacity: 0.8;">ID: ${idUnique}</div>
+                        </div>
+
+                        <p style="text-align: center; color: #64748b; margin-bottom: 20px; font-size: 15px;">Enregistrez votre score dans le classement :</p>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Email * :</label>
+                            <input type="email" id="fin-email" placeholder="votre@email.com" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Pseudo * :</label>
+                            <input type="text" id="fin-pseudo" placeholder="Votre pseudo" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 8px; color: #475569; font-size: 14px;">Avatar :</label>
+                            <div id="avatar-selector" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; padding: 10px; background: #f8fafc; border-radius: 10px; max-height: 250px; overflow-y: auto;">
+                                <div class="avatar-option" data-avatar="✝️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
+                                <div class="avatar-option" data-avatar="†" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">†</div>
+                                <div class="avatar-option" data-avatar="✚" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✚</div>
+                                <div class="avatar-option" data-avatar="✟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✟</div>
+                                <div class="avatar-option" data-avatar="✞" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✞</div>
+                                <div class="avatar-option" data-avatar="+" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">+</div>
+                                <div class="avatar-option" data-avatar="➕" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">➕</div>
+                                <div class="avatar-option" data-avatar="⛪" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛪</div>
+                                <div class="avatar-option" data-avatar="🕌" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🕌</div>
+                                <div class="avatar-option" data-avatar="❤️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
+                                <div class="avatar-option" data-avatar="🦄" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦄</div>
+                                <div class="avatar-option" data-avatar="🌈" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
+                                <div class="avatar-option" data-avatar="👼" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">👼</div>
+                                <div class="avatar-option" data-avatar="🦉" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦉</div>
+                                <div class="avatar-option" data-avatar="🦅" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦅</div>
+                                <div class="avatar-option" data-avatar="🌸" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌸</div>
+                                <div class="avatar-option" data-avatar="☁️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☁️</div>
+                                <div class="avatar-option" data-avatar="🦇" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦇</div>
+                                <div class="avatar-option" data-avatar="🕊️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🕊️</div>
+                                <div class="avatar-option" data-avatar="⛰️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛰️</div>
+                                <div class="avatar-option" data-avatar="🐱" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐱</div>
+                                <div class="avatar-option" data-avatar="🐶" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐶</div>
+                                <div class="avatar-option" data-avatar="🦊" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦊</div>
+                                <div class="avatar-option" data-avatar="🐼" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐼</div>
+                                <div class="avatar-option" data-avatar="🦁" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦁</div>
+                                <div class="avatar-option" data-avatar="🐯" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐯</div>
+                                <div class="avatar-option" data-avatar="🐉" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐉</div>
+                                <div class="avatar-option" data-avatar="🐲" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐲</div>
+                                <div class="avatar-option" data-avatar="🌹" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌹</div>
+                                <div class="avatar-option" data-avatar="🖤" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🖤</div>
+                                <div class="avatar-option" data-avatar="🐙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐙</div>
+                                <div class="avatar-option" data-avatar="🦋" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦋</div>
+                                <div class="avatar-option" data-avatar="🐝" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐝</div>
+                                <div class="avatar-option" data-avatar="🐢" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐢</div>
+                                <div class="avatar-option" data-avatar="🐠" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐠</div>
+                                <div class="avatar-option" data-avatar="🌟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌟</div>
+                                <div class="avatar-option" data-avatar="⭐" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⭐</div>
+                                <div class="avatar-option" data-avatar="💫" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💫</div>
+                                <div class="avatar-option" data-avatar="✨" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✨</div>
+                                <div class="avatar-option" data-avatar="🌙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌙</div>
+                                <div class="avatar-option" data-avatar="☀️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☀️</div>
+                                <div class="avatar-option" data-avatar="🌊" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌊</div>
+                                <div class="avatar-option" data-avatar="⛵" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
+                                <div class="avatar-option" data-avatar="🚢" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🚢</div>
+                                <div class="avatar-option" data-avatar="🛟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🛟</div>
+                                <div class="avatar-option" data-avatar="⚓" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⚓</div>
+                                <div class="avatar-option" data-avatar="🧭" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🧭</div>
+                                <div class="avatar-option" data-avatar="🏝️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🏝️</div>
+                                <div class="avatar-option" data-avatar="☮️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☮️</div>
+                                <div class="avatar-option" data-avatar="💚" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💚</div>
+                                <div class="avatar-option" data-avatar="💙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💙</div>
+                                <div class="avatar-option" data-avatar="💛" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💛</div>
+                                <div class="avatar-option" data-avatar="💜" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💜</div>
+                                <div class="avatar-option" data-avatar="🍀" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🍀</div>
+                                <div class="avatar-option" data-avatar="🌻" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌻</div>
+                                <div class="avatar-option" data-avatar="🎈" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🎈</div>
+                                <div class="avatar-option" data-avatar="🎨" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🎨</div>
+                                <div class="avatar-option" data-avatar="📖" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">📖</div>
+                            </div>
+                            <input type="hidden" id="fin-avatar" value="">
+                        </div>
+
+                        <details style="margin: 15px 0; cursor: pointer; pointer-events: auto;">
+                            <summary style="color: #64748b; font-size: 14px; user-select: none; pointer-events: auto; cursor: pointer;">Informations optionnelles</summary>
+                            <div style="margin-top: 15px;">
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Ville :</label>
+                                    <input type="text" id="fin-ville" placeholder="Votre ville" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Pays :</label>
+                                    <input type="text" id="fin-pays" placeholder="Votre pays" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Âge :</label>
+                                    <input type="number" id="fin-age" placeholder="Votre âge" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;" min="1" max="150">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Genre :</label>
+                                    <select id="fin-genre" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto;">
+                                        <option value="">Non spécifié</option>
+                                        <option value="Homme">Homme</option>
+                                        <option value="Femme">Femme</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </details>
+
+                        <div style="margin-top: 25px; display: flex; gap: 10px;">
+                            <button id="fin-enregistrer" style="flex: 1; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                                💾 Enregistrer
+                            </button>
+                            <button id="fin-passer" style="flex: 1; padding: 14px; background: #94a3b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                                Passer
+                            </button>
+                        </div>
+
+                        <div id="fin-message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', html);
+
+            // Gestion de la sélection d'avatar
+            const avatarOptions = document.querySelectorAll('.avatar-option');
+            avatarOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Retirer la sélection des autres
+                    avatarOptions.forEach(opt => {
+                        opt.style.background = 'transparent';
+                        opt.style.borderColor = 'transparent';
+                        opt.style.transform = 'scale(1)';
+                    });
+
+                    // Sélectionner celui-ci
+                    option.style.background = '#3b82f6';
+                    option.style.borderColor = '#2563eb';
+                    option.style.transform = 'scale(1.1)';
+
+                    // Enregistrer la valeur
+                    document.getElementById('fin-avatar').value = option.getAttribute('data-avatar');
+                });
+
+                // Effet hover
+                option.addEventListener('mouseenter', () => {
+                    if (!option.style.background || option.style.background === 'transparent') {
+                        option.style.background = '#e2e8f0';
+                    }
+                });
+
+                option.addEventListener('mouseleave', () => {
+                    if (option.style.borderColor !== 'rgb(37, 99, 235)') { // Pas sélectionné
+                        option.style.background = 'transparent';
+                    }
+                });
+            });
+
+            // Fonction pour afficher le message final (closure pour accéder aux variables du parent)
+            function afficherMessageFinal(nom, ville, pays) {
+                document.getElementById('formulaire-fin-overlay').remove();
+
+                // Les variables xp, scoreJeu, scoreTotal, scoreSagesse, idUnique sont accessibles via closure
+                afficherMessageNarratifSimple('L\'humanité n\'a pas besoin de murs pour se protéger,\nmais de ponts pour se rencontrer.\n\nConstruisons avec amour, pas avec peur.\nUn monde uni vaut mieux qu\'un monde cloisonné.\n\n- Emmanuel.gallery\n\n[Origine : Le voyage d\'une vie]\n\n' + nom + ' - ' + ville + ', ' + pays + '\n' + xp + ' XP + ' + scoreJeu + ' Score = ' + scoreTotal + '\nConnaissance donnée\nScore de Sagesse : ' + scoreSagesse + '\nID: ' + idUnique + '\n\n[🌍 Partager mon voyage]\n\n[Recommencer]', 999999);
+
+                // Marquer le message comme contenant un bouton restart + lien + partage
+                setTimeout(() => {
+                    if (messageNarratifActif) {
+                        messageNarratifActif.avecRestart = true;
+                        messageNarratifActif.lienLivre = 'https://play.google.com/store/books/details?id=VW42EQAAQBAJ';
+                        messageNarratifActif.avecPartage = true;
+
+                        // 4 textes de partage différents
+                        const textesPartage = [
+                            `🌟 J'ai voyagé à travers les frontières de l'humanité !\n\n"De l'obscurité vers la lumière, j'ai appris que l'amour unit au-delà des différences."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                            `🕊️ Un voyage vers la vérité...\n\n"J'ai brisé les murs de la peur pour construire des ponts d'amour."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                            `🌍 De mur en pont, j'ai découvert l'humanité...\n\n"Au-delà des frontières, nos cœurs battent à l'unisson."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                            `👁️ J'ai vu la vérité au-delà des préjugés...\n\n"Nous construisons des murs par peur, mais l'amour les transforme en refuges."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`
+                        ];
+
+                        const texteChoisi = textesPartage[Math.floor(Math.random() * textesPartage.length)];
+                        messageNarratifActif.textePartage = texteChoisi;
+                    }
+                }, 100);
+            }
+
+            // Gestionnaire d'enregistrement
+            document.getElementById('fin-enregistrer').onclick = async () => {
+                const email = document.getElementById('fin-email').value.trim();
+                const pseudo = document.getElementById('fin-pseudo').value.trim();
+
+                if (!email || !pseudo) {
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ Email et pseudo requis</span>';
+                    return;
+                }
+
+                if (!email.includes('@')) {
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ Email invalide</span>';
+                    return;
+                }
+
+                document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">💾 Enregistrement...</span>';
+
+                try {
+                    const ville = document.getElementById('fin-ville').value.trim() || 'Inconnue';
+                    const pays = document.getElementById('fin-pays').value.trim() || 'Inconnu';
+                    const age = parseInt(document.getElementById('fin-age').value) || null;
+                    const genre = document.getElementById('fin-genre').value || null;
+                    const avatar = document.getElementById('fin-avatar').value || null;
+
+                    await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
+
+                    // Calculer le niveau de sagesse
+                    const niveauSagesse = getNiveauSagesse(scoreSagesse);
+
+                    await supabaseScores.saveScore(scoreTotal, {
+                        niveau_atteint: 23,
+                        temps_jeu: Math.floor(Date.now() / 1000),
+                        donnees_extra: {
+                            xp,
+                            score: scoreJeu,
+                            sagesse: scoreSagesse,
+                            niveau: niveauSagesse.titre,
+                            niveau_icone: niveauSagesse.icone,
+                            enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0,
+                            id: idUnique
+                        }
+                    });
+
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ Score enregistré !</span>';
+
+                    // Récupérer le meilleur score de l'utilisateur
+                    userBestScore = await supabaseScores.getBestScore();
+
+                    await chargerClassement();
+
+                    setTimeout(() => {
+                        afficherMessageFinal(pseudo, ville, pays);
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('❌ Erreur sauvegarde:', error);
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ Erreur : ' + error.message + '</span>';
+                }
+            };
+
+            // Gestionnaire passer
+            document.getElementById('fin-passer').onclick = () => {
+                const nom = 'Anonyme';
+                const ville = 'Inconnue';
+                const pays = 'Inconnu';
+                afficherMessageFinal(nom, ville, pays);
+            };
+        }
+
+        // Fonction pour afficher le formulaire de fin de jeu (phase 23 - version simple)
+        function afficherFormulaireFinDeJeu() {
+            if (formulaireFinAffiche) return; // Ne pas afficher plusieurs fois
+            formulaireFinAffiche = true;
+
+            const html = `
+                <div id="formulaire-fin-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                        <h2 style="margin: 0 0 20px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif;">🎉 Félicitations !</h2>
+                        <p style="text-align: center; color: #64748b; margin-bottom: 30px;">Vous avez terminé le voyage ! Enregistrez votre score :</p>
+
+                        <div style="text-align: center; margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                            <div style="font-size: 36px; font-weight: bold; color: white;">${score || 0}</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.9);">points</div>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Email * :</label>
+                            <input type="email" id="fin-email" placeholder="votre@email.com" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Pseudo * :</label>
+                            <input type="text" id="fin-pseudo" placeholder="Votre pseudo" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 8px; color: #475569; font-size: 14px;">Avatar :</label>
+                            <div id="avatar-selector-simple" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 8px; background: #f8fafc; border-radius: 8px; max-height: 200px; overflow-y: auto;">
+                                <div class="avatar-option-simple" data-avatar="✝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
+                                <div class="avatar-option-simple" data-avatar="❤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
+                                <div class="avatar-option-simple" data-avatar="🌈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
+                                <div class="avatar-option-simple" data-avatar="⛵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
+                                <div class="avatar-option-simple" data-avatar="🕊️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🕊️</div>
+                                <div class="avatar-option-simple" data-avatar="⛪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛪</div>
+                            </div>
+                            <input type="hidden" id="fin-avatar-simple" value="">
+                        </div>
+
+                        <details style="margin: 15px 0; cursor: pointer; pointer-events: auto;">
+                            <summary style="color: #64748b; font-size: 14px; user-select: none; pointer-events: auto; cursor: pointer;">Informations optionnelles</summary>
+                            <div style="margin-top: 15px;">
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Ville :</label>
+                                    <input type="text" id="fin-ville" placeholder="Votre ville" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Pays :</label>
+                                    <input type="text" id="fin-pays" placeholder="Votre pays" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Âge :</label>
+                                    <input type="number" id="fin-age" placeholder="Votre âge" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;" min="1" max="150">
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;">Genre :</label>
+                                    <select id="fin-genre" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto;">
+                                        <option value="">Non spécifié</option>
+                                        <option value="Homme">Homme</option>
+                                        <option value="Femme">Femme</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </details>
+
+                        <div style="margin-top: 25px; display: flex; gap: 10px;">
+                            <button id="fin-enregistrer" style="flex: 1; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                                💾 Enregistrer
+                            </button>
+                            <button id="fin-passer" style="flex: 1; padding: 14px; background: #94a3b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                                Passer
+                            </button>
+                        </div>
+
+                        <div id="fin-message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', html);
+
+            // Gestion de la sélection d'avatar
+            const avatarOptionsSimple = document.querySelectorAll('.avatar-option-simple');
+            avatarOptionsSimple.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Retirer la sélection des autres
+                    avatarOptionsSimple.forEach(opt => {
+                        opt.style.background = 'transparent';
+                        opt.style.borderColor = 'transparent';
+                        opt.style.transform = 'scale(1)';
+                    });
+
+                    // Sélectionner celui-ci
+                    option.style.background = '#3b82f6';
+                    option.style.borderColor = '#2563eb';
+                    option.style.transform = 'scale(1.1)';
+
+                    // Enregistrer la valeur
+                    document.getElementById('fin-avatar-simple').value = option.getAttribute('data-avatar');
+                });
+            });
+
+            // Gestionnaire d'enregistrement
+            document.getElementById('fin-enregistrer').onclick = async () => {
+                const email = document.getElementById('fin-email').value.trim();
+                const pseudo = document.getElementById('fin-pseudo').value.trim();
+
+                if (!email || !pseudo) {
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ Email et pseudo requis</span>';
+                    return;
+                }
+
+                // Validation email
+                if (!email.includes('@')) {
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ Email invalide</span>';
+                    return;
+                }
+
+                document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">💾 Enregistrement...</span>';
+
+                try {
+                    // Créer ou récupérer l'utilisateur
+                    const ville = document.getElementById('fin-ville').value.trim() || null;
+                    const pays = document.getElementById('fin-pays').value.trim() || null;
+                    const age = parseInt(document.getElementById('fin-age').value) || null;
+                    const genre = document.getElementById('fin-genre').value || null;
+                    const avatar = document.getElementById('fin-avatar-simple').value || null;
+
+                    await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
+
+                    // Sauvegarder le score
+                    const phaseAtteinte = narrationManager ? narrationManager.currentPhase : 23;
+                    const tempsJeu = Math.floor(Date.now() / 1000); // Timestamp simple
+
+                    // Calculer le score de sagesse (score / 100)
+                    const scoreSagesse = Math.round((score || 0) / 100);
+                    const niveauSagesse = getNiveauSagesse(scoreSagesse);
+
+                    await supabaseScores.saveScore(score || 0, {
+                        niveau_atteint: phaseAtteinte,
+                        temps_jeu: tempsJeu,
+                        donnees_extra: {
+                            sagesse: scoreSagesse,
+                            niveau: niveauSagesse.titre,
+                            niveau_icone: niveauSagesse.icone,
+                            enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0
+                        }
+                    });
+
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ Score enregistré !</span>';
+
+                    // Récupérer le meilleur score de l'utilisateur
+                    userBestScore = await supabaseScores.getBestScore();
+
+                    // Recharger le classement
+                    await chargerClassement();
+
+                    // Fermer après 2 secondes
+                    setTimeout(() => {
+                        document.getElementById('formulaire-fin-overlay').remove();
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('❌ Erreur sauvegarde:', error);
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ Erreur : ' + error.message + '</span>';
+                }
+            };
+
+            // Gestionnaire passer
+            document.getElementById('fin-passer').onclick = () => {
+                document.getElementById('formulaire-fin-overlay').remove();
+            };
+        }
 
         // ===============================================
         // MODULE D'ANIMATION DE TEXTE - VERSION JEU
@@ -11305,11 +12079,11 @@ de mes propres yeux...`, 12000);
 
             const grad = ctx.createLinearGradient(0, 0, 0, C.H);
             if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
-                // Dégradé noir à bleu roi pour phase finale
-                grad.addColorStop(0, '#000000'); // Noir profond en haut
-                grad.addColorStop(0.3, '#0A0F2E'); // Bleu très foncé
-                grad.addColorStop(0.7, '#0F1C4F'); // Bleu roi plus foncé
-                grad.addColorStop(1, '#1E3A8A'); // Bleu roi en bas
+                // Dégradé crépusculaire pour phase finale (coucher de soleil)
+                grad.addColorStop(0, '#FFB347'); // Orange doux en haut
+                grad.addColorStop(0.3, '#FF8C69'); // Orange saumon
+                grad.addColorStop(0.6, '#FF6B9D'); // Rose-corail
+                grad.addColorStop(1, '#4A90E2'); // Bleu ciel en bas
             } else if(periode === 'jour') {
                 // Ciel diurne
                 grad.addColorStop(0, 'rgba(135, 206, 250, 0.98)');
@@ -11324,50 +12098,60 @@ de mes propres yeux...`, 12000);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, C.W, C.H);
 
-            // Phase finale : mer, étoiles et lune en croissant
+            // Phase finale : soleil couchant derrière la mer
             if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
-                // Dessiner la mer
+                // Position du soleil (à moitié immergé dans la mer)
+                const soleilX = C.W * 0.75; // À 75% de la largeur (vers la droite)
+                const merY = C.H - 60;
+                const soleilY = merY + 10; // Partiellement sous l'horizon
+                const rayonSoleil = 60;
+
+                // Halo lumineux du soleil (le plus en arrière)
+                const gradHalo = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil * 3);
+                gradHalo.addColorStop(0, 'rgba(255, 200, 100, 0.4)');
+                gradHalo.addColorStop(0.3, 'rgba(255, 150, 80, 0.2)');
+                gradHalo.addColorStop(0.7, 'rgba(255, 100, 50, 0.1)');
+                gradHalo.addColorStop(1, 'rgba(255, 100, 50, 0)');
+                ctx.fillStyle = gradHalo;
+                ctx.beginPath();
+                ctx.arc(soleilX, soleilY, rayonSoleil * 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Soleil lui-même (derrière)
+                const gradSoleil = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil);
+                gradSoleil.addColorStop(0, '#FFFACD'); // Centre jaune pâle
+                gradSoleil.addColorStop(0.4, '#FFD700'); // Jaune doré
+                gradSoleil.addColorStop(0.8, '#FF8C00'); // Orange
+                gradSoleil.addColorStop(1, '#FF6347'); // Rouge tomate au bord
+                ctx.fillStyle = gradSoleil;
+                ctx.beginPath();
+                ctx.arc(soleilX, soleilY, rayonSoleil, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Reflet du soleil sur l'eau
+                const refletGrad = ctx.createLinearGradient(soleilX, merY, soleilX, C.H);
+                refletGrad.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
+                refletGrad.addColorStop(0.5, 'rgba(255, 150, 50, 0.2)');
+                refletGrad.addColorStop(1, 'rgba(255, 100, 0, 0)');
+                ctx.fillStyle = refletGrad;
+                ctx.fillRect(soleilX - 40, merY, 80, C.H - merY);
+
+                // Dessiner la mer par-dessus (pour masquer la partie basse du soleil)
                 dessinerMer();
 
-                // Dessiner les étoiles scintillantes
-                const temps = Date.now() * 0.001;
-                const nbEtoiles = 120;
+                // Quelques nuages légers
+                const temps = Date.now() * 0.0002;
+                for(let i = 0; i < 3; i++) {
+                    const nuageX = (C.W * (0.1 + i * 0.3) + temps * 15 * (i + 1)) % (C.W + 200) - 100;
+                    const nuageY = C.H * 0.2 + i * 50;
+                    const nuageW = 100 + i * 30;
+                    const nuageH = 30;
 
-                for(let i = 0; i < nbEtoiles; i++) {
-                    const x = (Math.sin(i * 12.9898) * 43758.5453123 % 1) * C.W;
-                    const y = (Math.sin(i * 78.233) * 43758.5453123 % 1) * C.H * 0.6; // Seulement dans le haut
-
-                    const scintillementOffset = i * 0.5;
-                    const scintillement = Math.sin(temps + scintillementOffset) * 0.5 + 0.5;
-                    const opacite = 0.3 + scintillement * 0.5;
-                    const taille = 1.5;
-
-                    ctx.fillStyle = `rgba(255, 255, 255, ${opacite})`;
+                    ctx.fillStyle = `rgba(255, 180, 180, ${0.25 - i * 0.05})`;
                     ctx.beginPath();
-                    ctx.arc(x, y, taille, 0, Math.PI * 2);
+                    ctx.ellipse(nuageX, nuageY, nuageW, nuageH, 0, 0, Math.PI * 2);
                     ctx.fill();
                 }
-
-                // Dessiner la lune en croissant en haut à droite
-                const luneX = C.W - 100;
-                const luneY = 100;
-                const rayonLune = 40;
-
-                // Lune pleine dorée
-                const gradLune = ctx.createRadialGradient(luneX, luneY, 0, luneX, luneY, rayonLune);
-                gradLune.addColorStop(0, '#FFF8DC'); // Blanc ivoire
-                gradLune.addColorStop(0.7, '#FFE4B5'); // Doré pâle
-                gradLune.addColorStop(1, '#F0E68C'); // Khaki clair
-                ctx.fillStyle = gradLune;
-                ctx.beginPath();
-                ctx.arc(luneX, luneY, rayonLune, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Ombre pour créer le croissant (masquer une partie)
-                ctx.fillStyle = '#000000'; // Noir pour l'ombre
-                ctx.beginPath();
-                ctx.arc(luneX + 15, luneY, rayonLune - 2, 0, Math.PI * 2);
-                ctx.fill();
             } else {
                 dessinerCiel();
                 dessinerMer();
@@ -11689,6 +12473,16 @@ de mes propres yeux...`, 12000);
                     menuEnigmesCanvas.ongletActif = 'enigmes';
                     menuEnigmesCanvas.scrollY = 0; // Reset scroll
                     console.log('📋 Onglet Énigmes activé');
+                    return;
+                }
+
+                // Onglet Classement
+                const ongletClassement = menuEnigmesCanvas.onglets.classement;
+                if (x >= ongletClassement.x && x <= ongletClassement.x + ongletClassement.width &&
+                    y >= ongletClassement.y && y <= ongletClassement.y + ongletClassement.height) {
+                    menuEnigmesCanvas.ongletActif = 'classement';
+                    menuEnigmesCanvas.scrollY = 0; // Reset scroll
+                    console.log('🏆 Onglet Classement activé');
                     return;
                 }
 
@@ -12588,6 +13382,11 @@ de mes propres yeux...`, 12000);
 
         // === RACCOURCIS TEST ===
         document.addEventListener('keydown', (e) => {
+            // Ne pas intercepter les touches si on est dans un input/textarea/select
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
             if (e.key === 'F1') {
                 e.preventDefault();
                 narrationManager.showFinalMenu();
@@ -12634,6 +13433,11 @@ de mes propres yeux...`, 12000);
 
         // Gestionnaire clavier pour mode passe
         document.addEventListener('keydown', (e) => {
+            // Ne pas intercepter les touches si on est dans un input/textarea/select
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
             // Mode passe : Touche T pour passer au chapitre suivant
             if(e.key === 't' || e.key === 'T') {
                 e.preventDefault();

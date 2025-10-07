@@ -111,7 +111,7 @@ class SupabaseScores {
         }
     }
 
-    // Sauvegarder un score
+    // Sauvegarder un score (remplace l'ancien si nouveau score est meilleur)
     async saveScore(score, options = {}) {
         if (!this.currentUser) {
             console.error('❌ Aucun utilisateur connecté');
@@ -124,6 +124,43 @@ class SupabaseScores {
         }
 
         try {
+            // Vérifier si un score existe déjà
+            const { data: existingScore, error: searchError } = await this.client
+                .from('scores')
+                .select('*')
+                .eq('user_id', this.currentUser.id)
+                .eq('game_id', this.currentGameId)
+                .single();
+
+            // Si un score existe
+            if (existingScore) {
+                // Mettre à jour seulement si le nouveau score est meilleur
+                if (score > existingScore.score) {
+                    const { data, error } = await this.client
+                        .from('scores')
+                        .update({
+                            score: score,
+                            niveau_atteint: options.niveau_atteint || null,
+                            temps_jeu: options.temps_jeu || null,
+                            donnees_extra: options.donnees_extra || null,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('user_id', this.currentUser.id)
+                        .eq('game_id', this.currentGameId)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    console.log('✅ Score mis à jour:', score, '(ancien:', existingScore.score, ')');
+                    return data;
+                } else {
+                    console.log('ℹ️ Score existant meilleur:', existingScore.score, '(nouveau:', score, ')');
+                    return existingScore;
+                }
+            }
+
+            // Sinon, créer un nouveau score
             const { data, error } = await this.client
                 .from('scores')
                 .insert([{
@@ -139,7 +176,7 @@ class SupabaseScores {
 
             if (error) throw error;
 
-            console.log('💾 Score sauvegardé:', score);
+            console.log('💾 Premier score sauvegardé:', score);
             return data;
 
         } catch (error) {
@@ -172,6 +209,74 @@ class SupabaseScores {
         }
     }
 
+    // Supprimer les doublons en gardant le meilleur score pour chaque utilisateur
+    async removeDuplicates() {
+        if (!this.currentGameId) {
+            console.error('❌ Aucun jeu défini');
+            return null;
+        }
+
+        try {
+            console.log('🧹 Nettoyage des doublons...');
+
+            // Récupérer tous les scores du jeu
+            const { data: allScores, error: fetchError } = await this.client
+                .from('scores')
+                .select('*')
+                .eq('game_id', this.currentGameId)
+                .order('score', { ascending: false });
+
+            if (fetchError) throw fetchError;
+
+            console.log('📊 Scores trouvés:', allScores.length);
+
+            // Grouper par utilisateur
+            const scoresByUser = {};
+            allScores.forEach(score => {
+                if (!scoresByUser[score.user_id]) {
+                    scoresByUser[score.user_id] = [];
+                }
+                scoresByUser[score.user_id].push(score);
+            });
+
+            // Pour chaque utilisateur, garder le meilleur et supprimer les autres
+            let totalDeleted = 0;
+            for (const userId in scoresByUser) {
+                const userScores = scoresByUser[userId];
+
+                if (userScores.length > 1) {
+                    // Le premier est le meilleur (déjà trié par score DESC)
+                    const bestScore = userScores[0];
+                    const duplicates = userScores.slice(1);
+
+                    console.log(`👤 Utilisateur ${userId}: ${userScores.length} scores, meilleur: ${bestScore.score}`);
+
+                    // Supprimer les doublons
+                    for (const duplicate of duplicates) {
+                        const { error: deleteError } = await this.client
+                            .from('scores')
+                            .delete()
+                            .eq('id', duplicate.id);
+
+                        if (deleteError) {
+                            console.error('❌ Erreur suppression:', deleteError);
+                        } else {
+                            totalDeleted++;
+                            console.log(`  🗑️ Supprimé: ${duplicate.score} (ID: ${duplicate.id})`);
+                        }
+                    }
+                }
+            }
+
+            console.log(`✅ Nettoyage terminé: ${totalDeleted} doublons supprimés`);
+            return { deleted: totalDeleted, total: allScores.length };
+
+        } catch (error) {
+            console.error('❌ Erreur removeDuplicates:', error);
+            return null;
+        }
+    }
+
     // Récupérer le classement du jeu actuel (top 10)
     async getLeaderboard(limit = 10) {
         if (!this.currentGameId) return [];
@@ -184,6 +289,7 @@ class SupabaseScores {
                     niveau_atteint,
                     temps_jeu,
                     created_at,
+                    donnees_extra,
                     users (pseudo, avatar, pays)
                 `)
                 .eq('game_id', this.currentGameId)
