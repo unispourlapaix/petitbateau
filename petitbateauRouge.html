@@ -1933,7 +1933,7 @@
                     vx: (Math.random() - 0.5) * 8,
                     vy: (Math.random() - 0.5) * 8,
                     couleur: '#FFD700',
-                    vie: 1,
+                    vie: Math.random() * 20 + 30, // 30-50 frames
                     taille: Math.random() * 6 + 4,
                     type: 'etoile'
                 });
@@ -2054,7 +2054,7 @@
                         vx: (Math.random() - 0.5) * 6,
                         vy: (Math.random() - 0.5) * 6,
                         couleur: '#64ffda',
-                        vie: 1,
+                        vie: Math.random() * 25 + 35, // 35-60 frames
                         taille: Math.random() * 4 + 2,
                         type: 'rond'
                     });
@@ -4038,22 +4038,25 @@
                 // Activer l'écouteur de clic immédiatement (à 25s)
                 // Chaque clic déclenche une formation différente
                 let formationIndex = 0;
-                const formations = ['heart', 'x', 'star', 'spiral', 'heart', 'x', 'star', 'spiral']; // 8 clics
+                const formations = ['heart', 'broken_brick', 'star', 'clock', 'star5', 'cross_christian', 'heart', 'double_heart']; // 8 formations
                 const dronesNecessaires = {
-                    'heart': 30,   // Cœur : forme continue
-                    'x': 20,       // X : forme simple
-                    'star': 25,    // Étoile : forme moyenne
-                    'spiral': 35   // Spirale : forme complexe
+                    'heart': 30,            // Cœur : forme continue
+                    'broken_brick': 70,     // Mur fissuré : briques avec fissures centrales
+                    'star': 25,             // Étoile : forme moyenne avec drones jaunes
+                    'clock': 60,            // Horloge : cadran + aiguilles animées
+                    'star5': 50,            // Étoile 5 branches : forme classique remplie
+                    'cross_christian': 45,  // Croix chrétienne : forme sacrée
+                    'double_heart': 60      // Double cœur : finale romantique
                 };
 
-                const lancerDrones = (e) => {
-                    // Empêcher le comportement par défaut et la propagation
+                const lancerDrones = (e = null) => {
+                    // Empêcher le comportement par défaut et la propagation (si événement)
                     if (e) {
                         e.preventDefault();
                         e.stopPropagation();
                     }
 
-                    // Effacer le message d'instruction au premier clic
+                    // Effacer le message d'instruction au premier lancement
                     if (formationIndex === 0) {
                         messageNarratifActif = null;
                     }
@@ -4073,17 +4076,46 @@
                         droneModule.moveFormationTo(x, y);
                         droneModule.setFormation(formation);
 
-                        setTimeout(() => {
-                            droneModule.explode(x, y);
-                        }, 1000);
+                        // Traitement spécial pour le double cœur : fusion puis explosion
+                        if (formation === 'double_heart') {
+                            setTimeout(() => {
+                                // Phase 1 : Fusion des deux cœurs (2 secondes)
+                                droneModule.fuseDoubleHeart();
+                                
+                                // Phase 2 : Explosion finale en slow motion (2 secondes plus tard)
+                                setTimeout(() => {
+                                    droneModule.explodeSlowMotion(x, y); // Explosion spéciale slow motion
+                                }, 2000);
+                            }, 1000);
+                        } else if (formation === 'clock') {
+                            // Traitement spécial pour l'horloge : aiguilles animées
+                            setTimeout(() => {
+                                // Phase 1 : Animer les aiguilles (3 secondes)
+                                droneModule.animateClock();
+                                
+                                // Phase 2 : Explosion après l'animation
+                                setTimeout(() => {
+                                    droneModule.explode(x, y);
+                                }, 3000);
+                            }, 1000);
+                        } else {
+                            // Explosion normale pour les autres formations
+                            setTimeout(() => {
+                                droneModule.explode(x, y);
+                            }, 1000);
+                        }
 
                         formationIndex++;
 
                         // Après 8 formations, afficher le texte final
                         if (formationIndex === formations.length) {
-                            // Retirer l'écouteur après 8 formations
-                            canvas.removeEventListener('click', lancerDrones);
-
+                            // Faire disparaître les drones après la dernière explosion
+                            setTimeout(() => {
+                                if (droneModule) {
+                                    droneModule.hide();
+                                }
+                            }, 3000); // 3 secondes après la dernière explosion
+                            
                             // Afficher le texte final après un délai
                             setTimeout(() => {
                                 // Partie 1 : Le mur
@@ -4121,13 +4153,13 @@
 
                                         // 4 textes de partage différents
                                         const textesPartage = [
-                                            `🌟 J'ai voyagé à travers les frontières de l'humanité !\n\n"De l'obscurité vers la lumière, j'ai appris que l'amour unit au-delà des différences."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                                            `🌟 J'ai voyagé à travers les frontières de l'humanité !\n\n"De l'obscurité vers la lumière, j'ai appris que l'amour unit au-delà des différences."\n\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
 
-                                            `🕊️ Un voyage vers la vérité...\n\n"J'ai brisé les murs de la peur pour construire des ponts d'amour."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                                            `🕊️ Un voyage vers la vérité...\n\n"J'ai brisé les murs de la peur pour construire des ponts d'amour."\n\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
 
-                                            `🌍 De mur en pont, j'ai découvert l'humanité...\n\n"Au-delà des frontières, nos cœurs battent à l'unisson."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
+                                            `🌍 De mur en pont, j'ai découvert l'humanité...\n\n"Au-delà des frontières, nos cœurs battent à l'unisson."\n\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`,
 
-                                            `👁️ J'ai vu la vérité au-delà des préjugés...\n\n"Nous construisons des murs par peur, mais l'amour les transforme en refuges."\n\n${nom} - ${ville}, ${pays}\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`
+                                            `👁️ J'ai vu la vérité au-delà des préjugés...\n\n"Nous construisons des murs par peur, mais l'amour les transforme en refuges."\n\n💎 Sagesse : ${scoreSagesse}\n🎯 Score : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJouez à ⛵ PETIT BATEAU 👁️`
                                         ];
 
                                         // Choisir un texte aléatoire
@@ -4147,11 +4179,23 @@
                     }
                 };
 
-                // Ajouter l'écouteur de clic immédiatement
-                canvas.addEventListener('click', lancerDrones);
+                // Démarrer les feux d'artifice automatiques
+                const lancerFeuxAutomatiques = () => {
+                    if (formationIndex < formations.length) {
+                        lancerDrones(); // Lancer sans événement
+                        
+                        // Programmer le prochain lancement dans 4 secondes SEULEMENT si ce n'est pas le dernier
+                        if (formationIndex < formations.length) {
+                            setTimeout(lancerFeuxAutomatiques, 4000);
+                        }
+                    }
+                };
 
-                // Afficher un message d'instruction discret
-                afficherMessageNarratifSimple('Cliquez pour lancer les feux d\'artifice', 999999);
+                // Démarrer le premier feu d'artifice après 2 secondes
+                setTimeout(lancerFeuxAutomatiques, 2000);
+
+                // Afficher un message d'attente élégant
+                afficherMessageNarratifSimple('Les feux d\'artifice commencent...', 6000);
             }
 
             // Générer un résumé élégant en 3 lignes
@@ -4378,11 +4422,39 @@
 
             setFormation(formation) {
                 this.currentFormation = formation;
+                // Enregistrer le timestamp pour les animations temporelles
+                this.formationStartTime = Date.now();
                 const positions = this.getFormationPositions(formation, this.drones.length, this.options.size);
 
                 this.drones.forEach((drone, index) => {
                     if (positions[index]) {
                         drone.setTarget(positions[index].x, positions[index].y);
+                        
+                        // Appliquer les propriétés spéciales de la formation
+                        if (positions[index].forceColor) {
+                            drone.originalColor = drone.color; // Sauvegarder couleur originale
+                            drone.color = positions[index].forceColor;
+                            drone.hasSpecialColor = true;
+                        } else if (drone.hasSpecialColor) {
+                            // Restaurer couleur originale si plus de couleur forcée
+                            drone.color = drone.originalColor || drone.getRandomColor();
+                            drone.hasSpecialColor = false;
+                        }
+                        
+                        // Transférer autres propriétés spéciales
+                        drone.isStarInner = positions[index].isStarInner || false;
+                        drone.isStar5Outline = positions[index].isStar5Outline || false;
+                        drone.isStar5Fill = positions[index].isStar5Fill || false;
+                        drone.isCrossVertical = positions[index].isCrossVertical || false;
+                        drone.isCrossHorizontal = positions[index].isCrossHorizontal || false;
+                        drone.isBrokenBrick = positions[index].isBrokenBrick || false;
+                        drone.isLeftSide = positions[index].isLeftSide || false;
+                        drone.breakIntensity = positions[index].breakIntensity || 0;
+                        drone.brickType = positions[index].brickType || 'normal';
+                        drone.wallPhase = positions[index].wallPhase || 'uniform'; // Phase du mur
+                        drone.isHeart = positions[index].isHeart || false; // Cœur dans le mur
+                        drone.heartType = positions[index].heartType || 'none'; // Type de cœur
+                        drone.sizeEffect = positions[index].sizeEffect || 1.0; // Effet de taille pour la croix
                     }
                 });
             }
@@ -4447,23 +4519,74 @@
                         break;
 
                     case 'star':
-                        for (let i = 0; i < count; i++) {
-                            const angle = (i / count) * Math.PI * 2;
+                        // Étoile améliorée avec drones jaunes à l'intérieur
+                        const starCount = Math.floor(count * 0.7); // 70% pour l'étoile
+                        const innerCount = count - starCount; // 30% pour l'intérieur jaune
+                        
+                        // Contour de l'étoile
+                        for (let i = 0; i < starCount; i++) {
+                            const angle = (i / starCount) * Math.PI * 2;
                             const starRadius = (i % 2 === 0) ? size : size * 0.6;
                             positions.push({
                                 x: centerX + Math.cos(angle) * starRadius,
-                                y: centerY + Math.sin(angle) * starRadius
+                                y: centerY + Math.sin(angle) * starRadius,
+                                isStarOutline: true
+                            });
+                        }
+                        
+                        // Drones jaunes à l'intérieur
+                        for (let i = 0; i < innerCount; i++) {
+                            const angle = (i / innerCount) * Math.PI * 2;
+                            const innerRadius = size * 0.3; // Cercle intérieur
+                            positions.push({
+                                x: centerX + Math.cos(angle) * innerRadius,
+                                y: centerY + Math.sin(angle) * innerRadius,
+                                isStarInner: true,
+                                forceColor: '#FFFF00' // Jaune vif
                             });
                         }
                         break;
 
-                    case 'spiral':
-                        for (let i = 0; i < count; i++) {
-                            const angle = (i / count) * Math.PI * 4; // 2 tours
-                            const radius = (i / count) * size;
+                    case 'clock':
+                        // Horloge avec aiguilles : cercle + aiguille heures (points mobiles) + aiguille minutes (ligne fixe)
+                        const clockRadius = size * 0.8;
+                        const circleCount = Math.floor(count * 0.6); // 60% pour le cercle
+                        const hourHandCount = Math.floor(count * 0.25); // 25% pour aiguille des heures
+                        const minuteHandCount = count - circleCount - hourHandCount; // 15% pour aiguille des minutes
+                        
+                        // 1. Cercle de l'horloge
+                        for (let i = 0; i < circleCount; i++) {
+                            const angle = (i / circleCount) * Math.PI * 2;
                             positions.push({
-                                x: centerX + Math.cos(angle) * radius,
-                                y: centerY + Math.sin(angle) * radius
+                                x: centerX + Math.cos(angle) * clockRadius,
+                                y: centerY + Math.sin(angle) * clockRadius,
+                                isClockCircle: true
+                            });
+                        }
+                        
+                        // 2. Aiguille des heures (points) - initialement à 12h
+                        const hourHandLength = clockRadius * 0.5;
+                        const hourAngle = -Math.PI / 2; // 12h
+                        for (let i = 0; i < hourHandCount; i++) {
+                            const progress = (i + 1) / hourHandCount; // Progression sur l'aiguille
+                            positions.push({
+                                x: centerX + Math.cos(hourAngle) * (progress * hourHandLength),
+                                y: centerY + Math.sin(hourAngle) * (progress * hourHandLength),
+                                isHourHand: true,
+                                handProgress: progress
+                            });
+                        }
+                        
+                        // 3. Aiguille des minutes (ligne fixe) - pointant vers 12h
+                        const minuteHandLength = clockRadius * 0.8;
+                        const minuteAngle = -Math.PI / 2; // 12h fixe
+                        for (let i = 0; i < minuteHandCount; i++) {
+                            const progress = (i + 1) / minuteHandCount;
+                            positions.push({
+                                x: centerX + Math.cos(minuteAngle) * (progress * minuteHandLength),
+                                y: centerY + Math.sin(minuteAngle) * (progress * minuteHandLength),
+                                isMinuteHand: true,
+                                isFixed: true // Reste fixe
                             });
                         }
                         break;
@@ -4476,6 +4599,36 @@
                             positions.push({
                                 x: centerX + x * size / 50,
                                 y: centerY + y * size / 50
+                            });
+                        }
+                        break;
+
+                    case 'double_heart':
+                        // Double cœur simplifié : un gros et un petit cœur
+                        const bigHeartCount = Math.floor(count * 0.7); // 70% pour le gros cœur
+                        const smallHeartCount = count - bigHeartCount; // 30% pour le petit cœur
+                        
+                        // Gros cœur (à gauche)
+                        for (let i = 0; i < bigHeartCount; i++) {
+                            const t = (i / bigHeartCount) * Math.PI * 2;
+                            const x = 16 * Math.pow(Math.sin(t), 3);
+                            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                            positions.push({
+                                x: centerX - size * 0.6 + x * size / 50, // Gros cœur à gauche
+                                y: centerY + y * size / 50,
+                                isBigHeart: true
+                            });
+                        }
+                        
+                        // Petit cœur (à droite)
+                        for (let i = 0; i < smallHeartCount; i++) {
+                            const t = (i / smallHeartCount) * Math.PI * 2;
+                            const x = 16 * Math.pow(Math.sin(t), 3);
+                            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                            positions.push({
+                                x: centerX + size * 0.6 + x * size / 80, // Petit cœur à droite
+                                y: centerY + y * size / 80,
+                                isSmallHeart: true
                             });
                         }
                         break;
@@ -4493,6 +4646,157 @@
                                 x: centerX - size + (i * size * 2) / (count - armWidth * 2),
                                 y: centerY
                             });
+                        }
+                        break;
+
+                    case 'broken_brick':
+                        // 🧱💥 MUR AVEC CŒUR À L'INTÉRIEUR → SE BRISE → EXPLOSE !
+                        const heartDrones = Math.floor(count * 0.2); // 20% pour le cœur
+                        const wallDrones = count - heartDrones; // 80% pour le mur
+                        
+                        const brickRows = Math.ceil(Math.sqrt(wallDrones / 2));
+                        const bricksPerRow = Math.ceil(wallDrones / brickRows);
+                        const brickWidth = (size * 2) / bricksPerRow;
+                        const brickHeight = size / brickRows;
+                        
+                        // Ligne de rupture verticale au centre
+                        const breakLineX = centerX;
+                        
+                        // Phases temporelles (contrôlées par l'âge de la formation)
+                        const timeElapsed = Date.now() - (this.formationStartTime || Date.now());
+                        const phase1Duration = 2000; // 2s uniforme
+                        const phase2Duration = 3000; // 3s brisé
+                        // phase3 = explosion (après 5s total)
+                        
+                        let wallPhase = 'uniform'; // uniform, breaking, exploded
+                        if (timeElapsed > phase1Duration + phase2Duration) {
+                            wallPhase = 'exploded';
+                        } else if (timeElapsed > phase1Duration) {
+                            wallPhase = 'breaking';
+                        }
+                        
+                        // 1. CRÉER LE CŒUR AU CENTRE ❤️
+                        const heartSize = size * 0.4; // Taille du cœur
+                        for (let i = 0; i < heartDrones; i++) {
+                            const angle = (i / heartDrones) * Math.PI * 2;
+                            
+                            // Forme de cœur paramétrique
+                            const t = angle;
+                            const heartX = centerX + heartSize * (16 * Math.pow(Math.sin(t), 3)) / 16;
+                            const heartY = centerY - heartSize * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16;
+                            
+                            let heartColor = '#FF1493'; // Rose profond
+                            let heartType = 'heart_core';
+                            
+                            // Animation du cœur selon la phase
+                            if (wallPhase === 'uniform') {
+                                // Cœur battant doucement
+                                heartColor = '#FF69B4'; // Rose vif
+                            } else if (wallPhase === 'breaking') {
+                                // Cœur qui palpite (danger)
+                                heartColor = '#FF0000'; // Rouge intense
+                            } else {
+                                // Cœur libre (après explosion du mur)
+                                heartColor = '#FFD700'; // Or brillant (liberté)
+                                heartType = 'heart_free';
+                            }
+                            
+                            positions.push({
+                                x: heartX,
+                                y: heartY,
+                                isHeart: true,
+                                heartType: heartType,
+                                forceColor: heartColor
+                            });
+                        }
+                        
+                        // 2. CRÉER LE MUR AUTOUR
+                        for (let row = 0; row < brickRows && positions.length < count; row++) {
+                            const rowOffset = (row % 2) * (brickWidth / 2); // Décalage pour effet briques
+                            const bricksInRow = row < brickRows - 1 ? bricksPerRow : wallDrones - (positions.length - heartDrones);
+                            
+                            for (let col = 0; col < bricksInRow && positions.length < count; col++) {
+                                const originalBrickX = centerX - size + rowOffset + col * brickWidth;
+                                const originalBrickY = centerY - size / 2 + row * brickHeight;
+                                
+                                // Éviter de placer des briques trop près du cœur
+                                const distanceToCenter = Math.sqrt(
+                                    Math.pow(originalBrickX - centerX, 2) + 
+                                    Math.pow(originalBrickY - centerY, 2)
+                                );
+                                if (distanceToCenter < heartSize * 1.2) {
+                                    continue; // Laisser l'espace pour le cœur
+                                }
+                                
+                                // Position initiale uniforme
+                                let finalX = originalBrickX;
+                                let finalY = originalBrickY;
+                                let brickType = 'normal';
+                                let color = '#C0C0C0'; // Gris argent uniforme par défaut
+                                
+                                // Déterminer de quel côté de la rupture se trouve cette brique
+                                const isLeftSide = originalBrickX < breakLineX;
+                                const distanceToBreak = Math.abs(originalBrickX - breakLineX);
+                                const maxDistance = size;
+                                const breakIntensity = Math.max(0, 1 - (distanceToBreak / maxDistance));
+                                
+                                if (wallPhase === 'uniform') {
+                                    // PHASE 1: Mur uniforme gris argent
+                                    color = '#C0C0C0'; // Gris argent uniforme
+                                    brickType = 'normal';
+                                    
+                                } else if (wallPhase === 'breaking') {
+                                    // PHASE 2: Mur se brise en deux
+                                    const separationDistance = size * 0.4; // Plus de séparation
+                                    
+                                    if (isLeftSide) {
+                                        finalX -= separationDistance * breakIntensity;
+                                    } else {
+                                        finalX += separationDistance * breakIntensity;
+                                    }
+                                    
+                                    // Léger décalage vertical pour effet d'effondrement
+                                    const verticalShift = breakIntensity * (Math.random() - 0.5) * 15;
+                                    finalY += verticalShift;
+                                    
+                                    // Couleurs selon la position
+                                    if (distanceToBreak < brickWidth) {
+                                        brickType = 'crack_edge';
+                                        color = '#A9A9A9'; // Gris sombre (ligne de rupture)
+                                    } else if (breakIntensity > 0.5) {
+                                        brickType = 'crack_near';
+                                        color = '#B8B8B8'; // Gris moyen
+                                    } else {
+                                        brickType = 'normal';
+                                        color = '#C0C0C0'; // Gris argent maintenu
+                                    }
+                                    
+                                } else if (wallPhase === 'exploded') {
+                                    // PHASE 3: Explosion complète
+                                    const explosionRadius = size * 1.5;
+                                    const randomAngle = Math.random() * Math.PI * 2;
+                                    const randomDistance = Math.random() * explosionRadius;
+                                    
+                                    finalX += Math.cos(randomAngle) * randomDistance;
+                                    finalY += Math.sin(randomAngle) * randomDistance;
+                                    
+                                    // Couleurs de débris
+                                    const debrisColors = ['#A9A9A9', '#808080', '#696969', '#778899'];
+                                    color = debrisColors[Math.floor(Math.random() * debrisColors.length)];
+                                    brickType = 'debris';
+                                }
+                                
+                                positions.push({
+                                    x: finalX,
+                                    y: finalY,
+                                    isBrokenBrick: true,
+                                    isLeftSide: isLeftSide,
+                                    breakIntensity: breakIntensity,
+                                    brickType: brickType,
+                                    wallPhase: wallPhase,
+                                    forceColor: color
+                                });
+                            }
                         }
                         break;
 
@@ -4612,6 +4916,173 @@
                             }
                         });
                         break;
+
+                    case 'star5':
+                        // ⭐ ÉTOILE 5 BRANCHES REMPLIE ! (Étoile classique)
+                        const star5Outline = Math.floor(count * 0.4); // 40% pour le contour
+                        const star5Fill = count - star5Outline; // 60% pour le remplissage
+                        
+                        // Points de l'étoile 5 branches
+                        const outerRadius = size * 0.8;
+                        const innerRadius = size * 0.35;
+                        const starPoints = [];
+                        
+                        // Calculer les 10 points (5 externes + 5 internes)
+                        for (let i = 0; i < 10; i++) {
+                            const angle = (i * Math.PI) / 5 - Math.PI / 2; // Commencer par le haut
+                            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                            starPoints.push({
+                                x: centerX + Math.cos(angle) * radius,
+                                y: centerY + Math.sin(angle) * radius
+                            });
+                        }
+                        
+                        // 1. Contour de l'étoile (tracer les bords)
+                        for (let i = 0; i < star5Outline; i++) {
+                            const progress = i / star5Outline;
+                            const totalPerimeter = starPoints.length;
+                            const segmentIndex = Math.floor(progress * totalPerimeter);
+                            const segmentProgress = (progress * totalPerimeter) % 1;
+                            
+                            const currentPoint = starPoints[segmentIndex];
+                            const nextPoint = starPoints[(segmentIndex + 1) % starPoints.length];
+                            
+                            positions.push({
+                                x: currentPoint.x + (nextPoint.x - currentPoint.x) * segmentProgress,
+                                y: currentPoint.y + (nextPoint.y - currentPoint.y) * segmentProgress,
+                                isStar5Outline: true,
+                                forceColor: '#FFD700' // Or pour le contour
+                            });
+                        }
+                        
+                        // 2. Remplissage de l'étoile (zone intérieure)
+                        for (let i = 0; i < star5Fill; i++) {
+                            // Méthode de remplissage par échantillonnage aléatoire dans l'étoile
+                            let x, y, inside = false;
+                            let attempts = 0;
+                            
+                            while (!inside && attempts < 50) {
+                                // Point aléatoire dans le rectangle englobant
+                                x = centerX + (Math.random() - 0.5) * size * 1.6;
+                                y = centerY + (Math.random() - 0.5) * size * 1.6;
+                                
+                                // Test si le point est à l'intérieur de l'étoile
+                                inside = isPointInStar(x, y, centerX, centerY, outerRadius, innerRadius);
+                                attempts++;
+                            }
+                            
+                            if (inside) {
+                                positions.push({
+                                    x: x,
+                                    y: y,
+                                    isStar5Fill: true,
+                                    forceColor: '#FF6B6B' // Rouge-rose pour le remplissage
+                                });
+                            }
+                        }
+                        
+                        // Fonction pour tester si un point est dans l'étoile
+                        function isPointInStar(px, py, cx, cy, outerR, innerR) {
+                            const dx = px - cx;
+                            const dy = py - cy;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const angle = Math.atan2(dy, dx) + Math.PI / 2; // Ajuster pour commencer par le haut
+                            const normalizedAngle = ((angle % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+                            
+                            // Quel segment de l'étoile (chaque segment = 2π/5)
+                            const segmentAngle = (2 * Math.PI) / 5;
+                            const segmentIndex = Math.floor(normalizedAngle / segmentAngle);
+                            const angleInSegment = normalizedAngle % segmentAngle;
+                            
+                            // Interpoler entre rayon interne et externe selon la position dans le segment
+                            const t = angleInSegment / segmentAngle;
+                            const effectiveRadius = t <= 0.5 ? 
+                                innerR + (outerR - innerR) * (t * 2) : 
+                                outerR + (innerR - outerR) * ((t - 0.5) * 2);
+                            
+                            return distance <= effectiveRadius;
+                        }
+                        break;
+
+                    case 'cross_christian':
+                        // ✝️ CROIX AMBULANCE ARC-EN-CIEL ! (3x plus grosse)
+                        const crossVertical = Math.floor(count * 0.6); // 60% pour la barre verticale
+                        const crossHorizontal = count - crossVertical; // 40% pour la barre horizontale
+                        
+                        // Dimensions de la croix (3x plus grosse)
+                        const crossHeight = size * 3.6; // 3x plus haute (était 1.2)
+                        const crossWidth = size * 2.4; // 3x plus large (était 0.8)
+                        const beamThickness = size * 0.45; // 3x plus épaisse (était 0.15)
+                        
+                        // Palette arc-en-ciel pour ambulance stylée
+                        const rainbowColors = [
+                            '#FF0000', // Rouge
+                            '#FF4500', // Orange rouge
+                            '#FF8C00', // Orange
+                            '#FFD700', // Or
+                            '#ADFF2F', // Vert jaune
+                            '#00FF00', // Vert
+                            '#00CED1', // Turquoise
+                            '#0000FF', // Bleu
+                            '#4B0082', // Indigo
+                            '#8A2BE2'  // Violet
+                        ];
+                        
+                        // 1. Barre verticale (pied + partie haute) - Arc-en-ciel + effet taille
+                        for (let i = 0; i < crossVertical; i++) {
+                            const progress = i / (crossVertical - 1 || 1);
+                            const y = centerY - crossHeight / 2 + progress * crossHeight;
+                            
+                            // Calcul de l'effet taille : gros au centre, petit aux extrémités
+                            const distanceFromCenter = Math.abs(progress - 0.5) * 2; // 0 au centre, 1 aux bords
+                            const sizeMultiplier = 1.5 - distanceFromCenter * 0.8; // 1.5 au centre, 0.7 aux bords
+                            const effectiveThickness = beamThickness * sizeMultiplier;
+                            
+                            // Couleur arc-en-ciel selon la position verticale
+                            const colorIndex = Math.floor(progress * (rainbowColors.length - 1));
+                            const rainbowColor = rainbowColors[colorIndex];
+                            
+                            // Répartir sur l'épaisseur variable de la poutre verticale
+                            const offsetX = ((i % 5) - 2) * (effectiveThickness / 5); // Plus de densité
+                            
+                            positions.push({
+                                x: centerX + offsetX,
+                                y: y,
+                                isCrossVertical: true,
+                                sizeEffect: sizeMultiplier * 3, // 3x l'effet de taille
+                                forceColor: rainbowColor // Couleur arc-en-ciel
+                            });
+                        }
+                        
+                        // 2. Barre horizontale (bras de la croix) - Arc-en-ciel + effet taille
+                        for (let i = 0; i < crossHorizontal; i++) {
+                            const progress = i / (crossHorizontal - 1 || 1);
+                            const x = centerX - crossWidth / 2 + progress * crossWidth;
+                            
+                            // Position à 1/3 du haut (proportion classique croix latine)
+                            const horizontalY = centerY - crossHeight / 6;
+                            
+                            // Calcul de l'effet taille : gros au centre, petit aux extrémités
+                            const distanceFromCenter = Math.abs(progress - 0.5) * 2; // 0 au centre, 1 aux bords
+                            const sizeMultiplier = 1.5 - distanceFromCenter * 0.8; // 1.5 au centre, 0.7 aux bords
+                            const effectiveThickness = beamThickness * sizeMultiplier;
+                            
+                            // Couleur arc-en-ciel selon la position horizontale
+                            const colorIndex = Math.floor(progress * (rainbowColors.length - 1));
+                            const rainbowColor = rainbowColors[colorIndex];
+                            
+                            // Répartir sur l'épaisseur variable de la poutre horizontale
+                            const offsetY = ((i % 5) - 2) * (effectiveThickness / 5); // Plus de densité
+                            
+                            positions.push({
+                                x: x,
+                                y: horizontalY + offsetY,
+                                isCrossHorizontal: true,
+                                sizeEffect: sizeMultiplier * 3, // 3x l'effet de taille
+                                forceColor: rainbowColor // Couleur arc-en-ciel identique
+                            });
+                        }
+                        break;
                 }
 
                 return positions;
@@ -4621,6 +5092,31 @@
                 // Animation séparée pour mise à jour seulement (sans rendu)
                 this.drones.forEach(drone => {
                     drone.update(this.options);
+                });
+                
+                // Mise à jour automatique des formations temporelles
+                if (this.currentFormation === 'broken_brick' && this.formationStartTime) {
+                    this.updateTemporalFormation();
+                }
+            }
+            
+            updateTemporalFormation() {
+                // Met à jour les positions pour les formations temporelles (comme broken_brick)
+                const positions = this.getFormationPositions(this.currentFormation, this.drones.length, this.options.size);
+                
+                this.drones.forEach((drone, index) => {
+                    if (positions[index]) {
+                        // Mettre à jour la cible progressivement
+                        drone.setTarget(positions[index].x, positions[index].y);
+                        
+                        // Mettre à jour les propriétés temporelles
+                        if (positions[index].forceColor && positions[index].forceColor !== drone.color) {
+                            drone.color = positions[index].forceColor;
+                        }
+                        drone.brickType = positions[index].brickType || 'normal';
+                        drone.wallPhase = positions[index].wallPhase || 'uniform';
+                        drone.heartType = positions[index].heartType || 'none'; // Mise à jour du type de cœur
+                    }
                 });
             }
 
@@ -4632,7 +5128,10 @@
                     window.droneRenderLogged = true;
                 }
                 this.drones.forEach(drone => {
-                    drone.draw(this.ctx, this.options);
+                    // Ne dessiner que les drones vivants
+                    if (drone.life > 0) {
+                        drone.draw(this.ctx, this.options);
+                    }
                 });
             }
 
@@ -4640,6 +5139,117 @@
                 this.targetX = x;
                 this.targetY = y;
                 this.setFormation(this.currentFormation);
+            }
+
+            hide() {
+                // Faire disparaître tous les drones progressivement
+                this.drones.forEach((drone, index) => {
+                    setTimeout(() => {
+                        drone.life = 0; // Forcer la disparition
+                        drone.exploding = true;
+                        drone.explosionLife = 1; // Déjà terminé
+                    }, index * 50); // Décalage de 50ms entre chaque drone
+                });
+                
+                // Effacer complètement après 5 secondes
+                setTimeout(() => {
+                    this.drones = [];
+                }, 5000);
+            }
+
+            fuseDoubleHeart() {
+                // Fusion simple : tous les drones vont vers le centre puis explosent
+                const centerX = this.targetX;
+                const centerY = this.targetY;
+                
+                // Animer tous les drones vers le centre
+                this.drones.forEach((drone, index) => {
+                    // Mouvement vers le centre avec un léger décalage circulaire
+                    const angle = (index / this.drones.length) * Math.PI * 2;
+                    const smallRadius = 20; // Petit cercle au centre
+                    
+                    drone.setTarget(
+                        centerX + Math.cos(angle) * smallRadius,
+                        centerY + Math.sin(angle) * smallRadius
+                    );
+                    drone.speed = 0.12; // Vitesse rapide pour convergence
+                    drone.fusionMode = true; // Mode fusion activé
+                });
+                
+                console.log('💕 Fusion simple des doubles cœurs vers le centre...');
+            }
+
+            animateClock() {
+                // Animation horloge : aiguille des heures qui bouge, minutes fixe
+                const centerX = this.targetX;
+                const centerY = this.targetY;
+                const clockRadius = this.options.size * 0.8;
+                const totalDuration = 3000; // 3 secondes
+                const startTime = Date.now();
+                
+                // Marquer tous les drones pour l'animation
+                this.drones.forEach(drone => {
+                    drone.clockAnimation = true;
+                    drone.animationStartTime = startTime;
+                });
+                
+                // Animation de l'aiguille des heures
+                const animateHourHand = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / totalDuration, 1);
+                    
+                    // L'aiguille des heures fait un tour complet (12h)
+                    const hourAngle = -Math.PI / 2 + (progress * Math.PI * 2);
+                    const hourHandLength = clockRadius * 0.5;
+                    
+                    this.drones.forEach((drone, index) => {
+                        const originalPos = this.getFormationPositions('clock', this.drones.length, this.options.size)[index];
+                        
+                        if (originalPos && originalPos.isHourHand) {
+                            // Recalculer la position de l'aiguille des heures
+                            const newX = centerX + Math.cos(hourAngle) * (originalPos.handProgress * hourHandLength);
+                            const newY = centerY + Math.sin(hourAngle) * (originalPos.handProgress * hourHandLength);
+                            
+                            drone.setTarget(newX, newY);
+                            drone.speed = 0.15; // Vitesse rapide pour suivre
+                            drone.clockGlow = true;
+                        }
+                        // Les autres drones (cercle et aiguille minutes) ne bougent pas
+                    });
+                    
+                    // Continuer l'animation si pas terminée
+                    if (progress < 1) {
+                        setTimeout(animateHourHand, 50); // 50ms
+                    }
+                };
+                
+                // Démarrer l'animation
+                animateHourHand();
+                console.log('🕐 Animation horloge : aiguille des heures en mouvement...');
+            }
+
+            explodeSlowMotion(x, y) {
+                // Explosion finale en slow motion - plus lente et spectaculaire
+                const explosionRadius = 150; // Plus large que normale (120)
+                
+                this.drones.forEach(drone => {
+                    const distance = Math.sqrt(
+                        Math.pow(drone.x - x, 2) + Math.pow(drone.y - y, 2)
+                    );
+
+                    if (distance < explosionRadius) {
+                        drone.explodeSlowMotion(x, y, explosionRadius);
+                    }
+                });
+
+                // Temps de reset plus long pour l'effet slow motion
+                setTimeout(() => {
+                    this.drones.forEach(drone => {
+                        drone.resetToFormation();
+                    });
+                }, 4000); // 4 secondes au lieu de 2
+                
+                console.log('💥 Explosion finale en slow motion...');
             }
         }
 
@@ -4657,6 +5267,14 @@
                 this.explosionVelY = 0;
                 this.life = 1.0;
                 this.inExplosion = false;
+                this.inSlowMotion = false; // Mode slow motion pour finale
+                this.speed = 0.03; // Vitesse de déplacement normale
+                this.glowing = false; // Effet lumineux pour la fusion
+                this.fusionMode = false; // Mode fusion activé
+                this.clockAnimation = false; // Animation horloge
+                this.clockGlow = false; // Effet spécial horloge
+                this.animationStartTime = 0; // Temps de début d'animation
+                this.lightUpDelay = 0; // Délai avant allumage (horloge)
             }
 
             getRandomColor() {
@@ -4685,6 +5303,25 @@
                 }
             }
 
+            explodeSlowMotion(explosionX, explosionY, radius) {
+                // Explosion en slow motion - plus lente et spectaculaire
+                const distance = Math.sqrt(Math.pow(this.x - explosionX, 2) + Math.pow(this.y - explosionY, 2));
+                if (distance < radius) {
+                    const angle = Math.atan2(this.y - explosionY, this.x - explosionX);
+                    const force = (radius - distance) / radius * 12; // Force réduite (18 → 12)
+
+                    this.explosionVelX = Math.cos(angle) * force;
+                    this.explosionVelY = Math.sin(angle) * force - 4; // Gravité réduite (6 → 4)
+                    this.inExplosion = true;
+                    this.inSlowMotion = true; // Mode slow motion
+                    this.life = 1.0;
+
+                    // Couleurs dorées/roses pour la finale romantique
+                    const finaleColors = ['#FFD700', '#FF69B4', '#FFA500', '#FF1493', '#FFFF00'];
+                    this.color = finaleColors[Math.floor(Math.random() * finaleColors.length)];
+                }
+            }
+
             firework() {
                 this.explosionVelX = (Math.random() - 0.5) * 12;
                 this.explosionVelY = (Math.random() - 0.5) * 12 - 7;
@@ -4700,14 +5337,28 @@
 
             update(options) {
                 if (this.inExplosion) {
-                    this.x += this.explosionVelX;
-                    this.y += this.explosionVelY;
-                    this.explosionVelY += 0.3;
-                    this.life -= 0.015;
+                    // Appliquer slow motion si activé
+                    const motionFactor = this.inSlowMotion ? 0.4 : 1.0; // 40% de vitesse en slow motion
+                    
+                    this.x += this.explosionVelX * motionFactor;
+                    this.y += this.explosionVelY * motionFactor;
+                    this.explosionVelY += 0.3 * motionFactor; // Gravité aussi ralentie
+                    
+                    // Vie qui diminue plus lentement en slow motion
+                    const lifeDecay = this.inSlowMotion ? 0.008 : 0.015;
+                    this.life -= lifeDecay;
                     if (this.life <= 0) this.life = 0;
                 } else {
-                    this.x += (this.targetX - this.x) * options.speed;
-                    this.y += (this.targetY - this.y) * options.speed;
+                    // Utiliser la vitesse personnalisée en mode fusion ou horloge
+                    let currentSpeed = options.speed;
+                    if (this.fusionMode) {
+                        currentSpeed = this.speed;
+                    } else if (this.clockAnimation) {
+                        currentSpeed = this.speed; // Vitesse rapide pour l'horloge
+                    }
+                    
+                    this.x += (this.targetX - this.x) * currentSpeed;
+                    this.y += (this.targetY - this.y) * currentSpeed;
                 }
 
                 if (options.showTrails) {
@@ -4715,7 +5366,21 @@
                     if (this.trail.length > 8) this.trail.shift();
                 }
 
-                this.brightness = 0.6 + Math.sin(Date.now() * 0.008 + this.id) * 0.2;
+                // Effets de brillance selon le mode
+                if (this.fusionMode) {
+                    this.brightness = 0.8 + Math.sin(Date.now() * 0.015 + this.id) * 0.4; // Plus brillant et rapide
+                } else if (this.clockAnimation) {
+                    // Effet horloge simple : s'allumer progressivement selon le délai
+                    const elapsed = Date.now() - this.animationStartTime;
+                    if (elapsed >= this.lightUpDelay) {
+                        this.clockGlow = true;
+                        this.brightness = 1.0; // Pleine brillance quand allumé
+                    } else {
+                        this.brightness = 0.3; // Faible brillance en attente
+                    }
+                } else {
+                    this.brightness = 0.6 + Math.sin(Date.now() * 0.008 + this.id) * 0.2;
+                }
             }
 
             draw(ctx, options) {
@@ -4732,21 +5397,127 @@
                     ctx.stroke();
                 }
 
-                const glowSize = 8 + Math.sin(Date.now() * 0.004 + this.id) * 2;
+                // Effet visuel simplifié selon le mode - SEULEMENT INTENSITÉS
+                let glowSize = 8;
+                let coreSize = 2 * this.life;
+                let intensityMultiplier = 1.0;
+                
+                if (this.fusionMode) {
+                    // En mode fusion : plus brillant
+                    glowSize = 12;
+                    coreSize = 3 * this.life;
+                    intensityMultiplier = 1.5; // Plus brillant
+                } else if (this.inSlowMotion) {
+                    // En mode slow motion : très brillant
+                    glowSize = 15;
+                    coreSize = 4 * this.life;
+                    intensityMultiplier = 2.0; // Très brillant
+                } else if (this.clockGlow) {
+                    // En mode horloge : brillance moyenne
+                    glowSize = 10;
+                    coreSize = 2.5 * this.life;
+                    intensityMultiplier = 1.2; // Légèrement plus brillant
+                } else if (this.isStar5Outline) {
+                    // Contour étoile 5 branches : très brillant
+                    glowSize = 12;
+                    coreSize = 3 * this.life;
+                    intensityMultiplier = 1.7; // Très brillant
+                } else if (this.isStar5Fill) {
+                    // Remplissage étoile 5 branches : brillance moyenne
+                    glowSize = 9;
+                    coreSize = 2.3 * this.life;
+                    intensityMultiplier = 1.1; // Légèrement brillant
+                } else if (this.isCrossVertical) {
+                    // Barre verticale croix arc-en-ciel : brillance spectaculaire avec effet taille 3x
+                    const sizeMultiplier = this.sizeEffect || 3.0; // Par défaut 3x plus gros
+                    glowSize = 20 * (sizeMultiplier / 3); // Adapté à la nouvelle taille
+                    coreSize = 5 * this.life * (sizeMultiplier / 3); // Cœur plus gros
+                    intensityMultiplier = 2.0; // Très brillant pour l'arc-en-ciel
+                } else if (this.isCrossHorizontal) {
+                    // Barre horizontale croix arc-en-ciel : brillance spectaculaire avec effet taille 3x
+                    const sizeMultiplier = this.sizeEffect || 3.0; // Par défaut 3x plus gros
+                    glowSize = 20 * (sizeMultiplier / 3); // Adapté à la nouvelle taille
+                    coreSize = 5 * this.life * (sizeMultiplier / 3); // Cœur plus gros
+                    intensityMultiplier = 1.9; // Très brillant
+                    intensityMultiplier = 1.4; // Assez brillant
+                } else if (this.isHeart) {
+                    // ❤️ CŒUR dans le mur : effets selon le type
+                    if (this.heartType === 'heart_free') {
+                        // Cœur libéré : très brillant et grand
+                        glowSize = 18;
+                        coreSize = 4 * this.life;
+                        intensityMultiplier = 2.2; // Très brillant (liberté)
+                    } else if (this.heartType === 'heart_core') {
+                        // Cœur protégé : brillance pulsante
+                        const pulsation = Math.sin(Date.now() * 0.005) * 0.3 + 1; // Battement
+                        glowSize = 12 * pulsation;
+                        coreSize = 3 * this.life * pulsation;
+                        intensityMultiplier = 1.6 * pulsation; // Pulsation cardiaque
+                    } else {
+                        // Cœur normal : brillance moyenne
+                        glowSize = 10;
+                        coreSize = 2.5 * this.life;
+                        intensityMultiplier = 1.3; // Brillance chaleureuse
+                    }
+                } else if (this.isBrokenBrick) {
+                    // Briques brisées : brillance selon le type et la phase
+                    if (this.brickType === 'debris') {
+                        // Phase explosion : débris dispersés
+                        glowSize = 6;
+                        coreSize = 1.5 * this.life;
+                        intensityMultiplier = 0.7; // Moins brillant (débris)
+                    } else if (this.brickType === 'crack_edge') {
+                        // Briques sur la ligne de rupture : très brillantes
+                        glowSize = 14;
+                        coreSize = 3.2 * this.life;
+                        intensityMultiplier = 1.8; // Très brillant (zone de rupture)
+                    } else if (this.brickType === 'crack_near') {
+                        // Briques proches de la rupture : moyennement brillantes
+                        glowSize = 11;
+                        coreSize = 2.5 * this.life;
+                        intensityMultiplier = 1.3; // Moyennement brillant (endommagé)
+                    } else {
+                        // Briques normales (uniform ou breaking) : brillance selon la phase
+                        if (this.wallPhase === 'uniform') {
+                            // Phase uniforme : brillance argentine
+                            glowSize = 9;
+                            coreSize = 2.2 * this.life;
+                            intensityMultiplier = 1.1; // Brillance métallique
+                        } else {
+                            // Phase breaking : brillance normale
+                            glowSize = 8;
+                            coreSize = 2 * this.life;
+                            intensityMultiplier = 0.9; // Légèrement moins brillant
+                        }
+                    }
+                }
+                
+                // Gradient simple avec intensité modifiée
+                const adjustedBrightness = this.brightness * intensityMultiplier;
+                
+                // Convertir la couleur hex en rgba pour l'opacité
+                const hex = this.color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                
                 const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
-                gradient.addColorStop(0, this.color + Math.floor(this.brightness * this.life * 255).toString(16).padStart(2, '0'));
-                gradient.addColorStop(0.8, this.color + '30');
-                gradient.addColorStop(1, this.color + '00');
+                gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${adjustedBrightness * this.life})`);
+                gradient.addColorStop(0.8, `rgba(${r}, ${g}, ${b}, 0.19)`); // 30 en hex = 0.19 en alpha
+                gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
                 ctx.fill();
 
+                // Cœur du drone avec intensité
                 ctx.fillStyle = this.color;
+                ctx.globalAlpha = adjustedBrightness * this.life;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 2 * this.life, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, coreSize, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.globalAlpha = 1.0; // Restaurer l'opacité normale
             }
         }
 
@@ -5132,7 +5903,7 @@
                     await chargerClassement();
 
                     setTimeout(() => {
-                        afficherMessageFinal(pseudo, ville, pays);
+                        afficherMenuFinal();
                     }, 1500);
 
                 } catch (error) {
@@ -5143,10 +5914,7 @@
 
             // Gestionnaire passer
             document.getElementById('fin-passer').onclick = () => {
-                const nom = 'Anonyme';
-                const ville = 'Inconnue';
-                const pays = 'Inconnu';
-                afficherMessageFinal(nom, ville, pays);
+                afficherMenuFinal();
             };
         }
 
@@ -10463,7 +11231,8 @@
                     p.vy += 0.15;
                 }
 
-                p.vie -= 0.01; // Vie plus longue
+                // Système de vie normalisé
+                p.vie -= (p.type === 'coeur' ? 0.8 : 0.6); // Cœurs durent plus longtemps
 
                 // Supprimer les particules qui sortent de l'écran ou qui ont fini leur vie
                 if(p.vie <= 0 || p.x < -50 || p.x > C.W + 50 || p.y < -50 || p.y > C.H + 50) {
@@ -10478,8 +11247,14 @@
 
             particules.forEach(p => {
                 ctx.save();
-                ctx.globalAlpha = p.vie * 0.8;
+                ctx.globalAlpha = Math.max(0.1, p.vie * 0.8); // Minimum d'opacité pour voir les particules
                 ctx.fillStyle = p.couleur;
+
+                // Appliquer l'effet de lueur AVANT le dessin
+                if(p.type !== 'trait_lumineux') {
+                    ctx.shadowColor = p.couleur;
+                    ctx.shadowBlur = p.taille * 1.5;
+                }
 
                 if(p.type === 'coeur') {
                     // Dessiner petit cœur
@@ -10528,10 +11303,6 @@
                     // Particule ronde simple
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.taille, 0, Math.PI * 2);
-                    ctx.fill();
-                    // Effet de lueur
-                    ctx.shadowColor = p.couleur;
-                    ctx.shadowBlur = p.taille * 2;
                     ctx.fill();
                 }
 
@@ -10925,7 +11696,7 @@
                                 vx: (Math.random() - 0.5) * 6,
                                 vy: -(Math.random() * 8 + 4),
                                 couleur: brique.couleur,
-                                vie: 1,
+                                vie: Math.random() * 30 + 40, // 40-70 frames (2.3-4s à 60fps)
                                 taille: Math.random() * 3 + 4,
                                 type: 'coeur'
                             });
@@ -11461,7 +12232,7 @@
         }
 
 
-        function afficherMessageFinal() {
+        function afficherMenuFinal() {
             const msg = document.getElementById('message');
 
             // Menu simple et élégant

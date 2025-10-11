@@ -1,0 +1,16 @@
+{
+  "name": "petit-bateau-icons",
+  "version": "1.0.0",
+  "description": "Générateur d'icônes pour l'app Petit Bateau",
+  "main": "generate-icons.js",
+  "scripts": {
+    "generate-icons": "node generate-icons.js",
+    "install-deps": "npm install canvas"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "keywords": ["icons", "pwa", "petit-bateau"],
+  "author": "Petit Bateau Team",
+  "license": "MIT"
+}

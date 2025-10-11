@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'icônes Petit Bateau PWA - Final</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f6ff 0%, #87CEEB 50%, #4682B4 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        #iconCanvas {
+            display: block;
+            margin: 0 auto 20px auto;
+            border: 3px solid #4682B4;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="10" height="10" fill="%23f0f0f0"/><rect x="10" y="10" width="10" height="10" fill="%23f0f0f0"/></svg>');
+        }
+        button {
+            display: block;
+            margin: 0 auto 20px auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        .feature {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #0ea5e9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚢 Petit Bateau - Icônes PWA Finales</h1>
+        <p class="subtitle">Version finale optimisée avec bords ronds et voile dynamique</p>
+        
+        <div class="feature">
+            <strong>✨ Caractéristiques :</strong><br>
+            • Bords très arrondis (25%) • Voile penchée vers l'avant • Traits de vent • Soleil radieux • Nuages blancs • Transparence parfaite
+        </div>
+        
+        <canvas id="iconCanvas" width="512" height="512"></canvas>
+        
+        <button onclick="generateIcons()">🎯 Générer les icônes finales</button>
+        
+        <div id="downloads"></div>
+    </div>
+
+    <script>
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Créer un masque avec bords très arrondis
+            const cornerRadius = size * 0.25; // 25% pour des bords plus ronds
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, cornerRadius);
+            ctx.clip();
+
+            // Fond mer vers ciel bleu avec ombre gris bleu
+            const gradient = ctx.createLinearGradient(0, 0, 0, size);
+            gradient.addColorStop(0, '#87CEEB'); // Ciel bleu (haut)
+            gradient.addColorStop(0.5, '#B0E0E6'); // Bleu ciel clair
+            gradient.addColorStop(0.7, '#C0C0C0'); // Gris clair (plus bas)
+            gradient.addColorStop(0.8, '#4682B4'); // Bleu acier
+            gradient.addColorStop(1, '#1e3a8a'); // Mer bleu roi (bas)
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Effet de brillance subtil en haut
+            const shineGradient = ctx.createLinearGradient(0, 0, 0, size*0.3);
+            shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = shineGradient;
+            ctx.fillRect(0, 0, size, size*0.3);
+
+            // Nuages blancs purs dans le ciel
+            ctx.globalAlpha = 0.9;
+            ctx.fillStyle = '#ffffff'; // Blanc pur pour les nuages
+            
+            // Nuage 1 - plus visible
+            ctx.beginPath();
+            ctx.arc(size*0.15, size*0.12, size*0.04, 0, Math.PI * 2);
+            ctx.arc(size*0.2, size*0.09, size*0.05, 0, Math.PI * 2);
+            ctx.arc(size*0.25, size*0.12, size*0.04, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nuage 2 - plus visible
+            ctx.beginPath();
+            ctx.arc(size*0.6, size*0.05, size*0.035, 0, Math.PI * 2);
+            ctx.arc(size*0.65, size*0.03, size*0.045, 0, Math.PI * 2);
+            ctx.arc(size*0.7, size*0.05, size*0.035, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.globalAlpha = 1;
+
+            // Soleil radieux plus gros dans le ciel
+            ctx.save();
+            ctx.translate(size*0.75, size*0.25);
+            
+            // Rayons du soleil moins nombreux
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.9)';
+            ctx.lineWidth = size*0.010; // Doublé (x2)
+            for(let i = 0; i < 8; i++) { // Moins de rayons (8 au lieu de 16)
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(size*0.15, 0); // Rayons plus longs pour compenser
+                ctx.stroke();
+                ctx.rotate(Math.PI / 4); // 45 degrés entre chaque rayon
+            }
+            
+            // Corps du soleil plus gros avec dégradé radieux
+            const sunGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size*0.09); // Plus gros
+            sunGradient.addColorStop(0, '#fff700'); // Jaune très brillant
+            sunGradient.addColorStop(0.5, '#ffed4e'); // Jaune doré
+            sunGradient.addColorStop(1, '#fbbf24'); // Jaune plus sombre
+            
+            ctx.fillStyle = sunGradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, size*0.09, 0, Math.PI * 2); // Plus gros
+            ctx.fill();
+            
+            // Reflet brillant plus gros sur le soleil
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.arc(-size*0.02, -size*0.02, size*0.03, 0, Math.PI * 2); // Plus gros reflet
+            ctx.fill();
+            
+            ctx.restore();
+
+            // Dessiner un bateau moderne et stylisé
+            ctx.save();
+            ctx.translate(size/2, size*0.6);
+            
+            // Vagues stylisées en arrière-plan plus visibles
+            ctx.globalAlpha = 0.8; // Augmenté l'opacité pour plus de visibilité
+            for(let i = 0; i < 4; i++) {
+                const waveGradient = ctx.createLinearGradient(-size/2, 0, size/2, 0);
+                waveGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+                waveGradient.addColorStop(0.5, 'rgba(255, 255, 255, 1)'); // Blanc pur au centre
+                waveGradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
+                
+                ctx.strokeStyle = waveGradient;
+                ctx.lineWidth = size*0.012; // Lignes plus épaisses
+                ctx.beginPath();
+                const y = size*0.15 + i*size*0.04;
+                for(let x = -size/2; x <= size/2; x += size*0.02) {
+                    const wave = Math.sin((x + i*50) * 0.02) * size*0.015; // Amplitude plus grande
+                    if(x === -size/2) {
+                        ctx.moveTo(x, y + wave);
+                    } else {
+                        ctx.lineTo(x, y + wave);
+                    }
+                }
+                ctx.stroke();
+                
+                // Ajouter un trait blanc continu plus épais
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.lineWidth = size*0.008;
+                ctx.beginPath();
+                const baseY = size*0.15 + i*size*0.04;
+                for(let x = -size/2; x <= size/2; x += size*0.01) {
+                    const wave = Math.sin((x + i*50) * 0.02) * size*0.01;
+                    if(x === -size/2) {
+                        ctx.moveTo(x, baseY + wave);
+                    } else {
+                        ctx.lineTo(x, baseY + wave);
+                    }
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+
+            // Coque du bateau rouge en forme de V avec effet 3D
+            const hullGradient = ctx.createLinearGradient(-size*0.25, -size*0.05, size*0.25, size*0.12);
+            hullGradient.addColorStop(0, '#fca5a5'); // Rouge clair (lumière)
+            hullGradient.addColorStop(0.3, '#ef4444'); // Rouge vif
+            hullGradient.addColorStop(0.7, '#dc2626'); // Rouge moyen
+            hullGradient.addColorStop(1, '#991b1b'); // Rouge sombre (ombre)
+            
+            ctx.fillStyle = hullGradient;
+            ctx.beginPath();
+            // Forme en V de la coque
+            ctx.moveTo(-size*0.25, size*0.12); // Coin gauche
+            ctx.lineTo(0, size*0.05); // Pointe du V (centre bas)
+            ctx.lineTo(size*0.25, size*0.12); // Coin droit
+            ctx.quadraticCurveTo(size*0.15, size*0.14, 0, size*0.14); // Fond arrondi
+            ctx.quadraticCurveTo(-size*0.15, size*0.14, -size*0.25, size*0.12); // Retour au début
+            ctx.closePath();
+            ctx.fill();
+            
+            // Ombre portée 3D de la coque en V
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(-size*0.23, size*0.15);
+            ctx.lineTo(size*0.02, size*0.08);
+            ctx.lineTo(size*0.27, size*0.15);
+            ctx.quadraticCurveTo(size*0.17, size*0.17, size*0.02, size*0.17);
+            ctx.quadraticCurveTo(-size*0.13, size*0.17, -size*0.23, size*0.15);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Reflet brillant 3D sur la coque en V
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(-size*0.18, size*0.10);
+            ctx.lineTo(-size*0.05, size*0.07);
+            ctx.lineTo(size*0.08, size*0.10);
+            ctx.lineTo(-size*0.05, size*0.12);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Bordure 3D de la coque en V
+            ctx.strokeStyle = '#7f1d1d';
+            ctx.lineWidth = size*0.003;
+            ctx.beginPath();
+            ctx.moveTo(-size*0.25, size*0.12);
+            ctx.lineTo(0, size*0.05);
+            ctx.lineTo(size*0.25, size*0.12);
+            ctx.quadraticCurveTo(size*0.15, size*0.14, 0, size*0.14);
+            ctx.quadraticCurveTo(-size*0.15, size*0.14, -size*0.25, size*0.12);
+            ctx.stroke();
+
+            // Voile blanche pure penchée vers l'avant avec traits de vent
+            ctx.save();
+            ctx.rotate(-0.15); // Pencher la voile vers l'avant (-8.6 degrés)
+            
+            ctx.fillStyle = '#ffffff'; // Blanc pur uniforme
+            ctx.beginPath();
+            // Triangle pointant vers le haut
+            ctx.moveTo(0, -size*0.35); // Pointe du triangle (en haut)
+            ctx.lineTo(-size*0.15, size*0.05); // Coin inférieur gauche
+            ctx.lineTo(size*0.15, size*0.05); // Coin inférieur droit
+            ctx.closePath();
+            ctx.fill();
+            
+            // Contour gris de la voile
+            ctx.strokeStyle = 'rgba(150, 150, 150, 0.8)';
+            ctx.lineWidth = size*0.004;
+            ctx.beginPath();
+            ctx.moveTo(0, -size*0.35);
+            ctx.lineTo(-size*0.15, size*0.05);
+            ctx.lineTo(size*0.15, size*0.05);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Traits noirs pour représenter le vent sur la voile
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.lineWidth = size*0.008; // Plus gros
+            
+            // Trait 1 (haut) - penché vers l'avant et moins espacé
+            ctx.beginPath();
+            ctx.moveTo(-size*0.12, -size*0.22);
+            ctx.lineTo(size*0.08, -size*0.20);
+            ctx.stroke();
+            
+            // Trait 2 (milieu) - penché vers l'avant et moins espacé
+            ctx.beginPath();
+            ctx.moveTo(-size*0.12, -size*0.14);
+            ctx.lineTo(size*0.08, -size*0.12);
+            ctx.stroke();
+            
+            // Trait 3 (bas) - penché vers l'avant et moins espacé
+            ctx.beginPath();
+            ctx.moveTo(-size*0.12, -size*0.06);
+            ctx.lineTo(size*0.08, -size*0.04);
+            ctx.stroke();
+
+            ctx.restore();
+
+            ctx.restore();
+
+            return canvas;
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function generateIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const downloads = document.getElementById('downloads');
+            downloads.innerHTML = '<h3>🎯 Icônes finales générées:</h3>';
+            downloads.innerHTML += '<p><strong>✅ Version optimisée:</strong> Bords ronds • Voile dynamique • Traits de vent • Transparence</p>';
+
+            sizes.forEach(size => {
+                const canvas = createIcon(size);
+                const filename = `icon-${size}x${size}.png`;
+                
+                const linkContainer = document.createElement('div');
+                linkContainer.style.cssText = `
+                    margin: 8px 0;
+                    padding: 12px;
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e0f6ff 100%);
+                    border-radius: 12px;
+                    border: 2px solid #0ea5e9;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    transition: all 0.3s ease;
+                `;
+                
+                linkContainer.onmouseover = () => {
+                    linkContainer.style.transform = 'translateY(-2px)';
+                    linkContainer.style.boxShadow = '0 4px 12px rgba(14, 165, 233, 0.2)';
+                };
+                
+                linkContainer.onmouseout = () => {
+                    linkContainer.style.transform = 'translateY(0)';
+                    linkContainer.style.boxShadow = 'none';
+                };
+                
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = filename;
+                link.textContent = `🚢 ${filename}`;
+                link.style.cssText = `
+                    text-decoration: none;
+                    color: #0369a1;
+                    font-weight: bold;
+                    font-size: 14px;
+                `;
+                
+                const sizeInfo = document.createElement('span');
+                sizeInfo.textContent = `${size}×${size}px`;
+                sizeInfo.style.cssText = `
+                    color: #64748b;
+                    font-size: 12px;
+                    background: rgba(255,255,255,0.8);
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    font-weight: 500;
+                `;
+                
+                linkContainer.appendChild(link);
+                linkContainer.appendChild(sizeInfo);
+                downloads.appendChild(linkContainer);
+            });
+
+            const downloadAllBtn = document.createElement('button');
+            downloadAllBtn.textContent = '⬇️ Télécharger toutes les icônes finales';
+            downloadAllBtn.style.cssText = `
+                margin: 25px 0;
+                padding: 18px 36px;
+                background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+                color: white;
+                border: none;
+                border-radius: 15px;
+                font-size: 17px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+                transition: all 0.3s ease;
+            `;
+            
+            downloadAllBtn.onmouseover = () => {
+                downloadAllBtn.style.transform = 'translateY(-3px)';
+                downloadAllBtn.style.boxShadow = '0 8px 25px rgba(220, 38, 38, 0.4)';
+            };
+            
+            downloadAllBtn.onmouseout = () => {
+                downloadAllBtn.style.transform = 'translateY(0)';
+                downloadAllBtn.style.boxShadow = '0 6px 20px rgba(220, 38, 38, 0.3)';
+            };
+            
+            downloadAllBtn.onclick = () => {
+                sizes.forEach((size, index) => {
+                    setTimeout(() => {
+                        const canvas = createIcon(size);
+                        const filename = `icon-${size}x${size}.png`;
+                        downloadCanvas(canvas, filename);
+                    }, index * 300);
+                });
+            };
+            
+            downloads.appendChild(downloadAllBtn);
+
+            // Instructions finales
+            const instructions = document.createElement('div');
+            instructions.style.cssText = `
+                margin: 25px 0;
+                padding: 20px;
+                background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+                border-left: 4px solid #22c55e;
+                border-radius: 0 12px 12px 0;
+            `;
+            instructions.innerHTML = `
+                <h4 style="margin: 0 0 12px 0; color: #166534;">🎯 Icônes finales prêtes !</h4>
+                <ul style="margin: 0; padding-left: 20px; line-height: 1.7; color: #166534;">
+                    <li><strong>Bords très arrondis</strong> (25%) pour un look moderne</li>
+                    <li><strong>Voile penchée</strong> vers l'avant pour plus de dynamisme</li>
+                    <li><strong>Trois traits de vent</strong> noirs sur la voile</li>
+                    <li><strong>Soleil radieux</strong> et nuages blancs</li>
+                    <li><strong>Transparence parfaite</strong> pour votre PWA</li>
+                </ul>
+                <p style="margin: 12px 0 0 0; font-style: italic; color: #166534;">
+                    Placez ces fichiers dans votre dossier <code style="background: #dcfce7; padding: 2px 6px; border-radius: 4px;">icons/</code> et mettez à jour votre manifest.json ! 🚢
+                </p>
+            `;
+            downloads.appendChild(instructions);
+
+            const mainCanvas = document.getElementById('iconCanvas');
+            const mainCtx = mainCanvas.getContext('2d');
+            const icon512 = createIcon(512);
+            mainCtx.drawImage(icon512, 0, 0);
+        }
+
+        window.onload = generateIcons;
+    </script>
+</body>
+</html>
