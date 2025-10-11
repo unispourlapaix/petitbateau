@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "language": "English",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "Little Boat",
+    "subtitle": "A journey through humanity",
+    "loading": "Loading...",
+    "start": "Start",
+    "continue": "Continue",
+    "restart": "Restart"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Enigmas: {collected}/{total} ({percent}%)",
+    "language": "🌍 Language"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Journey — The dawn of doubts",
+      "narrative": "🌟 \"They told me they were all monsters...\n✨ They told me so much evil, so many misfortunes about them...\n🔍 But I preferred to go and see with my own eyes.\""
+    },
+    "phase2": {
+      "title": "Journey — The light",
+      "narrative": "🤔 \"Who were they really?...\nAnd I saw...\n\n👨‍👩‍👧‍👦 A father... a mother... children...\n\n💙 All simply seeking\nto live\ntheir best life...\nLike me.\""
+    },
+    "phase3": {
+      "title": "Journey — The shadow of clouds",
+      "narrative": "🌙 \"Then the moon appeared.\n📖 The sky darkened like a page burned by time.\n🦈 A fin split the dark waves...\n⚡ Lightning streaked the gray clouds.\""
+    },
+    "phase4": {
+      "title": "Journey — The black clouds",
+      "narrative": "⚡ \"Chapter 2 began in darkness...\n🌊 The waves became higher, more threatening.\n💀 And in this darkness, I saw something else...\n👁️ Gazes staring at me from the depths.\""
+    },
+    "phase5": {
+      "title": "Journey — The silence of the soul",
+      "narrative": "👁️ \"In the darkness, a first vision appeared to me...\n🔮 Strange forms danced in the shadows.\n🌟 Was it real? Was it a dream?\n❓ I could no longer tell the difference.\""
+    },
+    "phase6": {
+      "title": "Journey — Crossing the night",
+      "narrative": "🤷 \"But the more I advanced, the more my certainties were shaken...\n💭 Who was right? Who was wrong?\n🌊 The waves carried away my convictions.\n🔍 I had to dig deeper.\""
+    },
+    "phase7": {
+      "title": "Journey — The humanity of hearts",
+      "narrative": "💡 \"Suddenly, a light pierced the clouds...\n📜 A partial truth revealed itself to me.\n⚖️ Neither all white, nor all black...\n🌈 But a gradient of complex colors.\""
+    },
+    "phase8": {
+      "title": "Journey — The outstretched hand",
+      "narrative": "📖 \"Thus ended the first chapter of my journey...\n🎭 Between masks and real faces.\n🚪 A door opened to new mysteries.\n➡️ It was time to continue exploring.\""
+    },
+    "phase9": {
+      "title": "Journey — True hospitality",
+      "narrative": "💭 \"They told me...\nthat humanity no longer existed,\nthat it had been lost in wars and grudges.\n🏠 They told me that men no longer welcomed anyone,\nthat they locked themselves behind walls of iron and fear.\""
+    },
+    "phase10": {
+      "title": "Journey — Freedom of the soul",
+      "narrative": "✋ \"But I saw...\nA hand extended to a stranger.\n😊 A smile shared despite hunger.\n🚪 A door opened for one who trembled in the night.\""
+    },
+    "phase11": {
+      "title": "Journey — Shared strength",
+      "narrative": "🤝 \"This is hospitality:\nnot giving what we have too much of,\nbut sharing even what is lacking.\""
+    },
+    "phase12": {
+      "title": "Journey — Love stronger",
+      "narrative": "🗽 \"They told me that freedom was just a word,\nan illusion that the powerful sold to the weak.\n🏃‍♂️ But I saw...\nA child running barefoot in the rain,\nlaughing without chains,\n✨ and in his laughter, I understood that freedom lives first in the soul.\""
+    }
+  },
+  "intro": {
+    "title": "Little Boat",
+    "subtitle": "A philosophical journey",
+    "message": "Embark on the discovery of truth about humanity...",
+    "start_button": "Begin the journey"
+  }
+}
