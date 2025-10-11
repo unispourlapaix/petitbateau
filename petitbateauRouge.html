@@ -12884,7 +12884,19 @@
 
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             // Ne PAS recommencer automatiquement - laisser les transitions automatiques se faire
-            if(!jeu && narrationManager.currentPhase >= 1 && periode !== 'nuit' && !narrationManager.isTransitioning && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
+            // DEBUG: Vérifier les conditions de redémarrage
+            if(!jeu) {
+                console.log('🔍 DEBUG Redémarrage:', {
+                    jeu: jeu,
+                    currentPhase: narrationManager.currentPhase,
+                    periode: periode,
+                    isTransitioning: narrationManager.isTransitioning,
+                    phaseJeu: phaseJeu,
+                    animationBateau: animationBateau.active
+                });
+            }
+            if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
+                console.log('✅ Redémarrage autorisé - Click');
                 recommencer();
                 return;
             }
@@ -13375,7 +13387,19 @@
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             // Ne PAS recommencer automatiquement en phases lanterne/stars/fin_niveau - laisser les transitions automatiques se faire
             // Simplification du redémarrage par toucher - aligner avec le gestionnaire click
-            if(!jeu && narrationManager.currentPhase >= 1 && periode !== 'nuit' && !narrationManager.isTransitioning && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
+            // DEBUG: Vérifier les conditions de redémarrage
+            if(!jeu) {
+                console.log('🔍 DEBUG Redémarrage Touch:', {
+                    jeu: jeu,
+                    currentPhase: narrationManager.currentPhase,
+                    periode: periode,
+                    isTransitioning: narrationManager.isTransitioning,
+                    phaseJeu: phaseJeu,
+                    animationBateau: animationBateau.active
+                });
+            }
+            if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
+                console.log('✅ Redémarrage autorisé - Touch');
                 recommencer();
             } else if(phaseJeu === 'stars') {
                 // Phase stars : tir d'étoiles en mode nuit
