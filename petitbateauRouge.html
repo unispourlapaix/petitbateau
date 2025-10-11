@@ -4,7 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>PETIT BATEAU ⛵</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Un jeu philosophique et poétique où vous naviguez à travers les vérités de l'humanité">
+    <meta name="theme-color" content="#4169E1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Petit Bateau">
+    <meta name="msapplication-TileColor" content="#1a1a2e">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Icons -->
     <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='0.9em' font-size='90'&gt;%E2%9B%B5&lt;/text&gt;&lt;/svg&gt;">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192x192.png">
     <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
@@ -11040,23 +11056,12 @@
         function recommencerJeuGameOver() {
             cacherMessage();
             
-            // Redémarrage complet du jeu - bypass toutes les vérifications
-            // Réinitialiser complètement
-            periode = 'jour';
-            VOYAGE = JOUR;
-            phaseJeu = 'tir_coeurs_haut';
+            // Redémarrage à la phase actuelle (pas depuis le début)
+            // Réinitialiser les variables de jeu mais garder la progression
             score = 0;
             vies = 3;
             brises = 0;
-            jeu = false; // Commencer avec jeu désactivé pour l'intro
-
-            // Réinitialiser les systèmes
-            animationBateau.active = false;
-            phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
-            
-            if (narrationManager) {
-                narrationManager.reset();
-            }
+            jeu = false;
 
             // Nettoyer les éléments de jeu
             briques = [];
@@ -11069,10 +11074,10 @@
             initJeu();
             creerPetitsCoeurs();
 
-            // Démarrer la narration complète depuis le début
+            // Redémarrer la phase courante (pas depuis le début)
             setTimeout(() => {
                 if (narrationManager) {
-                    narrationManager.start();
+                    narrationManager.restart(); // restart() = phase courante, pas start() = début
                 }
             }, 1000);
         }
@@ -15011,4 +15016,74 @@ célébrant la beauté de la création divine dans toute sa diversité.
         </div>
     </div>
 
-</div></body></html>
+</div>
+
+<!-- PWA Service Worker -->
+<script>
+    // Enregistrement du Service Worker pour PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('✅ Service Worker enregistré:', registration.scope);
+                    
+                    // Vérifier les mises à jour
+                    registration.addEventListener('updatefound', () => {
+                        console.log('🔄 Mise à jour disponible');
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nouvelle version disponible
+                                if (confirm('Une nouvelle version est disponible. Recharger ?')) {
+                                    newWorker.postMessage({type: 'SKIP_WAITING'});
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.log('❌ Erreur Service Worker:', error);
+                });
+        });
+
+        // Écouter les changements de contrôleur
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+        });
+    }
+
+    // Gérer l'événement beforeinstallprompt pour personnaliser l'installation
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('🔧 PWA installable détectée');
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Optionnel: Afficher un bouton d'installation personnalisé
+        // showInstallButton();
+    });
+
+    // Détecter si l'app est installée
+    window.addEventListener('appinstalled', (evt) => {
+        console.log('🎉 PWA installée avec succès');
+        deferredPrompt = null;
+    });
+
+    // Fonction pour déclencher l'installation (optionnelle)
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((result) => {
+                if (result.outcome === 'accepted') {
+                    console.log('✅ Utilisateur a accepté l\'installation');
+                } else {
+                    console.log('❌ Utilisateur a refusé l\'installation');
+                }
+                deferredPrompt = null;
+            });
+        }
+    }
+</script>
+
+</body></html>
