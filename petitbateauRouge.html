@@ -15040,10 +15040,18 @@ célébrant la beauté de la création divine dans toute sa diversité.
                         const newWorker = registration.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nouvelle version disponible
-                                if (confirm('Une nouvelle version est disponible. Recharger ?')) {
+                                // Nouvelle version disponible avec nouvelles icônes
+                                const updateMessage = '🎨 Nouvelle version disponible avec des icônes améliorées !\n\n' +
+                                                     '✨ Nouvelles icônes optimisées\n' +
+                                                     '🔧 Améliorations PWA\n\n' +
+                                                     'Voulez-vous mettre à jour maintenant ?';
+                                
+                                if (confirm(updateMessage)) {
                                     newWorker.postMessage({type: 'SKIP_WAITING'});
                                     window.location.reload();
+                                } else {
+                                    // Afficher un bouton de mise à jour dans le jeu
+                                    showUpdateBanner();
                                 }
                             }
                         });
@@ -15089,6 +15097,72 @@ célébrant la beauté de la création divine dans toute sa diversité.
                 }
                 deferredPrompt = null;
             });
+        }
+    }
+
+    // Fonction pour afficher un banner de mise à jour
+    function showUpdateBanner() {
+        const banner = document.createElement('div');
+        banner.id = 'update-banner';
+        banner.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(45deg, #4169E1, #1E90FF);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 10001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: slideDown 0.5s ease-out;
+        `;
+        
+        banner.innerHTML = `
+            🎨 Nouvelle version avec icônes améliorées disponible !
+            <button onclick="updateApp()" style="
+                background: white; 
+                color: #4169E1; 
+                border: none; 
+                padding: 8px 16px; 
+                margin-left: 15px; 
+                border-radius: 20px; 
+                font-weight: bold; 
+                cursor: pointer;
+            ">Mettre à jour</button>
+            <button onclick="hideUpdateBanner()" style="
+                background: transparent; 
+                color: white; 
+                border: 1px solid white; 
+                padding: 8px 16px; 
+                margin-left: 10px; 
+                border-radius: 20px; 
+                cursor: pointer;
+            ">Plus tard</button>
+        `;
+        
+        // Ajouter animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateY(-100%); }
+                to { transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(banner);
+    }
+
+    function updateApp() {
+        window.location.reload();
+    }
+
+    function hideUpdateBanner() {
+        const banner = document.getElementById('update-banner');
+        if (banner) {
+            banner.style.animation = 'slideDown 0.5s ease-out reverse';
+            setTimeout(() => banner.remove(), 500);
         }
     }
 </script>

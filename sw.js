@@ -1,7 +1,16 @@
-const CACHE_NAME = 'petit-bateau-v1.0.0';
+const CACHE_NAME = 'petit-bateau-v1.1.0'; // Nouvelle version pour mise à jour des icônes
 const urlsToCache = [
   './petitbateauRouge.html',
   './manifest.json',
+  // Ajouter les nouvelles icônes au cache
+  './icons/icon-72x72.png',
+  './icons/icon-96x96.png',
+  './icons/icon-128x128.png',
+  './icons/icon-144x144.png',
+  './icons/icon-152x152.png',
+  './icons/icon-192x192.png',
+  './icons/icon-384x384.png',
+  './icons/icon-512x512.png',
   './modules/audio-manager.js',
   './modules/corbeau-module.js',
   './modules/game-manager.js',
