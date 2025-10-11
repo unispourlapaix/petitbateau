@@ -1,5 +1,5 @@
 /**
- * MODULE INDEX - Voir la Vérité
+ * MODULE INDEX - Petit Bateau
  * Point d'entrée principal pour tous les modules
  */
 
@@ -45,7 +45,7 @@ const ModuleManager = {
      * Initialiser tous les modules
      */
     init() {
-        console.log('🎮 Initialisation des modules - Voir la Vérité');
+        console.log('🎮 Initialisation des modules - Petit Bateau');
 
         // Initialiser les systèmes
         this.systems.particles.clear();

@@ -1,5 +1,5 @@
 /**
- * ENVIRONMENT RENDERER MODULE - Voir la Vérité
+ * ENVIRONMENT RENDERER MODULE - Petit Bateau
  * Module pour le rendu de l'environnement (ciel, mer, etc.)
  */
 

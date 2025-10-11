@@ -1,5 +1,5 @@
 /**
- * PARTICLE SYSTEM MODULE - Voir la Vérité
+ * PARTICLE SYSTEM MODULE - Petit Bateau
  * Système de particules réutilisable
  */
 

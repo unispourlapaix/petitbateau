@@ -1,5 +1,5 @@
 /**
- * BOAT RENDERER MODULE - Voir la Vérité
+ * BOAT RENDERER MODULE - Petit Bateau
  * Module pour le rendu du bateau et ses animations
  */
 

@@ -1,5 +1,5 @@
 /**
- * GAME CONFIG MODULE - Voir la Vérité
+ * GAME CONFIG MODULE - Petit Bateau
  * Configuration centralisée du jeu
  */
 

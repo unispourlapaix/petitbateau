@@ -1,5 +1,5 @@
 /**
- * LANTERN RENDERER MODULE - Voir la Vérité
+ * LANTERN RENDERER MODULE - Petit Bateau
  * Module pour le rendu de la lanterne magique
  */
 

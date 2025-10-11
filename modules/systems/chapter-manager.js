@@ -1,5 +1,5 @@
 /**
- * CHAPTER MANAGER MODULE - Voir la Vérité
+ * CHAPTER MANAGER MODULE - Petit Bateau
  * Module pour la gestion des chapitres et transitions
  */
 

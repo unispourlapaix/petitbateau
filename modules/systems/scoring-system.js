@@ -1,5 +1,5 @@
 /**
- * SCORING SYSTEM MODULE - Voir la Vérité
+ * SCORING SYSTEM MODULE - Petit Bateau
  * Module pour la gestion du scoring avancé et des munitions
  */
 

@@ -5,7 +5,7 @@
     "author": "Emmanuel"
   },
   "game": {
-    "title": "Voir la Vérité",
+    "title": "Petit Bateau",
     "subtitle": "Un voyage à travers l'humanité",
     "loading": "Chargement...",
     "start": "Commencer",
@@ -115,7 +115,7 @@
     }
   },
   "intro": {
-    "title": "Voir la Vérité",
+    "title": "Petit Bateau",
     "subtitle": "Un voyage philosophique",
     "message": "Partez à la découverte de la vérité sur l'humanité...",
     "start_button": "Commencer le voyage"

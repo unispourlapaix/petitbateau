@@ -1,5 +1,5 @@
 /**
- * HEART RENDERER MODULE - Voir la Vérité
+ * HEART RENDERER MODULE - Petit Bateau
  * Module pour le rendu des cœurs et formes d'amour
  */
 

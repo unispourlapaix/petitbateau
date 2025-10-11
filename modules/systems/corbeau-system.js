@@ -1,5 +1,5 @@
 /**
- * CORBEAU SYSTEM MODULE - Voir la Vérité
+ * CORBEAU SYSTEM MODULE - Petit Bateau
  * Module pour la gestion du corbeau secret
  */
 
