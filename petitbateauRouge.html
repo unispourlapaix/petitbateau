@@ -11039,7 +11039,42 @@
 
         function recommencerJeuGameOver() {
             cacherMessage();
-            recommencer();
+            
+            // Redémarrage complet du jeu - bypass toutes les vérifications
+            // Réinitialiser complètement
+            periode = 'jour';
+            VOYAGE = JOUR;
+            phaseJeu = 'tir_coeurs_haut';
+            score = 0;
+            vies = 3;
+            brises = 0;
+            jeu = false; // Commencer avec jeu désactivé pour l'intro
+
+            // Réinitialiser les systèmes
+            animationBateau.active = false;
+            phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
+            
+            if (narrationManager) {
+                narrationManager.reset();
+            }
+
+            // Nettoyer les éléments de jeu
+            briques = [];
+            projectiles = [];
+            starsProjectiles = [];
+            particules = [];
+            powerUps = [];
+
+            // Relancer l'initialisation
+            initJeu();
+            creerPetitsCoeurs();
+
+            // Démarrer la narration complète depuis le début
+            setTimeout(() => {
+                if (narrationManager) {
+                    narrationManager.start();
+                }
+            }, 1000);
         }
 
         function veriteLiberee() {
@@ -12904,11 +12939,8 @@
             }
 
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
-            // Ne PAS recommencer automatiquement - laisser les transitions automatiques se faire
-            if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
-                recommencer();
-                return;
-            }
+            
+            // Redémarrage automatique supprimé - utiliser le bouton dans le message de Game Over
 
             if(phaseJeu === 'stars') {
                 // Phase stars : tir d'étoiles tactile
@@ -13394,11 +13426,10 @@
             }
 
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
-            // Ne PAS recommencer automatiquement en phases lanterne/stars/fin_niveau - laisser les transitions automatiques se faire
-            // Simplification du redémarrage par toucher - aligner avec le gestionnaire click
-            if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
-                recommencer();
-            } else if(phaseJeu === 'stars') {
+            
+            // Redémarrage automatique supprimé - utiliser le bouton dans le message de Game Over
+            
+            if(phaseJeu === 'stars') {
                 // Phase stars : tir d'étoiles en mode nuit
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
