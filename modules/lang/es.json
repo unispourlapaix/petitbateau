@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "language": "Español",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "Pequeño Barco",
+    "subtitle": "Un viaje a través de la humanidad",
+    "loading": "Cargando...",
+    "start": "Comenzar",
+    "continue": "Continuar",
+    "restart": "Reiniciar"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Enigmas: {collected}/{total} ({percent}%)",
+    "language": "🌍 Idioma"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Viaje — El amanecer de las dudas",
+      "narrative": "🌟 \"Me dijeron que todos eran monstruos...\n✨ Me dijeron tanto mal, tantas desgracias sobre ellos...\n🔍 Pero yo preferí ir a ver con mis propios ojos.\""
+    },
+    "phase2": {
+      "title": "Viaje — La luz",
+      "narrative": "🤔 \"¿Quiénes eran realmente?...\nY vi...\n\n👨‍👩‍👧‍👦 Un padre... una madre... niños...\n\n💙 Todos buscando simplemente\nvivir\nsu mejor vida...\nComo yo.\""
+    }
+  },
+  "intro": {
+    "title": "Pequeño Barco",
+    "subtitle": "Un viaje filosófico",
+    "message": "Embárcate en el descubrimiento de la verdad sobre la humanidad...",
+    "start_button": "Comenzar el viaje"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "language": "한국어",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "작은 배",
+    "subtitle": "인류를 통한 여행",
+    "loading": "로딩 중...",
+    "start": "시작",
+    "continue": "계속",
+    "restart": "다시 시작"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 수수께끼: {collected}/{total} ({percent}%)",
+    "language": "🌍 언어"
+  },
+  "phases": {
+    "phase1": {
+      "title": "여행 — 의심의 새벽",
+      "narrative": "🌟 \"그들이 모두 괴물이라고 했습니다...\n✨ 그들에 대해 그렇게 많은 나쁜 것들, 그렇게 많은 불행을 말했습니다...\n🔍 하지만 저는 제 눈으로 직접 보는 것을 선택했습니다.\""
+    },
+    "phase2": {
+      "title": "여행 — 빛",
+      "narrative": "🤔 \"그들은 정말 누구였을까요?...\n그리고 저는 보았습니다...\n\n👨‍👩‍👧‍👦 아버지... 어머니... 아이들...\n\n💙 모두가 단순히 찾고 있었습니다\n살아가는 것을\n그들의 최고의 삶을...\n저처럼.\""
+    }
+  },
+  "intro": {
+    "title": "작은 배",
+    "subtitle": "철학적 여행",
+    "message": "인류에 대한 진실 발견의 여행을 떠나보세요...",
+    "start_button": "여행 시작하기"
+  }
+}

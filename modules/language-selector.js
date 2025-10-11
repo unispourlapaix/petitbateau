@@ -52,7 +52,7 @@ class LanguageSelector {
             this.buttonElement.style.background = 'linear-gradient(145deg, rgba(100,255,218,0.2), rgba(100,255,218,0.1))';
         });
 
-        // SIMPLE LISTE DÉROULANTE
+        // GRILLE DE LANGUES POUR 13 LANGUES
         this.overlayElement = document.createElement('div');
         this.overlayElement.id = 'language-dropdown';
         this.overlayElement.style.cssText = `
@@ -67,10 +67,18 @@ class LanguageSelector {
             z-index: 2000;
             display: none;
             backdrop-filter: blur(15px);
-            min-width: 220px;
-            max-height: 300px;
+            width: 320px;
+            max-height: 400px;
             overflow-y: auto;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        `;
+
+        // Container en grille pour les langues
+        const gridContainer = document.createElement('div');
+        gridContainer.style.cssText = `
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
         `;
 
         // Créer les options de langue
@@ -80,17 +88,19 @@ class LanguageSelector {
             option.className = 'language-option-simple';
             option.dataset.lang = code;
             option.innerHTML = `
-                <span style="font-size: 20px; margin-right: 10px;">${this.getFlagEmoji(code)}</span>
-                <span style="font-size: 16px; font-weight: 500; color: #334155;">${name}</span>
+                <span style="font-size: 18px; margin-right: 8px;">${this.getFlagEmoji(code)}</span>
+                <span style="font-size: 14px; font-weight: 500; color: #334155;">${name}</span>
             `;
             option.style.cssText = `
-                padding: 12px 15px;
+                padding: 10px 12px;
                 cursor: pointer;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
                 transition: all 0.2s ease;
-                margin: 3px 0;
+                margin: 2px 0;
+                min-height: 40px;
+                font-size: 13px;
             `;
 
             option.addEventListener('mouseenter', () => {
@@ -105,8 +115,10 @@ class LanguageSelector {
                 this.selectLanguage(code);
             });
 
-            this.overlayElement.appendChild(option);
+            gridContainer.appendChild(option);
         });
+
+        this.overlayElement.appendChild(gridContainer);
 
         // Event listeners
         this.buttonElement.addEventListener('click', () => {
@@ -146,7 +158,16 @@ class LanguageSelector {
             'fr': '🇫🇷',
             'en': '🇬🇧',
             'jp': '🇯🇵',
-            'uk': '🇺🇦'
+            'uk': '🇺🇦',
+            'es': '🇪🇸',
+            'de': '🇩🇪',
+            'it': '🇮🇹',
+            'pt': '🇵🇹',
+            'ru': '🇷🇺',
+            'zh': '🇨🇳',
+            'ko': '🇰🇷',
+            'ar': '🇸🇦',
+            'he': '🇮🇱'
         };
         return flags[code] || '🌍';
     }

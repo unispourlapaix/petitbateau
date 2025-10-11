@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "language": "Deutsch",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "Kleines Boot",
+    "subtitle": "Eine Reise durch die Menschheit",
+    "loading": "Laden...",
+    "start": "Beginnen",
+    "continue": "Fortsetzen",
+    "restart": "Neu starten"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Rätsel: {collected}/{total} ({percent}%)",
+    "language": "🌍 Sprache"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Reise — Die Dämmerung der Zweifel",
+      "narrative": "🌟 \"Man sagte mir, sie seien alle Monster...\n✨ Man sagte mir so viel Schlechtes, so viel Unglück über sie...\n🔍 Aber ich zog es vor, mit meinen eigenen Augen zu sehen.\""
+    },
+    "phase2": {
+      "title": "Reise — Das Licht",
+      "narrative": "🤔 \"Wer waren sie wirklich?...\nUnd ich sah...\n\n👨‍👩‍👧‍👦 Einen Vater... eine Mutter... Kinder...\n\n💙 Alle suchten einfach\nzu leben\nihr bestes Leben...\nWie ich.\""
+    }
+  },
+  "intro": {
+    "title": "Kleines Boot",
+    "subtitle": "Eine philosophische Reise",
+    "message": "Begib dich auf die Entdeckung der Wahrheit über die Menschheit...",
+    "start_button": "Die Reise beginnen"
+  }
+}

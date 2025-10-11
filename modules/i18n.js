@@ -11,7 +11,16 @@ class I18nManager {
             'fr': 'Français',
             'en': 'English',
             'jp': '日本語',
-            'uk': 'Українська'
+            'uk': 'Українська',
+            'es': 'Español',
+            'de': 'Deutsch',
+            'it': 'Italiano',
+            'pt': 'Português',
+            'ru': 'Русский',
+            'zh': '中文',
+            'ko': '한국어',
+            'ar': 'العربية',
+            'he': 'עברית'
         };
         this.fallbackLanguage = 'fr';
     }

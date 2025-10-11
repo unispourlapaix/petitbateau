@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "language": "Italiano",
+    "version": "1.0.0",
+    "author": "Emmanuel"
+  },
+  "game": {
+    "title": "Piccola Barca",
+    "subtitle": "Un viaggio attraverso l'umanità",
+    "loading": "Caricamento...",
+    "start": "Iniziare",
+    "continue": "Continuare",
+    "restart": "Ricominciare"
+  },
+  "ui": {
+    "score": "🕊️ {score}",
+    "xp": "⭐ XP: {xp}",
+    "lives": "❤️",
+    "bricks": "🧱 {current}/{total}",
+    "enigmas": "📜 Enigmi: {collected}/{total} ({percent}%)",
+    "language": "🌍 Lingua"
+  },
+  "phases": {
+    "phase1": {
+      "title": "Viaggio — L'alba dei dubbi",
+      "narrative": "🌟 \"Mi hanno detto che erano tutti mostri...\n✨ Mi hanno detto tanto male, tante disgrazie su di loro...\n🔍 Ma io ho preferito andare a vedere con i miei occhi.\""
+    },
+    "phase2": {
+      "title": "Viaggio — La luce",
+      "narrative": "🤔 \"Chi erano veramente?...\nE ho visto...\n\n👨‍👩‍👧‍👦 Un padre... una madre... bambini...\n\n💙 Tutti cercando semplicemente\ndi vivere\nla loro vita migliore...\nCome me.\""
+    }
+  },
+  "intro": {
+    "title": "Piccola Barca",
+    "subtitle": "Un viaggio filosofico",
+    "message": "Parti alla scoperta della verità sull'umanità...",
+    "start_button": "Iniziare il viaggio"
+  }
+}
