@@ -11018,7 +11018,28 @@
 
         function finDuVoyage() {
             jeu = false;
-            afficherMessage('<div style="font-weight: bold; font-size: 17px;">😢 Le voyage vers la vérité continue...\n\n"La vérité finit toujours par triompher !"\n\n✨ Touchez pour recommencer ✨</div>', 0); // 0 = message reste affiché indéfiniment
+            afficherMessage(`
+                <div style="font-weight: bold; font-size: 17px; text-align: center;">
+                    😢 Le voyage vers la vérité continue...<br><br>
+                    "La vérité finit toujours par triompher !"<br><br>
+                    <button onclick="recommencerJeuGameOver()" 
+                            style="background: linear-gradient(45deg, #4169E1, #1E90FF); 
+                                   color: white; border: none; padding: 15px 30px; 
+                                   border-radius: 25px; font-size: 18px; font-weight: bold; 
+                                   cursor: pointer; box-shadow: 0 4px 15px rgba(65,105,225,0.4);
+                                   transition: all 0.3s ease;
+                                   margin: 10px;"
+                            onmouseover="this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                        🔄 Recommencer le voyage
+                    </button>
+                </div>
+            `, 0);
+        }
+
+        function recommencerJeuGameOver() {
+            cacherMessage();
+            recommencer();
         }
 
         function veriteLiberee() {
@@ -12884,19 +12905,7 @@
 
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             // Ne PAS recommencer automatiquement - laisser les transitions automatiques se faire
-            // DEBUG: Vérifier les conditions de redémarrage
-            if(!jeu) {
-                console.log('🔍 DEBUG Redémarrage:', {
-                    jeu: jeu,
-                    currentPhase: narrationManager.currentPhase,
-                    periode: periode,
-                    isTransitioning: narrationManager.isTransitioning,
-                    phaseJeu: phaseJeu,
-                    animationBateau: animationBateau.active
-                });
-            }
             if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
-                console.log('✅ Redémarrage autorisé - Click');
                 recommencer();
                 return;
             }
@@ -13387,19 +13396,7 @@
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             // Ne PAS recommencer automatiquement en phases lanterne/stars/fin_niveau - laisser les transitions automatiques se faire
             // Simplification du redémarrage par toucher - aligner avec le gestionnaire click
-            // DEBUG: Vérifier les conditions de redémarrage
-            if(!jeu) {
-                console.log('🔍 DEBUG Redémarrage Touch:', {
-                    jeu: jeu,
-                    currentPhase: narrationManager.currentPhase,
-                    periode: periode,
-                    isTransitioning: narrationManager.isTransitioning,
-                    phaseJeu: phaseJeu,
-                    animationBateau: animationBateau.active
-                });
-            }
             if(!jeu && narrationManager.currentPhase >= 1 && !narrationManager.isTransitioning && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne' && phaseJeu !== 'stars' && phaseJeu !== 'fin_niveau') {
-                console.log('✅ Redémarrage autorisé - Touch');
                 recommencer();
             } else if(phaseJeu === 'stars') {
                 // Phase stars : tir d'étoiles en mode nuit
