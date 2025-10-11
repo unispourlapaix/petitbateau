@@ -22,7 +22,7 @@ class InfoAuteur {
                 "Art numérique contemplatif"
             ],
             projets: [
-                "Voir la Vérité - Expérience narrative interactive",
+                "PETIT BATEAU - Expérience narrative interactive",
                 "Petit Bateau - Canvas éducatif modulaire",
                 "Brian - Système de jeu avancé"
             ],

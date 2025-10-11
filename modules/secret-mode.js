@@ -138,8 +138,16 @@ class SecretModeModule {
         this.gameState.modeSecret = true;
 
         // 🎵 Changer la musique vers mode secret
-        if (typeof musicManager !== 'undefined' && musicManager) {
-            musicManager.changePhase('secret');
+        if (typeof window.musicManager !== 'undefined' && window.musicManager && window.musicManager.changePhase) {
+            window.musicManager.changePhase('secret');
+        } else {
+            console.warn('🎵 AudioManager pas encore initialisé - Musique mode secret différée');
+            // Essayer après un court délai
+            setTimeout(() => {
+                if (window.musicManager && window.musicManager.changePhase) {
+                    window.musicManager.changePhase('secret');
+                }
+            }, 100);
         }
 
         // BONUS DÉCOUVERTE MODE SECRET !
@@ -225,7 +233,20 @@ class SecretModeModule {
         // Réinitialiser
         this.previousPhase = null;
 
-        console.log('✅ Mode secret terminé - Retour au jeu principal');
+        // 🎵 Relancer la musique en mode aléatoire après le mode secret
+        if (typeof window.musicManager !== 'undefined' && window.musicManager && window.musicManager.resumeAfterSecret) {
+            window.musicManager.resumeAfterSecret();
+        } else {
+            console.warn('🎵 AudioManager pas disponible pour reprendre la musique');
+            // Essayer après un court délai
+            setTimeout(() => {
+                if (window.musicManager && window.musicManager.resumeAfterSecret) {
+                    window.musicManager.resumeAfterSecret();
+                }
+            }, 100);
+        }
+
+        console.log('✅ Mode secret terminé - Retour au jeu principal avec musique aléatoire');
     }
 
     // Mettre à jour la logique du mode secret

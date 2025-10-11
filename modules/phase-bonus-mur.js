@@ -488,7 +488,7 @@ Un monde uni vaut mieux qu'un monde cloisonné."
                         — Dreamer Unisona
                     </p>
                     <p style="color: #ffd700; font-size: 14px;">
-                        ✨ Fin de Voir la Vérité ✨
+                        ✨ Fin de PETIT BATEAU ✨
                     </p>
                     <button class="message-button" onclick="window.gameManager.restart()"
                             style="background: linear-gradient(145deg, #4169E1, #1E90FF); margin-top: 15px;">
