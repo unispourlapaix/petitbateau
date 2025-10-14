@@ -694,10 +694,20 @@
                 progressBar.style.display = 'block';
                 
                 const stream = canvas.captureStream(FPS);
-                const recorder = new MediaRecorder(stream, {
-                    mimeType: 'video/webm;codecs=vp9',
-                    videoBitsPerSecond: 8000000
-                });
+                
+                // Détection automatique du meilleur codec disponible
+                let options = { videoBitsPerSecond: 8000000 };
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                    options.mimeType = 'video/webm;codecs=vp9';
+                } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                    options.mimeType = 'video/webm;codecs=vp8';
+                } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                    options.mimeType = 'video/webm';
+                } else {
+                    options.mimeType = ''; // Let browser choose
+                }
+                
+                const recorder = new MediaRecorder(stream, options);
 
                 chunks[index] = [];
 
