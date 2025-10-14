@@ -63,8 +63,47 @@ text-animator-module-claude-code-examples.md
 mes-pensees.txt
 narration.txt
 narration-fr.txt
+ACTIVATION-AUTO.md
+BUGFIX_CHANGEMENT_LANGUE.md
+CORRECTION-PHASES-17-22.md
+DEBUG-PROJECTILES.md
+DESACTIVATION-CONFLITS.md
+FIX-FINAL-TIR.md
+HTML_MODIFICATIONS_GUIDE.md
+MODE-TIR-SEPARATION.md
+MODTIRMUR-DOCUMENTATION.md
+PROJECTILE-SYSTEM.md
+PROJECTILES-VISUEL.md
+README_I18N.md
+RECAP_TRADUCTIONS.md
+START_HERE.md
+SYSTEME-TIR-PROGRESSIF.md
+TEST-PHASE19.md
+TEST-PROJECTILES.md
+TEST-ULTRA-SIMPLE.md
+TRANSLATION_IDS_REFERENCE.txt
+TRANSLATION_SYSTEM.md
+
+# Scripts Python de développement
+*.py
+check_json_integrity.py
+check_translations.py
+complete_zh_enigmes.py
+diagnostic.js
+extracted_french_texts.txt
+fix_zh_quotes.py
+rebuild_zh.py
+rebuild_zh_part2.py
+setup-phase17.js
+show_missing_keys.py
+temp_function.txt
+verify_all_content.py
+verify_ar_content.py
 
 # Fichiers dupliqués/anciens
 voir-la-verite*.html
 👁️*.htm
 kawaii_objects_moduleS.js
+petitbateauRouge.html.backup
+_ul
+modules/language-selector.js.bak
