@@ -90,11 +90,89 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s ease;
+            flex: 1;
+            min-width: 100px;
         }
 
         button:hover {
             background: #0a0;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0f0;
+            margin: 10px 0;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #000;
+            border: 1px solid #0f0;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .code-section {
+            margin-top: 15px;
+            border-top: 2px solid #0f0;
+            padding-top: 10px;
+        }
+
+        .code-section h4 {
+            color: #87ceeb;
+            margin: 10px 0 5px 0;
+            font-size: 0.9em;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 60px;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75em;
+            resize: vertical;
+            margin-bottom: 5px;
+        }
+
+        .copy-btn {
+            background: #ffd700;
+            border-color: #ffaa00;
+        }
+
+        .copy-btn:hover {
+            background: #ffaa00;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .video-btn {
+            background: #ff6b6b;
+            border-color: #e74c3c;
+        }
+
+        .video-btn:hover {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
         }
 
         .format-label {
@@ -156,11 +234,12 @@
 
         <div class="info">
             <strong>🕹️ MODE RÉTRO ACTIVÉ :</strong> Style pixel art 8-bit pour un look nostalgique !
-            Cliquez sur chaque visuel pour télécharger. Les animations sont automatiques.
+            <br>
+            <strong>🎬 NOUVELLES FONCTIONS :</strong> Enregistrez des vidéos MP4 (5 sec) + Images JPG + Codes d'intégration HTML/iframe !
             <br><br>
             <strong>🎨 100% PIXEL ART :</strong> Aucune icône - tout est dessiné pixel par pixel !
             <button onclick="downloadAll()" style="margin-top: 10px;">
-                💾 TÉLÉCHARGER TOUT
+                💾 TÉLÉCHARGER TOUT (PNG)
             </button>
         </div>
 
@@ -170,8 +249,22 @@
                 <h3>🌊 HERO BANNER WEB</h3>
                 <span class="format-label">1200 x 630 px</span>
                 <canvas id="heroBanner" width="1200" height="630"></canvas>
+                <div class="status" id="status1">Prêt</div>
+                <div class="progress-bar" id="progressBar1">
+                    <div class="progress-fill" id="progressFill1"></div>
+                </div>
                 <div class="controls">
-                    <button onclick="downloadCanvas('heroBanner', 'pixel-hero-banner.png')">💾 DOWNLOAD</button>
+                    <button onclick="downloadCanvas('heroBanner', 'pixel-hero-banner.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('heroBanner', 1)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('heroBanner', 1)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode1" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode1')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode1" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode1')">📋 Copier</button>
                 </div>
             </div>
 
@@ -180,8 +273,22 @@
                 <h3>📱 INSTAGRAM POST</h3>
                 <span class="format-label">1080 x 1080 px</span>
                 <canvas id="instagramPost" width="1080" height="1080"></canvas>
+                <div class="status" id="status2">Prêt</div>
+                <div class="progress-bar" id="progressBar2">
+                    <div class="progress-fill" id="progressFill2"></div>
+                </div>
                 <div class="controls">
-                    <button onclick="downloadCanvas('instagramPost', 'pixel-instagram.png')">💾 DOWNLOAD</button>
+                    <button onclick="downloadCanvas('instagramPost', 'pixel-instagram.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('instagramPost', 2)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('instagramPost', 2)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode2" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode2')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode2" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode2')">📋 Copier</button>
                 </div>
             </div>
 
@@ -190,8 +297,22 @@
                 <h3>🐦 TWITTER HEADER</h3>
                 <span class="format-label">1500 x 500 px</span>
                 <canvas id="twitterHeader" width="1500" height="500"></canvas>
+                <div class="status" id="status3">Prêt</div>
+                <div class="progress-bar" id="progressBar3">
+                    <div class="progress-fill" id="progressFill3"></div>
+                </div>
                 <div class="controls">
-                    <button onclick="downloadCanvas('twitterHeader', 'pixel-twitter.png')">💾 DOWNLOAD</button>
+                    <button onclick="downloadCanvas('twitterHeader', 'pixel-twitter.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('twitterHeader', 3)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('twitterHeader', 3)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode3" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode3')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode3" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode3')">📋 Copier</button>
                 </div>
             </div>
 
@@ -200,8 +321,22 @@
                 <h3>📲 INSTAGRAM STORY</h3>
                 <span class="format-label">1080 x 1920 px</span>
                 <canvas id="instagramStory" width="1080" height="1920"></canvas>
+                <div class="status" id="status4">Prêt</div>
+                <div class="progress-bar" id="progressBar4">
+                    <div class="progress-fill" id="progressFill4"></div>
+                </div>
                 <div class="controls">
-                    <button onclick="downloadCanvas('instagramStory', 'pixel-story.png')">💾 DOWNLOAD</button>
+                    <button onclick="downloadCanvas('instagramStory', 'pixel-story.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('instagramStory', 4)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('instagramStory', 4)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode4" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode4')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode4" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode4')">📋 Copier</button>
                 </div>
             </div>
         </div>
@@ -540,6 +675,149 @@
         drawInstagramPost();
         drawTwitterHeader();
         drawInstagramStory();
+
+        // === NOUVELLES FONCTIONS VIDÉO ===
+        const FPS = 30;
+        const DURATION = 5;
+        const recorders = {};
+        const chunks = {};
+
+        // Enregistrer une vidéo
+        async function recordVideo(canvasId, index) {
+            const canvas = document.getElementById(canvasId);
+            const status = document.getElementById(`status${index}`);
+            const progressBar = document.getElementById(`progressBar${index}`);
+            const progressFill = document.getElementById(`progressFill${index}`);
+            
+            try {
+                status.textContent = '🔴 Enregistrement...';
+                progressBar.style.display = 'block';
+                
+                const stream = canvas.captureStream(FPS);
+                const recorder = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp9',
+                    videoBitsPerSecond: 8000000
+                });
+
+                chunks[index] = [];
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks[index].push(e.data);
+                };
+
+                recorder.onstop = async () => {
+                    const blob = new Blob(chunks[index], { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pixel-bateau-rouge-video-${index}.webm`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    status.textContent = '✅ Vidéo téléchargée!';
+                    progressBar.style.display = 'none';
+                    generateIntegrationCodes(index, `pixel-bateau-rouge-video-${index}.webm`);
+                };
+
+                recorder.start();
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += (100 / DURATION) / 10;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                    }
+                    progressFill.style.width = `${progress}%`;
+                }, 100);
+
+                setTimeout(() => {
+                    recorder.stop();
+                    clearInterval(interval);
+                }, DURATION * 1000);
+
+            } catch (error) {
+                status.textContent = '❌ Erreur: ' + error.message;
+            }
+        }
+
+        // Télécharger une image JPG
+        function downloadJPG(canvasId, index) {
+            const canvas = document.getElementById(canvasId);
+            const status = document.getElementById(`status${index}`);
+            
+            try {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pixel-bateau-rouge-${index}.jpg`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    status.textContent = '✅ JPG téléchargé!';
+                }, 'image/jpeg', 0.95);
+            } catch (error) {
+                status.textContent = '❌ Erreur: ' + error.message;
+            }
+        }
+
+        // Générer les codes d'intégration
+        function generateIntegrationCodes(index, filename) {
+            const formats = [
+                { w: 1200, h: 630, name: 'hero-banner' },
+                { w: 1080, h: 1080, name: 'instagram-post' },
+                { w: 1500, h: 500, name: 'twitter-header' },
+                { w: 1080, h: 1920, name: 'instagram-story' }
+            ];
+            
+            const format = formats[index - 1];
+            const videoUrl = `https://emmanuel.gallery/petitbateau/videos/${filename}`;
+            const posterUrl = `https://emmanuel.gallery/petitbateau/videos/pixel-poster-${index}.jpg`;
+            
+            const htmlCode = `<!-- Le Petit Bateau Rouge - Pixel Art ${format.name} -->
+<video width="${format.w}" height="${format.h}" controls autoplay loop muted playsinline
+       poster="${posterUrl}" style="image-rendering: pixelated;">
+    <source src="${videoUrl}" type="video/webm">
+    <source src="${videoUrl.replace('.webm', '.mp4')}" type="video/mp4">
+    Votre navigateur ne supporte pas la vidéo HTML5.
+</video>`;
+            
+            document.getElementById(`htmlCode${index}`).value = htmlCode;
+            
+            const iframeCode = `<!-- Le Petit Bateau Rouge - Pixel Art ${format.name} iframe -->
+<iframe 
+    src="${videoUrl}" 
+    width="${format.w}" 
+    height="${format.h}" 
+    frameborder="0" 
+    allowfullscreen
+    style="image-rendering: pixelated;"
+    allow="autoplay; fullscreen">
+</iframe>`;
+            
+            document.getElementById(`iframeCode${index}`).value = iframeCode;
+        }
+
+        // Copier le code
+        function copyCode(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.select();
+            document.execCommand('copy');
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✅ Copié!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+
+        // Initialiser les codes au chargement
+        window.addEventListener('load', () => {
+            for (let i = 1; i <= 4; i++) {
+                generateIntegrationCodes(i, `pixel-bateau-rouge-video-${i}.webm`);
+            }
+        });
     </script>
 </body>
 </html>

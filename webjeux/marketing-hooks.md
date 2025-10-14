@@ -86,7 +86,8 @@ Essayez : [LIEN]
 
 ### Hook 5 : Question Engageante
 ```
-❓ Et si vous deviez parcourir 33 millions de kilomètres pour survivre ?
+### Hook #4 : Question choc
+❓ Et si vous aviez 33 millions de raisons de croire en la paix ?
 
 Collecteriez-vous assez de courage ?
 Auriez-vous assez d'espoir ?
@@ -109,7 +110,7 @@ Testez votre humanité : [LIEN]
 ### Script 1 : Teaser Dramatique (15 sec)
 ```
 [Image : Océan sombre]
-VOIX OFF : "33 millions de kilomètres..."
+VOIX OFF : "33 millions de raisons..."
 
 [Transition : Petit bateau apparaît]
 VOIX OFF : "C'est le voyage de ceux qui fuient..."
@@ -155,7 +156,8 @@ VOIX OFF : "Vivez leur histoire."
 ## 📧 Emails Marketing
 
 ### Sujet 1 : Intrigue
-"Vous êtes prêt pour 33 millions de kilomètres ? 🚣"
+"### Sujet #5
+"Vous êtes prêt pour 33 millions de raisons de croire ? 🚣""
 
 ### Sujet 2 : Urgence (fausse)
 "Cette expérience gratuite va changer votre regard sur le monde"
@@ -175,7 +177,8 @@ VOIX OFF : "Vivez leur histoire."
 "Le Petit Bateau Rouge : Le jeu poétique qui sensibilise à la crise migratoire à travers 33 énigmes philosophiques"
 
 ### Sous-titres
-- "33 millions de km : Une expérience interactive gratuite en 14 langues"
+**ANGLE 1 : Tech & Innovation**
+- "33 millions de raisons : Une expérience interactive gratuite en 14 langues"
 - "Emmanuel Payet transforme la tragédie en poésie interactive"
 - "Gospel, gameplay et philosophie : un jeu qui réinvente l'engagement social"
 

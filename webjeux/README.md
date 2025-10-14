@@ -85,7 +85,7 @@ Ce dossier contient tous les outils nécessaires pour promouvoir "Le Petit Batea
 <a href="webjeux/landing-page.html" class="game-card">
   <img src="webjeux/visuals/hero-banner.png">
   <h3>🚣 Le Petit Bateau Rouge</h3>
-  <p>33 millions de km vers la liberté</p>
+  <p>33 millions de raisons de partager la paix</p>
 </a>
 ```
 
