@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Generator - Le Petit Bateau Rouge</title>
+    <meta name="description" content="Générateur de visuels Pixel Art rétro pour Le Petit Bateau Rouge">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #0f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 0;
+            border: 4px solid #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        h1 {
+            color: #0f0;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 0 #000;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .visual-card {
+            border: 3px solid #0f0;
+            padding: 20px;
+            background: #0f0f1e;
+        }
+
+        .visual-card h3 {
+            color: #87ceeb;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        canvas {
+            width: 100%;
+            border: 2px solid #0f0;
+            image-rendering: pixelated;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        canvas:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #0f0;
+            color: #000;
+            border: 2px solid #0a0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #0a0;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        .format-label {
+            background: #ff6b6b;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #1e3a5f;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #87ceeb;
+        }
+
+        .animation-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff4444;
+            color: #fff;
+            padding: 15px 30px;
+            border: 3px solid #000;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            z-index: 1000;
+        }
+
+        .animation-toggle:hover {
+            background: #ff6b6b;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(0, 255, 0, 0.03) 50%,
+                transparent 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <div class="container">
+        <h1>🎮 PIXEL ART GENERATOR</h1>
+        <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE RAISONS</p>
+
+        <div class="info">
+            <strong>🕹️ MODE RÉTRO ACTIVÉ :</strong> Style pixel art 8-bit pour un look nostalgique !
+            Cliquez sur chaque visuel pour télécharger. Les animations sont automatiques.
+            <br><br>
+            <strong>🎨 100% PIXEL ART :</strong> Aucune icône - tout est dessiné pixel par pixel !
+            <button onclick="downloadAll()" style="margin-top: 10px;">
+                💾 TÉLÉCHARGER TOUT
+            </button>
+        </div>
+
+        <div class="visual-grid">
+            <!-- Visual 1: Hero Banner -->
+            <div class="visual-card">
+                <h3>🌊 HERO BANNER WEB</h3>
+                <span class="format-label">1200 x 630 px</span>
+                <canvas id="heroBanner" width="1200" height="630"></canvas>
+                <div class="controls">
+                    <button onclick="downloadCanvas('heroBanner', 'pixel-hero-banner.png')">💾 DOWNLOAD</button>
+                </div>
+            </div>
+
+            <!-- Visual 2: Instagram Post -->
+            <div class="visual-card">
+                <h3>📱 INSTAGRAM POST</h3>
+                <span class="format-label">1080 x 1080 px</span>
+                <canvas id="instagramPost" width="1080" height="1080"></canvas>
+                <div class="controls">
+                    <button onclick="downloadCanvas('instagramPost', 'pixel-instagram.png')">💾 DOWNLOAD</button>
+                </div>
+            </div>
+
+            <!-- Visual 3: Twitter Header -->
+            <div class="visual-card">
+                <h3>🐦 TWITTER HEADER</h3>
+                <span class="format-label">1500 x 500 px</span>
+                <canvas id="twitterHeader" width="1500" height="500"></canvas>
+                <div class="controls">
+                    <button onclick="downloadCanvas('twitterHeader', 'pixel-twitter.png')">💾 DOWNLOAD</button>
+                </div>
+            </div>
+
+            <!-- Visual 4: Instagram Story -->
+            <div class="visual-card">
+                <h3>📲 INSTAGRAM STORY</h3>
+                <span class="format-label">1080 x 1920 px</span>
+                <canvas id="instagramStory" width="1080" height="1920"></canvas>
+                <div class="controls">
+                    <button onclick="downloadCanvas('instagramStory', 'pixel-story.png')">💾 DOWNLOAD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="animation-toggle" onclick="toggleAnimation()">
+        ⏸️ PAUSE
+    </div>
+
+    <script>
+        let animationRunning = true;
+        let animationFrames = {};
+
+        // Fonction pour dessiner un pixel art boat
+        function drawPixelBoat(ctx, x, y, size, color) {
+            const pixelSize = size / 16;
+            ctx.imageSmoothingEnabled = false;
+
+            // Définir les couleurs
+            const colors = {
+                red: ['#ff6b6b', '#e74c3c', '#c0392b'],
+                hull: ['#c0392b', '#a93226', '#7f1d1d'],
+                sail: ['#ffffff', '#e5e7eb', '#d1d5db'],
+                mast: ['#8b4513', '#654321'],
+                water: ['#3b82f6', '#2563eb', '#1e40af']
+            };
+
+            const c = color === 'red' ? colors.red : colors.hull;
+
+            // Coque (pixel art)
+            ctx.fillStyle = c[0];
+            ctx.fillRect(x, y + 8 * pixelSize, 12 * pixelSize, 4 * pixelSize);
+            
+            ctx.fillStyle = c[1];
+            ctx.fillRect(x + 2 * pixelSize, y + 6 * pixelSize, 8 * pixelSize, 2 * pixelSize);
+            
+            ctx.fillStyle = c[2];
+            ctx.fillRect(x + 4 * pixelSize, y + 12 * pixelSize, 4 * pixelSize, 2 * pixelSize);
+
+            // Bordure noire
+            ctx.fillStyle = '#000';
+            for (let i = 0; i < 12; i++) {
+                ctx.fillRect(x + i * pixelSize, y + 8 * pixelSize, pixelSize, pixelSize);
+                ctx.fillRect(x + i * pixelSize, y + 11 * pixelSize, pixelSize, pixelSize);
+            }
+            ctx.fillRect(x, y + 9 * pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x + 11 * pixelSize, y + 9 * pixelSize, pixelSize, 2 * pixelSize);
+
+            // Mât
+            ctx.fillStyle = colors.mast[0];
+            ctx.fillRect(x + 6 * pixelSize, y, pixelSize, 8 * pixelSize);
+            ctx.fillStyle = colors.mast[1];
+            ctx.fillRect(x + 7 * pixelSize, y, pixelSize, 8 * pixelSize);
+
+            // Voile triangulaire
+            ctx.fillStyle = colors.sail[0];
+            for (let i = 0; i < 6; i++) {
+                ctx.fillRect(x + (6 - i) * pixelSize, y + i * pixelSize, i * pixelSize, pixelSize);
+            }
+            
+            // Contour voile
+            ctx.fillStyle = '#000';
+            for (let i = 0; i < 6; i++) {
+                ctx.fillRect(x + (6 - i) * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
+            }
+        }
+
+        // Fonction pour dessiner des vagues pixel art
+        function drawPixelWaves(ctx, width, height, time, offset = 0) {
+            const waveHeight = 20;
+            const pixelSize = 4;
+            
+            for (let x = 0; x < width; x += pixelSize) {
+                const wave = Math.sin((x + time * 50 + offset) / 30) * waveHeight;
+                const y = height - 60 + wave;
+                
+                // Dégradé de bleu
+                const blueShade = Math.floor((Math.sin((x + time * 50) / 50) + 1) * 128);
+                ctx.fillStyle = `rgb(59, 130, ${200 + blueShade / 8})`;
+                ctx.fillRect(x, y, pixelSize, height - y);
+            }
+        }
+
+        // Fonction pour dessiner du texte pixel art
+        function drawPixelText(ctx, text, x, y, size, color) {
+            ctx.font = `bold ${size}px "Courier New", monospace`;
+            ctx.fillStyle = '#000';
+            ctx.fillText(text, x + 2, y + 2);
+            ctx.fillStyle = color;
+            ctx.fillText(text, x, y);
+        }
+
+        // Fonction pour dessiner des étoiles pixel
+        function drawPixelStars(ctx, width, height, count, time) {
+            for (let i = 0; i < count; i++) {
+                const x = (i * 137 + time * 10) % width;
+                const y = (i * 211) % height;
+                const brightness = (Math.sin(time + i) + 1) / 2;
+                const size = 2 + Math.floor(brightness * 2);
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + brightness * 0.5})`;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+
+        // Fonction pour télécharger
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Toggle animations
+        function toggleAnimation() {
+            animationRunning = !animationRunning;
+            document.querySelector('.animation-toggle').textContent = 
+                animationRunning ? '⏸️ PAUSE' : '▶️ PLAY';
+        }
+
+        // Télécharger tout
+        function downloadAll() {
+            const visuals = [
+                { id: 'heroBanner', name: 'pixel-hero-banner.png' },
+                { id: 'instagramPost', name: 'pixel-instagram.png' },
+                { id: 'twitterHeader', name: 'pixel-twitter.png' },
+                { id: 'instagramStory', name: 'pixel-story.png' }
+            ];
+
+            visuals.forEach((visual, index) => {
+                setTimeout(() => {
+                    downloadCanvas(visual.id, visual.name);
+                }, index * 300);
+            });
+
+            alert('💾 TÉLÉCHARGEMENT EN COURS... (4 FICHIERS)');
+        }
+
+        // === VISUAL 1: Hero Banner ===
+        function drawHeroBanner() {
+            const canvas = document.getElementById('heroBanner');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background dégradé
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a1929');
+            gradient.addColorStop(0.5, '#1e3a5f');
+            gradient.addColorStop(1, '#2d5a7b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Étoiles
+            drawPixelStars(ctx, canvas.width, canvas.height * 0.6, 50, time);
+
+            // Vagues
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 0);
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 200);
+
+            // Bateau flottant
+            const boatY = canvas.height / 2 + Math.sin(time) * 15;
+            drawPixelBoat(ctx, 100, boatY - 40, 80, 'red');
+
+            // Titre
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 350, 200, 60, '#ffffff');
+            drawPixelText(ctx, '33 Millions de Raisons', 350, 260, 30, '#87ceeb');
+            drawPixelText(ctx, 'de Partager la Paix', 350, 300, 30, '#87ceeb');
+
+            // Distance
+            drawPixelText(ctx, '33 000 000 KM', 350, 360, 40, '#ffd700');
+
+            // CTA
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(350, 420, 400, 60);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(352, 422, 396, 56);
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(354, 424, 392, 52);
+            
+            drawPixelText(ctx, '>>> JOUER MAINTENANT <<<', 380, 460, 30, '#ffffff');
+
+            if (animationRunning) {
+                animationFrames.heroBanner = requestAnimationFrame(drawHeroBanner);
+            }
+        }
+
+        // === VISUAL 2: Instagram Post ===
+        function drawInstagramPost() {
+            const canvas = document.getElementById('instagramPost');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createRadialGradient(540, 540, 100, 540, 540, 700);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grille pixel
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Étoiles
+            drawPixelStars(ctx, canvas.width, canvas.height, 100, time);
+
+            // Bateau central
+            const pulsate = 10 + Math.sin(time * 2) * 5;
+            drawPixelBoat(ctx, 490, 350 + pulsate, 100, 'red');
+
+            // Texte
+            ctx.textAlign = 'center';
+            drawPixelText(ctx, '33M KM', 540, 600, 80, '#ffd700');
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 540, 720, 45, '#ffffff');
+            drawPixelText(ctx, '33 Millions de Raisons', 540, 780, 30, '#87ceeb');
+            drawPixelText(ctx, 'de Partager la Paix', 540, 820, 30, '#87ceeb');
+            drawPixelText(ctx, '33 ENIGMES * 14 LANGUES', 540, 900, 28, '#ffffff');
+            drawPixelText(ctx, '#33MillionsDeRaisons', 540, 980, 25, '#0f0');
+
+            ctx.textAlign = 'left';
+
+            if (animationRunning) {
+                animationFrames.instagramPost = requestAnimationFrame(drawInstagramPost);
+            }
+        }
+
+        // === VISUAL 3: Twitter Header ===
+        function drawTwitterHeader() {
+            const canvas = document.getElementById('twitterHeader');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#1e3a5f');
+            gradient.addColorStop(1, '#667eea');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Vagues
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 0);
+
+            // Bateaux multiples
+            for (let i = 0; i < 5; i++) {
+                const x = 100 + i * 250;
+                const offset = Math.sin(time + i) * 10;
+                drawPixelBoat(ctx, x, 280 + offset, 60, i % 2 === 0 ? 'red' : 'blue');
+            }
+
+            // Texte
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 280, 160, 55, '#ffffff');
+            drawPixelText(ctx, '33 Millions de Raisons de Partager la Paix', 280, 220, 32, '#ffd700');
+            drawPixelText(ctx, 'JEU POETIQUE * 14 LANGUES * 33 ENIGMES', 280, 310, 28, '#87ceeb');
+
+            if (animationRunning) {
+                animationFrames.twitterHeader = requestAnimationFrame(drawTwitterHeader);
+            }
+        }
+
+        // === VISUAL 4: Instagram Story ===
+        function drawInstagramStory() {
+            const canvas = document.getElementById('instagramStory');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#1e3a5f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Étoiles filantes
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 100 + time * 100) % canvas.width;
+                const y = (i * 150) % canvas.height;
+                const length = 30 + Math.sin(time + i) * 10;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(time + i) * 0.2})`;
+                ctx.fillRect(x, y, length, 2);
+                ctx.fillRect(x, y + 1, length - 10, 2);
+            }
+
+            // Bateau géant
+            const centerBoatY = 700 + Math.sin(time * 1.5) * 30;
+            drawPixelBoat(ctx, 440, centerBoatY, 200, 'red');
+
+            // Texte
+            ctx.textAlign = 'center';
+            drawPixelText(ctx, 'LE PETIT', 540, 1100, 60, '#ffffff');
+            drawPixelText(ctx, 'BATEAU ROUGE', 540, 1180, 60, '#ff6b6b');
+            
+            drawPixelText(ctx, '33M KM', 540, 1300, 90, '#ffd700');
+            
+            drawPixelText(ctx, '33 Millions de Raisons', 540, 1420, 38, '#ffffff');
+            drawPixelText(ctx, 'de Partager la Paix', 540, 1470, 38, '#ffffff');
+
+            drawPixelText(ctx, 'JEU * 8-BIT * GRATUIT', 540, 1600, 35, '#0f0');
+
+            // CTA
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(240, 1700, 600, 80);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(245, 1705, 590, 70);
+            drawPixelText(ctx, 'SWIPE UP >>>', 540, 1755, 40, '#ffffff');
+
+            ctx.textAlign = 'left';
+
+            if (animationRunning) {
+                animationFrames.instagramStory = requestAnimationFrame(drawInstagramStory);
+            }
+        }
+
+        // Start all animations
+        drawHeroBanner();
+        drawInstagramPost();
+        drawTwitterHeader();
+        drawInstagramStory();
+    </script>
+</body>
+</html>
