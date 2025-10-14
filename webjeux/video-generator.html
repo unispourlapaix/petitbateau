@@ -244,6 +244,25 @@
             padding: 20px 40px;
             min-width: 300px;
         }
+
+        .warning-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ff6b6b;
+            font-size: 0.85em;
+        }
+
+        .warning-box a {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        .warning-box a:hover {
+            color: #ffaa00;
+        }
     </style>
 </head>
 <body>
@@ -254,13 +273,32 @@
         <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE RAISONS</p>
 
         <div class="info-box">
-            <h2>📋 Instructions</h2>
+            <h2>� À Propos du Jeu</h2>
+            <p style="color: #0f0; margin-bottom: 15px;">
+                <strong>Le Petit Bateau Rouge</strong> est un voyage poétique et interactif inspiré par les 33 millions de kilomètres parcourus chaque année par les migrants et réfugiés. 
+                À travers 23 phases et 33 énigmes philosophiques, vous guidez un petit bateau rouge dans une quête universelle de paix, de foi et d'espoir.
+            </p>
+            
+            <h2>📱 Hook pour Réseaux Sociaux</h2>
+            <p style="color: #ffd700; font-style: italic; margin-bottom: 15px;">
+                "🚣 33 millions de raisons de croire en la paix... Embarquez dans Le Petit Bateau Rouge : un jeu poétique gratuit qui transforme 33 millions de kilomètres de migration en 33 énigmes sur l'amour, la foi et l'espoir. 
+                🌍 14 langues • 🎵 Gospel original • 💖 100% gratuit #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix"
+            </p>
+
+            <h2>🏷️ Hashtags Officiels</h2>
+            <p style="color: #87ceeb;">
+                <strong>Principaux :</strong> #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix
+                <br>
+                <strong>Secondaires :</strong> #GameWithPurpose #IndieGame #ArtGame #PoetryInMotion #GospelGame #InteractiveArt #SocialImpactGame #MigrationStories
+            </p>
+
+            <h2>�📋 Instructions</h2>
             <ul>
                 <li>⏺️ Cliquez sur "Enregistrer Vidéo" pour capturer l'animation (5 secondes)</li>
-                <li>💾 Téléchargez la vidéo MP4 (compatible tous réseaux sociaux)</li>
+                <li>💾 Téléchargez la vidéo WebM (compatible tous réseaux sociaux)</li>
                 <li>📸 Générez une image JPG (miniature/poster)</li>
                 <li>📋 Copiez les codes d'intégration (HTML, iframe, embed)</li>
-                <li>⚡ Format optimisé : H.264, 30 FPS, qualité maximale</li>
+                <li>⚡ Format optimisé : WebM/VP8/VP9, 30 FPS, qualité maximale</li>
             </ul>
         </div>
 
@@ -673,7 +711,7 @@
                 recorder.onstop = async () => {
                     const blob = new Blob(chunks[index], { type: 'video/webm' });
                     
-                    // Télécharger la vidéo
+                    // Télécharger la vidéo WebM
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -681,10 +719,12 @@
                     a.click();
                     URL.revokeObjectURL(url);
                     
-                    status.textContent = '✅ Vidéo téléchargée ! (WebM)';
+                    status.innerHTML = '✅ Vidéo WebM téléchargée !<br><span style="font-size:0.85em">⚠️ Convertissez en MP4 pour TikTok/Instagram (voir ci-dessous)</span>';
                     progressBar.style.display = 'none';
                     
-                    // Générer les codes d'intégration
+                    // Afficher les options de conversion
+                    showConversionOptions(index);
+                    
                     generateIntegrationCodes(index, `petit-bateau-rouge-video-${index}.webm`);
                 };
 
@@ -787,6 +827,43 @@
             setTimeout(() => {
                 button.textContent = originalText;
             }, 2000);
+        }
+
+        // Afficher les options de conversion MP4
+        function showConversionOptions(index) {
+            const codeSection = document.getElementById(`htmlCode${index}`).parentElement;
+            
+            const warningHtml = `
+                <div class="warning-box" style="margin-top: 15px;">
+                    <strong>🎬 CONVERTIR EN MP4 POUR TIKTOK/INSTAGRAM :</strong><br><br>
+                    
+                    <strong>✨ Option 1 - CloudConvert (Recommandé) :</strong><br>
+                    1. Allez sur <a href="https://cloudconvert.com/webm-to-mp4" target="_blank">cloudconvert.com/webm-to-mp4</a><br>
+                    2. Uploadez votre fichier WebM téléchargé<br>
+                    3. Paramètres : H.264, qualité "High", 30 FPS<br>
+                    4. Cliquez "Convert" → Téléchargez le MP4<br><br>
+                    
+                    <strong>⚡ Option 2 - FreeConvert (Rapide) :</strong><br>
+                    <a href="https://www.freeconvert.com/webm-to-mp4" target="_blank">freeconvert.com/webm-to-mp4</a><br><br>
+                    
+                    <strong>🔄 Option 3 - Convertio (Sans compte) :</strong><br>
+                    <a href="https://convertio.co/webm-mp4/" target="_blank">convertio.co/webm-mp4</a><br><br>
+                    
+                    <strong>📱 Format TikTok/Instagram :</strong><br>
+                    • Codec vidéo : H.264 (x264)<br>
+                    • FPS : 30<br>
+                    • Qualité : Haute<br>
+                    • Audio : Désactivé (vidéos sans son)<br>
+                    • Format : MP4<br><br>
+                    
+                    <strong>💡 ASTUCE :</strong> Ces conversions sont gratuites et prennent ~10-30 secondes par vidéo.
+                </div>
+            `;
+            
+            // Ajouter seulement si pas déjà présent
+            if (!codeSection.querySelector('.warning-box')) {
+                codeSection.insertAdjacentHTML('beforebegin', warningHtml);
+            }
         }
 
         // Initialiser les codes au chargement

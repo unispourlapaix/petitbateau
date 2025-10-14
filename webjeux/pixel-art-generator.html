@@ -104,6 +104,25 @@
             cursor: not-allowed;
         }
 
+        .warning-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ff6b6b;
+            font-size: 0.85em;
+        }
+
+        .warning-box a {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        .warning-box a:hover {
+            color: #ffaa00;
+        }
+
         .status {
             padding: 8px;
             background: rgba(0, 0, 0, 0.5);
@@ -233,7 +252,17 @@
         <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE RAISONS</p>
 
         <div class="info">
-            <strong>🕹️ MODE RÉTRO ACTIVÉ :</strong> Style pixel art 8-bit pour un look nostalgique !
+            <strong>� LE PETIT BATEAU ROUGE</strong><br>
+            Un voyage poétique et interactif inspiré par les 33 millions de kilomètres parcourus chaque année par les migrants et réfugiés. 
+            Guidez un petit bateau rouge à travers 33 énigmes philosophiques sur la foi, l'espoir et l'amour.
+            <br><br>
+            <strong>📱 POUR VOS RÉSEAUX SOCIAUX :</strong><br>
+            "🚣 Découvrez Le Petit Bateau Rouge : 33 énigmes poétiques, 14 langues, 100% gratuit. Un voyage qui touche le cœur et ouvre l'esprit. #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix 🌍💖"
+            <br><br>
+            <strong>🏷️ HASHTAGS :</strong> 
+            #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix #GameWithPurpose #IndieGame #ArtGame #PoetryInMotion #GospelGame
+            <br><br>
+            <strong>�🕹️ MODE RÉTRO ACTIVÉ :</strong> Style pixel art 8-bit pour un look nostalgique !
             <br>
             <strong>🎬 NOUVELLES FONCTIONS :</strong> Enregistrez des vidéos MP4 (5 sec) + Images JPG + Codes d'intégration HTML/iframe !
             <br><br>
@@ -717,6 +746,8 @@
 
                 recorder.onstop = async () => {
                     const blob = new Blob(chunks[index], { type: 'video/webm' });
+                    
+                    // Télécharger le WebM
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -724,8 +755,12 @@
                     a.click();
                     URL.revokeObjectURL(url);
                     
-                    status.textContent = '✅ Vidéo téléchargée!';
+                    status.innerHTML = '✅ Vidéo WebM téléchargée!<br><span style="font-size:0.8em">⚠️ Utilisez un convertisseur en ligne pour MP4 TikTok/Instagram</span>';
                     progressBar.style.display = 'none';
+                    
+                    // Afficher les options de conversion
+                    showConversionOptions(index);
+                    
                     generateIntegrationCodes(index, `pixel-bateau-rouge-video-${index}.webm`);
                 };
 
@@ -820,6 +855,37 @@
             setTimeout(() => {
                 button.textContent = originalText;
             }, 2000);
+        }
+
+        // Afficher les options de conversion MP4
+        function showConversionOptions(index) {
+            const status = document.getElementById(`status${index}`);
+            const warningHtml = `
+                <div class="warning-box" style="margin-top: 10px;">
+                    <strong>🎬 CONVERTIR EN MP4 POUR TIKTOK/INSTAGRAM :</strong><br><br>
+                    <strong>Option 1 - CloudConvert (Gratuit) :</strong><br>
+                    1. Allez sur <a href="https://cloudconvert.com/webm-to-mp4" target="_blank" style="color: #ffd700;">cloudconvert.com/webm-to-mp4</a><br>
+                    2. Uploadez votre fichier WebM<br>
+                    3. Cliquez "Convert" → Téléchargez le MP4<br><br>
+                    
+                    <strong>Option 2 - FreeConvert (Gratuit) :</strong><br>
+                    <a href="https://www.freeconvert.com/webm-to-mp4" target="_blank" style="color: #ffd700;">freeconvert.com/webm-to-mp4</a><br><br>
+                    
+                    <strong>Option 3 - Convertio (Gratuit) :</strong><br>
+                    <a href="https://convertio.co/webm-mp4/" target="_blank" style="color: #ffd700;">convertio.co/webm-mp4</a><br><br>
+                    
+                    <strong>⚙️ Paramètres recommandés :</strong><br>
+                    • Codec : H.264<br>
+                    • Qualité : Haute (High)<br>
+                    • FPS : 30<br>
+                    • Audio : Aucun (None)
+                </div>
+            `;
+            
+            const codeSection = document.getElementById(`htmlCode${index}`).parentElement;
+            if (!codeSection.querySelector('.warning-box')) {
+                codeSection.insertAdjacentHTML('beforebegin', warningHtml);
+            }
         }
 
         // Initialiser les codes au chargement
