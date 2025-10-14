@@ -1,0 +1,373 @@
+═══════════════════════════════════════════════════════════════════════════════
+  RÉFÉRENCE RAPIDE DES IDs DE TRADUCTION - PETIT BATEAU ROUGE ⛵
+═══════════════════════════════════════════════════════════════════════════════
+
+Format: ID → Description
+Total: ~400 clés de traduction
+
+═══════════════════════════════════════════════════════════════════════════════
+1. UI - INTERFACE UTILISATEUR
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ BOUTONS ─────────────────────────────────────────────────────────────────┐
+│ ui.buttons.save         → 💾 Enregistrer                                 │
+│ ui.buttons.skip         → Passer                                         │
+│ ui.buttons.update       → Mettre à jour                                  │
+│ ui.buttons.later        → Plus tard                                      │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ FORMULAIRES ─────────────────────────────────────────────────────────────┐
+│ ui.form.email_label              → Email * :                             │
+│ ui.form.pseudo_label             → Pseudo * :                            │
+│ ui.form.avatar_label             → Avatar :                              │
+│ ui.form.optional_info            → Informations optionnelles             │
+│ ui.form.city_label               → Ville :                               │
+│ ui.form.city_placeholder         → Votre ville                           │
+│ ui.form.country_label            → Pays :                                │
+│ ui.form.country_placeholder      → Votre pays                            │
+│ ui.form.age_label                → Âge :                                 │
+│ ui.form.age_placeholder          → Votre âge                             │
+│ ui.form.gender_label             → Genre :                               │
+│ ui.form.gender_not_specified     → Non spécifié                          │
+│ ui.form.gender_male              → Homme                                 │
+│ ui.form.gender_female            → Femme                                 │
+│ ui.form.gender_other             → Autre                                 │
+│ ui.form.email_placeholder        → Votre adresse email                   │
+│ ui.form.pseudo_placeholder       → Votre pseudo                          │
+│ ui.form.name_prompt              → Votre nom ?                           │
+│ ui.form.city_prompt              → Votre ville ?                         │
+│ ui.form.country_prompt           → Votre pays ?                          │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ MENU ────────────────────────────────────────────────────────────────────┐
+│ ui.menu.enigmes           → 🧩 Énigmes                                   │
+│ ui.menu.enigmes_full      → 📜 Énigmes Complètes                        │
+│ ui.menu.menu_games        → 🎮 Menu Jeux                                │
+│ ui.menu.poem1             → 📜 Poème 1                                   │
+│ ui.menu.poem2             → 📖 Poème 2                                   │
+│ ui.menu.artist_info       → 🎨 Info Artiste                             │
+│ ui.menu.credits           → 🎬 Générique                                │
+│ ui.menu.icons             → 🦇👼 Icônes                                  │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ ONGLETS ─────────────────────────────────────────────────────────────────┐
+│ ui.tabs.enigmes           → 📋 Énigmes                                   │
+│ ui.tabs.scores            → 🏆 Scores                                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ INTRO MULTILINGUE ───────────────────────────────────────────────────────┐
+│ ui.multilang_intro.fr     → PETIT BATEAU                                 │
+│ ui.multilang_intro.en     → LITTLE BOAT                                  │
+│ ui.multilang_intro.jp     → 小さな船                                      │
+│ ui.multilang_intro.uk     → МАЛЕНЬКИЙ ЧОВЕН                              │
+│ ui.multilang_intro.ar     → قارب صغير                                    │
+│ ui.multilang_intro.hi     → छोटी नाव                                     │
+│ ui.multilang_intro.es     → PEQUEÑO BARCO                                │
+│ ui.multilang_intro.it     → PICCOLA BARCA                                │
+│ ui.multilang_intro.ko     → 작은 배                                       │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+2. GAME - MESSAGES DE JEU
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ MESSAGES ────────────────────────────────────────────────────────────────┐
+│ game.messages.intro_bonus       → 🌟 +100 Points pour avoir regardé...  │
+│ game.messages.light_victory     → 💡 La lumière chasse la nuit +1000 XP│
+│ game.messages.frontiers_broken  → 🌍💕 FRONTIÈRES BRISÉES! +XXX ❤️     │
+│ game.messages.intro_points      → 🌟 +100 Points intro complète         │
+│ game.messages.frontier_mode     → 🧱 Mode Frontières activé !          │
+│ game.messages.all_broken        → 💥 TOUT CASSÉ ! 💥                   │
+│ game.messages.bird_no           → 🐦 NON !                              │
+│ game.messages.secret_mode       → 🎯 Mode Secret : Tir de Précision... │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ ERREURS ─────────────────────────────────────────────────────────────────┐
+│ game.errors.fail_1           → NO GREAT! HAAAH!                          │
+│ game.errors.fail_2           → BOOOO! PAS BIEN!                          │
+│ game.errors.fail_3           → OOOH NON! VILAIN!                         │
+│ game.errors.fail_4           → HAAAH! CATASTROPHE!                       │
+│ game.errors.fail_5           → BEURK! MECHANT!                           │
+│ game.errors.fail_6           → AIEEEE! MONSTER!                          │
+│ game.errors.fail_7           → GRRRR! STUPID!                            │
+│ game.errors.fail_8           → PFFFFFF! IDIOT!                           │
+│ game.errors.fail_9           → TSSS TSSS! SHAME!                         │
+│ game.errors.whale_death      → 💀 Tu as tiré sur une baleine...         │
+│ game.errors.email_required   → ⚠️ Email et pseudo requis                │
+│ game.errors.email_invalid    → ⚠️ Email invalide                        │
+│ game.errors.saving           → 💾 Enregistrement...                     │
+│ game.errors.saved            → ✅ Score enregistré !                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ INSTRUCTIONS ────────────────────────────────────────────────────────────┐
+│ game.instructions.break_frontiers  → 🌍 BRISER LES FRONTIÈRES 🌍       │
+│ game.instructions.click_to_launch  → 🚀 CLIQUEZ POUR LANCER            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+3. NARRATIVE - TEXTES NARRATIFS
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ PHASE 1 ─────────────────────────────────────────────────────────────────┐
+│ narrative.phase1.title        → L'aube des doutes\nPhase 1              │
+│ narrative.phase1.intro_short  → On m'a dit qu'ils étaient...           │
+│ narrative.phase1.intro_full   → Version complète avec retours ligne    │
+│ narrative.phase1.reaction     → NON on peut pas laisser passer ça !    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ MESSAGE FINAL ───────────────────────────────────────────────────────────┐
+│ narrative.final_message       → L'humanité n'a pas besoin de murs...   │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+4. BRICKS - BRIQUES DU JEU (41 TOTAL)
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ BRIQUES DU JOUR (19) - POSITIVES ────────────────────────────────────────┐
+│ bricks.day.told.name / .msg           → ON M'A DIT...                   │
+│ bricks.day.monsters.name / .msg       → DES MONSTRES                    │
+│ bricks.day.prejudice.name / .msg      → PRÉJUGÉS                        │
+│ bricks.day.fears.name / .msg          → PEURS                           │
+│ bricks.day.distrust.name / .msg       → MÉFIANCE                        │
+│ bricks.day.who_are_they.name / .msg   → QUI SONT-ILS ?                  │
+│ bricks.day.i_saw.name / .msg          → J'AI VU...                      │
+│ bricks.day.father.name / .msg         → UN PÈRE                         │
+│ bricks.day.mother.name / .msg         → UNE MÈRE                        │
+│ bricks.day.children.name / .msg       → DES ENFANTS                     │
+│ bricks.day.humanity.name / .msg       → L'HUMANITÉ                      │
+│ bricks.day.love.name / .msg           → L'AMOUR                         │
+│ bricks.day.compassion.name / .msg     → LA COMPASSION                   │
+│ bricks.day.hope.name / .msg           → L'ESPOIR                        │
+│ bricks.day.peace.name / .msg          → LA PAIX                         │
+│ bricks.day.like_me.name / .msg        → COMME MOI                       │
+│ bricks.day.truth.name / .msg          → VÉRITÉ RÉVÉLÉE                  │
+│ bricks.day.courage.name / .msg        → COURAGE DU CŒUR                 │
+│ bricks.day.precious.name / .msg       → PRÉCIEUX                        │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ BRIQUES DE LA NUIT (22) - NÉGATIVES ─────────────────────────────────────┐
+│ bricks.night.discord.name / .msg         → DISCORDES                    │
+│ bricks.night.hatred.name / .msg          → HAINES                       │
+│ bricks.night.destruction.name / .msg     → DESTRUCTIONS                 │
+│ bricks.night.theft.name / .msg           → VOL                          │
+│ bricks.night.lies.name / .msg            → MENSONGE                     │
+│ bricks.night.manipulation.name / .msg    → MANIPULATION                 │
+│ bricks.night.greed.name / .msg           → CUPIDITÉ                     │
+│ bricks.night.avarice.name / .msg         → AVIDITÉ                      │
+│ bricks.night.chains.name / .msg          → CHAÎNES                      │
+│ bricks.night.iron_walls.name / .msg      → MURS DE FER                  │
+│ bricks.night.jealousy.name / .msg        → JALOUSIE                     │
+│ bricks.night.pride.name / .msg           → ORGUEIL                      │
+│ bricks.night.anger.name / .msg           → COLÈRE                       │
+│ bricks.night.revenge.name / .msg         → VENGEANCE                    │
+│ bricks.night.indifference.name / .msg    → INDIFFÉRENCE                 │
+│ bricks.night.selfishness.name / .msg     → ÉGOÏSME                      │
+│ bricks.night.ignorance.name / .msg       → IGNORANCE                    │
+│ bricks.night.resistance.name / .msg      → RÉSISTANCE                   │
+│ bricks.night.light.name / .msg           → LUMIÈRE                      │
+│ bricks.night.hope_reborn.name / .msg     → ESPOIR RENAISSANT            │
+│ bricks.night.inner_strength.name / .msg  → FORCE INTÉRIEURE             │
+│ bricks.night.wisdom.name / .msg          → SAGESSE ACQUISE              │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+5. ENIGMES - 23 ÉNIGMES COMPLÈTES (5 champs chacune)
+═══════════════════════════════════════════════════════════════════════════════
+
+Format: enigmes.[id].name / .description / .mystery / .revelation / .wisdom
+
+┌─ LISTE DES 23 ÉNIGMES ────────────────────────────────────────────────────┐
+│  1. enigmes.humanity                → Humanité                           │
+│  2. enigmes.wall_of_fear            → Mur de Peur                        │
+│  3. enigmes.peace                   → Paix                                │
+│  4. enigmes.diversity               → Diversité                           │
+│  5. enigmes.freedom                 → Liberté                             │
+│  6. enigmes.faith                   → Foi                                 │
+│  7. enigmes.respect                 → Respect                             │
+│  8. enigmes.mutual_aid              → Entraide                            │
+│  9. enigmes.healing                 → Guérison                            │
+│ 10. enigmes.restoration             → Restauration                        │
+│ 11. enigmes.avarice                 → Avarice                             │
+│ 12. enigmes.prison_freedom          → Prison de Liberté                   │
+│ 13. enigmes.refusal                 → Refus                               │
+│ 14. enigmes.pride                   → Orgueil                             │
+│ 15. enigmes.inequality              → Inégalités                          │
+│ 16. enigmes.hope                    → Espoir                              │
+│ 17. enigmes.lighthouse              → Le Phare dans la Nuit               │
+│ 18. enigmes.lamp                    → La Lampe Remplie d'Huile            │
+│ 19. enigmes.heart                   → Le Cœur de l'Humanité               │
+│ 20. enigmes.humanity_no_borders     → Humanité Sans Frontières            │
+│ 21. enigmes.right_to_happiness      → Droit au Bonheur                    │
+│ 22. enigmes.precious_life           → Vie Précieuse                       │
+│ 23. enigmes.communitarianism        → Communautarisme                     │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+6. LEVELS - 15 NIVEAUX DE SAGESSE
+═══════════════════════════════════════════════════════════════════════════════
+
+Format: levels.[id].name / .points
+
+┌─ 15 NIVEAUX ──────────────────────────────────────────────────────────────┐
+│ levels.robe_blanche.name / .points      → Robe Blanche (300+)           │
+│ levels.saint_navigator.name / .points   → Saint Navigateur (250+)       │
+│ levels.prophet.name / .points           → Prophète des Mers (200+)      │
+│ levels.illuminated.name / .points       → Illuminé (175+)               │
+│ levels.disciple.name / .points          → Disciple de la Lumière (150+) │
+│ levels.contemplative.name / .points     → Contemplatif (125+)           │
+│ levels.guardian.name / .points          → Gardien de la Lumière (100+)  │
+│ levels.meditating.name / .points        → Méditant (80+)                │
+│ levels.captain.name / .points           → Capitaine (60+)               │
+│ levels.navigator.name / .points         → Navigateur (45+)              │
+│ levels.enlightened_sailor.name / .points → Marin Éclairé (30+)          │
+│ levels.initiate.name / .points          → Initié (20+)                  │
+│ levels.apprentice.name / .points        → Apprenti (10+)                │
+│ levels.cabin_boy.name / .points         → Mousse (5+)                   │
+│ levels.pilgrim.name / .points           → Pèlerin (0+)                  │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+7. BADGES - 3 BADGES
+═══════════════════════════════════════════════════════════════════════════════
+
+Format: badges.[id].name / .desc
+
+┌─ 3 BADGES ────────────────────────────────────────────────────────────────┐
+│ badges.champion.name / .desc           → Badge Champion (Top 1)         │
+│ badges.perfectionist.name / .desc      → Badge Perfectionniste (100%)   │
+│ badges.contemplative.name / .desc      → Badge Contemplatif (1h+)       │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+8. SOCIAL - 4 VARIANTES DE PARTAGE
+═══════════════════════════════════════════════════════════════════════════════
+
+Variables: {name}, {city}, {country}, {wisdom}, {score}
+
+┌─ 4 TEXTES DE PARTAGE ─────────────────────────────────────────────────────┐
+│ social.share_1    → 🌟 J'ai voyagé à travers les frontières...          │
+│ social.share_2    → 🕊️ Un voyage vers la vérité...                      │
+│ social.share_3    → 🌍 De mur en pont, j'ai découvert l'humanité...     │
+│ social.share_4    → 👁️ J'ai vu la vérité au-delà des préjugés...       │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+9. END_FORM - FORMULAIRE DE FIN
+═══════════════════════════════════════════════════════════════════════════════
+
+Variables: {current}, {next}
+
+┌─ FORMULAIRE DE FIN ───────────────────────────────────────────────────────┐
+│ end_form.title               → Votre Voyage est Complet                 │
+│ end_form.your_progress       → Votre progression                         │
+│ end_form.xp_label            → 💡 XP                                     │
+│ end_form.score_label         → 🎯 Score                                  │
+│ end_form.total_label         → Total (XP + Score)                        │
+│ end_form.wisdom_score        → Score de Sagesse                          │
+│ end_form.wisdom_level        → Niveau de sagesse                         │
+│ end_form.progress_to_next    → {current}/{next} vers le prochain niveau │
+│ end_form.save_question       → Enregistrer votre score...                │
+│ end_form.congrats            → 🎉 Félicitations !                        │
+│ end_form.journey_complete    → Votre voyage est terminé                  │
+│ end_form.points              → points                                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+10. ARTIST - INFORMATIONS ARTISTE (4 PLATEFORMES)
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ INFO ARTISTE ────────────────────────────────────────────────────────────┐
+│ artist.name                   → Emmanuel Payet                           │
+│ artist.subtitle               → Artiste Chrétien • Créateur...          │
+│ artist.platform1_title        → Jeux & Déco                              │
+│ artist.platform1_desc         → Découvre mes créations...                │
+│ artist.platform1_link         → emmanuel.gallery                         │
+│ artist.platform2_title        → Livres & Art                             │
+│ artist.platform2_desc         → Plonge dans mes œuvres...                │
+│ artist.platform2_link         → emmanuelpayet.art                        │
+│ artist.platform3_title        → Gospel Gratuit                           │
+│ artist.platform3_desc         → Écoute mes compositions...               │
+│ artist.platform3_link         → AudioMack - emmanuelpayet888             │
+│ artist.platform4_title        → La Bonne Heure                           │
+│ artist.platform4_desc         → C'est maintenant ! Découvre...           │
+│ artist.platform4_link         → Redbubble Shop                           │
+│ artist.quote                  → L'art chrétien unit les cœurs...         │
+│ artist.credits                → Codé par Claude • Idée originale...      │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+11. LANGUAGES - 29 LANGUES LISTÉES
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ 29 LANGUES ──────────────────────────────────────────────────────────────┐
+│ languages.fr  → Français       │ languages.en  → English                 │
+│ languages.jp  → 日本語          │ languages.uk  → Українська             │
+│ languages.es  → Español        │ languages.de  → Deutsch                 │
+│ languages.it  → Italiano       │ languages.pt  → Português              │
+│ languages.ru  → Русский        │ languages.zh  → 中文                    │
+│ languages.ko  → 한국어          │ languages.ar  → العربية                │
+│ languages.he  → עברית          │ languages.hi  → हिन्दी                  │
+│ languages.br  → Brasil         │ languages.mx  → México                  │
+│ languages.ca  → Canada         │ languages.au  → Australia               │
+│ languages.za  → South Africa   │ languages.eg  → مصر                     │
+│ languages.ng  → Nigeria        │ languages.ke  → Kenya                   │
+│ languages.tr  → Türkiye        │ languages.ir  → فارسی                   │
+│ languages.th  → ไทย            │ languages.vn  → Việt Nam                │
+│ languages.ph  → Philippines    │ languages.id  → Indonesia               │
+│ languages.my  → Malaysia       │ languages.sg  → Singapore               │
+│ languages.rc  → Kréol Rényoné                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+12. PWA - PROGRESSIVE WEB APP
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ MESSAGES PWA ────────────────────────────────────────────────────────────┐
+│ pwa.update_message    → 🎨 Nouvelle version disponible...               │
+│ pwa.update_banner     → 🎨 Nouvelle version avec icônes...              │
+│ pwa.update_button     → Mettre à jour                                    │
+│ pwa.later_button      → Plus tard                                        │
+└───────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+RÉSUMÉ STATISTIQUE
+═══════════════════════════════════════════════════════════════════════════════
+
+Catégorie            │ Nombre de clés │ Détails
+─────────────────────┼────────────────┼────────────────────────────────────────
+UI                   │ ~60            │ Boutons, formulaires, menus, onglets
+Game                 │ ~20            │ Messages, erreurs, instructions
+Narrative            │ ~5             │ Phase 1, message final
+Briques Jour         │ 19 × 2 = 38    │ name + msg
+Briques Nuit         │ 22 × 2 = 44    │ name + msg
+Énigmes              │ 23 × 5 = 115   │ name, desc, mystery, revelation, wisdom
+Niveaux              │ 15 × 2 = 30    │ name + points
+Badges               │ 3 × 2 = 6      │ name + desc
+Social               │ 4              │ 4 variantes
+End Form             │ ~12            │ Labels, titres
+Artist               │ ~12            │ Info + 4 plateformes
+Languages            │ 29             │ Liste complète
+PWA                  │ 4              │ Messages mise à jour
+─────────────────────┼────────────────┼────────────────────────────────────────
+TOTAL                │ ~400           │ Clés de traduction
+
+═══════════════════════════════════════════════════════════════════════════════
+FICHIERS CRÉÉS
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ modules/lang/fr.json (407 lignes) - Référence française
+✅ modules/lang/en.json (407 lignes) - Traduction anglaise
+✅ modules/lang/es.json (407 lignes) - Traduction espagnole
+
+✅ TRANSLATION_SYSTEM.md - Guide complet du système
+✅ RECAP_TRADUCTIONS.md - Récapitulatif détaillé
+✅ TRANSLATION_IDS_REFERENCE.txt - Cette référence
+✅ extracted_french_texts.txt - Extraction source
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🌍 Système de traduction créé par Claude pour Emmanuel Payet
+📅 Date: 12 octobre 2025
+⛵ Petit Bateau Rouge - Objectif: 33 millions de joueurs
+
+═══════════════════════════════════════════════════════════════════════════════

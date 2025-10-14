@@ -1,0 +1,584 @@
+{
+    "ui": {
+        "buttons": {
+            "save": "\ud83d\udcbe Guardar",
+            "skip": "Saltar",
+            "update": "Actualizar",
+            "later": "M\u00e1s tarde"
+        },
+        "form": {
+            "email_label": "Email * :",
+            "pseudo_label": "Apodo * :",
+            "avatar_label": "Avatar :",
+            "optional_info": "Informaci\u00f3n opcional",
+            "city_label": "Ciudad :",
+            "city_placeholder": "Tu ciudad",
+            "country_label": "Pa\u00eds :",
+            "country_placeholder": "Tu pa\u00eds",
+            "age_label": "Edad :",
+            "age_placeholder": "Tu edad",
+            "gender_label": "G\u00e9nero :",
+            "gender_not_specified": "No especificado",
+            "gender_male": "Hombre",
+            "gender_female": "Mujer",
+            "gender_other": "Otro",
+            "email_placeholder": "Tu direcci\u00f3n de email",
+            "pseudo_placeholder": "Tu apodo",
+            "name_prompt": "\u00bfTu nombre?",
+            "city_prompt": "\u00bfTu ciudad?",
+            "country_prompt": "\u00bfTu pa\u00eds?"
+        },
+        "menu": {
+            "enigmes": "\ud83e\udde9 Enigmas",
+            "enigmes_full": "\ud83d\udcdc Enigmas Completos",
+            "menu_games": "\ud83c\udfae Men\u00fa Juegos",
+            "poem1": "\ud83d\udcdc Poema 1",
+            "poem2": "\ud83d\udcd6 Poema 2",
+            "artist_info": "\ud83c\udfa8 Info Artista",
+            "credits": "\ud83c\udfac Cr\u00e9ditos",
+            "icons": "\ud83e\udd87\ud83d\udc7c Iconos"
+        },
+        "tabs": {
+            "enigmes": "\ud83d\udccb Enigmas",
+            "scores": "\ud83c\udfc6 Puntuaciones"
+        },
+        "multilang_intro": {
+            "fr": "PEQUE\u00d1O BARCO",
+            "en": "LITTLE BOAT",
+            "jp": "\u5c0f\u3055\u306a\u8239",
+            "uk": "\u041c\u0410\u041b\u0415\u041d\u042c\u041a\u0418\u0419 \u0427\u041e\u0412\u0415\u041d",
+            "ar": "\u0642\u0627\u0631\u0628 \u0635\u063a\u064a\u0631",
+            "hi": "\u091b\u094b\u091f\u0940 \u0928\u093e\u0935",
+            "es": "PEQUE\u00d1O BARCO",
+            "it": "PICCOLA BARCA",
+            "ko": "\uc791\uc740 \ubc30"
+        }
+    },
+    "game": {
+        "messages": {
+            "intro_bonus": "\ud83c\udf1f \u00a1+100 Puntos por ver la introducci\u00f3n completa! \ud83c\udf1f",
+            "light_victory": "\ud83d\udca1 La luz ahuyenta la noche\n+1000 XP",
+            "frontiers_broken": "\ud83c\udf0d\ud83d\udc95 \u00a1FRONTERAS ROTAS! +XXX \u2764\ufe0f",
+            "intro_points": "\ud83c\udf1f +100 Puntos intro completa",
+            "frontier_mode": "\ud83e\uddf1 \u00a1Modo Fronteras activado!",
+            "all_broken": "\ud83d\udca5 \u00a1TODO ROTO! \ud83d\udca5",
+            "bird_no": "\ud83d\udc26 \u00a1NO!",
+            "secret_mode": "\ud83c\udfaf Modo Secreto: Tiro de Precisi\u00f3n \ud83c\udfaf\n\n\ud83e\uddca Dispara a los icebergs y basura \u267b\n\ud83d\udc0b \u00a1Las ballenas est\u00e1n protegidas!\n\ud83d\udeab Disparar a una ballena = p\u00e9rdida de vida\n\ud83d\udc46 Cada clic = un tiro preciso\n\ud83d\udcb0 +100 puntos por obst\u00e1culo destruido"
+        },
+        "errors": {
+            "fail_1": "\u00a1NO EST\u00c1 BIEN! \u00a1HAAAH!",
+            "fail_2": "\u00a1BOOOO! \u00a1MAL!",
+            "fail_3": "\u00a1OOOH NO! \u00a1TRAVIESO!",
+            "fail_4": "\u00a1HAAAH! \u00a1CAT\u00c1STROFE!",
+            "fail_5": "\u00a1PUAJ! \u00a1MALO!",
+            "fail_6": "\u00a1AIEEEE! \u00a1MONSTRUO!",
+            "fail_7": "\u00a1GRRRR! \u00a1EST\u00daPIDO!",
+            "fail_8": "\u00a1PFFFFFF! \u00a1IDIOTA!",
+            "fail_9": "\u00a1TSSS TSSS! \u00a1VERG\u00dcENZA!",
+            "whale_death": "\ud83d\udc80 \u00a1Disparaste a una ballena protegida!\n\ud83d\ude31 \u00a1Todas tus vidas se han agotado!\n\ud83d\udeab \u00a1No se dispara a las ballenas!\n\ud83e\udd2a \u00a1JAJAJAJA! \u00a1GAME OVER!",
+            "email_required": "\u26a0\ufe0f Email y apodo requeridos",
+            "email_invalid": "\u26a0\ufe0f Email inv\u00e1lido",
+            "saving": "\ud83d\udcbe Guardando...",
+            "saved": "\u2705 \u00a1Puntuaci\u00f3n guardada!"
+        },
+        "instructions": {
+            "break_frontiers": "\ud83c\udf0d ROMPER LAS FRONTERAS \ud83c\udf0d",
+            "click_to_launch": "\ud83d\ude80 CLIC PARA LANZAR"
+        }
+    },
+    "narrative": {
+        "phase1": {
+            "title": "El amanecer de las dudas\nFase 1",
+            "intro_short": "Me dijeron que todos eran monstruos...\nMe dijeron tanto mal, tanta desgracia sobre ellos...\nPero yo prefer\u00ed ir a ver por m\u00ed mismo.",
+            "intro_full": "Me dijeron que todos eran\nmonstruos...\nMe dijeron tanto mal,\ntanta desgracia\nsobre ellos...\nPero yo,\nprefer\u00ed ir a ver\npor m\u00ed mismo...",
+            "reaction": "\u00a1NO podemos dejar pasar eso!"
+        },
+        "final_message": "La humanidad no necesita muros para protegerse,\nsino puentes para encontrarse.\n\nConstruyamos con amor, no con miedo.\nUn mundo unido vale m\u00e1s que un mundo dividido.\n\n- Emmanuel.gallery"
+    },
+    "bricks": {
+        "day": {
+            "told": {
+                "name": "ME DIJERON...",
+                "msg": "\ud83d\udde3\ufe0f \u00a1Las manipulaciones se borran ante la verdad!"
+            },
+            "monsters": {
+                "name": "MONSTRUOS",
+                "msg": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 \u00a1No... humanos como nosotros!"
+            },
+            "prejudice": {
+                "name": "PREJUICIOS",
+                "msg": "\ud83c\udfad Las m\u00e1scaras caen una a una..."
+            },
+            "fears": {
+                "name": "MIEDOS",
+                "msg": "\ud83d\udc41\ufe0f \u00a1Eleg\u00ed ver por m\u00ed mismo!"
+            },
+            "distrust": {
+                "name": "DESCONFIANZA",
+                "msg": "\ud83e\udd1d La desconfianza cede a la compasi\u00f3n..."
+            },
+            "who_are_they": {
+                "name": "\u00bfQUI\u00c9NES SON?",
+                "msg": "\u2753 Esta pregunta ronda mis noches..."
+            },
+            "i_saw": {
+                "name": "VI...",
+                "msg": "\ud83d\udc41\ufe0f Y mis ojos se abrieron..."
+            },
+            "father": {
+                "name": "UN PADRE",
+                "msg": "\ud83d\udc68 Un hombre que ama a sus hijos..."
+            },
+            "mother": {
+                "name": "UNA MADRE",
+                "msg": "\ud83d\udc69 Una mujer valiente..."
+            },
+            "children": {
+                "name": "NI\u00d1OS",
+                "msg": "\ud83d\udc76 Risas puras e inocentes..."
+            },
+            "humanity": {
+                "name": "LA HUMANIDAD",
+                "msg": "\ud83d\udcab La esencia misma de lo que somos..."
+            },
+            "love": {
+                "name": "EL AMOR",
+                "msg": "\u2764\ufe0f M\u00e1s fuerte que todas las barreras..."
+            },
+            "compassion": {
+                "name": "LA COMPASI\u00d3N",
+                "msg": "\ud83e\udd17 Que une m\u00e1s all\u00e1 de las diferencias..."
+            },
+            "hope": {
+                "name": "LA ESPERANZA",
+                "msg": "\ud83c\udf05 Una luz en la oscuridad..."
+            },
+            "peace": {
+                "name": "LA PAZ",
+                "msg": "\ud83d\udd4a\ufe0f Posible cuando elegimos amar..."
+            },
+            "like_me": {
+                "name": "COMO YO",
+                "msg": "\ud83c\udf0d Todos somos inmigrantes..."
+            },
+            "truth": {
+                "name": "VERDAD REVELADA",
+                "msg": "\ud83d\udc41\ufe0f Mis ojos finalmente se abrieron..."
+            },
+            "courage": {
+                "name": "CORAJE DEL CORAZ\u00d3N",
+                "msg": "\ud83d\udcaa Eleg\u00ed ver por m\u00ed mismo..."
+            },
+            "precious": {
+                "name": "PRECIOSO",
+                "msg": "\ud83d\udc8e Cada ser humano es precioso..."
+            }
+        },
+        "night": {
+            "discord": {
+                "name": "DISCORDIAS",
+                "msg": "\u26a1 Discordias... odios... destrucciones..."
+            },
+            "hatred": {
+                "name": "ODIOS",
+                "msg": "\ud83d\udc94 Venidos con los males de la sombra..."
+            },
+            "destruction": {
+                "name": "DESTRUCCIONES",
+                "msg": "\ud83c\udf2a\ufe0f El robo, la mentira, la manipulaci\u00f3n..."
+            },
+            "theft": {
+                "name": "ROBO",
+                "msg": "\ud83e\uddb9 Que se apodera de lo que no pertenece..."
+            },
+            "lies": {
+                "name": "MENTIRA",
+                "msg": "\ud83c\udfad Las m\u00e1scaras del enga\u00f1o..."
+            },
+            "manipulation": {
+                "name": "MANIPULACI\u00d3N",
+                "msg": "\ud83d\udd77\ufe0f Los hilos invisibles tiran de los corazones..."
+            },
+            "greed": {
+                "name": "CODICIA",
+                "msg": "\ud83d\udcb0 La codicia y la avaricia..."
+            },
+            "avarice": {
+                "name": "AVARICIA",
+                "msg": "\u26d3\ufe0f Como cadenas invisibles..."
+            },
+            "chains": {
+                "name": "CADENAS",
+                "msg": "\ud83d\udd17 Apretando el coraz\u00f3n de los hombres..."
+            },
+            "iron_walls": {
+                "name": "MUROS DE HIERRO",
+                "msg": "\ud83e\uddf1 Encerrados detr\u00e1s de muros de hierro y miedo..."
+            },
+            "jealousy": {
+                "name": "CELOS",
+                "msg": "\ud83d\udc9a El veneno verde de la envidia..."
+            },
+            "pride": {
+                "name": "ORGULLO",
+                "msg": "\ud83d\udc51 La corona que ciega..."
+            },
+            "anger": {
+                "name": "IRA",
+                "msg": "\ud83d\udd25 Las llamas que consumen la raz\u00f3n..."
+            },
+            "revenge": {
+                "name": "VENGANZA",
+                "msg": "\u2694\ufe0f La espiral sin fin del sufrimiento..."
+            },
+            "indifference": {
+                "name": "INDIFERENCIA",
+                "msg": "\ud83e\uddca El fr\u00edo que congela las almas..."
+            },
+            "selfishness": {
+                "name": "EGO\u00cdSMO",
+                "msg": "\ud83e\ude9e Ver solo el propio reflejo..."
+            },
+            "ignorance": {
+                "name": "IGNORANCIA",
+                "msg": "\ud83d\ude48 Elegir cerrar los ojos..."
+            },
+            "resistance": {
+                "name": "RESISTENCIA",
+                "msg": "\ud83d\udee1\ufe0f Pero mantengo mi coraz\u00f3n puro en la tormenta..."
+            },
+            "light": {
+                "name": "LUZ",
+                "msg": "\u2728 Porque m\u00e1s all\u00e1 de las nubes, siempre existe..."
+            },
+            "hope_reborn": {
+                "name": "ESPERANZA RENACIDA",
+                "msg": "\ud83c\udf05 La luz finalmente perfora las tinieblas..."
+            },
+            "inner_strength": {
+                "name": "FUERZA INTERIOR",
+                "msg": "\ud83c\udf1f Mi coraz\u00f3n resiste la oscuridad..."
+            },
+            "wisdom": {
+                "name": "SABIDUR\u00cdA ADQUIRIDA",
+                "msg": "\ud83e\udde0 En la noche, aprend\u00ed a ver..."
+            }
+        }
+    },
+    "enigmes": {
+        "humanity": {
+            "name": "Humanidad",
+            "description": "La fuerza que une todos los corazones",
+            "mystery": "\u00bfQu\u00e9 nos hace verdaderamente humanos?",
+            "revelation": "La humanidad reside en nuestra capacidad de sentir compasi\u00f3n por los dem\u00e1s, incluso por aquellos que son diferentes a nosotros.",
+            "wisdom": "Un padre, una madre, ni\u00f1os... Todos simplemente buscando vivir su mejor vida, como nosotros."
+        },
+        "wall_of_fear": {
+            "name": "Muro de Miedo",
+            "description": "El origen ancestral de nuestras fronteras",
+            "mystery": "\u00bfPor qu\u00e9 persisten estos viejos reflejos animales?",
+            "revelation": "Los muros y fronteras vienen del miedo y la locura pasada de guerra territorial, o el miedo de perder terreno, de ser invadido por enemigos. Las fortalezas eran entonces l\u00f3gicas y necesarias para protegerse, desde las cuevas prehist\u00f3ricas simplemente para protegerse de los animales. \u00bfPero hoy por qu\u00e9 persisten estos muros?",
+            "wisdom": "De la cueva prehist\u00f3rica al muro moderno, el miedo ancestral persiste. \u00bfPero seguimos siendo animales asustados, o podemos convertirnos en humanos?"
+        },
+        "peace": {
+            "name": "Paz",
+            "description": "La armon\u00eda que trasciende los conflictos",
+            "mystery": "\u00bfC\u00f3mo encontramos la paz en un mundo de caos?",
+            "revelation": "La paz nace cuando elegimos amar en lugar de odiar, comprender en lugar de juzgar.",
+            "wisdom": "M\u00e1s all\u00e1 de las nubes, siempre hay luz. Pero para verla, primero hay que atravesar la noche."
+        },
+        "diversity": {
+            "name": "Diversidad",
+            "description": "La belleza de nuestras diferencias",
+            "mystery": "\u00bfPor qu\u00e9 tememos lo diferente?",
+            "revelation": "La diversidad es la riqueza del mundo. Cada color, cada cultura aporta su propia belleza al arco\u00edris humano.",
+            "wisdom": "Me dijeron tanto mal sobre ellos... Pero prefer\u00ed ir a ver por m\u00ed mismo."
+        },
+        "freedom": {
+            "name": "Libertad",
+            "description": "El derecho a vivir sin cadenas",
+            "mystery": "\u00bfQu\u00e9 es la verdadera libertad?",
+            "revelation": "La libertad no es la ausencia de restricciones, sino la capacidad de elegir el amor a pesar del miedo.",
+            "wisdom": "La codicia y la avaricia, como cadenas invisibles, aprietan el coraz\u00f3n de los hombres."
+        },
+        "faith": {
+            "name": "Fe",
+            "description": "La esperanza que gu\u00eda en la oscuridad",
+            "mystery": "\u00bfC\u00f3mo mantener la fe cuando todo parece perdido?",
+            "revelation": "La fe no es la ausencia de duda, sino la decisi\u00f3n de continuar a pesar de la incertidumbre.",
+            "wisdom": "La tormenta, por ruidosa que sea, nunca dura para siempre."
+        },
+        "respect": {
+            "name": "Respeto",
+            "description": "La dignidad otorgada a cada ser",
+            "mystery": "\u00bfC\u00f3mo respetar a quienes no entendemos?",
+            "revelation": "El respeto nace del reconocimiento de que cada ser lleva dentro una chispa divina.",
+            "wisdom": "Se encerraban detr\u00e1s de muros de hierro y miedo... Pero la humanidad a\u00fan exist\u00eda."
+        },
+        "mutual_aid": {
+            "name": "Ayuda Mutua",
+            "description": "La fuerza de la uni\u00f3n solidaria",
+            "mystery": "\u00bfPor qu\u00e9 ayudar a quienes no pueden darnos nada?",
+            "revelation": "En la ayuda mutua, descubrimos que dar nos enriquece m\u00e1s que recibir.",
+            "wisdom": "El amor, m\u00e1s fuerte que todas las barreras, une m\u00e1s all\u00e1 de las diferencias."
+        },
+        "healing": {
+            "name": "Curaci\u00f3n",
+            "description": "El poder de sanar las heridas",
+            "mystery": "\u00bfC\u00f3mo curamos las heridas invisibles?",
+            "revelation": "La verdadera curaci\u00f3n comienza con la aceptaci\u00f3n y contin\u00faa con el perd\u00f3n.",
+            "wisdom": "Si la tormenta ruge, es para recordar que m\u00e1s all\u00e1 de las nubes, siempre hay luz."
+        },
+        "restoration": {
+            "name": "Restauraci\u00f3n",
+            "description": "La renovaci\u00f3n despu\u00e9s de la destrucci\u00f3n",
+            "mystery": "\u00bfC\u00f3mo reconstruir despu\u00e9s de la devastaci\u00f3n?",
+            "revelation": "Cada final contiene en s\u00ed las semillas de un nuevo comienzo.",
+            "wisdom": "Una luz en la oscuridad... Esperanza posible cuando elegimos amar."
+        },
+        "avarice": {
+            "name": "Avaricia",
+            "description": "El muro de la codicia",
+            "mystery": "\u00bfQu\u00e9 levanta muros entre las personas?",
+            "revelation": "La avaricia construye muros donde el amor construir\u00eda puentes.",
+            "wisdom": "Un muro levantado en el mar como una cicatriz... Un muro no hecho de piedras, sino de leyes, papeles y miradas cerradas."
+        },
+        "prison_freedom": {
+            "name": "Prisi\u00f3n de Libertad",
+            "description": "Las cadenas invisibles",
+            "mystery": "\u00bfQui\u00e9n merece ser libre?",
+            "revelation": "La libertad no es un privilegio para distribuir, sino un derecho universal para honrar.",
+            "wisdom": "Este muro es la prisi\u00f3n de la libertad de los hombres. Separa a quienes pueden correr sin cadenas, y a quienes est\u00e1n encerrados en fronteras invisibles."
+        },
+        "refusal": {
+            "name": "Rechazo",
+            "description": "El alambre de p\u00faas del rechazo",
+            "mystery": "\u00bfPor qu\u00e9 cerramos nuestras puertas?",
+            "revelation": "Cada rechazo es una herida infligida a la humanidad que todos compartimos.",
+            "wisdom": "Alambre de p\u00faas de hierro y miedo... forjado por aquellos que olvidaron que ellos tambi\u00e9n fueron una vez viajeros."
+        },
+        "pride": {
+            "name": "Orgullo",
+            "description": "El ego que distorsiona nuestra mirada",
+            "mystery": "\u00bfPor qu\u00e9 vemos a los dem\u00e1s como inferiores?",
+            "revelation": "El orgullo y el ego nos hacen ver a las personas m\u00e1s peque\u00f1as o pobres de manera diferente, pero todos somos iguales en humanidad.",
+            "wisdom": "Una puerta dorada que solo se abre para unos pocos... Nuestro ego nos hace creer que la merecemos, y que los dem\u00e1s no."
+        },
+        "inequality": {
+            "name": "Desigualdades",
+            "description": "La pir\u00e1mide de los destinos",
+            "mystery": "\u00bfPor qu\u00e9 algunos cargan el peso de otros?",
+            "revelation": "Las desigualdades no son un destino, sino un sistema que perpetuamos en silencio.",
+            "wisdom": "Una pir\u00e1mide de destinos apilados... Los de abajo cargan el peso de los de arriba, y nadie pregunta si es justo."
+        },
+        "hope": {
+            "name": "Esperanza",
+            "description": "La libertad que no puede ser encarcelada",
+            "mystery": "\u00bfPodemos realmente encarcelar la libertad?",
+            "revelation": "No podemos impedir que el viento vaya donde quiera, ni limitar las estrellas en el cielo con muros, ni detener el mar.",
+            "wisdom": "En el coraz\u00f3n de las olas, el mar susurra una verdad: ning\u00fan muro es eterno. Porque el agua siempre desgasta la piedra, y la libertad, tarde o temprano, encontrar\u00e1 su camino de nuevo."
+        },
+        "lighthouse": {
+            "name": "El Faro en la Noche",
+            "description": "La luz gu\u00eda a los perdidos",
+            "mystery": "\u00bfC\u00f3mo encontrar el camino en la oscuridad?",
+            "revelation": "La luz es m\u00e1s fuerte que la noche. Incluso una peque\u00f1a llama puede disipar la oscuridad m\u00e1s profunda.",
+            "wisdom": "En los momentos m\u00e1s oscuros, s\u00e9 la luz que buscas. La compasi\u00f3n ilumina incluso los corazones m\u00e1s oscurecidos."
+        },
+        "lamp": {
+            "name": "La L\u00e1mpara Llena de Aceite",
+            "description": "El amor que ilumina nuestras obras",
+            "mystery": "\u00bfCu\u00e1l es la fuente de nuestra luz interior?",
+            "revelation": "El amor ilumina nuestras obras. Sin amor, somos la sombra de nada.",
+            "wisdom": "Nuestras acciones solo tienen sentido cuando son guiadas por el amor. Es \u00e9l quien transforma el vac\u00edo en plenitud, la sombra en luz."
+        },
+        "heart": {
+            "name": "El Coraz\u00f3n de la Humanidad",
+            "description": "La esencia misma de nuestra humanidad compartida",
+            "mystery": "\u00bfQu\u00e9 nos une a todos m\u00e1s all\u00e1 de nuestras diferencias?",
+            "revelation": "En el coraz\u00f3n de cada ser humano late el mismo amor, las mismas esperanzas, los mismos miedos. Somos uno.",
+            "wisdom": "El viaje termina donde comenz\u00f3: en el coraz\u00f3n. Al reconocer nuestra humanidad com\u00fan, encontramos la verdadera paz."
+        },
+        "humanity_no_borders": {
+            "name": "Humanidad Sin Fronteras",
+            "description": "La humanidad m\u00e1s all\u00e1 de los muros",
+            "mystery": "\u00bfDefinen las fronteras qui\u00e9nes somos?",
+            "revelation": "La humanidad no conoce fronteras. Todos somos viajeros en la misma tierra.",
+            "wisdom": "Un padre, una madre, ni\u00f1os... simplemente buscando vivir, como todos nosotros."
+        },
+        "right_to_happiness": {
+            "name": "Derecho a la Felicidad",
+            "description": "Un techo para cada familia",
+            "mystery": "\u00bfQui\u00e9n merece refugio y felicidad?",
+            "revelation": "Todos tienen derecho a la felicidad, un refugio, un techo. Construyamos casas y puentes con muros \u00fatiles, muros de amor para familias que los necesitan.",
+            "wisdom": "Los muros no deben separar, sino proteger. Los puentes no deben dividir, sino unir."
+        },
+        "precious_life": {
+            "name": "Vida Preciosa",
+            "description": "El valor de cada existencia",
+            "mystery": "\u00bfTodas las vidas tienen el mismo valor?",
+            "revelation": "Cada vida es preciosa, ya sea nacida aqu\u00ed o en otro lugar.",
+            "wisdom": "La vida no se mide por su origen, sino por su esencia."
+        },
+        "communitarianism": {
+            "name": "Comunitarismo",
+            "description": "Los peligros del sectarismo",
+            "mystery": "\u00bfPor qu\u00e9 nuestras divisiones nos debilitan?",
+            "revelation": "Socialmente importante pero peligroso en excesos dictatoriales. Encontramos comunitarismo en todas partes, desde la pol\u00edtica y sus divisiones, hasta las religiones y sectas ateas. Cada uno libra su batalla, la batalla del hombre con su visi\u00f3n, su coraz\u00f3n. La comunidad est\u00e1 bien, pero destruir las ideas de los dem\u00e1s, sin tolerancia y respeto, no ayuda a la humanidad a progresar.",
+            "wisdom": "Nuestro sectarismo pol\u00edtico y religioso destruye puentes, destruye la paz. Necesitamos este impulso de llevar a cabo los proyectos de los dem\u00e1s, ayudar al \u00e9xito, consolidar en lugar de destruir apresuradamente las ideas de los dem\u00e1s. Sin tolerancia, no hay progreso."
+        }
+    },
+    "levels": {
+        "robe_blanche": {
+            "name": "T\u00fanica Blanca",
+            "points": 300
+        },
+        "saint_navigator": {
+            "name": "Santo Navegante",
+            "points": 250
+        },
+        "prophet": {
+            "name": "Profeta de los Mares",
+            "points": 200
+        },
+        "illuminated": {
+            "name": "Iluminado",
+            "points": 175
+        },
+        "disciple": {
+            "name": "Disc\u00edpulo de la Luz",
+            "points": 150
+        },
+        "contemplative": {
+            "name": "Contemplativo",
+            "points": 125
+        },
+        "guardian": {
+            "name": "Guardi\u00e1n de la Luz",
+            "points": 100
+        },
+        "meditating": {
+            "name": "Meditando",
+            "points": 80
+        },
+        "captain": {
+            "name": "Capit\u00e1n",
+            "points": 60
+        },
+        "navigator": {
+            "name": "Navegante",
+            "points": 45
+        },
+        "enlightened_sailor": {
+            "name": "Marinero Iluminado",
+            "points": 30
+        },
+        "initiate": {
+            "name": "Iniciado",
+            "points": 20
+        },
+        "apprentice": {
+            "name": "Aprendiz",
+            "points": 10
+        },
+        "cabin_boy": {
+            "name": "Grumete",
+            "points": 5
+        },
+        "pilgrim": {
+            "name": "Peregrino",
+            "points": 0
+        }
+    },
+    "badges": {
+        "champion": {
+            "name": "Insignia Campe\u00f3n",
+            "desc": "Top 1"
+        },
+        "perfectionist": {
+            "name": "Insignia Perfeccionista",
+            "desc": "todos los enigmas recolectados"
+        },
+        "contemplative": {
+            "name": "Insignia Contemplativo",
+            "desc": "tiempo de juego > 1h"
+        }
+    },
+    "social": {
+        "share_1": "\ud83c\udf1f \u00a1He viajado a trav\u00e9s de las fronteras de la humanidad!\n\n\"De la oscuridad a la luz, aprend\u00ed que el amor une m\u00e1s all\u00e1 de las diferencias.\"\n\n{name} - {city}, {country}\n\ud83d\udc8e Sabidur\u00eda: {wisdom}\n\ud83c\udfaf Puntuaci\u00f3n: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJuega a \u26f5 PETIT BATEAU \ud83d\udc41\ufe0f",
+        "share_2": "\ud83d\udd4a\ufe0f Un viaje hacia la verdad...\n\n\"Romp\u00ed los muros del miedo para construir puentes de amor.\"\n\n{name} - {city}, {country}\n\ud83d\udc8e Sabidur\u00eda: {wisdom}\n\ud83c\udfaf Puntuaci\u00f3n: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJuega a \u26f5 PETIT BATEAU \ud83d\udc41\ufe0f",
+        "share_3": "\ud83c\udf0d De muro a puente, descubr\u00ed la humanidad...\n\n\"M\u00e1s all\u00e1 de las fronteras, nuestros corazones laten al un\u00edsono.\"\n\n{name} - {city}, {country}\n\ud83d\udc8e Sabidur\u00eda: {wisdom}\n\ud83c\udfaf Puntuaci\u00f3n: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJuega a \u26f5 PETIT BATEAU \ud83d\udc41\ufe0f",
+        "share_4": "\ud83d\udc41\ufe0f Vi la verdad m\u00e1s all\u00e1 de los prejuicios...\n\n\"Construimos muros por miedo, pero el amor los transforma en refugios.\"\n\n{name} - {city}, {country}\n\ud83d\udc8e Sabidur\u00eda: {wisdom}\n\ud83c\udfaf Puntuaci\u00f3n: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nJuega a \u26f5 PETIT BATEAU \ud83d\udc41\ufe0f"
+    },
+    "end_form": {
+        "title": "Tu Viaje est\u00e1 Completo",
+        "your_progress": "Tu progreso",
+        "xp_label": "\ud83d\udca1 XP",
+        "score_label": "\ud83c\udfaf Puntuaci\u00f3n",
+        "total_label": "Total (XP + Puntuaci\u00f3n)",
+        "wisdom_score": "Puntuaci\u00f3n de Sabidur\u00eda",
+        "wisdom_level": "Nivel de sabidur\u00eda",
+        "progress_to_next": "{current}/{next} hacia el pr\u00f3ximo nivel",
+        "save_question": "\u00bfGuardar tu puntuaci\u00f3n en la clasificaci\u00f3n?",
+        "congrats": "\ud83c\udf89 \u00a1Felicitaciones!",
+        "journey_complete": "Tu viaje est\u00e1 completo",
+        "points": "puntos"
+    },
+    "artist": {
+        "name": "Emmanuel Payet",
+        "subtitle": "Artista Cristiano \u2022 Creador \u2022 Inspirador",
+        "platform1_title": "Juegos y Decoraci\u00f3n",
+        "platform1_desc": "Descubre mis creaciones visuales, juegos interactivos y decoraciones art\u00edsticas que celebran la fe y la belleza.",
+        "platform1_link": "emmanuel.gallery",
+        "platform2_title": "Libros y Arte",
+        "platform2_desc": "Sum\u00e9rgete en mis obras literarias y art\u00edsticas, creadas con mi hija B\u00e9thanie, para nutrir el alma y el esp\u00edritu.",
+        "platform2_link": "emmanuelpayet.art",
+        "platform3_title": "Gospel Gratis",
+        "platform3_desc": "Escucha mis composiciones gospel en AudioMack, melod\u00edas que alaban a Dios e inspiran la unidad en la diversidad.",
+        "platform3_link": "AudioMack - emmanuelpayet888",
+        "platform4_title": "La Buena Hora",
+        "platform4_desc": "\u00a1Es ahora! Descubre mi tienda Redbubble con dise\u00f1os \u00fanicos y creaciones inspiradoras para llevar.",
+        "platform4_link": "Redbubble Shop",
+        "quote": "El arte cristiano une los corazones m\u00e1s all\u00e1 de las diferencias,\ncelebrando la belleza de la creaci\u00f3n divina en toda su diversidad.",
+        "credits": "Programado por Claude \u2022 Idea original Emmanuel Payet"
+    },
+    "languages": {
+        "fr": "Fran\u00e7ais",
+        "en": "English",
+        "jp": "\u65e5\u672c\u8a9e",
+        "uk": "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430",
+        "es": "Espa\u00f1ol",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt": "Portugu\u00eas",
+        "ru": "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
+        "zh": "\u4e2d\u6587",
+        "ko": "\ud55c\uad6d\uc5b4",
+        "ar": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
+        "he": "\u05e2\u05d1\u05e8\u05d9\u05ea",
+        "hi": "\u0939\u093f\u0928\u094d\u0926\u0940",
+        "br": "Brasil",
+        "mx": "M\u00e9xico",
+        "ca": "Canada",
+        "au": "Australia",
+        "za": "South Africa",
+        "eg": "\u0645\u0635\u0631",
+        "ng": "Nigeria",
+        "ke": "Kenya",
+        "tr": "T\u00fcrkiye",
+        "ir": "\u0641\u0627\u0631\u0633\u06cc",
+        "th": "\u0e44\u0e17\u0e22",
+        "vn": "Vi\u1ec7t Nam",
+        "ph": "Philippines",
+        "id": "Indonesia",
+        "my": "Malaysia",
+        "sg": "Singapore",
+        "rc": "Kr\u00e9ol R\u00e9nyon\u00e9"
+    },
+    "pwa": {
+        "update_message": "\ud83c\udfa8 \u00a1Nueva versi\u00f3n disponible con iconos mejorados!\n\n\u2728 Nuevos iconos optimizados\n\ud83d\udd27 Mejoras PWA\n\n\u00bfQuieres actualizar ahora?",
+        "update_banner": "\ud83c\udfa8 \u00a1Nueva versi\u00f3n con iconos mejorados disponible!",
+        "update_button": "Actualizar",
+        "later_button": "M\u00e1s tarde"
+    }
+}

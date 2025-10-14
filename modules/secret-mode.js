@@ -130,6 +130,7 @@ class SecretModeModule {
 
         // Sauvegarder la phase actuelle
         this.previousPhase = this.gameState.phaseJeu;
+        console.log(`💾 Mode secret activé - Phase sauvegardée: ${this.previousPhase}`);
 
         // Changer la phase vers le mode secret
         this.gameState.phaseJeu = 'secret_obstacles';
@@ -181,9 +182,10 @@ class SecretModeModule {
 
         // Message d'introduction (petit message discret)
         if (this.gameState.afficherMessagePowerupSimple) {
+            const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
             const message = this.gameState.secretModeDiscovered ?
-                '🎮 Mode secret activé - Tirez sur les objets kawaii' :
-                '🎉 Mode secret découvert +100 XP - Tirez sur les objets kawaii';
+                getTranslatedText('game.secret_mode.activated', '🎮 Mode secret activé - Tirez sur les objets kawaii') :
+                getTranslatedText('game.secret_mode.discovered', '🎉 Mode secret découvert +100 XP - Tirez sur les objets kawaii');
 
             this.gameState.afficherMessagePowerupSimple(message);
         }
@@ -222,7 +224,11 @@ class SecretModeModule {
 
         // Restaurer la phase de jeu précédente
         if (this.gameState.phaseJeu && this.previousPhase) {
+            console.log(`🔄 Restauration de la phase: ${this.previousPhase} (phase actuelle: ${this.gameState.phaseJeu})`);
             this.gameState.phaseJeu = this.previousPhase; // Retour à la phase d'origine
+            console.log(`✅ Phase restaurée vers: ${this.gameState.phaseJeu}`);
+        } else {
+            console.warn(`⚠️ Impossible de restaurer la phase - previousPhase: ${this.previousPhase}, phaseJeu actuelle: ${this.gameState.phaseJeu}`);
         }
 
         // Nettoyer les objets kawaii DOM
@@ -328,7 +334,9 @@ class SecretModeModule {
         console.log('📊 STATISTIQUES FINALES MODE SECRET:', stats);
 
         if (this.gameState.afficherMessagePowerupSimple) {
-            const message = `🏆 Victoire secrète - Objets détruits : ${stats.objectsDestroyed} - Total XP : +${netGain}`;
+            const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
+            const template = getTranslatedText('game.secret_mode.victory', '🏆 Victoire secrète - Objets détruits : {count} - Total XP : +{xp}');
+            const message = template.replace('{count}', stats.objectsDestroyed).replace('{xp}', netGain);
             this.gameState.afficherMessagePowerupSimple(message);
         }
 
@@ -583,8 +591,15 @@ class SecretModeModule {
 
                     // Message de points visible au joueur
                     if (this.gameState.afficherMessage) {
-                        const emoji = points > 0 ? '🎉' : '💔';
-                        const message = `${emoji} ${kawaiiObj.type.toUpperCase()} ${points > 0 ? '+' : ''}${points} points!`;
+                        const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
+                        const objectName = getTranslatedText(`game.secret_mode.objects.${kawaiiObj.type}`, kawaiiObj.type.toUpperCase());
+                        const message = points > 0 
+                            ? getTranslatedText('game.secret_mode.object_hit_positive', '🎉 {object} +{points} points!')
+                                .replace('{object}', objectName)
+                                .replace('{points}', points)
+                            : getTranslatedText('game.secret_mode.object_hit_negative', '💔 {object} {points} points!')
+                                .replace('{object}', objectName)
+                                .replace('{points}', points);
 
                         // Petit message flash temporaire
                         setTimeout(() => {
@@ -809,19 +824,24 @@ class SecretModeModule {
         this.ctx.fillStyle = '#000000';
         this.ctx.textAlign = 'center';
 
+        // Fonction helper pour obtenir les traductions
+        const getText = (key, fallback) => {
+            return (window.i18n && window.i18n.t) ? window.i18n.t(key) || fallback : fallback;
+        };
+
         // Titre principal - déplacé plus bas
         this.ctx.font = 'bold 28px Arial';
-        this.ctx.fillText('MODE SECRET', centerX, centerY - 20);
+        this.ctx.fillText(getText('game.secret_mode.title', 'MODE SECRET'), centerX, centerY - 20);
 
         // Instructions simplifiées
         this.ctx.font = 'bold 16px Arial';
-        this.ctx.fillText('Tirez pour transformer', centerX, centerY);
-        this.ctx.fillText('Évitez • Éliminez • Survivez', centerX, centerY + 30);
+        this.ctx.fillText(getText('game.secret_mode.shoot_to_transform', 'Tirez pour transformer'), centerX, centerY);
+        this.ctx.fillText(getText('game.secret_mode.avoid_eliminate_survive', 'Évitez • Éliminez • Survivez'), centerX, centerY + 30);
 
         // Si on attend que le jeu principal soit prêt
         if (this.waitingForGameReady) {
             this.ctx.font = 'bold 18px Arial';
-            this.ctx.fillText('⛵ Attente du jeu principal...', centerX, centerY + 70);
+            this.ctx.fillText(getText('game.secret_mode.waiting_game', '⛵ Attente du jeu principal...'), centerX, centerY + 70);
             return;
         }
 
@@ -833,7 +853,8 @@ class SecretModeModule {
         // Compte à rebours et bouton
         if (seconds > 0) {
             this.ctx.font = 'bold 18px Arial';
-            this.ctx.fillText(`Démarrage dans ${seconds}s`, centerX, centerY + 70);
+            const startingLabel = getText('game.secret_mode.starting_in', 'Démarrage dans');
+            this.ctx.fillText(`${startingLabel} ${seconds}s`, centerX, centerY + 70);
             this.renderGoButton(centerX, centerY + 110, true);
         } else {
             this.renderGoButton(centerX, centerY + 70, false);

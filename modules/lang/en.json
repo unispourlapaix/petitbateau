@@ -1,79 +1,676 @@
 {
   "meta": {
-    "language": "English",
-    "version": "1.0.0",
-    "author": "Emmanuel"
-  },
-  "game": {
-    "title": "Little Boat",
-    "subtitle": "A journey through humanity",
-    "loading": "Loading...",
-    "start": "Start",
-    "continue": "Continue",
-    "restart": "Restart"
+    "document_title": "Little Red Boat ⛵ - Poetic Puzzle Game by Emmanuel Payet",
+    "description": "Discover Little Red Boat, a philosophical and poetic puzzle game created by Emmanuel Payet. Navigate through 14 languages in a universe where each enigma reveals a truth about humanity. Goal: 33 million players!",
+    "og_title": "Little Red Boat ⛵ - Poetic Puzzle Game",
+    "og_description": "A philosophical journey through the enigmas of humanity. Created by Emmanuel Payet, available in 14 languages. Goal: 33 million players!"
   },
   "ui": {
-    "score": "🕊️ {score}",
-    "xp": "⭐ XP: {xp}",
-    "lives": "❤️",
-    "bricks": "🧱 {current}/{total}",
-    "enigmas": "📜 Enigmas: {collected}/{total} ({percent}%)",
-    "language": "🌍 Language"
-  },
-  "phases": {
-    "phase1": {
-      "title": "Journey — The dawn of doubts",
-      "narrative": "🌟 \"They told me they were all monsters...\n✨ They told me so much evil, so many misfortunes about them...\n🔍 But I preferred to go and see with my own eyes.\""
+    "skip_button": "Skip",
+    "continue_button": "Continue",
+    "save_score_ranking": "Save your score to appear in the global ranking!",
+    "complete_game_save_score": "🎉 Complete the game to save your score!",
+    "journey_completed_title_alt": "Journey Completed",
+    "thank_you_truth": "Thank you for seeking the truth.",
+    "epilogue_button": "📖 Epilogue",
+    "replay_button": "🔄 Replay",
+    "thank_you_reading": "🌊 Thank you for reading 🌊",
+    "read_poetic_epilogue": "Read the poetic epilogue",
+    "restart_journey": "Restart the journey",
+    "bonus_phase_title": "🌊 Bonus Phase Unlocked 🌊",
+    "bonus_phase_intro": "You have completed your journey of truth.<br>Here is a final reflection on our world...",
+    "bonus_phase_xp": "🌟 +200 XP for completing the game! 🌟",
+    "final_wisdom_quote": "For water always wears away stone,<br>and freedom, sooner or later, will resume its path.",
+    "end_of_game": "✨ End of PETIT BATEAU ✨",
+    "journey_begins": "✨ The journey begins ✨",
+    "opened_eyes": "You have opened your eyes to the truth...",
+    "intro_complete_xp": "🌟 +100 XP for watching the complete introduction! 🌟",
+    "continue_journey": "Continue the journey",
+    "game_title": "LITTLE RED BOAT",
+    "leaderboard_title": "🏆 Top 10 - Little Red Boat",
+    "buttons": {
+      "save": "💾 Save",
+      "skip": "Skip",
+      "update": "Update",
+      "later": "Later"
     },
-    "phase2": {
-      "title": "Journey — The light",
-      "narrative": "🤔 \"Who were they really?...\nAnd I saw...\n\n👨‍👩‍👧‍👦 A father... a mother... children...\n\n💙 All simply seeking\nto live\ntheir best life...\nLike me.\""
+    "form": {
+      "email_label": "Email * :",
+      "pseudo_label": "Nickname * :",
+      "avatar_label": "Avatar :",
+      "optional_info": "Optional information",
+      "city_label": "City :",
+      "city_placeholder": "Your city",
+      "country_label": "Country :",
+      "country_placeholder": "Your country",
+      "age_label": "Age :",
+      "age_placeholder": "Your age",
+      "gender_label": "Gender :",
+      "gender_not_specified": "Not specified",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_other": "Other",
+      "email_placeholder": "Your email address",
+      "pseudo_placeholder": "Your nickname",
+      "name_prompt": "Your name?",
+      "city_prompt": "Your city?",
+      "country_prompt": "Your country?"
     },
-    "phase3": {
-      "title": "Journey — The shadow of clouds",
-      "narrative": "🌙 \"Then the moon appeared.\n📖 The sky darkened like a page burned by time.\n🦈 A fin split the dark waves...\n⚡ Lightning streaked the gray clouds.\""
+    "menu": {
+      "enigmes": "🧩 Enigmas",
+      "enigmes_full": "📜 Complete Enigmas",
+      "menu_games": "🎮 Games Menu",
+      "poem1": "📜 Poem 1",
+      "poem2": "📖 Poem 2",
+      "artist_info": "🎨 Artist Info",
+      "credits": "🎬 Credits",
+      "icons": "🦇👼 Icons"
     },
-    "phase4": {
-      "title": "Journey — The black clouds",
-      "narrative": "⚡ \"Chapter 2 began in darkness...\n🌊 The waves became higher, more threatening.\n💀 And in this darkness, I saw something else...\n👁️ Gazes staring at me from the depths.\""
+    "tabs": {
+      "enigmes": "📋 Enigmas",
+      "scores": "🏆 Scores"
     },
-    "phase5": {
-      "title": "Journey — The silence of the soul",
-      "narrative": "👁️ \"In the darkness, a first vision appeared to me...\n🔮 Strange forms danced in the shadows.\n🌟 Was it real? Was it a dream?\n❓ I could no longer tell the difference.\""
-    },
-    "phase6": {
-      "title": "Journey — Crossing the night",
-      "narrative": "🤷 \"But the more I advanced, the more my certainties were shaken...\n💭 Who was right? Who was wrong?\n🌊 The waves carried away my convictions.\n🔍 I had to dig deeper.\""
-    },
-    "phase7": {
-      "title": "Journey — The humanity of hearts",
-      "narrative": "💡 \"Suddenly, a light pierced the clouds...\n📜 A partial truth revealed itself to me.\n⚖️ Neither all white, nor all black...\n🌈 But a gradient of complex colors.\""
-    },
-    "phase8": {
-      "title": "Journey — The outstretched hand",
-      "narrative": "📖 \"Thus ended the first chapter of my journey...\n🎭 Between masks and real faces.\n🚪 A door opened to new mysteries.\n➡️ It was time to continue exploring.\""
-    },
-    "phase9": {
-      "title": "Journey — True hospitality",
-      "narrative": "💭 \"They told me...\nthat humanity no longer existed,\nthat it had been lost in wars and grudges.\n🏠 They told me that men no longer welcomed anyone,\nthat they locked themselves behind walls of iron and fear.\""
-    },
-    "phase10": {
-      "title": "Journey — Freedom of the soul",
-      "narrative": "✋ \"But I saw...\nA hand extended to a stranger.\n😊 A smile shared despite hunger.\n🚪 A door opened for one who trembled in the night.\""
-    },
-    "phase11": {
-      "title": "Journey — Shared strength",
-      "narrative": "🤝 \"This is hospitality:\nnot giving what we have too much of,\nbut sharing even what is lacking.\""
-    },
-    "phase12": {
-      "title": "Journey — Love stronger",
-      "narrative": "🗽 \"They told me that freedom was just a word,\nan illusion that the powerful sold to the weak.\n🏃‍♂️ But I saw...\nA child running barefoot in the rain,\nlaughing without chains,\n✨ and in his laughter, I understood that freedom lives first in the soul.\""
+    "multilang_intro": {
+      "fr": "LITTLE BOAT",
+      "en": "LITTLE BOAT",
+      "jp": "小さな船",
+      "uk": "МАЛЕНЬКИЙ ЧОВЕН",
+      "ar": "قارب صغير",
+      "hi": "छोटी नाव",
+      "es": "PEQUEÑO BARCO",
+      "it": "PICCOLA BARCA",
+      "ko": "작은 배"
     }
   },
-  "intro": {
-    "title": "Little Boat",
-    "subtitle": "A philosophical journey",
-    "message": "Embark on the discovery of truth about humanity...",
-    "start_button": "Begin the journey"
+  "game": {
+    "messages": {
+      "intro_bonus": "🌟 +100 Points for watching the complete introduction! 🌟",
+      "light_victory": "💡 Light chases away the night\n+1000 XP",
+      "frontiers_broken": "🌍💕 BORDERS BROKEN! +XXX ❤️",
+      "intro_points": "🌟 +100 Points complete intro",
+      "frontier_mode": "🧱 Borders Mode activated!",
+      "all_broken": "💥 ALL BROKEN! 💥",
+      "bird_no": "🐦 NO!",
+      "crow_transformed": "🕊️ Crow transformed into Dove!",
+      "crow_hit": "🐦 Crow hit {count}/7 times",
+      "secret_mode": "🎯 Secret Mode: Precision Shooting 🎯\n\n🧊 Shoot icebergs and trash ♻\n🐋 Whales are protected!\n🚫 Shooting a whale = life loss\n👆 Each click = one precise shot\n💰 +100 points per obstacle destroyed",
+      "attack_launched": "🧱 Attack launched!",
+      "lantern_launched": "🏮 Lantern launched!",
+      "shooting_mode_activated": "🪔 Shooting Mode activated! (10s)",
+      "wall_resists": "🧱 The wall resists!",
+      "wall_resists_minus_1000": "🧱 The wall resists! -1000 points",
+      "lantern_mode_start": "🏮 Lantern Mode activated!"
+    },
+    "errors": {
+      "fail_1": "NO GREAT! HAAAH!",
+      "fail_2": "BOOOO! NOT GOOD!",
+      "fail_3": "OOOH NO! NAUGHTY!",
+      "fail_4": "HAAAH! DISASTER!",
+      "fail_5": "YUCK! MEAN!",
+      "fail_6": "AIEEEE! MONSTER!",
+      "fail_7": "GRRRR! STUPID!",
+      "fail_8": "PFFFFFF! IDIOT!",
+      "fail_9": "TSSS TSSS! SHAME!",
+      "whale_death": "💀 You shot a protected whale!\n😱 All your lives are gone!\n🚫 Don't shoot the whales!\n🤪 HAHAHAHA! GAME OVER!",
+      "email_required": "⚠️ Email and nickname required",
+      "email_invalid": "⚠️ Invalid email",
+      "saving": "💾 Saving...",
+      "saved": "✅ Score saved!"
+    },
+    "origin_journey": "Origin: The journey of a lifetime",
+    "knowledge_given": "Knowledge given",
+    "wisdom_score": "Wisdom Score",
+    "share_journey": "Share my journey",
+    "restart": "Restart",
+    "journey_continues": "😢 The journey to truth continues...",
+    "truth_triumphs": "Truth always triumphs in the end!",
+    "your_best": "✨ Your best",
+    "chapters_progress": "CHAPTERS",
+    "chapters_subtitle": "📚 From \"The Light\" to \"The Unity of Humanity\"",
+    "chapters_journey": "A journey through the truth of humanity",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Score",
+    "wisdom_label": "💎 Wisdom",
+    "voyage_light": "Journey — The Light",
+    "wisdom_level": "Wisdom level",
+    "next_level": "to next level",
+    "content_unavailable": "Content unavailable",
+    "share_texts": {
+      "text1_title": "🌟 I traveled across the borders of humanity!",
+      "text1_quote": "From darkness to light, I learned that love unites beyond differences.",
+      "text2_title": "🕊️ A journey to truth...",
+      "text2_quote": "I broke down the walls of fear to build bridges of love.",
+      "text3_title": "🌍 From wall to bridge, I discovered humanity...",
+      "text3_quote": "Beyond borders, our hearts beat as one.",
+      "text4_title": "👁️ I saw the truth beyond prejudice...",
+      "text4_quote": "We build walls out of fear, but love transforms them into shelters.",
+      "play_text": "Play ⛵ PETIT BATEAU 👁️"
+    },
+    "instructions": {
+      "break_frontiers": "🌍 BREAK THE BORDERS 🌍",
+      "click_to_launch": "🚀 CLICK TO LAUNCH",
+      "click_to_start": "Click to start the journey...",
+      "touch_to_start": "👆 Touch to start the journey!",
+      "intro_message_1": "⛵✨ LITTLE RED BOAT ✨⛵<br><br>🌅 CHAPTER 1: THE LIGHT<br><br>💭 \"They told me they were all monsters...<br>They told me so much evil, so much misery about them...<br>But I preferred to go see for myself.<br>Who were these people?...\"",
+      "intro_message_2": "💭 \"And I saw...<br>A father... a mother... children...<br>All simply seeking to live their best life... Like me.\"",
+      "intro_message_3": "🌑 Then darkness will come... ⛈️<br>🎮 Break prejudices, resist the storms!<br><br>👆 Touch to start the journey!"
+    },
+    "quotes": {
+      "enigma_truth": "In each enigma hides a truth,",
+      "truth_humanity": "in each truth reveals our humanity.",
+      "be_first": "Be the first to finish the game!"
+    },
+    "frontiers": {
+      "title": "🧱 Borders",
+      "subtitle": "Escape the borders"
+    },
+    "canvas": {
+      "objective": "Goal: 33 million! 🌍",
+      "click_info": "(Click for more info)",
+      "author": "🎨 Emmanuel Payet",
+      "dreamer": "Dreamer Unisona",
+      "projects": "📂 Projects",
+      "languages_heart": "💝 Languages of the Heart 💝",
+      "languages_message": "Each language carries the love and peace of the world",
+      "love": "Love",
+      "universal": "Universal",
+      "voyage_origin": "Journey's origin",
+      "continue_button": "➜ Continue",
+      "next_button": "➜ Next"
+    },
+    "projects": {
+      "games_deco": "Games & Deco",
+      "unispourlapaix": "UnitedForPeace",
+      "free_gospel": "Free Gospel",
+      "books_art": "Books & Art",
+      "good_time": "The Good Time"
+    },
+    "phase_display": {
+      "voyage": "Journey",
+      "phase_counter": "Phase",
+      "secret_mode": "SECRET MODE"
+    },
+    "voyage_names": {
+      "dawn_of_doubts": "Dawn of doubts",
+      "light": "The light",
+      "shadow_of_clouds": "Shadow of clouds",
+      "silence_of_soul": "Silence of the soul",
+      "humanity_of_hearts": "Humanity of hearts",
+      "wisdom_of_differences": "Wisdom of differences",
+      "unity": "Unity",
+      "unity_of_humanity": "Unity of Humanity",
+      "wall_of_greed": "Wall of greed",
+      "default": "Journey"
+    },
+    "secret_mode": {
+      "title": "SECRET MODE",
+      "shoot_to_transform": "Shoot to transform",
+      "avoid_eliminate_survive": "Avoid • Eliminate • Survive",
+      "waiting_game": "⛵ Waiting for main game...",
+      "starting_in": "Starting in",
+      "activated": "🎮 Secret mode activated - Shoot the kawaii objects",
+      "discovered": "🎉 Secret mode discovered +100 XP - Shoot the kawaii objects",
+      "victory": "🏆 Secret victory - Objects destroyed: {count} - Total XP: +{xp}",
+      "object_hit_positive": "🎉 {object} +{points} points!",
+      "object_hit_negative": "💔 {object} {points} points!",
+      "objects": {
+        "baleine": "WHALE",
+        "asteroide": "ASTEROID",
+        "etoile": "STAR",
+        "tank": "TANK",
+        "lune": "MOON",
+        "banane": "BANANA",
+        "smartphone": "SMARTPHONE",
+        "poubelle": "TRASH",
+        "avion": "PLANE"
+      }
+    }
+  },
+  "narrative": {
+    "voyage_titles": {
+      "phase1": "Journey — Dawn of doubts",
+      "phase2": "Journey — The light",
+      "phase3": "Journey — Shadow of clouds",
+      "phase4": "Journey — Shadow of clouds",
+      "phase5": "Journey — Silence of the soul",
+      "phase6": "Journey — Silence of the soul",
+      "phase7": "Journey — Humanity of hearts",
+      "phase8": "Journey — Humanity of hearts",
+      "phase9": "Journey — Humanity of hearts",
+      "phase10": "Journey — Wisdom of differences",
+      "phase11": "Journey — Wisdom of differences",
+      "phase12": "Journey — Wisdom of differences",
+      "phase13": "Journey — Unity",
+      "phase14": "Journey — Unity",
+      "phase15": "Journey — Unity",
+      "phase16": "Unity of Humanity",
+      "phase17": "Journey — Wall of greed",
+      "phase18": "Journey — Prison of freedom",
+      "phase19": "Journey — Barbed wire of refusal",
+      "phase20": "Journey — Golden gate",
+      "phase21": "Journey — Question of freedom",
+      "phase22": "Journey — Hope of the waves",
+      "phase23": "Revelation"
+    },
+    "phase1": {
+      "title": "Dawn of doubts\nPhase 1",
+      "intro_short": "They told me they were all monsters...\nThey told me so much evil, so much misfortune about them...\nBut I preferred to go see for myself.",
+      "intro_full": "They told me they were all\nmonsters...\nThey told me so much evil,\nso much misfortune\nabout them...\nBut I,\nI preferred to go see\nfor myself...",
+      "reaction": "NO we can't let that pass!",
+      "text": "They told me they were all\nmonsters...\nThey told me so much evil,\nso much misfortune\nabout them...\nBut I,\nI preferred to go see\nfor myself..."
+    },
+    "phase2": {
+      "text": "Who were they really?...\nAnd I saw...\nA father... a mother...\nchildren...\nAll simply seeking to live\ntheir best life...\nLike me."
+    },
+    "phase3": {
+      "text": "Then, the moon appeared.\nThe sky darkened\nlike a page burned\nby time.\nA fin split the dark\nwaves...\nLightning streaked\nthe gray clouds.\n\nAnd with them came the evils...\nThe discord..."
+    },
+    "phase4": {
+      "text": "Hatred...\nDestruction...\nTheft, lies,\nManipulation...\nGreed and avarice,\nLike invisible chains,\nGripping the hearts of men."
+    },
+    "phase5": {
+      "text": "I was told not to listen\nto their cries...\nI was told not to let\nthe storm scare me.\nFor the storm,\nas loud as it may be,\nnever lasts\nforever."
+    },
+    "phase6": {
+      "text": "And if the tempest roars,\nit's perhaps\nto remind mankind\nthat beyond the clouds,\nthere is always\na light.\nBut to see it,\none must first cross\nthe night..."
+    },
+    "phase7": {
+      "text": "I was told...\nthat humanity no longer existed,\nthat it was lost\nin wars\nand grudges.\nI was told that people\nno longer welcomed\nanyone,\nthat they locked themselves\nbehind walls of iron\nand fear..."
+    },
+    "phase8": {
+      "text": "But I saw…\nA hand extended to a stranger.\nA smile shared\ndespite hunger.\nA door opened\nfor one who trembled\nin the night..."
+    },
+    "phase9": {
+      "text": "That is\nhospitality:\nnot giving what we have in excess,\nbut sharing\neven what is lacking..."
+    },
+    "phase10": {
+      "text": "I was told that freedom\nwas just a word,\nan illusion\nthat the powerful\nsold to the weak.\nBut I saw…\nA child running barefoot\nin the rain,\nlaughing without chains,\nand in their laughter,\nI understood that freedom\nlives first in the soul."
+    },
+    "phase11": {
+      "text": "I was told that people\nno longer helped,\nthat each lived only for themselves.\nBut I saw…\nStrangers lifting together\na stone too heavy,\nand in this shared strength,\nI saw love being born."
+    },
+    "phase12": {
+      "text": "I was told that love\nwas fragile,\nbut I saw\nthat it is stronger\nthan hatred,\nfor it builds\nwhen hatred\ndestroys..."
+    },
+    "phase13": {
+      "text": "I was told that tolerance\nwas a weakness,\nbut I saw that it is\na wisdom:\nthat of recognizing\nthat we are not all\nalike...\nAnd that is\nlife's treasure,\nthe path to\npeace."
+    },
+    "phase14": {
+      "text": "Diversity…\nIt is not a danger,\nit is a treasure.\nLike the colors\nof a rainbow,\nit's their difference\nthat creates beauty."
+    },
+    "phase15": {
+      "text": "And in this blend\nof humanity,\nI understood\nthat we are\none people,\nbound by the same\nthirst to live,\nto create,\nand to love."
+    },
+    "phase16": {
+      "text": "The journey begins,\nand I wish you fair winds.\n\nMay the wind always carry you further,\nwhere happiness is free.\n\nWhere borders become\npromises, hopes,\nprojects of new life.\n\nDon't stop at the walls\nthat stand before you\nfrightening and cold,\nnever give up,\nbreak down the walls,\nof fear, shame, resentment, hatred,\nto be like a lighthouse for others."
+    },
+    "phase17": {
+      "text": "In the distance… I see a wall.\nA wall erected in the sea like a scar.\nA wall that is not made of stones,\nbut of laws, papers and closed gazes."
+    },
+    "phase18": {
+      "text": "This wall is the prison of human freedom.\nIt separates those who can run without chains,\nand those locked within invisible borders."
+    },
+    "phase19": {
+      "text": "For the poor, it is barbed with refusal,\nclosed like a rusted door.\nThey knock on it with bare hands,\ntheir dreams broken by the silence of guardians."
+    },
+    "phase20": {
+      "text": "For the rich, it is a golden gate.\nIt opens effortlessly,\nand lets them circulate like wind that has no homeland."
+    },
+    "phase21": {
+      "text": "Then I wonder…\nIs freedom truly a right,\nor has it become a privilege sold to the highest bidders?"
+    },
+    "phase22": {
+      "text": "But in the heart of the waves,\nthe sea whispers a truth:\nno wall is eternal.\nFor water always wears away stone,\nand freedom, sooner or later,\nwill resume its path."
+    },
+    "phase23": {
+      "text": "👁️ Thus ends this journey...\n\nYou have navigated through storms,\nbroken the walls of ignorance,\nand discovered that truth\nis not an end,\nbut a path.\n\nEach riddle solved,\neach choice made,\nbrought you closer to this wisdom:\n\n💫 We are all\nguardians of the light.\n\nDiversity is not a threat,\nbut the most beautiful of treasures.\n\n⛵ The journey continues...\nIn your heart, in your choices,\nin your way of seeing the world.\n\n--Emmanuel Payet"
+    },
+    "walls_message": "These walls are ours,\nwe create them through our conflicts,\nthrough hatred and racism,\nintolerance of others,\nfear of the unknown.\n\nIt is us, through our silences and ills,\nthrough our whispered fears,\nthrough our words thrown like stones,\nwho make them stronger.\n\nThey are walls of selfishness,\nbuilt with what could have been roofs,\nshelters, homes.",
+    "final_message": "Humanity doesn't need walls to protect itself,\nbut bridges to meet.\n\nLet's build with love, not with fear.\nA united world is better than a divided world.\n\n- Emmanuel.gallery",
+    "wall_crumbles": "✨ THE WALL CRUMBLES FOREVER ✨"
+  },
+  "interface": {
+    "tabs": {
+      "enigmas": "Enigmas",
+      "scores": "Scores",
+      "language": "Language",
+      "info": "Info"
+    },
+    "menus": {
+      "voyage_enigmas": "Journey : Enigmas",
+      "collected_progress": "Collected: {collected}/{total} ({percent}%)",
+      "score_xp": "🕊️ {score} | ⭐ XP: {xp}",
+      "no_score_recorded": "No score recorded"
+    },
+    "buttons": {
+      "close": "Close",
+      "restart": "Restart",
+      "share_journey": "🌍 Share my journey",
+      "break_borders": "🌍 BREAK THE BORDERS 🌍",
+      "click_to_launch": "🚀 CLICK TO LAUNCH"
+    },
+    "system": {
+      "loading": "⏳ Loading...",
+      "fireworks_starting": "Fireworks starting...",
+      "adventure_completed": "✨ Adventure completed ✨\n\n⛵ LITTLE RED BOAT ⛵\n\nThank you for playing!",
+      "error": "Error",
+      "text_copied_clipboard": "✅ Text copied to clipboard!\n\nShare it on your social networks 🌍",
+      "enigma_not_discovered": "Enigma not discovered",
+      "no_exclamation": "NO!"
+    },
+    "labels": {
+      "mystery": "Mystery",
+      "revelation": "Revelation",
+      "wisdom": "Wisdom"
+    }
+  },
+  "bricks": {
+    "day": {
+      "told": { "name": "THEY TOLD ME...", "msg": "🗣️ Manipulations fade before truth!" },
+      "monsters": { "name": "MONSTERS", "msg": "👨‍👩‍👧‍👦 No... humans like us!" },
+      "prejudice": { "name": "PREJUDICE", "msg": "🎭 The masks fall one by one..." },
+      "fears": { "name": "FEARS", "msg": "👁️ I chose to see for myself!" },
+      "distrust": { "name": "DISTRUST", "msg": "🤝 Distrust gives way to compassion..." },
+      "who_are_they": { "name": "WHO ARE THEY?", "msg": "❓ This question haunts my nights..." },
+      "i_saw": { "name": "I SAW...", "msg": "👁️ And my eyes were opened..." },
+      "father": { "name": "A FATHER", "msg": "👨 A man who loves his children..." },
+      "mother": { "name": "A MOTHER", "msg": "👩 A brave woman..." },
+      "children": { "name": "CHILDREN", "msg": "👶 Pure and innocent laughter..." },
+      "humanity": { "name": "HUMANITY", "msg": "💫 The very essence of what we are..." },
+      "love": { "name": "LOVE", "msg": "❤️ Stronger than all barriers..." },
+      "compassion": { "name": "COMPASSION", "msg": "🤗 That unites beyond differences..." },
+      "hope": { "name": "HOPE", "msg": "🌅 A light in the darkness..." },
+      "peace": { "name": "PEACE", "msg": "🕊️ Possible when we choose to love..." },
+      "like_me": { "name": "LIKE ME", "msg": "🌍 We are all immigrants..." },
+      "truth": { "name": "REVEALED TRUTH", "msg": "👁️ My eyes finally opened..." },
+      "courage": { "name": "COURAGE OF HEART", "msg": "💪 I chose to see for myself..." },
+      "precious": { "name": "PRECIOUS", "msg": "💎 Every human being is precious..." }
+    },
+    "night": {
+      "discord": { "name": "DISCORD", "msg": "⚡ Discord... hatred... destruction..." },
+      "hatred": { "name": "HATRED", "msg": "💔 Coming with the evils of shadow..." },
+      "destruction": { "name": "DESTRUCTION", "msg": "🌪️ Theft, lies, manipulation..." },
+      "theft": { "name": "THEFT", "msg": "🦹 That takes what doesn't belong..." },
+      "lies": { "name": "LIES", "msg": "🎭 The masks of deception..." },
+      "manipulation": { "name": "MANIPULATION", "msg": "🕷️ Invisible strings pull hearts..." },
+      "greed": { "name": "GREED", "msg": "💰 Greed and avarice..." },
+      "avarice": { "name": "AVARICE", "msg": "⛓️ Like invisible chains..." },
+      "chains": { "name": "CHAINS", "msg": "🔗 Tightening men's hearts..." },
+      "iron_walls": { "name": "IRON WALLS", "msg": "🧱 Locked behind walls of iron and fear..." },
+      "jealousy": { "name": "JEALOUSY", "msg": "💚 The green poison of envy..." },
+      "pride": { "name": "PRIDE", "msg": "👑 The crown that blinds..." },
+      "anger": { "name": "ANGER", "msg": "🔥 Flames that consume reason..." },
+      "revenge": { "name": "REVENGE", "msg": "⚔️ The endless spiral of suffering..." },
+      "indifference": { "name": "INDIFFERENCE", "msg": "🧊 The cold that freezes souls..." },
+      "selfishness": { "name": "SELFISHNESS", "msg": "🪞 Seeing only one's own reflection..." },
+      "ignorance": { "name": "IGNORANCE", "msg": "🙈 Choosing to close one's eyes..." },
+      "resistance": { "name": "RESISTANCE", "msg": "🛡️ But I keep my heart pure in the storm..." },
+      "light": { "name": "LIGHT", "msg": "✨ For beyond the clouds, it always exists..." },
+      "hope_reborn": { "name": "HOPE REBORN", "msg": "🌅 Light finally pierces the darkness..." },
+      "inner_strength": { "name": "INNER STRENGTH", "msg": "🌟 My heart resists the darkness..." },
+      "wisdom": { "name": "ACQUIRED WISDOM", "msg": "🧠 In the night, I learned to see..." }
+    }
+  },
+  "enigmes": {
+    "humanity": {
+      "name": "Humanity",
+      "description": "The force that unites all hearts",
+      "mystery": "What makes us truly human?",
+      "revelation": "Humanity resides in our ability to feel compassion for others, even for those who are different from us.",
+      "wisdom": "A father, a mother, children... All simply seeking to live their best life, like us."
+    },
+    "wall_of_fear": {
+      "name": "Wall of Fear",
+      "description": "The ancestral origin of our borders",
+      "mystery": "Why do these old animal reflexes remain?",
+      "revelation": "Walls and borders come from fear and the past madness of territorial war, or the fear of losing ground, of being invaded by enemies. Fortresses were then logical and necessary for protection, since prehistoric caves simply to protect from animals. But today why do these walls persist?",
+      "wisdom": "From prehistoric cave to modern wall, ancestral fear persists. But are we still frightened animals, or can we become human?"
+    },
+    "peace": {
+      "name": "Peace",
+      "description": "The harmony that transcends conflicts",
+      "mystery": "How do we find peace in a world of chaos?",
+      "revelation": "Peace is born when we choose to love rather than hate, to understand rather than judge.",
+      "wisdom": "Beyond the clouds, there is always light. But to see it, you must first go through the night."
+    },
+    "diversity": {
+      "name": "Diversity",
+      "description": "The beauty of our differences",
+      "mystery": "Why do we fear what is different?",
+      "revelation": "Diversity is the wealth of the world. Each color, each culture brings its own beauty to the human rainbow.",
+      "wisdom": "They told me so much evil about them... But I preferred to go see for myself."
+    },
+    "freedom": {
+      "name": "Freedom",
+      "description": "The right to live without chains",
+      "mystery": "What is true freedom?",
+      "revelation": "Freedom is not the absence of constraints, but the ability to choose love despite fear.",
+      "wisdom": "Greed and avarice, like invisible chains, tighten men's hearts."
+    },
+    "faith": {
+      "name": "Faith",
+      "description": "The hope that guides in darkness",
+      "mystery": "How to keep faith when all seems lost?",
+      "revelation": "To want freedom is also to grant it to others. Freedom will then be beneficial to all and bring peace.",
+      "wisdom": "For wanting to free oneself from chains is also an act of faith."
+    },
+    "respect": {
+      "name": "Respect",
+      "description": "The dignity given to each being",
+      "mystery": "How to respect those we don't understand?",
+      "revelation": "Respect is born from recognizing that each being carries a divine spark within.",
+      "wisdom": "They locked themselves behind walls of iron and fear... But humanity still existed."
+    },
+    "mutual_aid": {
+      "name": "Mutual Aid",
+      "description": "The strength of supportive union",
+      "mystery": "Why help those who can give us nothing?",
+      "revelation": "In mutual aid, we discover that giving enriches us more than receiving.",
+      "wisdom": "Love, stronger than all barriers, unites beyond differences."
+    },
+    "healing": {
+      "name": "Healing",
+      "description": "The power to heal wounds",
+      "mystery": "How do we heal invisible wounds?",
+      "revelation": "True healing begins with acceptance and continues with forgiveness.",
+      "wisdom": "If the storm rumbles, it's to remind us that beyond the clouds, there is always light."
+    },
+    "restoration": {
+      "name": "Restoration",
+      "description": "Renewal after destruction",
+      "mystery": "How to rebuild after devastation?",
+      "revelation": "Every end contains within it the seeds of a new beginning.",
+      "wisdom": "A light in the darkness... Hope possible when we choose to love."
+    },
+    "avarice": {
+      "name": "Avarice",
+      "description": "The wall of greed",
+      "mystery": "What builds walls between people?",
+      "revelation": "Avarice builds walls where love would build bridges.",
+      "wisdom": "A wall raised in the sea like a scar... A wall not made of stones, but of laws, papers and closed eyes."
+    },
+    "prison_freedom": {
+      "name": "Prison of Freedom",
+      "description": "The invisible chains",
+      "mystery": "Who deserves to be free?",
+      "revelation": "Freedom is not a privilege to distribute, but a universal right to honor.",
+      "wisdom": "This wall is the prison of human freedom. It separates those who can run without chains, and those locked in invisible borders."
+    },
+    "refusal": {
+      "name": "Refusal",
+      "description": "The barbed wire of rejection",
+      "mystery": "Why do we close our doors?",
+      "revelation": "Each refusal is a wound inflicted on the humanity we all share.",
+      "wisdom": "Barbed wire of iron and fear... forged by those who forgot they too were once travelers."
+    },
+    "pride": {
+      "name": "Pride",
+      "description": "The ego that distorts our view",
+      "mystery": "Why do we see others as inferior?",
+      "revelation": "Pride and ego make us see smaller or poorer people differently, but we are all equal in humanity.",
+      "wisdom": "A golden gate that opens only for a few... Our ego makes us believe we deserve it, and others don't."
+    },
+    "inequality": {
+      "name": "Inequality",
+      "description": "The pyramid of destinies",
+      "mystery": "Why do some bear the burden of others?",
+      "revelation": "Inequalities are not fate, but a system we perpetuate in silence.",
+      "wisdom": "A pyramid of stacked destinies... Those below bear the weight of those above, and none ask if it's fair."
+    },
+    "hope": {
+      "name": "Hope",
+      "description": "The freedom that cannot be imprisoned",
+      "mystery": "Can we really imprison freedom?",
+      "revelation": "May hope fill your hearts, keep the course with perseverance, let God's wind push you, and fear not the impossible.",
+      "wisdom": "In the heart of the waves, the sea whispers a truth: no wall is eternal. For water always wears down stone, and freedom, sooner or later, will find its way again."
+    },
+    "lighthouse": {
+      "name": "The Lighthouse in the Night",
+      "description": "Light guides the lost",
+      "mystery": "How to find your way in darkness?",
+      "revelation": "Light is stronger than night. Even a small flame can dispel the deepest darkness.",
+      "wisdom": "In the darkest moments, be the light you seek. Compassion illuminates even the most darkened hearts."
+    },
+    "lamp": {
+      "name": "The Lamp Filled with Oil",
+      "description": "The love that illuminates our works",
+      "mystery": "What is the source of our inner light?",
+      "revelation": "Love illuminates our works. Without love, we are the shadow of nothing.",
+      "wisdom": "Our actions only make sense when guided by love. It transforms emptiness into fullness, shadow into light."
+    },
+    "heart": {
+      "name": "The Heart of Humanity",
+      "description": "The very essence of our shared humanity",
+      "mystery": "What unites us all beyond our differences?",
+      "revelation": "In the heart of every human being beats the same love, the same hopes, the same fears. We are one.",
+      "wisdom": "The journey ends where it began: in the heart. By recognizing our common humanity, we find true peace."
+    },
+    "humanity_no_borders": {
+      "name": "Humanity Without Borders",
+      "description": "Humanity beyond walls",
+      "mystery": "Do borders define who we are?",
+      "revelation": "Humanity knows no borders. We are all travelers on the same earth.",
+      "wisdom": "A father, a mother, children... simply seeking to live, like all of us."
+    },
+    "right_to_happiness": {
+      "name": "Right to Happiness",
+      "description": "A roof for every family",
+      "mystery": "Who deserves shelter and happiness?",
+      "revelation": "Everyone has the right to happiness, shelter, a roof. Let's build houses and bridges with useful walls, walls of love for families who need them.",
+      "wisdom": "Walls should not separate, but protect. Bridges should not divide, but unite."
+    },
+    "precious_life": {
+      "name": "Precious Life",
+      "description": "The value of each existence",
+      "mystery": "Do all lives have the same value?",
+      "revelation": "Every life is precious, whether born here or elsewhere.",
+      "wisdom": "Life is not measured by its origin, but by its essence."
+    },
+    "communitarianism": {
+      "name": "Communitarianism",
+      "description": "The dangers of sectarianism",
+      "mystery": "Why do our divisions weaken us?",
+      "revelation": "Socially important but dangerous in dictatorial excesses. We find communitarianism everywhere, from politics and its divisions, to religions and atheist sects. Each fights their battle, the human struggle with their vision, their heart. Community is good, but destroying others' ideas, without tolerance and respect, doesn't help humanity progress.",
+      "wisdom": "Our political and religious sectarianism destroys bridges, destroys peace. We need this drive to fulfill others' projects, help them succeed, consolidate rather than hastily destroy others' ideas. Without tolerance, no progress."
+    }
+  },
+  "levels": {
+    "robe_blanche": { "name": "White Robe", "points": 300 },
+    "saint_navigator": { "name": "Saint Navigator", "points": 250 },
+    "prophet": { "name": "Prophet of the Seas", "points": 200 },
+    "illuminated": { "name": "Enlightened", "points": 175 },
+    "disciple": { "name": "Disciple of Light", "points": 150 },
+    "contemplative": { "name": "Contemplative", "points": 125 },
+    "guardian": { "name": "Guardian of Light", "points": 100 },
+    "meditating": { "name": "Meditating", "points": 80 },
+    "captain": { "name": "Captain", "points": 60 },
+    "navigator": { "name": "Navigator", "points": 45 },
+    "enlightened_sailor": { "name": "Enlightened Sailor", "points": 30 },
+    "initiate": { "name": "Initiate", "points": 20 },
+    "apprentice": { "name": "Apprentice", "points": 10 },
+    "cabin_boy": { "name": "Cabin Boy", "points": 5 },
+    "pilgrim": { "name": "Pilgrim", "points": 0 }
+  },
+  "badges": {
+    "champion": { "name": "Champion Badge", "desc": "Top 1" },
+    "perfectionist": { "name": "Perfectionist Badge", "desc": "all enigmas collected" },
+    "contemplative": { "name": "Contemplative Badge", "desc": "playtime > 1h" }
+  },
+  "social": {
+    "share_1": "🌟 I traveled through the frontiers of humanity!\n\n\"From darkness to light, I learned that love unites beyond differences.\"\n\n{name} - {city}, {country}\n💎 Wisdom: {wisdom}\n🎯 Score: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nPlay ⛵ PETIT BATEAU 👁️",
+    "share_2": "🕊️ A journey towards truth...\n\n\"I broke down the walls of fear to build bridges of love.\"\n\n{name} - {city}, {country}\n💎 Wisdom: {wisdom}\n🎯 Score: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nPlay ⛵ PETIT BATEAU 👁️",
+    "share_3": "🌍 From wall to bridge, I discovered humanity...\n\n\"Beyond borders, our hearts beat as one.\"\n\n{name} - {city}, {country}\n💎 Wisdom: {wisdom}\n🎯 Score: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nPlay ⛵ PETIT BATEAU 👁️",
+    "share_4": "👁️ I saw the truth beyond prejudices...\n\n\"We build walls out of fear, but love transforms them into refuges.\"\n\n{name} - {city}, {country}\n💎 Wisdom: {wisdom}\n🎯 Score: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nPlay ⛵ PETIT BATEAU 👁️"
+  },
+  "end_form": {
+    "title": "Your Journey is Complete",
+    "your_progress": "Your progress",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Score",
+    "total_label": "Total (XP + Score)",
+    "wisdom_score": "Wisdom Score",
+    "wisdom_level": "Wisdom level",
+    "progress_to_next": "{current}/{next} to next level",
+    "save_question": "Save your score in the leaderboard?",
+    "congrats": "🎉 Congratulations!",
+    "journey_complete": "Your journey is complete",
+    "points": "points"
+  },
+  "artist": {
+    "name": "Emmanuel Payet",
+    "subtitle": "Christian Artist • Creator • Inspirer",
+    "platform1_title": "Games & Decor",
+    "platform1_desc": "Discover my visual creations, interactive games and artistic decorations that celebrate faith and beauty.",
+    "platform1_link": "emmanuel.gallery",
+    "platform2_title": "Books & Art",
+    "platform2_desc": "Dive into my literary and artistic works, created with my daughter Béthanie, to nourish soul and spirit.",
+    "platform2_link": "emmanuelpayet.art",
+    "platform3_title": "Free Gospel",
+    "platform3_desc": "Listen to my gospel compositions on AudioMack, melodies that praise God and inspire unity in diversity.",
+    "platform3_link": "AudioMack - emmanuelpayet888",
+    "platform4_title": "The Right Time",
+    "platform4_desc": "It's now! Discover my Redbubble shop with unique designs and inspiring creations to wear.",
+    "platform4_link": "Redbubble Shop",
+    "quote": "Christian art unites hearts beyond differences,\ncelebrating the beauty of divine creation in all its diversity.",
+    "credits": "Coded by Claude • Original idea Emmanuel Payet"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English",
+    "jp": "日本語",
+    "uk": "Українська",
+    "es": "Español",
+    "de": "Deutsch",
+    "it": "Italiano",
+    "pt": "Português",
+    "ru": "Русский",
+    "zh": "中文",
+    "ko": "한국어",
+    "ar": "العربية",
+    "he": "עברית",
+    "hi": "हिन्दी",
+    "br": "Brasil",
+    "mx": "México",
+    "ca": "Canada",
+    "au": "Australia",
+    "za": "South Africa",
+    "eg": "مصر",
+    "ng": "Nigeria",
+    "ke": "Kenya",
+    "tr": "Türkiye",
+    "ir": "فارسی",
+    "th": "ไทย",
+    "vn": "Việt Nam",
+    "ph": "Philippines",
+    "id": "Indonesia",
+    "my": "Malaysia",
+    "sg": "Singapore",
+    "rc": "Kréol Rényoné"
+  },
+  "pwa": {
+    "update_message": "🎨 New version available with improved icons!\n\n✨ New optimized icons\n🔧 PWA improvements\n\nWould you like to update now?",
+    "update_banner": "🎨 New version with improved icons available!",
+    "update_button": "Update",
+    "later_button": "Later"
   }
 }

@@ -118,6 +118,11 @@ self.addEventListener('fetch', event => {
         if (event.request.destination === 'document') {
           return caches.match('./petitbateauRouge.html');
         }
+        // Pour les autres ressources, retourner une réponse vide
+        return new Response('{}', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
       })
   );
 });

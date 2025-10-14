@@ -142,8 +142,7 @@ class SupabaseScores {
                             score: score,
                             niveau_atteint: options.niveau_atteint || null,
                             temps_jeu: options.temps_jeu || null,
-                            donnees_extra: options.donnees_extra || null,
-                            updated_at: new Date().toISOString()
+                            donnees_extra: options.donnees_extra || null
                         })
                         .eq('user_id', this.currentUser.id)
                         .eq('game_id', this.currentGameId)

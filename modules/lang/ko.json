@@ -1,39 +1,676 @@
 {
   "meta": {
-    "language": "한국어",
-    "version": "1.0.0",
-    "author": "Emmanuel"
-  },
-  "game": {
-    "title": "작은 배",
-    "subtitle": "인류를 통한 여행",
-    "loading": "로딩 중...",
-    "start": "시작",
-    "continue": "계속",
-    "restart": "다시 시작"
+    "document_title": "작은 빨간 배 ⛵ - Emmanuel Payet의 철학적 퍼즐 게임",
+    "description": "Emmanuel Payet이 만든 철학적이고 시적인 퍼즐 게임, 작은 빨간 배를 만나보세요. 각 수수께끼가 인류에 대한 진실을 드러내는 14개 언어의 세계를 항해하세요. 목표: 3천3백만 플레이어!",
+    "og_title": "작은 빨간 배 ⛵ - 시적 퍼즐 게임",
+    "og_description": "인류의 수수께끼를 통한 철학적 여행. Emmanuel Payet 작품, 14개 언어로 제공. 목표: 3천3백만 플레이어!"
   },
   "ui": {
-    "score": "🕊️ {score}",
-    "xp": "⭐ XP: {xp}",
-    "lives": "❤️",
-    "bricks": "🧱 {current}/{total}",
-    "enigmas": "📜 수수께끼: {collected}/{total} ({percent}%)",
-    "language": "🌍 언어"
-  },
-  "phases": {
-    "phase1": {
-      "title": "여행 — 의심의 새벽",
-      "narrative": "🌟 \"그들이 모두 괴물이라고 했습니다...\n✨ 그들에 대해 그렇게 많은 나쁜 것들, 그렇게 많은 불행을 말했습니다...\n🔍 하지만 저는 제 눈으로 직접 보는 것을 선택했습니다.\""
+    "skip_button": "건너뛰기",
+    "continue_button": "계속",
+    "save_score_ranking": "세계 랭킹에 등록하려면 점수를 저장하세요!",
+    "complete_game_save_score": "🎉 점수를 저장하려면 게임을 완료하세요!",
+    "journey_completed_title_alt": "여행 완료",
+    "thank_you_truth": "진실을 찾아주셔서 감사합니다.",
+    "epilogue_button": "📖 에필로그",
+    "replay_button": "🔄 다시 하기",
+    "thank_you_reading": "🌊 읽어주셔서 감사합니다 🌊",
+    "read_poetic_epilogue": "시적 에필로그 읽기",
+    "restart_journey": "여행 다시 시작하기",
+    "bonus_phase_title": "🌊 보너스 단계 잠금 해제 🌊",
+    "bonus_phase_intro": "당신은 진실의 여행을 마쳤습니다.<br>우리 세계에 대한 마지막 성찰입니다...",
+    "bonus_phase_xp": "🌟 게임 완료로 +200 XP! 🌟",
+    "final_wisdom_quote": "물은 항상 결국 돌을 닳게 하고,<br>자유는 조만간 다시 길을 찾을 것입니다.",
+    "end_of_game": "✨ 작은 배의 끝 ✨",
+    "journey_begins": "✨ 여행이 시작됩니다 ✨",
+    "opened_eyes": "당신은 진실을 향해 눈을 떴습니다...",
+    "intro_complete_xp": "🌟 완전한 인트로를 시청하여 +100 XP! 🌟",
+    "continue_journey": "여행 계속하기",
+    "game_title": "작은 배",
+    "leaderboard_title": "🏆 상위 10명 - 작은 배",
+    "buttons": {
+      "save": "💾 저장",
+      "skip": "건너뛰기",
+      "update": "업데이트",
+      "later": "나중에"
     },
-    "phase2": {
-      "title": "여행 — 빛",
-      "narrative": "🤔 \"그들은 정말 누구였을까요?...\n그리고 저는 보았습니다...\n\n👨‍👩‍👧‍👦 아버지... 어머니... 아이들...\n\n💙 모두가 단순히 찾고 있었습니다\n살아가는 것을\n그들의 최고의 삶을...\n저처럼.\""
+    "form": {
+      "email_label": "이메일 * :",
+      "pseudo_label": "닉네임 * :",
+      "avatar_label": "아바타 :",
+      "optional_info": "선택 정보",
+      "city_label": "도시 :",
+      "city_placeholder": "당신의 도시",
+      "country_label": "국가 :",
+      "country_placeholder": "당신의 국가",
+      "age_label": "나이 :",
+      "age_placeholder": "당신의 나이",
+      "gender_label": "성별 :",
+      "gender_not_specified": "미지정",
+      "gender_male": "남성",
+      "gender_female": "여성",
+      "gender_other": "기타",
+      "email_placeholder": "이메일 주소",
+      "pseudo_placeholder": "닉네임",
+      "name_prompt": "당신의 이름은?",
+      "city_prompt": "당신의 도시는?",
+      "country_prompt": "당신의 국가는?"
+    },
+    "menu": {
+      "enigmes": "🧩 수수께끼",
+      "enigmes_full": "📜 전체 수수께끼",
+      "menu_games": "🎮 게임 메뉴",
+      "poem1": "📜 시 1",
+      "poem2": "📖 시 2",
+      "artist_info": "🎨 아티스트 정보",
+      "credits": "🎬 크레딧",
+      "icons": "🦇👼 아이콘"
+    },
+    "tabs": {
+      "enigmes": "📋 수수께끼",
+      "scores": "🏆 점수"
+    },
+    "multilang_intro": {
+      "fr": "PETIT BATEAU",
+      "en": "LITTLE BOAT",
+      "jp": "小さな船",
+      "uk": "МАЛЕНЬКИЙ ЧОВЕН",
+      "ar": "قارب صغير",
+      "hi": "छोटी नाव",
+      "es": "PEQUEÑO BARCO",
+      "it": "PICCOLA BARCA",
+      "ko": "작은 배"
     }
   },
-  "intro": {
-    "title": "작은 배",
-    "subtitle": "철학적 여행",
-    "message": "인류에 대한 진실 발견의 여행을 떠나보세요...",
-    "start_button": "여행 시작하기"
+  "game": {
+    "messages": {
+      "intro_bonus": "🌟 완전한 인트로를 시청하여 +100 포인트! 🌟",
+      "light_victory": "💡 빛이 밤을 쫓아냅니다\n+1000 XP",
+      "frontiers_broken": "🌍💕 국경이 무너졌습니다! +XXX ❤️",
+      "intro_points": "🌟 완전한 인트로 +100 포인트",
+      "frontier_mode": "🧱 국경 모드 활성화!",
+      "all_broken": "💥 모두 파괴됐습니다! 💥",
+      "bird_no": "🐦 안돼!",
+      "crow_transformed": "🕊️ 까마귀가 비둘기로 변했습니다!",
+      "crow_hit": "🐦 까마귀 맞춤 {count}/7회",
+      "secret_mode": "🎯 비밀 모드: 정밀 사격 🎯\n\n🧊 빙산과 쓰레기를 쏘세요 ♻\n🐋 고래는 보호되고 있습니다!\n🚫 고래를 쏘면 = 생명 손실\n👆 각 클릭 = 정밀 사격\n💰 파괴된 장애물당 +100 포인트",
+      "attack_launched": "🧱 공격 시작!",
+      "lantern_launched": "🏮 등불 발사!",
+      "shooting_mode_activated": "🪔 사격 모드 활성화! (10초)",
+      "wall_resists": "🧱 벽이 저항합니다!",
+      "wall_resists_minus_1000": "🧱 벽이 저항합니다! -1000 포인트",
+      "lantern_mode_start": "🏮 등불 모드 활성화!"
+    },
+    "errors": {
+      "fail_1": "NO GREAT! HAAAH!",
+      "fail_2": "BOOOO! PAS BIEN!",
+      "fail_3": "OOOH NON! VILAIN!",
+      "fail_4": "HAAAH! CATASTROPHE!",
+      "fail_5": "BEURK! MECHANT!",
+      "fail_6": "AIEEEE! MONSTER!",
+      "fail_7": "GRRRR! STUPID!",
+      "fail_8": "PFFFFFF! IDIOT!",
+      "fail_9": "TSSS TSSS! SHAME!",
+      "whale_death": "💀 당신은 보호받는 고래를 쐈습니다!\n😱 모든 생명이 소진되었습니다!\n🚫 고래는 쏘면 안 됩니다!\n🤪 하하하하! 게임 오버!",
+      "email_required": "⚠️ 이메일과 닉네임 필수",
+      "email_invalid": "⚠️ 유효하지 않은 이메일",
+      "saving": "💾 저장 중...",
+      "saved": "✅ 점수 저장됨!"
+    },
+    "origin_journey": "기원: 한 생애의 여행",
+    "knowledge_given": "주어진 지식",
+    "wisdom_score": "지혜 점수",
+    "share_journey": "내 여행 공유하기",
+    "restart": "다시 시작",
+    "journey_continues": "😢 진실을 향한 여행은 계속됩니다...",
+    "truth_triumphs": "진실은 항상 승리합니다!",
+    "your_best": "✨ 당신의 최고 기록",
+    "chapters_progress": "챕터",
+    "chapters_subtitle": "📚 \"빛\"에서 \"인류의 통합\"까지",
+    "chapters_journey": "인류의 진실을 통한 여행",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 점수",
+    "wisdom_label": "💎 지혜",
+    "voyage_light": "여행 — 빛",
+    "wisdom_level": "지혜 수준",
+    "next_level": "다음 레벨까지",
+    "content_unavailable": "이용 불가능한 콘텐츠",
+    "share_texts": {
+      "text1_title": "🌟 저는 인류의 국경을 넘어 여행했습니다!",
+      "text1_quote": "어둠에서 빛으로, 사랑이 차이를 넘어 하나가 된다는 것을 배웠습니다.",
+      "text2_title": "🕊️ 진실을 향한 여행...",
+      "text2_quote": "저는 사랑의 다리를 건설하기 위해 두려움의 벽을 무너뜨렸습니다.",
+      "text3_title": "🌍 벽에서 다리로, 저는 인류를 발견했습니다...",
+      "text3_quote": "국경 너머, 우리의 심장은 하나로 뜁니다.",
+      "text4_title": "👁️ 저는 편견 너머의 진실을 보았습니다...",
+      "text4_quote": "우리는 두려움으로 벽을 세우지만, 사랑은 그것을 피난처로 변화시킵니다.",
+      "play_text": "⛵ 작은 배 게임하기 👁️"
+    },
+    "instructions": {
+      "break_frontiers": "🌍 국경 무너뜨리기 🌍",
+      "click_to_launch": "🚀 클릭하여 시작",
+      "click_to_start": "여행을 시작하려면 클릭하세요...",
+      "touch_to_start": "👆 여행을 시작하려면 터치하세요!",
+      "intro_message_1": "⛵✨ 작은 배 ✨⛵<br><br>🌅 챕터 1: 빛<br><br>💭 \"사람들은 그들이 모두 괴물이라고 말했습니다...<br>그들에 대해 나쁜 말, 많은 불행을 말했습니다...<br>하지만 나는 내 눈으로 직접 보기로 했습니다.<br>그들은 누구였을까요?...\"",
+      "intro_message_2": "💭 \"그리고 나는 보았습니다...<br>아버지... 어머니... 아이들...<br>모두 단순히 최고의 삶을 살려고 노력하고 있었습니다... 나처럼.\"",
+      "intro_message_3": "🌑 그리고 어둠이 올 것입니다... ⛈️<br>🎮 편견을 깨고, 폭풍에 저항하세요!<br><br>👆 여행을 시작하려면 터치하세요!"
+    },
+    "quotes": {
+      "enigma_truth": "모든 수수께끼 속에 진실이 숨어 있고,",
+      "truth_humanity": "모든 진실 속에 우리의 인류애가 드러납니다.",
+      "be_first": "게임을 완료한 첫 번째 사람이 되세요!"
+    },
+    "frontiers": {
+      "title": "🧱 국경",
+      "subtitle": "국경을 탈출하기"
+    },
+    "canvas": {
+      "objective": "목표: 3천3백만! 🌍",
+      "click_info": "(자세한 정보는 클릭)",
+      "author": "🎨 Emmanuel Payet",
+      "dreamer": "Dreamer Unisona",
+      "projects": "📂 프로젝트",
+      "languages_heart": "💝 마음의 언어들 💝",
+      "languages_message": "각 언어는 세계의 사랑과 평화를 담고 있습니다",
+      "love": "사랑",
+      "universal": "보편적",
+      "voyage_origin": "여행의 기원",
+      "continue_button": "➜ 계속",
+      "next_button": "➜ 다음"
+    },
+    "projects": {
+      "games_deco": "게임 & 장식",
+      "unispourlapaix": "평화를 위한 연합",
+      "free_gospel": "자유로운 복음",
+      "books_art": "책 & 예술",
+      "good_time": "좋은 시간"
+    },
+    "phase_display": {
+      "voyage": "여행",
+      "phase_counter": "단계",
+      "secret_mode": "비밀 모드"
+    },
+    "voyage_names": {
+      "dawn_of_doubts": "의심의 여명",
+      "light": "빛",
+      "shadow_of_clouds": "구름의 그림자",
+      "silence_of_soul": "영혼의 침묵",
+      "humanity_of_hearts": "마음의 인류애",
+      "wisdom_of_differences": "차이의 지혜",
+      "unity": "통합",
+      "unity_of_humanity": "인류의 통합",
+      "wall_of_greed": "탐욕의 벽",
+      "default": "여행"
+    },
+    "secret_mode": {
+      "title": "비밀 모드",
+      "shoot_to_transform": "변형하기 위해 쏘세요",
+      "avoid_eliminate_survive": "피하기 • 제거하기 • 생존하기",
+      "waiting_game": "⛵ 메인 게임 대기 중...",
+      "starting_in": "시작까지",
+      "activated": "🎮 비밀 모드 활성화 - 귀여운 물체를 쏘세요",
+      "discovered": "🎉 비밀 모드 발견 +100 XP - 귀여운 물체를 쏘세요",
+      "victory": "🏆 비밀 승리 - 파괴된 물체: {count} - 총 XP: +{xp}",
+      "object_hit_positive": "🎉 {object} +{points} 포인트!",
+      "object_hit_negative": "💔 {object} {points} 포인트!",
+      "objects": {
+        "baleine": "고래",
+        "asteroide": "소행성",
+        "etoile": "별",
+        "tank": "탱크",
+        "lune": "달",
+        "banane": "바나나",
+        "smartphone": "스마트폰",
+        "poubelle": "쓰레기통",
+        "avion": "비행기"
+      }
+    }
+  },
+  "narrative": {
+    "voyage_titles": {
+      "phase1": "여행 — 의심의 여명",
+      "phase2": "여행 — 빛",
+      "phase3": "여행 — 구름의 그림자",
+      "phase4": "여행 — 구름의 그림자",
+      "phase5": "여행 — 영혼의 침묵",
+      "phase6": "여행 — 영혼의 침묵",
+      "phase7": "여행 — 마음의 인류애",
+      "phase8": "여행 — 마음의 인류애",
+      "phase9": "여행 — 마음의 인류애",
+      "phase10": "여행 — 차이의 지혜",
+      "phase11": "여행 — 차이의 지혜",
+      "phase12": "여행 — 차이의 지혜",
+      "phase13": "여행 — 통합",
+      "phase14": "여행 — 통합",
+      "phase15": "여행 — 통합",
+      "phase16": "인류의 통합",
+      "phase17": "여행 — 탐욕의 벽",
+      "phase18": "여행 — 자유의 감옥",
+      "phase19": "여행 — 거부의 철조망",
+      "phase20": "여행 — 황금의 문",
+      "phase21": "여행 — 자유의 질문",
+      "phase22": "여행 — 파도의 희망",
+      "phase23": "계시"
+    },
+    "phase1": {
+      "title": "의심의 여명\n단계 1",
+      "intro_short": "사람들은 그들이 모두 괴물이라고 말했습니다...\n그들에 대해 나쁜 말, 많은 불행을 말했습니다...\n하지만 나는 내 눈으로 직접 보기로 했습니다.",
+      "intro_full": "사람들은 그들이 모두\n괴물이라고 말했습니다...\n그들에 대해 나쁜 말,\n많은 불행을\n말했습니다...\n하지만 나는\n내 눈으로 직접 보기로\n했습니다...",
+      "reaction": "안돼, 이것을 그냥 지나칠 수 없어!",
+      "text": "사람들은 그들이 모두\n괴물이라고 말했습니다...\n그들에 대해 나쁜 말,\n많은 불행을\n말했습니다...\n하지만 나는\n내 눈으로 직접 보기로\n했습니다..."
+    },
+    "phase2": {
+      "text": "그들은 정말 누구였을까요?...\n그리고 나는 보았습니다...\n아버지... 어머니...\n아이들...\n모두 단순히 최고의 삶을\n살려고 노력하고 있었습니다...\n나처럼."
+    },
+    "phase3": {
+      "text": "그때, 달이 나타났습니다.\n하늘이 어두워졌습니다\n시간에 태운 페이지처럼.\n지느러미가 어두운 파도를\n가르며 나타났습니다...\n번개가 회색 구름을\n가로질렀습니다.\n\n그리고 그들과 함께 악이 왔습니다...\n불화..."
+    },
+    "phase4": {
+      "text": "증오...\n파괴...\n도둑질, 거짓말,\n조작...\n탐욕과 욕심,\n보이지 않는 사슬처럼,\n인간의 마음을 조이고 있습니다."
+    },
+    "phase5": {
+      "text": "사람들은 나에게\n그들의 외침을 듣지 말라고 했습니다...\n폭풍에 겁먹지 말라고 했습니다.\n폭풍은,\n아무리 시끄러워도,\n영원히 지속되지\n않기 때문입니다."
+    },
+    "phase6": {
+      "text": "그리고 폭풍이 울부짖는다면,\n그것은 아마도\n인간에게 상기시키기 위함입니다\n구름 너머에는\n항상\n빛이 존재한다는 것을.\n하지만 그것을 보려면,\n먼저 밤을\n건너가야 합니다..."
+    },
+    "phase7": {
+      "text": "사람들은 말했습니다...\n인류애는 더 이상 존재하지 않는다고,\n그것이 전쟁과\n원한 속에서\n사라졌다고.\n사람들은 인간이\n더 이상 아무도\n받아들이지 않는다고,\n그들이 철과\n두려움의 벽 뒤에\n갇혀 있다고 했습니다..."
+    },
+    "phase8": {
+      "text": "하지만 나는 보았습니다…\n낯선 사람에게 내민 손.\n배고픔에도 불구하고\n나눈 미소.\n밤에 떨고 있는\n사람을 위해\n열린 문..."
+    },
+    "phase9": {
+      "text": "이것이 바로\n환대입니다:\n남는 것을 주는 게 아니라,\n부족한 것조차\n나누는 것입니다..."
+    },
+    "phase10": {
+      "text": "사람들은 자유는\n그저 말일 뿐이라고,\n강자가\n약자에게\n파는 환상이라고 했습니다.\n하지만 나는 보았습니다…\n비를 맞으며\n맨발로 달리는 아이,\n사슬 없이 웃으며,\n그 웃음 속에서\n자유는 먼저 영혼 속에\n산다는 것을 깨달았습니다."
+    },
+    "phase11": {
+      "text": "사람들은 인간이\n더 이상 돕지 않는다고,\n각자 자신만을 위해 산다고 했습니다.\n하지만 나는 보았습니다…\n낯선 사람들이 함께\n너무 무거운 돌을 들어올리고,\n이 공유된 힘 속에서\n사랑이 태어나는 것을 보았습니다."
+    },
+    "phase12": {
+      "text": "사람들은 사랑이\n연약하다고 했지만,\n나는 보았습니다\n그것이 증오보다\n더 강하다는 것을,\n사랑은 건설하고\n증오는\n파괴하기 때문입니다..."
+    },
+    "phase13": {
+      "text": "사람들은 관용이\n약점이라고 했지만,\n나는 그것이\n지혜라는 것을 보았습니다:\n우리가 모두\n같지 않다는 것을\n인정하는 것...\n그리고 그것이\n삶의 보물이며,\n평화를 향한\n길입니다."
+    },
+    "phase14": {
+      "text": "다양성…\n그것은 위험이 아니라,\n보물입니다.\n무지개의 색처럼,\n그들의 차이가\n아름다움을 만들어냅니다."
+    },
+    "phase15": {
+      "text": "그리고 이 인류의\n혼합 속에서,\n나는 깨달았습니다\n우리는\n하나의 민족이며,\n같은 갈망으로\n살고,\n창조하고,\n사랑하는 것으로 연결되어 있다는 것을."
+    },
+    "phase16": {
+      "text": "여행이 시작됩니다,\n순풍을 기원합니다.\n\n바람이 당신을 더 멀리 데려가길,\n행복이 자유로운 곳으로.\n\n국경이\n약속이 되고, 희망이 되고,\n새로운 삶의 계획이 되는 곳으로.\n\n당신 앞에\n무섭고 차갑게\n서 있는 벽에서\n멈추지 마세요,\n절대 포기하지 마세요,\n두려움, 수치심, 원한, 증오의 벽을\n무너뜨리세요,\n다른 이들을 위한 등대가 되기 위해."
+    },
+    "phase17": {
+      "text": "저 멀리… 벽이 보입니다.\n흉터처럼 바다에 세워진 벽.\n돌로 만들어지지 않은 벽,\n법, 서류, 그리고 닫힌 눈길로 만들어진 벽."
+    },
+    "phase18": {
+      "text": "이 벽은 인간의 자유를 가두는 감옥입니다.\n사슬 없이 달릴 수 있는 사람들과,\n보이지 않는 국경 안에 갇힌 사람들을 나눕니다."
+    },
+    "phase19": {
+      "text": "가난한 사람들에게, 그것은 거부의 철조망이며,\n녹슨 문처럼 닫혀 있습니다.\n그들은 맨손으로 두드리고,\n그들의 꿈은 수호자들의 침묵에 의해 깨집니다."
+    },
+    "phase20": {
+      "text": "부자들에게, 그것은 황금의 문입니다.\n노력 없이 열리고,\n조국이 없는 바람처럼 그들을 순환하게 합니다."
+    },
+    "phase21": {
+      "text": "그래서 나는 묻습니다…\n자유는 정말 권리인가요,\n아니면 최고 입찰자에게 팔리는 특권이 되었나요?"
+    },
+    "phase22": {
+      "text": "하지만 파도의 심장 속에서,\n바다는 진실을 속삭입니다:\n어떤 벽도 영원하지 않습니다.\n물은 항상 결국 돌을 닳게 하고,\n자유는 조만간\n다시 길을 찾을 것입니다."
+    },
+    "phase23": {
+      "text": "👁️ 이렇게 이 여행이 끝납니다...\n\n당신은 폭풍을 헤쳐 항해했고,\n무지의 벽을 무너뜨렸고,\n진실은\n끝이 아니라,\n길이라는 것을 발견했습니다.\n\n해결된 모든 수수께끼,\n내린 모든 선택이\n당신을 이 지혜에 가까이 데려갔습니다:\n\n💫 우리는 모두\n빛의 수호자입니다.\n\n다양성은 위협이 아니라,\n가장 아름다운 보물입니다.\n\n⛵ 여행은 계속됩니다...\n당신의 마음 속에서, 당신의 선택 속에서,\n당신이 세상을 보는 방식 속에서.\n\n--Emmanuel Payet"
+    },
+    "walls_message": "이 벽들은 우리의 것이며,\n우리가 갈등으로 만들고,\n증오와 인종차별로,\n타인에 대한 불관용으로,\n미지에 대한 두려움으로 만듭니다.\n\n우리가, 우리의 침묵과 악으로,\n속삭이는 두려움으로,\n돌처럼 던지는 말로,\n그것들을 더 견고하게 만듭니다.\n\n이것은 이기심의 벽이며,\n지붕이 될 수 있었던 것으로 만들어졌고,\n피난처, 집이 될 수 있었던 것으로.",
+    "final_message": "인류는 보호하기 위해 벽이 필요한 것이 아니라,\n만나기 위해 다리가 필요합니다.\n\n두려움이 아닌 사랑으로 건설합시다.\n분할된 세계보다 통합된 세계가 더 낫습니다.\n\n- Emmanuel.gallery",
+    "wall_crumbles": "✨ 벽이 완전히 무너집니다 ✨"
+  },
+  "interface": {
+    "tabs": {
+      "enigmas": "수수께끼",
+      "scores": "점수",
+      "language": "언어",
+      "info": "정보"
+    },
+    "menus": {
+      "voyage_enigmas": "여행 : 수수께끼",
+      "collected_progress": "수집됨: {collected}/{total} ({percent}%)",
+      "score_xp": "🕊️ {score} | ⭐ XP: {xp}",
+      "no_score_recorded": "기록된 점수 없음"
+    },
+    "buttons": {
+      "close": "닫기",
+      "restart": "다시 시작",
+      "share_journey": "🌍 내 여행 공유하기",
+      "break_borders": "🌍 국경 무너뜨리기 🌍",
+      "click_to_launch": "🚀 클릭하여 시작"
+    },
+    "system": {
+      "loading": "⏳ 로딩 중...",
+      "fireworks_starting": "불꽃놀이가 시작됩니다...",
+      "adventure_completed": "✨ 모험 완료 ✨\n\n⛵ 작은 배 ⛵\n\n플레이해 주셔서 감사합니다!",
+      "error": "오류",
+      "text_copied_clipboard": "✅ 클립보드에 텍스트가 복사되었습니다!\n\n소셜 미디어에 공유하세요 🌍",
+      "enigma_not_discovered": "발견되지 않은 수수께끼",
+      "no_exclamation": "안돼!"
+    },
+    "labels": {
+      "mystery": "신비",
+      "revelation": "계시",
+      "wisdom": "지혜"
+    }
+  },
+  "bricks": {
+    "day": {
+      "told": { "name": "사람들이 말했습니다...", "msg": "🗣️ 조작은 진실 앞에서 사라집니다!" },
+      "monsters": { "name": "괴물들", "msg": "👨‍👩‍👧‍👦 아니요... 우리와 같은 인간입니다!" },
+      "prejudice": { "name": "편견", "msg": "🎭 가면이 하나씩 벗겨집니다..." },
+      "fears": { "name": "두려움", "msg": "👁️ 나는 직접 보기로 선택했습니다!" },
+      "distrust": { "name": "불신", "msg": "🤝 불신이 연민에 자리를 내줍니다..." },
+      "who_are_they": { "name": "그들은 누구인가?", "msg": "❓ 이 질문이 밤마다 나를 괴롭힙니다..." },
+      "i_saw": { "name": "나는 보았습니다...", "msg": "👁️ 그리고 내 눈이 열렸습니다..." },
+      "father": { "name": "아버지", "msg": "👨 자신의 아이들을 사랑하는 남자..." },
+      "mother": { "name": "어머니", "msg": "👩 용감한 여인..." },
+      "children": { "name": "아이들", "msg": "👶 순수하고 순진한 웃음..." },
+      "humanity": { "name": "인류애", "msg": "💫 우리 존재의 본질..." },
+      "love": { "name": "사랑", "msg": "❤️ 모든 장벽보다 강합니다..." },
+      "compassion": { "name": "연민", "msg": "🤗 차이를 넘어 하나가 됩니다..." },
+      "hope": { "name": "희망", "msg": "🌅 어둠 속의 빛..." },
+      "peace": { "name": "평화", "msg": "🕊️ 사랑을 선택할 때 가능합니다..." },
+      "like_me": { "name": "나처럼", "msg": "🌍 우리는 모두 이민자입니다..." },
+      "truth": { "name": "드러난 진실", "msg": "👁️ 내 눈이 마침내 열렸습니다..." },
+      "courage": { "name": "마음의 용기", "msg": "💪 나는 직접 보기로 선택했습니다..." },
+      "precious": { "name": "소중한", "msg": "💎 모든 인간은 소중합니다..." }
+    },
+    "night": {
+      "discord": { "name": "불화", "msg": "⚡ 불화... 증오... 파괴..." },
+      "hatred": { "name": "증오", "msg": "💔 어둠의 악과 함께 왔습니다..." },
+      "destruction": { "name": "파괴", "msg": "🌪️ 도둑질, 거짓말, 조작..." },
+      "theft": { "name": "도둑질", "msg": "🦹 속하지 않은 것을 가져가는 것..." },
+      "lies": { "name": "거짓말", "msg": "🎭 속임수의 가면..." },
+      "manipulation": { "name": "조작", "msg": "🕷️ 보이지 않는 실이 마음을 잡아당깁니다..." },
+      "greed": { "name": "탐욕", "msg": "💰 탐욕과 욕심..." },
+      "avarice": { "name": "욕심", "msg": "⛓️ 보이지 않는 사슬처럼..." },
+      "chains": { "name": "사슬", "msg": "🔗 인간의 마음을 조이고 있습니다..." },
+      "iron_walls": { "name": "철벽", "msg": "🧱 철과 두려움의 벽 뒤에 갇혀 있습니다..." },
+      "jealousy": { "name": "질투", "msg": "💚 부러움의 녹색 독..." },
+      "pride": { "name": "교만", "msg": "👑 눈을 멀게 하는 왕관..." },
+      "anger": { "name": "분노", "msg": "🔥 이성을 태우는 불꽃..." },
+      "revenge": { "name": "복수", "msg": "⚔️ 고통의 끝없는 나선..." },
+      "indifference": { "name": "무관심", "msg": "🧊 영혼을 얼리는 추위..." },
+      "selfishness": { "name": "이기심", "msg": "🪞 자신의 반영만 보는 것..." },
+      "ignorance": { "name": "무지", "msg": "🙈 눈을 감기로 선택하는 것..." },
+      "resistance": { "name": "저항", "msg": "🛡️ 하지만 나는 폭풍 속에서도 순수한 마음을 지킵니다..." },
+      "light": { "name": "빛", "msg": "✨ 구름 너머에는 항상 존재합니다..." },
+      "hope_reborn": { "name": "희망 재탄생", "msg": "🌅 빛이 마침내 어둠을 뚫고 나옵니다..." },
+      "inner_strength": { "name": "내면의 힘", "msg": "🌟 내 마음은 어둠에 저항합니다..." },
+      "wisdom": { "name": "얻어진 지혜", "msg": "🧠 밤 속에서 나는 보는 법을 배웠습니다..." }
+    }
+  },
+  "enigmes": {
+    "humanity": {
+      "name": "인류애",
+      "description": "모든 마음을 하나로 묶는 힘",
+      "mystery": "무엇이 우리를 진정으로 인간답게 만드는가?",
+      "revelation": "인류애는 우리와 다른 사람들에게도 연민을 느낄 수 있는 능력에 있습니다.",
+      "wisdom": "아버지, 어머니, 아이들... 모두 단순히 최고의 삶을 살려고 노력하고 있습니다, 우리처럼."
+    },
+    "wall_of_fear": {
+      "name": "두려움의 벽",
+      "description": "우리 국경의 고대 기원",
+      "mystery": "왜 이런 오래된 동물적 반사가 남아있는가?",
+      "revelation": "벽과 우리의 국경은 두려움과 영토 전쟁의 과거 광기에서 비롯되었으며, 땅을 잃거나 적에게 침략당할 두려움에서 왔습니다. 요새는 그때 논리적이고 자신을 보호하기 위해 필수적이었으며, 단순히 동물로부터 보호하기 위한 선사시대 동굴부터 그랬습니다. 하지만 오늘날 왜 이 벽들이 지속되는가?",
+      "wisdom": "선사시대 동굴에서 현대 벽까지, 고대의 두려움이 지속됩니다. 하지만 우리는 여전히 두려워하는 동물인가요, 아니면 인간이 될 수 있을까요?"
+    },
+    "peace": {
+      "name": "평화",
+      "description": "갈등을 초월하는 조화",
+      "mystery": "혼란의 세계에서 어떻게 평화를 찾는가?",
+      "revelation": "평화는 우리가 미워하기보다 사랑하기로, 판단하기보다 이해하기로 선택할 때 태어납니다.",
+      "wisdom": "구름 너머에는 항상 빛이 존재합니다. 하지만 그것을 보려면, 먼저 밤을 건너가야 합니다."
+    },
+    "diversity": {
+      "name": "다양성",
+      "description": "우리 차이의 아름다움",
+      "mystery": "왜 우리는 다른 것을 두려워하는가?",
+      "revelation": "다양성은 세계의 풍요로움입니다. 각 색깔, 각 문화는 인간 무지개에 고유한 아름다움을 가져옵니다.",
+      "wisdom": "사람들은 그들에 대해 나쁜 말을 했습니다... 하지만 나는 내 눈으로 직접 보기로 했습니다."
+    },
+    "freedom": {
+      "name": "자유",
+      "description": "사슬 없이 살 권리",
+      "mystery": "진정한 자유란 무엇인가?",
+      "revelation": "자유는 제약이 없는 것이 아니라, 두려움에도 불구하고 사랑을 선택할 수 있는 능력입니다.",
+      "wisdom": "탐욕과 욕심이 보이지 않는 사슬처럼 인간의 마음을 조입니다."
+    },
+    "faith": {
+      "name": "믿음",
+      "description": "어둠 속에서 인도하는 희망",
+      "mystery": "모든 것이 잃어버린 것 같을 때 어떻게 믿음을 유지하는가?",
+      "revelation": "자유를 원한다는 것은 다른 사람에게도 자유를 부여하는 것입니다. 그러면 자유는 모두에게 이롭고 평화를 가져올 것입니다.",
+      "wisdom": "왜냐하면 사슬에서 벗어나고 싶어하는 것도 믿음의 행위이기 때문입니다."
+    },
+    "respect": {
+      "name": "존중",
+      "description": "모든 존재에게 부여되는 존엄성",
+      "mystery": "우리가 이해하지 못하는 사람들을 어떻게 존중하는가?",
+      "revelation": "존중은 모든 존재가 신성한 불꽃을 품고 있다는 인식에서 태어납니다.",
+      "wisdom": "그들은 철과 두려움의 벽 뒤에 갇혀 있었습니다... 하지만 인류애는 여전히 존재했습니다."
+    },
+    "mutual_aid": {
+      "name": "상호 원조",
+      "description": "연대의 힘",
+      "mystery": "왜 우리에게 아무것도 줄 수 없는 사람들을 돕는가?",
+      "revelation": "상호 원조 속에서 우리는 주는 것이 받는 것보다 우리를 더 풍요롭게 한다는 것을 발견합니다.",
+      "wisdom": "사랑은 모든 장벽보다 강하며, 차이를 넘어 하나가 됩니다."
+    },
+    "healing": {
+      "name": "치유",
+      "description": "상처를 치료하는 힘",
+      "mystery": "보이지 않는 상처를 어떻게 치유하는가?",
+      "revelation": "진정한 치유는 수용으로 시작하고 용서로 계속됩니다.",
+      "wisdom": "폭풍이 울부짖는다면, 그것은 구름 너머에 항상 빛이 존재한다는 것을 상기시키기 위함입니다."
+    },
+    "restoration": {
+      "name": "회복",
+      "description": "파괴 후의 재생",
+      "mystery": "황폐화 후 어떻게 재건하는가?",
+      "revelation": "모든 끝은 새로운 시작의 씨앗을 품고 있습니다.",
+      "wisdom": "어둠 속의 빛... 사랑을 선택할 때 가능한 희망."
+    },
+    "avarice": {
+      "name": "탐욕",
+      "description": "욕심의 벽",
+      "mystery": "무엇이 인간 사이에 벽을 세우는가?",
+      "revelation": "탐욕은 사랑이 다리를 건설할 곳에 벽을 세웁니다.",
+      "wisdom": "흉터처럼 바다에 세워진 벽... 돌로 만들어지지 않고, 법, 서류, 그리고 닫힌 눈길로 만들어진 벽."
+    },
+    "prison_freedom": {
+      "name": "자유의 감옥",
+      "description": "보이지 않는 사슬",
+      "mystery": "누가 자유로울 자격이 있는가?",
+      "revelation": "자유는 분배할 특권이 아니라, 존중해야 할 보편적 권리입니다.",
+      "wisdom": "이 벽은 인간의 자유를 가두는 감옥입니다. 사슬 없이 달릴 수 있는 사람들과 보이지 않는 국경 안에 갇힌 사람들을 나눕니다."
+    },
+    "refusal": {
+      "name": "거부",
+      "description": "거절의 철조망",
+      "mystery": "왜 우리는 문을 닫는가?",
+      "revelation": "모든 거부는 우리가 공유하는 인류애에 가해지는 상처입니다.",
+      "wisdom": "철과 두려움의 철조망... 자신들도 한때 여행자였다는 것을 잊은 사람들에 의해 만들어졌습니다."
+    },
+    "pride": {
+      "name": "교만",
+      "description": "우리의 시선을 왜곡하는 자아",
+      "mystery": "왜 우리는 다른 사람들을 열등하게 보는가?",
+      "revelation": "교만과 자아는 우리가 더 작거나 가난한 사람들을 다르게 보게 하지만, 우리는 모두 인류애에서 평등합니다.",
+      "wisdom": "소수에게만 열리는 황금 문... 우리의 자아는 우리가 그것을 받을 자격이 있고 다른 사람들은 그렇지 않다고 믿게 만듭니다."
+    },
+    "inequality": {
+      "name": "불평등",
+      "description": "운명의 피라미드",
+      "mystery": "왜 일부는 다른 사람의 짐을 지는가?",
+      "revelation": "불평등은 운명이 아니라, 우리가 침묵 속에서 영속시키는 시스템입니다.",
+      "wisdom": "쌓여진 운명의 피라미드... 아래에 있는 사람들이 위에 있는 사람들의 무게를 짊어지고, 아무도 그것이 정당한지 묻지 않습니다."
+    },
+    "hope": {
+      "name": "희망",
+      "description": "가둘 수 없는 자유",
+      "mystery": "정말로 자유를 가둘 수 있는가?",
+      "revelation": "희망이 여러분의 마음을 채우고, 인내로 방향을 유지하며, 하나님의 바람이 여러분을 밀어주고, 불가능을 두려워하지 마십시오.",
+      "wisdom": "파도의 심장 속에서 바다는 진실을 속삭입니다: 어떤 벽도 영원하지 않습니다. 물은 항상 결국 돌을 닳게 하고, 자유는 조만간 다시 길을 찾을 것입니다."
+    },
+    "lighthouse": {
+      "name": "밤의 등대",
+      "description": "빛은 길 잃은 자들을 인도합니다",
+      "mystery": "어둠 속에서 어떻게 길을 찾는가?",
+      "revelation": "빛은 밤보다 강합니다. 작은 불꽃조차도 가장 깊은 어둠을 몰아낼 수 있습니다.",
+      "wisdom": "가장 어두운 순간에 당신이 찾는 빛이 되세요. 연민은 가장 어두워진 마음조차 밝힙니다."
+    },
+    "lamp": {
+      "name": "기름으로 채워진 램프",
+      "description": "우리 작업을 밝히는 사랑",
+      "mystery": "우리 내면의 빛의 원천은 무엇인가?",
+      "revelation": "사랑은 우리의 작업을 밝힙니다. 사랑 없이는 우리는 아무것도 아닌 그림자입니다.",
+      "wisdom": "우리의 행동은 사랑에 의해 인도될 때만 의미를 갖습니다. 사랑이 공허함을 충만함으로, 그림자를 빛으로 변화시킵니다."
+    },
+    "heart": {
+      "name": "인류의 심장",
+      "description": "우리 공유된 인류애의 본질",
+      "mystery": "우리의 차이를 넘어 모두를 하나로 묶는 것은 무엇인가?",
+      "revelation": "모든 인간의 심장 속에는 같은 사랑, 같은 희망, 같은 두려움이 뛰고 있습니다. 우리는 하나입니다.",
+      "wisdom": "여행은 시작된 곳에서 끝납니다: 심장에서. 우리의 공통된 인류애를 인정함으로써 진정한 평화를 찾습니다."
+    },
+    "humanity_no_borders": {
+      "name": "국경 없는 인류애",
+      "description": "벽 너머의 인류애",
+      "mystery": "국경이 우리가 누구인지를 정의하는가?",
+      "revelation": "인류애는 국경을 모릅니다. 우리는 모두 같은 땅의 여행자입니다.",
+      "wisdom": "아버지, 어머니, 아이들... 우리 모두처럼 단순히 살려고 노력하고 있습니다."
+    },
+    "right_to_happiness": {
+      "name": "행복할 권리",
+      "description": "모든 가족을 위한 지붕",
+      "mystery": "누가 피난처와 행복을 누릴 자격이 있는가?",
+      "revelation": "모두는 행복, 피난처, 지붕을 가질 권리가 있습니다. 필요한 가족을 위해 유용한 벽, 사랑의 벽으로 집과 다리를 건설합시다.",
+      "wisdom": "벽은 분리해서는 안 되고 보호해야 합니다. 다리는 나누어서는 안 되고 하나로 만들어야 합니다."
+    },
+    "precious_life": {
+      "name": "소중한 생명",
+      "description": "모든 존재의 가치",
+      "mystery": "모든 생명이 같은 가치를 가지는가?",
+      "revelation": "모든 생명은 여기서 태어났든 다른 곳에서 태어났든 소중합니다.",
+      "wisdom": "생명은 기원으로 측정되지 않고 본질로 측정됩니다."
+    },
+    "communitarianism": {
+      "name": "공동체주의",
+      "description": "종파주의의 위험",
+      "mystery": "왜 우리의 분열이 우리를 약화시키는가?",
+      "revelation": "사회적으로 중요하지만 독재의 일탈에서 위험합니다. 공동체주의는 정치와 그 분열, 종교에서 무신론 종파까지 어디에나 있습니다. 각자는 자신의 비전, 자신의 마음으로 자신의 싸움을 이끕니다. 공동체는 좋지만, 관용과 존중 없이 다른 사람의 아이디어를 파괴하는 것은 인류의 진보를 돕지 않습니다.",
+      "wisdom": "우리의 정치적, 종교적 종파주의는 다리를 파괴하고 평화를 파괴합니다. 우리는 다른 사람의 프로젝트를 성공으로 이끌고, 성공을 돕고, 다른 사람의 아이디어를 성급하게 파괴하지 않고 강화할 충동이 필요합니다. 관용 없이는 진보가 없습니다."
+    }
+  },
+  "levels": {
+    "robe_blanche": { "name": "흰 로브", "points": 300 },
+    "saint_navigator": { "name": "성스러운 항해사", "points": 250 },
+    "prophet": { "name": "바다의 예언자", "points": 200 },
+    "illuminated": { "name": "깨달은 자", "points": 175 },
+    "disciple": { "name": "빛의 제자", "points": 150 },
+    "contemplative": { "name": "명상자", "points": 125 },
+    "guardian": { "name": "빛의 수호자", "points": 100 },
+    "meditating": { "name": "명상하는 자", "points": 80 },
+    "captain": { "name": "선장", "points": 60 },
+    "navigator": { "name": "항해사", "points": 45 },
+    "enlightened_sailor": { "name": "깨달은 선원", "points": 30 },
+    "initiate": { "name": "입문자", "points": 20 },
+    "apprentice": { "name": "견습생", "points": 10 },
+    "cabin_boy": { "name": "선실 소년", "points": 5 },
+    "pilgrim": { "name": "순례자", "points": 0 }
+  },
+  "badges": {
+    "champion": { "name": "챔피언 배지", "desc": "1등" },
+    "perfectionist": { "name": "완벽주의자 배지", "desc": "모든 수수께끼 수집" },
+    "contemplative": { "name": "명상자 배지", "desc": "플레이 시간 > 1시간" }
+  },
+  "social": {
+    "share_1": "🌟 저는 인류의 국경을 넘어 여행했습니다!\n\n\"어둠에서 빛으로, 사랑이 차이를 넘어 하나가 된다는 것을 배웠습니다.\"\n\n{name} - {city}, {country}\n💎 지혜: {wisdom}\n🎯 점수: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n⛵ 작은 배 게임하기 👁️",
+    "share_2": "🕊️ 진실을 향한 여행...\n\n\"저는 사랑의 다리를 건설하기 위해 두려움의 벽을 무너뜨렸습니다.\"\n\n{name} - {city}, {country}\n💎 지혜: {wisdom}\n🎯 점수: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n⛵ 작은 배 게임하기 👁️",
+    "share_3": "🌍 벽에서 다리로, 저는 인류를 발견했습니다...\n\n\"국경 너머, 우리의 심장은 하나로 뜁니다.\"\n\n{name} - {city}, {country}\n💎 지혜: {wisdom}\n🎯 점수: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n⛵ 작은 배 게임하기 👁️",
+    "share_4": "👁️ 저는 편견 너머의 진실을 보았습니다...\n\n\"우리는 두려움으로 벽을 세우지만, 사랑은 그것을 피난처로 변화시킵니다.\"\n\n{name} - {city}, {country}\n💎 지혜: {wisdom}\n🎯 점수: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n⛵ 작은 배 게임하기 👁️"
+  },
+  "end_form": {
+    "title": "당신의 여행이 완료되었습니다",
+    "your_progress": "당신의 진행 상황",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 점수",
+    "total_label": "총합 (XP + 점수)",
+    "wisdom_score": "지혜 점수",
+    "wisdom_level": "지혜 수준",
+    "progress_to_next": "다음 레벨까지 {current}/{next}",
+    "save_question": "랭킹에 점수를 저장하시겠습니까?",
+    "congrats": "🎉 축하합니다!",
+    "journey_complete": "당신의 여행이 완료되었습니다",
+    "points": "포인트"
+  },
+  "artist": {
+    "name": "Emmanuel Payet",
+    "subtitle": "기독교 예술가 • 창작자 • 영감을 주는 자",
+    "platform1_title": "게임 & 장식",
+    "platform1_desc": "신앙과 아름다움을 기념하는 나의 시각적 창작물, 인터랙티브 게임, 예술적 장식을 발견하세요.",
+    "platform1_link": "emmanuel.gallery",
+    "platform2_title": "책 & 예술",
+    "platform2_desc": "내 딸 Béthanie와 함께 만든 영혼과 정신을 키우는 나의 문학 및 예술 작품에 빠져보세요.",
+    "platform2_link": "emmanuelpayet.art",
+    "platform3_title": "무료 복음",
+    "platform3_desc": "AudioMack에서 나의 복음 작곡을 들어보세요. 하나님을 찬양하고 다양성 속의 통합을 영감을 주는 멜로디입니다.",
+    "platform3_link": "AudioMack - emmanuelpayet888",
+    "platform4_title": "좋은 시간",
+    "platform4_desc": "지금입니다! 독특한 디자인과 영감을 주는 창작물이 담긴 나의 Redbubble 상점을 발견하세요.",
+    "platform4_link": "Redbubble Shop",
+    "quote": "기독교 예술은 차이를 넘어 마음을 하나로 묶고,\n모든 다양성 속에서 신성한 창조의 아름다움을 기념합니다.",
+    "credits": "Claude가 코딩 • Emmanuel Payet의 원작 아이디어"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English",
+    "jp": "日本語",
+    "uk": "Українська",
+    "es": "Español",
+    "de": "Deutsch",
+    "it": "Italiano",
+    "pt": "Português",
+    "ru": "Русский",
+    "zh": "中文",
+    "ko": "한국어",
+    "ar": "العربية",
+    "he": "עברית",
+    "hi": "हिन्दी",
+    "br": "Brasil",
+    "mx": "México",
+    "ca": "Canada",
+    "au": "Australia",
+    "za": "South Africa",
+    "eg": "مصر",
+    "ng": "Nigeria",
+    "ke": "Kenya",
+    "tr": "Türkiye",
+    "ir": "فارسی",
+    "th": "ไทย",
+    "vn": "Việt Nam",
+    "ph": "Philippines",
+    "id": "Indonesia",
+    "my": "Malaysia",
+    "sg": "Singapore",
+    "rc": "Kréol Rényoné"
+  },
+  "pwa": {
+    "update_message": "🎨 개선된 아이콘이 포함된 새 버전이 출시되었습니다!\n\n✨ 최적화된 새 아이콘\n🔧 PWA 개선 사항\n\n지금 업데이트하시겠습니까?",
+    "update_banner": "🎨 개선된 아이콘이 포함된 새 버전이 출시되었습니다!",
+    "update_button": "업데이트",
+    "later_button": "나중에"
   }
 }

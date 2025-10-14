@@ -223,7 +223,7 @@ class Phase1Module {
         this.ctx.font = '14px serif';
         this.ctx.textAlign = 'center';
         this.ctx.fillText(
-            'Cliquez pour commencer le voyage...',
+            window.getTranslatedText ? window.getTranslatedText('game.instructions.click_to_start', 'Cliquez pour commencer le voyage...') : 'Cliquez pour commencer le voyage...',
             this.canvas.width / 2,
             this.canvas.height - 30
         );
@@ -293,16 +293,17 @@ class Phase1Module {
         // Montrer le message de transition
         const message = document.querySelector('.message');
         if (message) {
+            const getTranslated = window.getTranslatedText || ((key, fallback) => fallback);
             message.innerHTML = `
                 <div style="text-align: center;">
-                    <h3 style="margin-bottom: 15px; color: #4caf50;">✨ Le voyage commence ✨</h3>
-                    <p>Vous avez ouvert vos yeux à la vérité...</p>
+                    <h3 style="margin-bottom: 15px; color: #4caf50;">${getTranslated('ui.journey_begins', '✨ Le voyage commence ✨')}</h3>
+                    <p>${getTranslated('ui.opened_eyes', 'Vous avez ouvert vos yeux à la vérité...')}</p>
                     <p style="color: #ffd700; font-size: 14px; margin: 10px 0;">
-                        🌟 +100 XP pour avoir regardé l'introduction complète ! 🌟
+                        ${getTranslated('ui.intro_complete_xp', '🌟 +100 XP pour avoir regardé l\'introduction complète ! 🌟')}
                     </p>
                     <button class="message-button" onclick="window.gameManager.nextPhase()"
                             style="background: linear-gradient(145deg, #4caf50, #45a049);">
-                        Continuer le voyage
+                        ${getTranslated('ui.continue_journey', 'Continuer le voyage')}
                     </button>
                 </div>
             `;

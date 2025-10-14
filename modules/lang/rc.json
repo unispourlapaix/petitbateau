@@ -1,0 +1,676 @@
+{
+  "meta": {
+    "document_title": "Ti Bato Rouz ⛵ - Zé d'Énigm Poétik pa Emmanuel Payet",
+    "description": "Découvèr Ti Bato Rouz, ène zé d'énigm filozofik é poétik kréyé pa Emmanuel Payet. Navige atravèr 14 lang dann ènn univèr kote shak énigm révelé ènn véritab sir lhumanité. Obyéktif : 33 milion zouèr !",
+    "og_title": "Ti Bato Rouz ⛵ - Zé d'Énigm Poétik",
+    "og_description": "Ènn voyaz filozofik atravèr zénigm la lhumanité. Kréyé pa Emmanuel Payet, disponib dann 14 lang. Obyéktif : 33 milion zouèr !"
+  },
+  "ui": {
+    "skip_button": "Passe",
+    "continue_button": "Kontinié",
+    "save_score_ranking": "Anrézistre out skore pou aparèt dann klasemin mondial !",
+    "complete_game_save_score": "🎉 Finalizé zé pou anrézistre out skore !",
+    "journey_completed_title_alt": "Voyaz Finalizé",
+    "thank_you_truth": "Mersi lé sèrshe la vérité.",
+    "epilogue_button": "📖 Épilog",
+    "replay_button": "🔄 Rzoué ankor",
+    "thank_you_reading": "🌊 Mersi lé li 🌊",
+    "read_poetic_epilogue": "Li lépilog poétik",
+    "restart_journey": "Rkoumans lo voyaz",
+    "bonus_phase_title": "🌊 Faz Bonus Débloké 🌊",
+    "bonus_phase_intro": "Ou la finalizé out voyaz vèr la vérité.<br>Voila ènn réfléxion final sir nout mond...",
+    "bonus_phase_xp": "🌟 +200 XP pou ou la konplété zé ! 🌟",
+    "final_wisdom_quote": "Parski lo fé finir touzour pa ize la pièr,<br>é la liberté, boner ou tar, va reprann son smin.",
+    "end_of_game": "✨ Fin TI BATO ✨",
+    "journey_begins": "✨ Lo voyaz komans ✨",
+    "opened_eyes": "Ou la ouver ou bann zyé pou vwar la vérité...",
+    "intro_complete_xp": "🌟 +100 XP pou lé vwar lintrodixion konplèt ! 🌟",
+    "continue_journey": "Kontinié lo voyaz",
+    "game_title": "TI BATO",
+    "leaderboard_title": "🏆 Top 10 - Ti Bato",
+    "buttons": {
+      "save": "💾 Anrézistre",
+      "skip": "Passe",
+      "update": "Mèt azour",
+      "later": "Pli tar"
+    },
+    "form": {
+      "email_label": "Email * :",
+      "pseudo_label": "Pseudo * :",
+      "avatar_label": "Avatar :",
+      "optional_info": "Informasion opsionel",
+      "city_label": "Vil :",
+      "city_placeholder": "Ou vil",
+      "country_label": "Péi :",
+      "country_placeholder": "Ou péi",
+      "age_label": "Laz :",
+      "age_placeholder": "Ou laz",
+      "gender_label": "Zèn :",
+      "gender_not_specified": "Pa spésifyé",
+      "gender_male": "Garson",
+      "gender_female": "Fimèl",
+      "gender_other": "Lot",
+      "email_placeholder": "Ou adrès email",
+      "pseudo_placeholder": "Ou pseudo",
+      "name_prompt": "Ou non ?",
+      "city_prompt": "Ou vil ?",
+      "country_prompt": "Ou péi ?"
+    },
+    "menu": {
+      "enigmes": "🧩 Énigm",
+      "enigmes_full": "📜 Énigm Konplèt",
+      "menu_games": "🎮 Minyu Zé",
+      "poem1": "📜 Poèm 1",
+      "poem2": "📖 Poèm 2",
+      "artist_info": "🎨 Info Artis",
+      "credits": "🎬 Zénérik",
+      "icons": "🦇👼 Ikòn"
+    },
+    "tabs": {
+      "enigmes": "📋 Énigm",
+      "scores": "🏆 Skore"
+    },
+    "multilang_intro": {
+      "fr": "PETIT BATEAU",
+      "en": "LITTLE BOAT",
+      "jp": "小さな船",
+      "uk": "МАЛЕНЬКИЙ ЧОВЕН",
+      "ar": "قارب صغير",
+      "hi": "छोटी नाव",
+      "es": "PEQUEÑO BARCO",
+      "it": "PICCOLA BARCA",
+      "ko": "작은 배"
+    }
+  },
+  "game": {
+    "messages": {
+      "intro_bonus": "🌟 +100 Pwin pou lé vwar lintrodixion konplèt ! 🌟",
+      "light_victory": "💡 La limiér sasse la nwi\n+1000 XP",
+      "frontiers_broken": "🌍💕 FRONTIÉR KASÉ! +XXX ❤️",
+      "intro_points": "🌟 +100 Pwin intro konplèt",
+      "frontier_mode": "🧱 Mod Frontiér aktivé !",
+      "all_broken": "💥 TOU KASÉ ! 💥",
+      "bird_no": "🐦 NON !",
+      "crow_transformed": "🕊️ Korbo transformé ann Pizon !",
+      "crow_hit": "🐦 Korbo toushé {count}/7 fwa",
+      "secret_mode": "🎯 Mod Sékrè : Tir Prézizion 🎯\n\n🧊 Tiré sir zisberks é poubel ♻\n🐋 Balèn i protézé !\n🚫 Tiré sir balèn = pèrd lavi\n👆 Shak klik = ènn tir prézi\n💰 +100 pwin pa obstakl détrui",
+      "attack_launched": "🧱 Atak lonsé !",
+      "lantern_launched": "🏮 Lantèrn lonsé !",
+      "shooting_mode_activated": "🪔 Mod Tir aktivé ! (10s)",
+      "wall_resists": "🧱 Lo mir i rézist !",
+      "wall_resists_minus_1000": "🧱 Lo mir i rézist ! -1000 pwin",
+      "lantern_mode_start": "🏮 Mod Lantèrn aktivé !"
+    },
+    "errors": {
+      "fail_1": "NON GRÉ! HAAAH!",
+      "fail_2": "BOOOO! PA BIEN!",
+      "fail_3": "OOOH NON! VILÉ!",
+      "fail_4": "HAAAH! KATASTROF!",
+      "fail_5": "BEURK! MÉSHAN!",
+      "fail_6": "AIEEEE! MOUNSTR!",
+      "fail_7": "GRRRR! BÉTÉ!",
+      "fail_8": "PFFFFFF! KOUYON!",
+      "fail_9": "TSSS TSSS! ONT!",
+      "whale_death": "💀 Ou la tiré sir balèn protézé !\n😱 Tou ou bann lavi lé épwizé !\n🚫 Balèn i tir pa !\n🤪 HAHAHAHA! GAME OVER!",
+      "email_required": "⚠️ Email é pseudo nésèsèr",
+      "email_invalid": "⚠️ Email pa valid",
+      "saving": "💾 Anrézistréman...",
+      "saved": "✅ Skore anrézistré !"
+    },
+    "origin_journey": "Orijin : Lo voyaz ène lavi",
+    "knowledge_given": "Konésans doné",
+    "wisdom_score": "Skore Sazès",
+    "share_journey": "Partazé mon voyaz",
+    "restart": "Rkoumans",
+    "journey_continues": "😢 Lo voyaz vèr la vérité i kontinié...",
+    "truth_triumphs": "La vérité finir touzour pa trionfé !",
+    "your_best": "✨ Ou méyèr",
+    "chapters_progress": "SHAPITR",
+    "chapters_subtitle": "📚 Dépi \"La Limiér\" ziska \"Linité la Lhumanité\"",
+    "chapters_journey": "Ènn voyaz atravèr la vérité la lhumanité",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Skore",
+    "wisdom_label": "💎 Sazès",
+    "voyage_light": "Voyaz — La limiér",
+    "wisdom_level": "Nivo sazès",
+    "next_level": "vèr lo proshèn nivo",
+    "content_unavailable": "Kontény pa disponib",
+    "share_texts": {
+      "text1_title": "🌟 Mi la voyazé atravèr frontiér la lhumanité !",
+      "text1_quote": "Dépi lobskurité ziska la limiér, mi la apran ke lamour i uni odéla différans.",
+      "text2_title": "🕊️ Ènn voyaz vèr la vérité...",
+      "text2_quote": "Mi la kasé bann mir la pèr pou konstrir bann pon lamour.",
+      "text3_title": "🌍 Dépi mir ziska pon, mi la dékouvèr lhumanité...",
+      "text3_quote": "Odéla frontiér, nout bann kèr i bat ansamb.",
+      "text4_title": "👁️ Mi la war la vérité odéla prézizé...",
+      "text4_quote": "Nou konstrir bann mir pa pèr, mé lamour i transformé azot ann réfiz.",
+      "play_text": "Zoué a ⛵ TI BATO 👁️"
+    },
+    "instructions": {
+      "break_frontiers": "🌍 KASÉ BANN FRONTIÉR 🌍",
+      "click_to_launch": "🚀 KLIKE POU LONSE",
+      "click_to_start": "Klike pou koumans lo voyaz...",
+      "touch_to_start": "👆 Toushe pou koumans lo voyaz !",
+      "intro_message_1": "⛵✨ TI BATO ✨⛵<br><br>🌅 SHAPITR 1 : LA LIMIÉR<br><br>💭 \"Domoun la di amoin ke zot lété tou bann mounstr...<br>Domoun la rakont amoin tèlman mové bagay, tèlman malèr sir zot...<br>Mé mwin, mi la préféré alé vwar èk mon prop zyé.<br>Kisani lété sa bann moun la ?...\"",
+      "intro_message_2": "💭 \"É mi la war...<br>Ènn papa... ènn maman... bann zanfan...<br>Tou i sèrshe sinpleman pou viv zot méyèr lavi... Kom mwin.\"",
+      "intro_message_3": "🌑 Aprésa va rouvèr lobskurité... ⛈️<br>🎮 Kase bann prézizé, rézisté ziska loraz !\n<br>👆 Toushe pou koumans lo voyaz !"
+    },
+    "quotes": {
+      "enigma_truth": "Dann shak énigm i kash ènn vérité,",
+      "truth_humanity": "dann shak vérité i révèl nout limanité.",
+      "be_first": "Swa lo prémyé pou finalizé zé !"
+    },
+    "frontiers": {
+      "title": "🧱 Frontiér",
+      "subtitle": "Résapé bann frontiér"
+    },
+    "canvas": {
+      "objective": "Obyéktif : 33 milion ! 🌍",
+      "click_info": "(Klik pou ansavwar pli)",
+      "author": "🎨 Emmanuel Payet",
+      "dreamer": "Dreamer Unisona",
+      "projects": "📂 Prozé",
+      "languages_heart": "💝 Lang lo Kèr 💝",
+      "languages_message": "Shak lang i port lamour é la pé lo mond",
+      "love": "Lamour",
+      "universal": "Inivèrsèl",
+      "voyage_origin": "Orijin lo voyaz",
+      "continue_button": "➜ Kontinié",
+      "next_button": "➜ Suivan"
+    },
+    "projects": {
+      "games_deco": "Zé & Déko",
+      "unispourlapaix": "UnisPourLaPaix",
+      "free_gospel": "Free Gospel",
+      "books_art": "Liv & Lar",
+      "good_time": "La Bon Lèr"
+    },
+    "phase_display": {
+      "voyage": "Voyaz",
+      "phase_counter": "Faz",
+      "secret_mode": "MOD SÉKRÈ"
+    },
+    "voyage_names": {
+      "dawn_of_doubts": "Zour la lèv bann dout",
+      "light": "La limiér",
+      "shadow_of_clouds": "Lonm bann nuaz",
+      "silence_of_soul": "Lo silans lam",
+      "humanity_of_hearts": "Limanité bann kèr",
+      "wisdom_of_differences": "La sazès bann différans",
+      "unity": "Linité",
+      "unity_of_humanity": "Linité la Lhumanité",
+      "wall_of_greed": "Lo Mir lavidité",
+      "default": "Voyaz"
+    },
+    "secret_mode": {
+      "title": "MOD SÉKRÈ",
+      "shoot_to_transform": "Tiré pou transformé",
+      "avoid_eliminate_survive": "Évité • Éliminé • Sirviv",
+      "waiting_game": "⛵ Atann lo zé prinsipal...",
+      "starting_in": "Démàraz dann",
+      "activated": "🎮 Mod sékrè aktivé - Tiré sir bann obzé kawaii",
+      "discovered": "🎉 Mod sékrè dékouvèr +100 XP - Tiré sir bann obzé kawaii",
+      "victory": "🏆 Viktwar sékrèt - Obzé détrui : {count} - Total XP : +{xp}",
+      "object_hit_positive": "🎉 {object} +{points} pwin !",
+      "object_hit_negative": "💔 {object} {points} pwin !",
+      "objects": {
+        "baleine": "BALÈN",
+        "asteroide": "ASTÉROÏD",
+        "etoile": "ZÉTWÉL",
+        "tank": "TANK",
+        "lune": "LALINN",
+        "banane": "BANANN",
+        "smartphone": "TÉLÈFON",
+        "poubelle": "POUBÈL",
+        "avion": "AVION"
+      }
+    }
+  },
+  "narrative": {
+    "voyage_titles": {
+      "phase1": "Voyaz — Zour la lèv bann dout",
+      "phase2": "Voyaz — La limiér",
+      "phase3": "Voyaz — Lonm bann nuaz",
+      "phase4": "Voyaz — Lonm bann nuaz",
+      "phase5": "Voyaz — Lo silans lam",
+      "phase6": "Voyaz — Lo silans lam",
+      "phase7": "Voyaz — Limanité bann kèr",
+      "phase8": "Voyaz — Limanité bann kèr",
+      "phase9": "Voyaz — Limanité bann kèr",
+      "phase10": "Voyaz — La sazès bann différans",
+      "phase11": "Voyaz — La sazès bann différans",
+      "phase12": "Voyaz — La sazès bann différans",
+      "phase13": "Voyaz — Linité",
+      "phase14": "Voyaz — Linité",
+      "phase15": "Voyaz — Linité",
+      "phase16": "Linité la Lhumanité",
+      "phase17": "Voyaz — Lo Mir lavidité",
+      "phase18": "Voyaz — Prizon liberté",
+      "phase19": "Voyaz — Fildéfèr réfi",
+      "phase20": "Voyaz — Port anlor",
+      "phase21": "Voyaz — Késtion liberté",
+      "phase22": "Voyaz — Lèspwar bann lam",
+      "phase23": "Révélasion"
+    },
+    "phase1": {
+      "title": "Zour la lèv bann dout\nFaz 1",
+      "intro_short": "Domoun la di amoin ke zot lété tou bann mounstr...\nDomoun la rakont amoin tèlman mové bagay, tèlman malèr sir zot...\nMé mwin, mi la préféré alé vwar èk mon prop zyé.",
+      "intro_full": "Domoun la di amoin ke zot lété tou\nbann mounstr...\nDomoun la rakont amoin tèlman mové bagay,\ntèlman malèr\nsir zot...\nMé mwin,\nmi la préféré alé vwar\nèk mon prop zyé...",
+      "reaction": "NON nou pé pa lès passe sa !",
+      "text": "Domoun la di amoin ke zot lété tou\nbann mounstr...\nDomoun la rakont amoin tèlman mové bagay,\ntèlman malèr\nsir zot...\nMé mwin,\nmi la préféré alé vwar\nèk mon prop zyé..."
+    },
+    "phase2": {
+      "text": "Kisani lété vraiman ?...\nÉ mi la war...\nÈnn papa... ènn maman...\nbann zanfan...\nTou i sèrshe sinpleman pou viv\nzot méyèr lavi...\nKom mwin."
+    },
+    "phase3": {
+      "text": "Alor, la linn la apparèt.\nLo syèl la vinn pli fonksé\nkom ènn paz grilé\npa lo tan.\nÈnn narzwèr la fann bann lam\nsombr...\nBann zékler la zébré\nbann nuaz gri.\n\nÉ èk azot la vin bann malèr...\nBann dizkord..."
+    },
+    "phase4": {
+      "text": "La hènn...\nLa déstriksion...\nLo vol, lo mantèr,\nLa manipilasion...\nLa kipidité é lavidité,\nKom bann shènn invizib,\nI sèré kèr bann moun."
+    },
+    "phase5": {
+      "text": "Domoun la di amoin pou pa ékouté\nzot bann kri...\nDomoun la di amoin pou pa lès\nloraz fé mwin pèr.\nParski loraz,\nosi boukanté i syé,\ni dir zamé\npou touzour."
+    },
+    "phase6": {
+      "text": "É si la tanpèt i grongn,\nsé pétèt\npou rapel lo moun\nkodéla bann nuaz,\ninn ègzist touzour\nènn limiér.\nMé pou war ali,\nfo dabor traversé\nla nwi..."
+    },
+    "phase7": {
+      "text": "Domoun la di amoin...\nke limanité navé pli,\nke ali lété pérdi\ndann bann gèr\né bann rankinn.\nDomoun la di amoin ke bann moun\ni rsévoué\npli pèrsoun,\nkzot i anfèrm azot\ndèryèr bann mir difèr\né la pèr..."
+    },
+    "phase8": {
+      "text": "Mé mwin, mi la war…\nÈnn lanmèn tandi a ènn étranzé.\nÈnn sourir partazé\nalgré la finn.\nÈnn port ouver\npou sèla i tranbloté\ndann la nwi..."
+    },
+    "phase9": {
+      "text": "Sé sa,\nlospitalité :\npé pa doné sa nou la tro,\nmé partazé\nmèm sa i mank..."
+    },
+    "phase10": {
+      "text": "Domoun la di amoin ke la liberté\nlété zis ènn mo,\nènn ilizion\nke bann pisan\ni vann o bann féb.\nMé mi la war…\nÈnn zanfan i kour pyé-ni\nanba la pliy,\ni ri san shènn,\né dann son bann ri,\nmi la konpran ke la liberté\ni vi dabor dann lam."
+    },
+    "phase11": {
+      "text": "Domoun la di amoin ke bann moun\ni éd pli,\nke shaken i vi zis pou ali.\nMé mi la war…\nBann inkonni i soulvé ansamb\nènn rosh tro lou,\né dann sa fors partazé,\nmi la war lamour i nèt."
+    },
+    "phase12": {
+      "text": "Domoun la di amoin ke lamour\nlété frazil,\nmé mi la war\nke ali lé pli for\nke la hènn,\nparski ali i konstrir\nkan la hènn\ni détrui..."
+    },
+    "phase13": {
+      "text": "Domoun la di amoin ke la tolérans\nlété ènn fèblès,\nmé mi la war ke ali lé\nènn sazès :\nsèla pou rkoné\nke nou lé pa tou\nparèy...\nÉ sé la\nlo trésor la lavi,\nlo smin vèr\nla pé."
+    },
+    "phase14": {
+      "text": "La divèrsité…\nAli lé pa ènn danzé,\nali lé ènn trésor.\nKom bann koulèr\nènn ark-an-syèl,\nsé zot différans\ni fé nèt la boté."
+    },
+    "phase15": {
+      "text": "É dann sa mélanz\nlimanité,\nmi la konpran\nke nou lé\nènn sèl pèp,\nkonnékté pa la mèm\nswaf viv,\nkréyé,\né èmé."
+    },
+    "phase16": {
+      "text": "Lo voyaz i komans,\né mi souèt azot bon van.\n\nKe lo van i port azot touzour pli lwin,\nla kot lo bonèr lé lib.\n\nLa kot bann frontiér i vinn\nbann promès, bann lèspwar,\nbann prozé lavi nouvèl.\n\nLès pa azot arété o bann mir\ni drès douvan ou\néfrèyab é frwa,\nabandone zamé,\nkase bann mir,\nla pèr, la ont, rankinn, la hènn,\npou vinn kom ènn far pou bann lot."
+    },
+    "phase17": {
+      "text": "Dann lwin… mi war ènn mir.\nÈnn mir planté dann la mèr kom ènn sikatris.\nÈnn mir i lé pa fèt èk rosh,\nmé èk bann lwa, bann papyé é bann rgar fèrmé."
+    },
+    "phase18": {
+      "text": "Sa mir la sé prizon liberté bann moun.\nAli i sépar sèla i pé kour san shènn,\né sèla domoun i anfèrm dann bann frontiér invizib."
+    },
+    "phase19": {
+      "text": "Pou bann pov, ali lé fildéfèr la réfi,\nfèrmé kom ènn port rouyi.\nZot i frap èk zot bann lanmèn ni,\nzot bann rèv kasé pa lo silans bann gardyin."
+    },
+    "phase20": {
+      "text": "Pou bann rish, ali lé ènn port anlor.\nAli i rouv san zéfor,\né i lès azot sikilé kom lo van i la pa patri."
+    },
+    "phase21": {
+      "text": "Alor mi domann amoin…\nLa liberté lé vraiman ènn drwa,\nouswa ali la vinn ènn privilèz vandou o bann i of pli ?"
+    },
+    "phase22": {
+      "text": "Mé dann kèr bann lam,\nla mèr i sousouté ènn vérité :\npa inn mir lé étèrnèl.\nParski lo fé finir touzour pa ize la pièr,\né la liberté, boner ou tar,\nva reprann son smin."
+    },
+    "phase23": {
+      "text": "👁️ Konsa i finalizé sa voyaz la...\n\nOu la navigé atravèr bann tanpèt,\nkasé bann mir linornas,\né dékouvèr ke la vérité\nlé pa ènn fin,\nmé ènn smin.\n\nShak énigm rézoli,\nshak shwa pozé,\nla aproché ou sa sazès la :\n\n💫 Nou lé tou\nbann gardyin la limiér.\n\nLa divèrsité lé pa ènn ménass,\nmé lo pli bel trésor.\n\n⛵ Lo voyaz i kontinié...\nDann out kèr, dann ou bann shwa,\ndann out fason war lo mond.\n\n--Emmanuel Payet"
+    },
+    "walls_message": "Sa bann mir la sé nout prop,\nnou kréyé azot pa nout bann konfli,\npa la hènn é lo rasism,\nlintolérans bann lot,\nla pèr linkonni.\n\nSé nou, pa nout bann silans é nout bann malèr,\npa nout bann pèr sousouté,\npa nout bann mo zété kom bann rosh,\ni fé azot pli solid.\n\nSé bann mir légwism,\nkonstrir èk sa i pouvé èt bann twa,\nbann réfiz, bann lakaz.",
+    "final_message": "Limanité la pa bzwin mir pou protéz ali,\nmé bann pon pou rankontré.\n\nKonstrizon èk lamour, pa èk la pèr.\nÈnn mond ini i vo myé kènn mond séparé.\n\n- Emmanuel.gallery",
+    "wall_crumbles": "✨ LO MIR I TONM DÉFINITIVMAN ✨"
+  },
+  "interface": {
+    "tabs": {
+      "enigmas": "Énigm",
+      "scores": "Skore",
+      "language": "Lang",
+      "info": "Info"
+    },
+    "menus": {
+      "voyage_enigmas": "Voyaz : Énigm",
+      "collected_progress": "Koléksioné: {collected}/{total} ({percent}%)",
+      "score_xp": "🕊️ {score} | ⭐ XP: {xp}",
+      "no_score_recorded": "Okinn skore anrézistré"
+    },
+    "buttons": {
+      "close": "Fèrm",
+      "restart": "Rkoumans",
+      "share_journey": "🌍 Partazé mon voyaz",
+      "break_borders": "🌍 KASÉ BANN FRONTIÉR 🌍",
+      "click_to_launch": "🚀 KLIKE POU LONSE"
+    },
+    "system": {
+      "loading": "⏳ Sharzman...",
+      "fireworks_starting": "Bann fésartifis i komans...",
+      "adventure_completed": "✨ Avantir finalizé ✨\n\n⛵ TI BATO ⛵\n\nMersi lé zoué !",
+      "error": "Èrèr",
+      "text_copied_clipboard": "✅ Tèks kopyé dann prèss-papyé !\n\nPartazé ali sir ou bann rézo sosyal 🌍",
+      "enigma_not_discovered": "Énigm pa ankor dékouvèr",
+      "no_exclamation": "NON !"
+    },
+    "labels": {
+      "mystery": "Mistèr",
+      "revelation": "Révélasion",
+      "wisdom": "Sazès"
+    }
+  },
+  "bricks": {
+    "day": {
+      "told": { "name": "DOMOUN LA DI AMOIN...", "msg": "🗣️ Bann manipilasion i éfas douvan la vérité !" },
+      "monsters": { "name": "BANN MOUNSTR", "msg": "👨‍👩‍👧‍👦 Non... bann moun kom nou !" },
+      "prejudice": { "name": "PRÉZIZÉ", "msg": "🎭 Bann mask i tonm yènn pa yènn..." },
+      "fears": { "name": "BANN PÈR", "msg": "👁️ Mi la shwazi vwar pa mon prop zyé !" },
+      "distrust": { "name": "MÈFIANS", "msg": "🤝 La mèfians i lès plas a la konpasion..." },
+      "who_are_they": { "name": "KISANI ZOT ?", "msg": "❓ Sa késtion la i ant dann mon tèt..." },
+      "i_saw": { "name": "MI LA WAR...", "msg": "👁️ É mon bann zyé la rouvèr..." },
+      "father": { "name": "ÈNN PAPA", "msg": "👨 Ènn nom i èm son bann zanfan..." },
+      "mother": { "name": "ÈNN MAMAN", "msg": "👩 Ènn fanm kourazèz..." },
+      "children": { "name": "BANN ZANFAN", "msg": "👶 Bann ri pir é inossan..." },
+      "humanity": { "name": "LIMANITÉ", "msg": "💫 Lèsans mèm sa nou lé..." },
+      "love": { "name": "LAMOUR", "msg": "❤️ Pli for ke tou bann baryèr..." },
+      "compassion": { "name": "LA KONPASION", "msg": "🤗 I uni odéla différans..." },
+      "hope": { "name": "LÈSPWAR", "msg": "🌅 Ènn limiér dann lobskurité..." },
+      "peace": { "name": "LA PÉ", "msg": "🕊️ Posib kan nou shwazi èmé..." },
+      "like_me": { "name": "KOM MWIN", "msg": "🌍 Nou lé tou bann imigré..." },
+      "truth": { "name": "VÉRITÉ RÉVÉLÉ", "msg": "👁️ Mon bann zyé la anfen rouvèr..." },
+      "courage": { "name": "KOURAZ LO KÈR", "msg": "💪 Mi la shwazi vwar pa mon prop zyé..." },
+      "precious": { "name": "PRÉSYÉ", "msg": "💎 Shak moun lé présyé..." }
+    },
+    "night": {
+      "discord": { "name": "DIZKORD", "msg": "⚡ Bann dizkord... bann hènn... bann déstriksion..." },
+      "hatred": { "name": "BANN HÈNN", "msg": "💔 Vin èk bann malèr lonm..." },
+      "destruction": { "name": "DÉSTRIKSION", "msg": "🌪️ Lo vol, lo mantèr, la manipilasion..." },
+      "theft": { "name": "VOL", "msg": "🦹 I pran sa i lé pa azot..." },
+      "lies": { "name": "MANTÈR", "msg": "🎭 Bann mask la trompri..." },
+      "manipulation": { "name": "MANIPILASION", "msg": "🕷️ Bann fil invizib i tir bann kèr..." },
+      "greed": { "name": "KIPIDITÉ", "msg": "💰 La kipidité é lavidité..." },
+      "avarice": { "name": "LAVIDITÉ", "msg": "⛓️ Kom bann shènn invizib..." },
+      "chains": { "name": "SHÈNN", "msg": "🔗 I sèré kèr bann moun..." },
+      "iron_walls": { "name": "MIR DIFÈR", "msg": "🧱 Anfèrmé dèryèr bann mir difèr é la pèr..." },
+      "jealousy": { "name": "ZALOUZI", "msg": "💚 Lo pwézon vèr lanvi..." },
+      "pride": { "name": "ORGUÈY", "msg": "👑 La kouronn i évèg..." },
+      "anger": { "name": "KOLÈR", "msg": "🔥 Bann flam i konsim la rézon..." },
+      "revenge": { "name": "VANZANS", "msg": "⚔️ La spiral san fin la soufranas..." },
+      "indifference": { "name": "ANDIFÉRANS", "msg": "🧊 Lo frwa i zlas bann lam..." },
+      "selfishness": { "name": "LÉGWISM", "msg": "🪞 War zis son prop réflé..." },
+      "ignorance": { "name": "LINORNAS", "msg": "🙈 Shwazi pou fèrm bann zyé..." },
+      "resistance": { "name": "RÉZISTANS", "msg": "🛡️ Mé mi gard mon kèr pir dann la tanpèt..." },
+      "light": { "name": "LIMIÉR", "msg": "✨ Parski odéla bann nuaz, ali i ègzist touzour..." },
+      "hope_reborn": { "name": "LÈSPWAR RÉNÈT", "msg": "🌅 La limiér i pèrs anfen bann ténèbr..." },
+      "inner_strength": { "name": "FORS LANTÉRYÈR", "msg": "🌟 Mon kèr i rézist a lobskurité..." },
+      "wisdom": { "name": "SAZÈS AKIZ", "msg": "🧠 Dann la nwi, mi la apran vwar..." }
+    }
+  },
+  "enigmes": {
+    "humanity": {
+      "name": "Limanité",
+      "description": "La fors i uni tou bann kèr",
+      "mystery": "Késkosa i rann nou vraiman imin ?",
+      "revelation": "Limanité i rézi dann nout kapasiké pou rssanti konpasion pou bann lot, mèm pou sèla i lé différan a nou.",
+      "wisdom": "Ènn papa, ènn maman, bann zanfan... Tou i sèrshe sinpleman pou viv zot méyèr lavi, kom nou."
+    },
+    "wall_of_fear": {
+      "name": "Mir la Pèr",
+      "description": "Lorijin ansèstral nout bann frontiér",
+      "mystery": "Pourké sa bann vyé réflèks animal i rès ankor ?",
+      "revelation": "Lo mir é nout bann frontiér i sort dépi la pèr é la foli pasé gèr tèritwar, ou la pèr pèrd tèrin, èt anvai pa bann ènmi. Bann fortèrès lété alor lozik é obligatwar pou protéz, é sa dépi bann grot préistorik sinpleman pou protéz kont bann zanimo. Mé zordi pourké sa bann mir i kontinié ?",
+      "wisdom": "Dépi grot préistorik ziska mir modèrn, la pèr ansèstral i pèrsist. Mé èske nou lé ankor bann zanimo la pèr, ou nou pé vinn imin ?"
+    },
+    "peace": {
+      "name": "La Pé",
+      "description": "Larmoni i dépass bann konfli",
+      "mystery": "Koman nou trouv la pé dann ènn mond shao ?",
+      "revelation": "La pé i nèt kan nou shwazi èmé pito ke ènn, konpran pito ke zizé.",
+      "wisdom": "Odéla bann nuaz, inn ègzist touzour ènn limiér. Mé pou war ali, fo dabor traversé la nwi."
+    },
+    "diversity": {
+      "name": "Divèrsité",
+      "description": "La boté nout bann différans",
+      "mystery": "Pourké nou la pèr sa i lé différan ?",
+      "revelation": "La divèrsité sé la rishès lo mond. Shak koulèr, shak kiltyèr i apport son prop boté a lark-an-syèl imin.",
+      "wisdom": "Domoun la rakont amoin tèlman mové bagay sir zot... Mé mi la préféré alé vwar èk mon prop zyé."
+    },
+    "freedom": {
+      "name": "Liberté",
+      "description": "Lo drwa viv san shènn",
+      "mystery": "Késkosa la vrè liberté ?",
+      "revelation": "La liberté lé pa labsans kontrant, mé la kapasiké shwazi lamour algré la pèr.",
+      "wisdom": "La kipidité é lavidité, kom bann shènn invizib, i sèré kèr bann moun."
+    },
+    "faith": {
+      "name": "Fwa",
+      "description": "Lèspwar i gid dann lobskurité",
+      "mystery": "Koman gard la fwa kan tou i sanm pèrdi ?",
+      "revelation": "Vé la liberté, sé osi donné ali bann lot. La liberté i sra alor bénéfik pou tou é porté la pé.",
+      "wisdom": "Parski vé libèr dé bann shènn, sé osi inn akt la fwa."
+    },
+    "respect": {
+      "name": "Rèspé",
+      "description": "La dinyité akordi a shak moun",
+      "mystery": "Koman rèspékté sèla nou konpran pa ?",
+      "revelation": "Lo rèspé i nèt dépi la rkonésans ke shak moun i port ann ali ènn zéténsèl divin.",
+      "wisdom": "Zot i anfèrm azot dèryèr bann mir difèr é la pèr... Mé limanité lété ankor la."
+    },
+    "mutual_aid": {
+      "name": "Antréd",
+      "description": "La fors linion solidèr",
+      "mystery": "Pourké éd sèla i pé doné nou aryin ?",
+      "revelation": "Dann lantréd, nou dékouvèr ke doné i anrishi nou pli ke rsévoué.",
+      "wisdom": "Lamour, pli for ke tou bann baryèr, i uni odéla différans."
+    },
+    "healing": {
+      "name": "Gérizo",
+      "description": "Lo pouvwar swinyn bann blésyèr",
+      "mystery": "Koman gérir bann blésyèr invizib ?",
+      "revelation": "La vrè gérizo i komans pa laksèptasion é i kontinié pa lo pardon.",
+      "wisdom": "Si la tanpèt i grongn, sé pou rapel kodéla bann nuaz, inn ègzist touzour ènn limiér."
+    },
+    "restoration": {
+      "name": "Rèstorasion",
+      "description": "Lo rnouvèl apré la déstriksion",
+      "mystery": "Koman rébati apré la dévastasion ?",
+      "revelation": "Shak fin i kontyin ann ali bann grènn ènn nouvo komansman.",
+      "wisdom": "Ènn limiér dann lobskurité... Lèspwar posib kan nou shwazi èmé."
+    },
+    "avarice": {
+      "name": "Lavidité",
+      "description": "Lo mir la kipidité",
+      "mystery": "Késkosa i drès bann mir ant bann moun ?",
+      "revelation": "Lavidité i bati bann mir la kot lamour i pouvé konstrir bann pon.",
+      "wisdom": "Ènn mir planté dann la mèr kom ènn sikatris... Ènn mir i lé pa fèt èk rosh, mé èk bann lwa, bann papyé é bann rgar fèrmé."
+    },
+    "prison_freedom": {
+      "name": "Prizon Liberté",
+      "description": "Bann shènn invizib",
+      "mystery": "Kisani i mérit èt lib ?",
+      "revelation": "La liberté lé pa ènn privilèz pou distribié, mé ènn drwa inivèrsèl pou onor.",
+      "wisdom": "Sa mir la sé prizon liberté bann moun. Ali i sépar sèla i pé kour san shènn, é sèla domoun i anfèrm dann bann frontiér invizib."
+    },
+    "refusal": {
+      "name": "Réfi",
+      "description": "Bann fildéfèr lo rzèt",
+      "mystery": "Pourké nou fèrm nout bann port ?",
+      "revelation": "Shak réfi sé ènn blésyèr inflizyé a limanité ke nou partazé tou.",
+      "wisdom": "Bann fildéfèr difèr é la pèr... forzé pa sèla la oublyé ke zot osi lété ènn zour bann voyazèr."
+    },
+    "pride": {
+      "name": "Orguèy",
+      "description": "Légo i déforme nout rgar",
+      "mystery": "Pourké nou war bann lot kom inféryèr ?",
+      "revelation": "Lorguèy é légo i fé nou war bann moun pli ti ou pov différaman, mé nou lé tou égal dann limanité.",
+      "wisdom": "Ènn port anloré i rouv zis pou kèkzinn... Nout égo i fé nou krwar ke nou mérit ali, é ke bann lot i mérit pa."
+    },
+    "inequality": {
+      "name": "Inégalité",
+      "description": "La piramid bann déstin",
+      "mystery": "Pourké sèrtèn i port fardo bann lot ?",
+      "revelation": "Bann inégalité lé pa ènn fatalité, mé ènn sistèm ke nou pèrpétyé ann silans.",
+      "wisdom": "Ènn piramid bann déstin anpilé... Sèla dann ba i port lo pwa sèla dann o, é pèrsoun i domann si sa lé zist."
+    },
+    "hope": {
+      "name": "Lèspwar",
+      "description": "La liberté i pé pa anfèrmé",
+      "mystery": "Èske nou pé vraiman anprizoné la liberté ?",
+      "revelation": "Kèk lèspwar ranpli zot kèr, gard lo kap èk pèrsévérans, lès lo van Bondiè pous azot, èk gingn pa pèr linposib.",
+      "wisdom": "Dann kèr bann lam, la mèr i sousouté ènn vérité : pa inn mir lé étèrnèl. Parski lo fé finir touzour pa ize la pièr, é la liberté, boner ou tar, va reprann son smin."
+    },
+    "lighthouse": {
+      "name": "Lo Far dann la Nwi",
+      "description": "La limiér i gid sèla i lé pèrdi",
+      "mystery": "Koman trouv son smin dann lobskurité ?",
+      "revelation": "La limiér lé pli for ke la nwi. Mèm ènn ti flam i pé disipé bann ténèbr pli profon.",
+      "wisdom": "Dann bann moman pli sombr, swa la limiér ou i sèrshe. La konpasion i ékler mèm bann kèr pli obskursi."
+    },
+    "lamp": {
+      "name": "La Lanp Ranpli Lwil",
+      "description": "Lamour i ékler nout bann zèvr",
+      "mystery": "Késkosa la sours nout limiér lantéryèr ?",
+      "revelation": "Lamour i ékler nout bann zèvr. San lamour, nou lé lonm aryin.",
+      "wisdom": "Nout bann aksion i pran sans zis kan azot lé gidé pa lamour. Sé ali i transform lo vid ann plénitid, lonm ann limiér."
+    },
+    "heart": {
+      "name": "Lo Kèr la Lhumanité",
+      "description": "Lèsans mèm nout limanité partazé",
+      "mystery": "Késkosa i uni nou tou odéla nout bann différans ?",
+      "revelation": "Dann kèr shak moun i bat la mèm lamour, la mèm lèspwar, la mèm pèr. Nou lé yènn.",
+      "wisdom": "Lo voyaz i finalizé la kot ali la koumansé : dann lo kèr. Sé ann rkonnèsan nout limanité komin ke nou trouv la vrè pé."
+    },
+    "humanity_no_borders": {
+      "name": "Limanité San Frontiér",
+      "description": "Limanité odéla bann mir",
+      "mystery": "Bann frontiér i défini kisani nou lé ?",
+      "revelation": "Limanité i konnèt pa frontiér. Nou lé tou bann voyazèr sir la mèm tèr.",
+      "wisdom": "Ènn papa, ènn maman, bann zanfan... i sèrshe sinpleman pou viv, kom nou tou."
+    },
+    "right_to_happiness": {
+      "name": "Drwa o Bonèr",
+      "description": "Ènn twa pou shak famiy",
+      "mystery": "Kisani i mérit ènn abri é lo bonèr ?",
+      "revelation": "Shaken la drwa o bonèr, ènn abri, ènn twa. Konstrizon bann kaz é bann pon èk bann mir itil, bann mir lamour pou bann famiy i la bzwin.",
+      "wisdom": "Bann mir i dwa pa séparé, mé protéz. Bann pon i dwa pa divizé, mé ini."
+    },
+    "precious_life": {
+      "name": "Lavi Présyé",
+      "description": "La valèr shak ègzistans",
+      "mystery": "Tou bann lavi la mèm valèr ?",
+      "revelation": "Shak lavi lé présyé, kèl lé néyé isi ou èyèr.",
+      "wisdom": "La lavi i mézir pa son orijin, mé son èsans."
+    },
+    "communitarianism": {
+      "name": "Komninotarism",
+      "description": "Bann danzé séktarism",
+      "mystery": "Pourké nout bann divizion i féblir nou ?",
+      "revelation": "Anportan sosyalman mé danzéré dann bann dériv diktatyèr. Nou trouv lo komninotarism partou, dépi politík é son bann divizion, bann rélizion ziska sèkt atéyis. Shaken i mènn son konba, lo konba lo moun èk son vizion, son kèr. La kominnoté sé byèn, mé détrui bann lidé bann lot, san tolérans é rèspé, i éd pa limanité pou progréssé.",
+      "wisdom": "Nout séktarism politik é rélizyé i détrui bann pon, i détrui la pé. I fo nou sa élan port a byèn lo prozé bann lot, éd a la rézisit, konsolidé é pa détrui vit bann lidé bann lot. San tolérans, pa progré."
+    }
+  },
+  "levels": {
+    "robe_blanche": { "name": "Rob Blans", "points": 300 },
+    "saint_navigator": { "name": "Sèn Navigatèr", "points": 250 },
+    "prophet": { "name": "Profèt Bann Mèr", "points": 200 },
+    "illuminated": { "name": "Iliminé", "points": 175 },
+    "disciple": { "name": "Disipl la Limiér", "points": 150 },
+    "contemplative": { "name": "Kontonplatif", "points": 125 },
+    "guardian": { "name": "Gardyin la Limiér", "points": 100 },
+    "meditating": { "name": "Méditant", "points": 80 },
+    "captain": { "name": "Kapitèn", "points": 60 },
+    "navigator": { "name": "Navigatèr", "points": 45 },
+    "enlightened_sailor": { "name": "Marin Éklèré", "points": 30 },
+    "initiate": { "name": "Inisyé", "points": 20 },
+    "apprentice": { "name": "Apanti", "points": 10 },
+    "cabin_boy": { "name": "Mouss", "points": 5 },
+    "pilgrim": { "name": "Pélrin", "points": 0 }
+  },
+  "badges": {
+    "champion": { "name": "Baz Champion", "desc": "Top 1" },
+    "perfectionist": { "name": "Baz Pèrfèksionist", "desc": "tou énigm koléksioné" },
+    "contemplative": { "name": "Baz Kontonplatif", "desc": "tan zé > 1h" }
+  },
+  "social": {
+    "share_1": "🌟 Mi la voyazé atravèr bann frontiér la lhumanité !\n\n\"Dépi lobskurité ziska la limiér, mi la apran ke lamour i uni odéla différans.\"\n\n{name} - {city}, {country}\n💎 Sazès : {wisdom}\n🎯 Skore : {score}\n\n#UnisPourLaPaix #TIBATO #Emmanuel.gallery\n\nZoué a ⛵ TI BATO 👁️",
+    "share_2": "🕊️ Ènn voyaz vèr la vérité...\n\n\"Mi la kasé bann mir la pèr pou konstrir bann pon lamour.\"\n\n{name} - {city}, {country}\n💎 Sazès : {wisdom}\n🎯 Skore : {score}\n\n#UnisPourLaPaix #TIBATO #Emmanuel.gallery\n\nZoué a ⛵ TI BATO 👁️",
+    "share_3": "🌍 Dépi mir ziska pon, mi la dékouvèr limanité...\n\n\"Odéla frontiér, nout bann kèr i bat ansamb.\"\n\n{name} - {city}, {country}\n💎 Sazès : {wisdom}\n🎯 Skore : {score}\n\n#UnisPourLaPaix #TIBATO #Emmanuel.gallery\n\nZoué a ⛵ TI BATO 👁️",
+    "share_4": "👁️ Mi la war la vérité odéla prézizé...\n\n\"Nou konstrir bann mir pa pèr, mé lamour i transformé azot ann réfiz.\"\n\n{name} - {city}, {country}\n💎 Sazès : {wisdom}\n🎯 Skore : {score}\n\n#UnisPourLaPaix #TIBATO #Emmanuel.gallery\n\nZoué a ⛵ TI BATO 👁️"
+  },
+  "end_form": {
+    "title": "Out Voyaz lé Konplé",
+    "your_progress": "Out progréssion",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Skore",
+    "total_label": "Total (XP + Skore)",
+    "wisdom_score": "Skore Sazès",
+    "wisdom_level": "Nivo sazès",
+    "progress_to_next": "{current}/{next} vèr lo proshèn nivo",
+    "save_question": "Anrézistre out skore dann klasemin ?",
+    "congrats": "🎉 Brav !",
+    "journey_complete": "Out voyaz lé finalizé",
+    "points": "pwin"
+  },
+  "artist": {
+    "name": "Emmanuel Payet",
+    "subtitle": "Artis Krétyin • Kréyatèr • Inspiratèr",
+    "platform1_title": "Zé & Déko",
+    "platform1_desc": "Dékouvèr mon bann kréyasion vizyèl, zé intéraktif é dékorasion artistik i sélébre la fwa é la boté.",
+    "platform1_link": "emmanuel.gallery",
+    "platform2_title": "Liv & Lar",
+    "platform2_desc": "Plonz dann mon bann zèvr litérèr é artistik, kréyé èk ma fiy Béthanie, pou nouri lam é lèspri.",
+    "platform2_link": "emmanuelpayet.art",
+    "platform3_title": "Gospel Grati",
+    "platform3_desc": "Ékouté mon bann konpozision gospel sir AudioMack, bann mélodi i loué Bonnyé é i inspiré linité dann la divèrsité.",
+    "platform3_link": "AudioMack - emmanuelpayet888",
+    "platform4_title": "La Bon Lèr",
+    "platform4_desc": "Sé mantnan ! Dékouvèr ma boutik Redbubble èk bann désin inik é bann kréyasion inspiran pou port.",
+    "platform4_link": "Redbubble Shop",
+    "quote": "Lar krétyin i uni bann kèr odéla différans,\ni sélébre la boté kréyasion divin dann tou son divèrsité.",
+    "credits": "Kodé pa Claude • Lidé orijinal Emmanuel Payet"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English",
+    "jp": "日本語",
+    "uk": "Українська",
+    "es": "Español",
+    "de": "Deutsch",
+    "it": "Italiano",
+    "pt": "Português",
+    "ru": "Русский",
+    "zh": "中文",
+    "ko": "한국어",
+    "ar": "العربية",
+    "he": "עברית",
+    "hi": "हिन्दी",
+    "br": "Brasil",
+    "mx": "México",
+    "ca": "Canada",
+    "au": "Australia",
+    "za": "South Africa",
+    "eg": "مصر",
+    "ng": "Nigeria",
+    "ke": "Kenya",
+    "tr": "Türkiye",
+    "ir": "فارسی",
+    "th": "ไทย",
+    "vn": "Việt Nam",
+    "ph": "Philippines",
+    "id": "Indonesia",
+    "my": "Malaysia",
+    "sg": "Singapore",
+    "rc": "Kréol Rényoné"
+  },
+  "pwa": {
+    "update_message": "🎨 Nouvo vèrsion disponib èk bann ikòn amélyoré !\n\n✨ Nouvo ikòn optimizé\n🔧 Amélyorasion PWA\n\nOu vé mèt azour mantnan ?",
+    "update_banner": "🎨 Nouvo vèrsion èk ikòn amélyoré disponib !",
+    "update_button": "Mèt azour",
+    "later_button": "Pli tar"
+  }
+}

@@ -180,28 +180,19 @@ class LanguageSelector {
 
         const success = await window.i18n.setLanguage(code);
         if (success) {
+            // 🗑️ Vider le cache des traductions
+            if (window.clearTranslationCache) {
+                window.clearTranslationCache();
+            }
+            
             // Mettre à jour l'émoji du bouton
             this.buttonElement.innerHTML = this.getFlagEmoji(code);
 
-            // Déclencher un événement pour que le jeu se mette à jour
-            window.dispatchEvent(new CustomEvent('languageChanged', {
-                detail: { language: code }
-            }));
-
-            this.hide();
-
-            // Attendre que le menu se ferme avant d'afficher le message
+            // 🔄 FORCER LE RECHARGEMENT COMPLET DE LA PAGE
+            console.log('🔄 Rechargement de la page pour appliquer la nouvelle langue...');
             setTimeout(() => {
-                if (window.afficherMessageNarratifSimple) {
-                    const messages = {
-                        'fr': '🌍 Langue changée en Français',
-                        'en': '🌍 Language changed to English',
-                        'jp': '🌍 言語が日本語に変更されました',
-                        'uk': '🌍 Мову змінено на українську'
-                    };
-                    window.afficherMessageNarratifSimple(messages[code] || messages['fr'], 2500);
-                }
-            }, 500);
+                location.reload();
+            }, 300);
         }
     }
 

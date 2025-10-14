@@ -1,4 +1,4 @@
-// Phase Bonus - Le Mur dans la Mer
+// Phase Bonus - Cœur Élégant avec J Pulsant
 class PhaseBonusMur {
     constructor(gameState) {
         this.gameState = gameState;
@@ -10,72 +10,8 @@ class PhaseBonusMur {
         this.phaseData = {
             id: 'VDV_BONUS_MUR_AVARIE',
             titre: 'Épilogue — LE MUR d\'avare\\rit',
-            parties: [
-                {
-                    id: 'P1',
-                    texte: `💭 "Au loin… je vois un mur.
-Un mur dressé dans la mer comme une cicatrice.
-Un mur qui n'est pas fait de pierres,
-mais de lois, de papiers et de regards fermés."`
-                },
-                {
-                    id: 'P2',
-                    texte: `💭 "Ce mur est la prison de la liberté des hommes.
-Il sépare ceux qui peuvent courir sans chaînes,
-et ceux qu'on enferme dans des frontières invisibles."`
-                },
-                {
-                    id: 'P3',
-                    texte: `💭 "Pour les pauvres, il est barbelé de refus,
-fermé comme une porte rouillée.
-Ils y frappent de leurs mains nues,
-leurs rêves brisés par le silence des gardiens."`
-                },
-                {
-                    id: 'P4',
-                    texte: `💭 "Pour les riches, il est une porte d'or.
-Elle s'ouvre sans effort,
-et les laisse circuler comme le vent qui n'a pas de patrie."`
-                },
-                {
-                    id: 'P5',
-                    texte: `💭 "Alors je me demande…
-La liberté est-elle vraiment un droit,
-ou est-elle devenue un privilège vendu aux plus offrants ?"`
-                },
-                {
-                    id: 'P6',
-                    texte: `💭 "Mais dans le cœur des vagues,
-la mer murmure une vérité :
-aucun mur n'est éternel.
-Car l'eau finit toujours par user la pierre,
-et la liberté, tôt ou tard,
-reprendra son chemin."`
-                },
-                {
-                    id: 'ÉPILOGUE',
-                    texte: `💭 "Ce mur se dresse, orgueilleux,
-fait de briques volées à l'espoir,
-de ciment arraché aux rêves,
-de poutres qui auraient pu abriter des vies.
-
-C'est nous, par nos silences et nos maux,
-par nos peurs murmurées,
-par nos mots jetés comme pierres,
-qui le rendons plus solide.
-
-C'est un mur d'égoïsme,
-construit avec ce qui aurait pu être des toits,
-des refuges, des foyers.
-
-L'humanité n'a pas besoin de murs pour se protéger,
-mais de ponts pour se rencontrer.
-Construisons avec amour, pas avec peur.
-Un monde uni vaut mieux qu'un monde cloisonné."
-
-✨ LE MUR S'EFFRITE DÉFINITIVEMENT ✨`
-                }
-            ],
+            parties: null, // Will be initialized dynamically in getPartie()
+            _partiesIds: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'ÉPILOGUE'],
             duree: 45000, // 45 secondes
             rewardXP: 200
         };
@@ -87,6 +23,11 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         this.currentPartie = 0; // Index de la partie actuelle (0-6 pour P1-P6+ÉPILOGUE)
         this.partieStartTime = 0;
         this.partieDuration = 7000; // 7 secondes par partie (sauf épilogue)
+        
+        // Animation du cœur et du J
+        this.heartPulse = 0;
+        this.jPulse = 0;
+        this.particleSystem = [];
     }
 
     init(canvas, ctx) {
@@ -95,6 +36,45 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         this.initialized = true;
         this.setupTextAnimator();
         console.log('Phase Bonus - Le Mur dans la Mer initialisée');
+    }
+
+    // Récupérer les parties avec traductions dynamiques
+    getParties() {
+        if (!window.getTranslatedText) {
+            console.error('❌ getTranslatedText not available');
+            return [];
+        }
+
+        return [
+            {
+                id: 'P1',
+                texte: `💭 "${window.getTranslatedText('narrative.phase17.text', 'Au loin… je vois un mur...')}"`
+            },
+            {
+                id: 'P2',
+                texte: `💭 "${window.getTranslatedText('narrative.phase18.text', 'Ce mur est la prison...')}"`
+            },
+            {
+                id: 'P3',
+                texte: `💭 "${window.getTranslatedText('narrative.phase19.text', 'Pour les pauvres...')}"`
+            },
+            {
+                id: 'P4',
+                texte: `💭 "${window.getTranslatedText('narrative.phase20.text', 'Pour les riches...')}"`
+            },
+            {
+                id: 'P5',
+                texte: `💭 "${window.getTranslatedText('narrative.phase21.text', 'Alors je me demande...')}"`
+            },
+            {
+                id: 'P6',
+                texte: `💭 "${window.getTranslatedText('narrative.phase22.text', 'Mais dans le cœur des vagues...')}"`
+            },
+            {
+                id: 'ÉPILOGUE',
+                texte: `💭 "${window.getTranslatedText('narrative.walls_message', 'Ce mur se dresse...')}\n\n${window.getTranslatedText('narrative.final_message', 'L\'humanité n\'a pas besoin de murs...')}"\n\n${window.getTranslatedText('narrative.wall_crumbles', '✨ LE MUR S\'EFFRITE DÉFINITIVEMENT ✨')}`
+            }
+        ];
     }
 
     setupTextAnimator() {
@@ -137,31 +117,16 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         this.showingBonus = true;
         this.startTime = Date.now();
 
-        // Afficher le message d'introduction
+        // Masquer tout message existant
         const message = document.querySelector('.message');
         if (message) {
-            message.innerHTML = `
-                <div style="text-align: center; background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 20px; border-radius: 10px;">
-                    <h2 style="margin-bottom: 20px; color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🌊 Phase Bonus Débloquée 🌊</h2>
-                    <p style="color: #e3f2fd; margin-bottom: 20px;">
-                        Vous avez terminé votre voyage de vérité.<br>
-                        Voici une réflexion finale sur notre monde...
-                    </p>
-                    <p style="color: #ffd700; font-size: 14px; margin: 10px 0;">
-                        🌟 +200 XP pour avoir complété le jeu ! 🌟
-                    </p>
-                    <button class="message-button" onclick="window.phaseBonusMur.startBonusPoem()"
-                            style="background: linear-gradient(145deg, #4caf50, #45a049); margin-top: 15px;">
-                        Lire l'épilogue poétique
-                    </button>
-                </div>
-            `;
-            message.style.display = 'block';
+            message.style.display = 'none';
         }
 
-        // Le bonus XP est maintenant géré par le jeu principal
+        // Démarrer directement le poème avec le cœur élégant (pas de message d'introduction)
+        this.startBonusPoem();
 
-        console.log('Phase Bonus - Démarrage de l\'épilogue');
+        console.log('Phase Bonus - Démarrage automatique de l\'épilogue avec cœur élégant');
     }
 
     // Commencer le poème en 6 parties
@@ -181,12 +146,13 @@ Un monde uni vaut mieux qu'un monde cloisonné."
 
     // Démarrer l'affichage de la partie actuelle
     startCurrentPartie() {
-        if (this.currentPartie >= this.phaseData.parties.length) {
+        const parties = this.getParties();
+        if (this.currentPartie >= parties.length) {
             this.completeBonus();
             return;
         }
 
-        const partie = this.phaseData.parties[this.currentPartie];
+        const partie = parties[this.currentPartie];
         console.log(`📖 Affichage ${partie.id}: ${partie.texte.substring(0, 50)}...`);
 
         // Démarrer l'animation du texte de cette partie
@@ -198,33 +164,20 @@ Un monde uni vaut mieux qu'un monde cloisonné."
     setupCanvas() {
         if (!this.canvas || !this.ctx) return;
 
-        // Animation des vagues
-        this.waveAnimation += 0.02;
+        // Animation du livre
+        this.heartPulse += 0.02;
 
-        // Fond dégradé mer et ciel
+        // Fond avec texture bois/bibliothèque
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#87CEEB'); // Bleu ciel
-        gradient.addColorStop(0.6, '#4682B4'); // Bleu acier
-        gradient.addColorStop(1, '#191970'); // Bleu nuit
+        gradient.addColorStop(0, '#8B7355'); // Brun bibliothèque
+        gradient.addColorStop(0.5, '#A0826D'); // Brun clair
+        gradient.addColorStop(1, '#6F5436'); // Brun foncé
 
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Dessiner le mur dans la mer
-        this.drawSeaWall();
-
-        // Titre de la phase avec numéro de partie
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 20px serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        this.ctx.shadowBlur = 3;
-
-        const partieText = this.showingBonus && this.currentPartie < this.phaseData.parties.length
-            ? ` - ${this.phaseData.parties[this.currentPartie].id}`
-            : '';
-        this.ctx.fillText(`LE MUR d'avare\\rit${partieText}`, this.canvas.width / 2, 40);
-        this.ctx.shadowBlur = 0;
+        // Dessiner le livre ouvert avec les pages
+        this.drawOpenBook();
     }
 
     // Dessiner le mur dans la mer avec destruction progressive
@@ -233,8 +186,9 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         const seaLevel = this.canvas.height * 0.7;
 
         // Progression de la destruction selon la partie actuelle
-        const destructionProgress = this.showingBonus ? (this.currentPartie / this.phaseData.parties.length) : 0;
-        const isEpilogue = this.showingBonus && this.currentPartie === this.phaseData.parties.length - 1;
+        const parties = this.getParties();
+        const destructionProgress = this.showingBonus ? (this.currentPartie / parties.length) : 0;
+        const isEpilogue = this.showingBonus && this.currentPartie === parties.length - 1;
 
         // Hauteur du mur qui diminue
         const murHeight = 100 * (1 - destructionProgress * 0.7);
@@ -374,28 +328,30 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         // Mettre à jour l'animation du texte
         const isAnimating = this.textAnimator.update();
 
-        // Dessiner le texte de la partie actuelle
-        this.drawPoemText();
+        // Navigation manuelle par boutons - pas de passage automatique
+        // L'utilisateur clique sur Précédent/Suivant pour tourner les pages
+    }
 
-        // Vérifier si il faut passer à la partie suivante
-        const partieElapsed = Date.now() - this.partieStartTime;
-
-        // Durée spéciale pour l'épilogue (plus long)
-        const currentDuration = (this.currentPartie === this.phaseData.parties.length - 1) ? 12000 : this.partieDuration;
-
-        if (partieElapsed > currentDuration && !isAnimating) {
+    // Changer de page du livre
+    nextPage() {
+        const parties = this.getParties();
+        if (this.currentPartie < parties.length - 1) {
             this.currentPartie++;
-
-            if (this.currentPartie < this.phaseData.parties.length) {
-                // Pause de 1 seconde entre les parties
-                setTimeout(() => {
-                    this.startCurrentPartie();
-                }, 1000);
-            } else {
-                // Toutes les parties terminées
-                this.completeBonus();
-            }
+            this.startCurrentPartie();
+        } else {
+            this.completeBonus();
         }
+    }
+
+    previousPage() {
+        if (this.currentPartie > 0) {
+            this.currentPartie--;
+            this.startCurrentPartie();
+        }
+    }
+
+    closePage() {
+        this.completeBonus();
     }
 
     drawPoemText() {
@@ -478,21 +434,27 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         const message = document.querySelector('.message');
         if (message) {
             message.innerHTML = `
-                <div style="text-align: center; background: linear-gradient(135deg, #2E8B57, #3CB371); padding: 20px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: #ffffff;">🌊 Merci d'avoir lu 🌊</h3>
-                    <p style="color: #f0fff0; margin-bottom: 15px;">
-                        "Car l'eau finit toujours par user la pierre,<br>
-                        et la liberté, tôt ou tard, reprendra son chemin."
+                <div style="text-align: center; background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 30px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                    <h2 style="margin-bottom: 20px; color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-size: 28px;">${window.getTranslatedText('ui.thank_you_reading', '🌊 Merci d\'avoir lu 🌊')}</h2>
+                    
+                    <div style="background: rgba(255,255,255,0.1); border-left: 4px solid #ffd700; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                        <p style="color: #e3f2fd; font-size: 18px; line-height: 1.6; margin-bottom: 15px; font-style: italic;">
+                            "${window.getTranslatedText('ui.final_wisdom_quote', 'Car l\'eau finit toujours par user la pierre,<br>et la liberté, tôt ou tard, reprendra son chemin.')}"
+                        </p>
+                        <p style="color: #87CEEB; font-style: italic; font-size: 16px;">
+                            — Dreamer Unisona
+                        </p>
+                    </div>
+                    
+                    <p style="color: #ffd700; font-size: 20px; font-weight: bold; margin: 25px 0; text-shadow: 0 0 10px rgba(255,215,0,0.5);">
+                        ${window.getTranslatedText('ui.end_of_game', '✨ Fin de PETIT BATEAU ✨')}
                     </p>
-                    <p style="color: #87CEEB; font-style: italic; margin-bottom: 15px;">
-                        — Dreamer Unisona
-                    </p>
-                    <p style="color: #ffd700; font-size: 14px;">
-                        ✨ Fin de PETIT BATEAU ✨
-                    </p>
+                    
                     <button class="message-button" onclick="window.gameManager.restart()"
-                            style="background: linear-gradient(145deg, #4169E1, #1E90FF); margin-top: 15px;">
-                        Recommencer le voyage
+                            style="background: linear-gradient(145deg, #4169E1, #1E90FF); border: none; border-radius: 25px; padding: 15px 35px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(65,105,225,0.4); transition: all 0.3s ease; margin-top: 15px;"
+                            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(65,105,225,0.6)'"
+                            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(65,105,225,0.4)'">
+                        ${window.getTranslatedText('ui.restart_journey', 'Recommencer le voyage')}
                     </button>
                 </div>
             `;
@@ -533,6 +495,290 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         }
     }
 
+    // Dessiner un cœur élégant avec texte à l'intérieur
+    drawElegantHeart() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2 + 20; // Légèrement plus bas
+        const scale = 1.8 + Math.sin(this.heartPulse) * 0.1; // Pulsation douce
+        const size = 120 * scale; // Plus grand pour contenir plus de texte
+
+        this.ctx.save();
+        this.ctx.translate(centerX, centerY);
+
+        // Ombre portée élégante
+        this.ctx.shadowColor = 'rgba(255, 105, 180, 0.4)';
+        this.ctx.shadowBlur = 30;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 10;
+
+        // Dessiner le cœur avec un dégradé radial
+        this.ctx.beginPath();
+        
+        // Forme de cœur (courbe de Bézier)
+        const topCurveHeight = size * 0.3;
+        this.ctx.moveTo(0, topCurveHeight);
+        
+        // Côté gauche du cœur
+        this.ctx.bezierCurveTo(
+            -size / 2, -topCurveHeight,
+            -size, topCurveHeight / 3,
+            -size / 2, size * 0.7
+        );
+        
+        // Pointe du bas
+        this.ctx.lineTo(0, size);
+        
+        // Côté droit du cœur
+        this.ctx.lineTo(size / 2, size * 0.7);
+        this.ctx.bezierCurveTo(
+            size, topCurveHeight / 3,
+            size / 2, -topCurveHeight,
+            0, topCurveHeight
+        );
+        
+        this.ctx.closePath();
+
+        // Dégradé du cœur - rose doux avec brillance
+        const gradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+        gradient.addColorStop(0, 'rgba(255, 182, 193, 0.95)');
+        gradient.addColorStop(0.5, 'rgba(255, 105, 180, 0.9)');
+        gradient.addColorStop(1, 'rgba(219, 112, 147, 0.85)');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+
+        // Contour blanc doux
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+
+        this.ctx.shadowBlur = 0;
+
+        // Texte à l'intérieur du cœur
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        this.ctx.font = '12px "Segoe UI", Arial, sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Utiliser le texte de l'animateur ou un texte par défaut
+        const displayText = this.textAnimator.currentText || '💖 Le Mur d\'avare\\rit 💖';
+        
+        // Nettoyer le texte (retirer les guillemets et emoji du début)
+        let cleanText = displayText.replace(/^💭\s*[""]/, '').replace(/[""]$/, '');
+        
+        // Wrapper le texte pour qu'il tienne dans le cœur
+        const maxWidth = size * 1.4;
+        const lines = this.wrapTextInHeart(cleanText, maxWidth);
+        const lineHeight = 16;
+        const totalHeight = lines.length * lineHeight;
+        
+        lines.forEach((line, index) => {
+            const y = -totalHeight / 2 + index * lineHeight + lineHeight / 2;
+            this.ctx.fillText(line, 0, y);
+        });
+
+        this.ctx.restore();
+    }
+
+    // Wrapper le texte pour qu'il rentre dans le cœur
+    wrapTextInHeart(text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+
+        words.forEach(word => {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const metrics = this.ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        });
+        
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+        
+        return lines.slice(0, 15); // Maximum 15 lignes (augmenté)
+    }
+
+    // Dessiner le J translucide pulsant en blanc
+    drawPulsingJ() {
+        const centerX = this.canvas.width / 2;
+        const topY = 80;
+        
+        // Calcul de la pulsation (entre 0.7 et 1.0)
+        const pulseScale = 0.85 + Math.sin(this.jPulse) * 0.15;
+        const opacity = 0.6 + Math.sin(this.jPulse) * 0.2;
+
+        this.ctx.save();
+        this.ctx.translate(centerX, topY);
+        this.ctx.scale(pulseScale, pulseScale);
+
+        // Ombre douce pour le J
+        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+        this.ctx.shadowBlur = 20;
+
+        // Dessiner le J en blanc translucide moderne
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        this.ctx.font = 'bold 72px "Segoe UI", Arial, sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('J', 0, 0);
+
+        // Effet de brillance
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
+        this.ctx.font = 'bold 76px "Segoe UI", Arial, sans-serif';
+        this.ctx.fillText('J', -2, -2);
+
+        this.ctx.restore();
+    }
+
+    // Dessiner un livre ouvert avec pages qui tournent
+    drawOpenBook() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        
+        // Dimensions du livre
+        const bookWidth = this.canvas.width * 0.85;
+        const bookHeight = this.canvas.height * 0.75;
+        const pageWidth = bookWidth / 2;
+        
+        // Position du livre
+        const bookX = centerX - bookWidth / 2;
+        const bookY = centerY - bookHeight / 2;
+
+        this.ctx.save();
+
+        // Ombre du livre
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.shadowBlur = 30;
+        this.ctx.shadowOffsetY = 15;
+
+        // Page de gauche (beige ancien)
+        this.ctx.fillStyle = '#F5E6D3';
+        this.ctx.fillRect(bookX, bookY, pageWidth, bookHeight);
+
+        // Page de droite (beige clair)
+        this.ctx.fillStyle = '#FFF8E7';
+        this.ctx.fillRect(bookX + pageWidth, bookY, pageWidth, bookHeight);
+
+        this.ctx.shadowBlur = 0;
+
+        // Reliure au centre
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.fillRect(centerX - 3, bookY, 6, bookHeight);
+
+        // Bordures des pages
+        this.ctx.strokeStyle = '#D4AF37';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(bookX + 10, bookY + 10, pageWidth - 20, bookHeight - 20);
+        this.ctx.strokeRect(bookX + pageWidth + 10, bookY + 10, pageWidth - 20, bookHeight - 20);
+
+        // Titre en haut de la page de gauche
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.font = 'bold 20px "Georgia", serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('📖 Épilogue 📖', bookX + pageWidth / 2, bookY + 35);
+
+        // Numéro de partie sur page de droite
+        const parties = this.getParties();
+        const partieNum = `Partie ${this.currentPartie + 1}/${parties.length}`;
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.font = 'italic 14px "Georgia", serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(partieNum, bookX + pageWidth * 1.5, bookY + 35);
+
+        // Texte sur la page de gauche
+        const displayText = this.textAnimator.currentText || '💖 Le Mur d\'avare\\rit 💖';
+        let cleanText = displayText.replace(/^💭\s*[""]/, '').replace(/[""]$/, '');
+
+        this.ctx.fillStyle = '#3C2F2F';
+        this.ctx.font = '14px "Georgia", serif';
+        this.ctx.textAlign = 'left';
+
+        const textX = bookX + 25;
+        const textY = bookY + 60;
+        const maxWidth = pageWidth - 50;
+        const lines = this.wrapTextForBook(cleanText, maxWidth);
+        const lineHeight = 22;
+
+        lines.forEach((line, index) => {
+            if (index < 20) { // Max 20 lignes par page
+                this.ctx.fillText(line, textX, textY + index * lineHeight);
+            }
+        });
+
+        // Boutons de navigation (flèches)
+        this.drawBookButtons(bookX, bookY, bookWidth, bookHeight);
+
+        this.ctx.restore();
+    }
+
+    // Dessiner les boutons de navigation du livre
+    drawBookButtons(bookX, bookY, bookWidth, bookHeight) {
+        const buttonY = bookY + bookHeight + 15;
+        const centerX = bookX + bookWidth / 2;
+
+        // Bouton précédent (◄)
+        if (this.currentPartie > 0) {
+            this.ctx.fillStyle = '#D4AF37';
+            this.ctx.font = 'bold 24px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('◄', centerX - 60, buttonY);
+            
+            this.ctx.font = '12px Arial';
+            this.ctx.fillText('Précédent', centerX - 60, buttonY + 18);
+        }
+
+        // Bouton suivant (►)
+        const parties = this.getParties();
+        if (this.currentPartie < parties.length - 1) {
+            this.ctx.fillStyle = '#D4AF37';
+            this.ctx.font = 'bold 24px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('►', centerX + 60, buttonY);
+            
+            this.ctx.font = '12px Arial';
+            this.ctx.fillText('Suivant', centerX + 60, buttonY + 18);
+        }
+
+        // Bouton fermer au centre
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText('✕ Fermer', centerX, buttonY + 10);
+    }
+
+    // Wrapper le texte pour le livre
+    wrapTextForBook(text, maxWidth) {
+        this.ctx.font = '14px "Georgia", serif';
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+
+        words.forEach(word => {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const metrics = this.ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        });
+        
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+        
+        return lines;
+    }
+
     // Nettoyage
     cleanup() {
         console.log('Phase Bonus - Nettoyage');
@@ -540,6 +786,7 @@ Un monde uni vaut mieux qu'un monde cloisonné."
         if (message) {
             message.style.display = 'none';
         }
+        this.particleSystem = [];
     }
 }
 

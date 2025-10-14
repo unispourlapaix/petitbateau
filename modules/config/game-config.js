@@ -44,11 +44,15 @@ const GameConfig = {
     ],
 
     // === MESSAGES D'INTRODUCTION ===
-    MESSAGES_INTRO: [
-        '⛵✨ PETIT BATEAU ✨⛵<br><br>🌅 CHAPITRE 1 : LA LUMIÈRE<br><br>💭 "On m\'a dit qu\'ils étaient tous des monstres...<br>On m\'a dit tant de mal, tant de malheurs sur eux...<br>Mais moi, j\'ai préféré aller voir de mes propres yeux.<br>Qui étaient ces gens-là ?..."',
-        '💭 "Et j\'ai vu...<br>Un père... une mère... des enfants...<br>Tous cherchant simplement à vivre leur meilleure vie... Comme moi."',
-        '🌑 Puis viendra l\'obscurité... ⛈️<br>🎮 Brise les préjugés, résiste aux tempêtes !<br><br>👆 Touchez pour commencer le voyage !'
-    ],
+    // Fonction getter pour les messages traduits
+    get MESSAGES_INTRO() {
+        const getTranslated = window.getTranslatedText || ((key, fallback) => fallback);
+        return [
+            getTranslated('game.instructions.intro_message_1', '⛵✨ PETIT BATEAU ✨⛵<br><br>🌅 CHAPITRE 1 : LA LUMIÈRE<br><br>💭 "On m\'a dit qu\'ils étaient tous des monstres...<br>On m\'a dit tant de mal, tant de malheurs sur eux...<br>Mais moi, j\'ai préféré aller voir de mes propres yeux.<br>Qui étaient ces gens-là ?..."'),
+            getTranslated('game.instructions.intro_message_2', '💭 "Et j\'ai vu...<br>Un père... une mère... des enfants...<br>Tous cherchant simplement à vivre leur meilleure vie... Comme moi."'),
+            getTranslated('game.instructions.intro_message_3', '🌑 Puis viendra l\'obscurité... ⛈️<br>🎮 Brise les préjugés, résiste aux tempêtes !<br><br>👆 Touchez pour commencer le voyage !')
+        ];
+    },
 
     // === COULEURS ET THEMES ===
     COLORS: {
