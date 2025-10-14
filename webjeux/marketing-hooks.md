@@ -1,14 +1,21 @@
 # 🎯 Marketing Hooks - Le Petit Bateau Rouge
 
+## 🌟 Slogan Principal
+**"Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix"**
+
+---
+
 ## 📱 Posts Réseaux Sociaux
 
-### Hook 1 : Émotionnel
+### Hook 1 : Émotionnel + Slogan
 ```
-🚣 33 millions de kilomètres...
+🚣 Le Petit Bateau Rouge
+33 Millions de Raisons de Partager la Paix
 
+33 millions de kilomètres...
 C'est la distance parcourue chaque année par ceux qui cherchent la liberté.
 
-"Le Petit Bateau Rouge" transforme ce voyage en expérience poétique.
+Ce voyage transformé en expérience poétique.
 
 💖 33 énigmes sur la foi, l'espoir et l'amour
 🌍 14 langues pour toucher le monde entier
@@ -18,7 +25,7 @@ C'est la distance parcourue chaque année par ceux qui cherchent la liberté.
 
 🎮 Jouez gratuitement : [LIEN]
 
-#Migration #Humanité #JeuIndé #Poésie
+#LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix
 ```
 
 ### Hook 2 : Curiosité
@@ -183,7 +190,7 @@ un support de 14 langues, ce jeu repousse les limites du gaming à impact social
 ## 🎨 Hashtags Stratégiques
 
 ### Principaux (toujours utiliser)
-#LePetitBateauRouge #33MillionsDeKm #GameWithPurpose
+#LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix #33MillionsDeKm
 
 ### Thématiques
 #Migration #Humanité #Liberté #Espoir #Foi #Amour
@@ -268,12 +275,15 @@ directement sur emmanuelpayet.art. Je suis là pour vous aider ! 🛠️"
 
 ## 🔗 Liens Courts Suggérés
 
+- bit.ly/33millions-paix
 - bit.ly/bateau-rouge
 - petit-bateau.app
-- emmanuelpayet.art/bateau
-- 33millions.voyage
+- emmanuelpayet.art/33millions
+- 33raisonsdepaix.com
 
 ---
+
+**Slogan à retenir** : "Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix" 🚣🌍❤️
 
 **Conseil Pro** : Adaptez chaque hook à votre audience. Les gamers réagissent au gameplay, 
 les humanitaires aux statistiques, les artistes à la poésie. Testez et mesurez ! 📈

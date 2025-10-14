@@ -1,5 +1,7 @@
 # 🚣 Le Petit Bateau Rouge
 
+> **33 Millions de Raisons de Partager la Paix**
+> 
 > Un voyage poétique et interactif de 33 millions de kilomètres vers la liberté
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://unispourlapaix.github.io/petitbateau/)
@@ -165,6 +167,8 @@ Si ce jeu vous touche, vous pouvez :
 
 ## 🌟 Message de l'Auteur
 
+> **"Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix"**
+>
 > "Ce jeu est dédié à tous ceux qui ont dû quitter leur terre natale en quête de liberté, de paix et d'espoir. Que leur voyage trouve un sens, et que leur cœur trouve un port."
 
 ---

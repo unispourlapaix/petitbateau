@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de Visuels - Le Petit Bateau Rouge</title>
+    <meta name="description" content="33 Millions de Raisons de Partager la Paix - Générateur de visuels marketing pour réseaux sociaux">
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -125,7 +126,7 @@
 <body>
     <div class="container">
         <h1>🎨 Générateur de Visuels Marketing</h1>
-        <p class="subtitle">Le Petit Bateau Rouge - Visuels animés pour le web et les réseaux sociaux</p>
+        <p class="subtitle">Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix</p>
 
         <div class="info">
             <strong>📥 Comment utiliser :</strong> Cliquez sur chaque visuel pour le télécharger. 
@@ -353,20 +354,24 @@
             ctx.font = 'bold 80px Arial';
             ctx.fillText('Le Petit Bateau Rouge', 350, 250);
 
+            ctx.font = '35px Arial';
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillText('33 Millions de Raisons de Partager la Paix', 350, 295);
+
             ctx.font = '40px Arial';
             ctx.fillStyle = '#FFD700';
-            ctx.fillText('33 000 000 km', 350, 320);
+            ctx.fillText('33 000 000 km', 350, 350);
 
             ctx.font = '30px Arial';
             ctx.fillStyle = '#87CEEB';
-            ctx.fillText('Un voyage poétique vers la liberté', 350, 380);
+            ctx.fillText('Un voyage poétique vers la liberté', 350, 400);
 
             // CTA
             ctx.fillStyle = '#ff4444';
-            ctx.fillRect(350, 420, 400, 70);
+            ctx.fillRect(350, 440, 400, 70);
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 35px Arial';
-            ctx.fillText('🎮 Commencer le Voyage', 380, 467);
+            ctx.fillText('🎮 Commencer le Voyage', 380, 487);
 
             if (animationRunning) {
                 animationFrames.heroBanner = requestAnimationFrame(drawHeroBanner);
@@ -413,15 +418,22 @@
             ctx.font = 'bold 55px Arial';
             ctx.fillText('Le Petit Bateau Rouge', 540, 750);
 
-            // Subtitle
+            // Subtitle slogan
+            ctx.font = '32px Arial';
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillText('33 Millions de Raisons', 540, 795);
+            ctx.fillText('de Partager la Paix', 540, 835);
+
+            // Details
             ctx.font = '35px Arial';
-            ctx.fillText('33 énigmes • 14 langues', 540, 810);
-            ctx.fillText('🎮 Jeu gratuit & poétique', 540, 870);
+            ctx.fillStyle = '#fff';
+            ctx.fillText('33 énigmes • 14 langues', 540, 890);
+            ctx.fillText('🎮 Jeu gratuit & poétique', 540, 930);
 
             // Hashtags
             ctx.font = '30px Arial';
             ctx.fillStyle = '#87CEEB';
-            ctx.fillText('#Migration #Humanité #Liberté', 540, 950);
+            ctx.fillText('#33MillionsDeRaisons #PartagerLaPaix', 540, 1000);
 
             ctx.textAlign = 'left';
 
@@ -465,13 +477,17 @@
             ctx.font = 'bold 70px Arial';
             ctx.fillText('Le Petit Bateau Rouge', 280, 210);
 
+            ctx.font = '35px Arial';
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillText('33 Millions de Raisons de Partager la Paix', 280, 255);
+
             ctx.font = '40px Arial';
             ctx.fillStyle = '#FFD700';
-            ctx.fillText('33 millions de kilomètres vers la liberté', 280, 270);
+            ctx.fillText('33 millions de kilomètres vers la liberté', 280, 305);
 
             ctx.font = '35px Arial';
             ctx.fillStyle = '#87CEEB';
-            ctx.fillText('🎮 Jeu poétique gratuit • 🌍 14 langues • 💖 33 énigmes', 280, 330);
+            ctx.fillText('🎮 Jeu poétique gratuit • 🌍 14 langues • 💖 33 énigmes', 280, 355);
 
             if (animationRunning) {
                 animationFrames.twitterHeader = requestAnimationFrame(drawTwitterHeader);
