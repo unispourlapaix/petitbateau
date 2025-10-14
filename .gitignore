@@ -28,6 +28,11 @@ sauvegardes/
 test-*.html
 debug-*.html
 *-debug.html
+test-livre.html
+
+# Outils de génération
+generate-icons*.html
+generate-icons*.js
 
 # Scripts de développement
 *.bat
@@ -83,6 +88,8 @@ TEST-PROJECTILES.md
 TEST-ULTRA-SIMPLE.md
 TRANSLATION_IDS_REFERENCE.txt
 TRANSLATION_SYSTEM.md
+ICONES-FINAL-README.md
+ICONS-README.md
 
 # Scripts Python de développement
 *.py
