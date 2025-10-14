@@ -130,6 +130,11 @@
         <div class="info">
             <strong>📥 Comment utiliser :</strong> Cliquez sur chaque visuel pour le télécharger. 
             Les animations sont automatiques. Formats optimisés pour Instagram, Facebook, Twitter, et sites web.
+            <br><br>
+            <strong>🎨 Visuels authentiques :</strong> Utilise le vrai bateau rouge et l'icône du jeu !
+            <button onclick="downloadAll()" style="margin-top: 10px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                📦 Télécharger tous les visuels
+            </button>
         </div>
 
         <div class="visual-grid">
@@ -202,6 +207,75 @@
     <script>
         let animationRunning = true;
         let animationFrames = {};
+        let gameIcon = new Image();
+        let iconLoaded = false;
+
+        // Charger l'icône du jeu
+        gameIcon.src = '../icons/icon-192x192.png';
+        gameIcon.onload = () => {
+            iconLoaded = true;
+            console.log('✅ Icône du jeu chargée');
+        };
+        gameIcon.onerror = () => {
+            console.warn('⚠️ Icône non chargée, utilisation du bateau dessiné');
+        };
+
+        // Fonction pour dessiner le bateau rouge (copié du jeu)
+        function drawBoatIcon(ctx, x, y, size, color = 'red') {
+            ctx.save();
+
+            // Couleurs selon le type
+            let coqueColors, borderColor;
+            if (color === 'red') {
+                coqueColors = ['#ff6b6b', '#e74c3c', '#c0392b'];
+                borderColor = '#a93226';
+            } else {
+                coqueColors = ['#74b9ff', '#0984e3', '#2d3436'];
+                borderColor = '#2d3436';
+            }
+
+            // Coque simplifiée
+            const coqueW = size * 1.5;
+            const coqueH = size * 0.8;
+
+            const coqueGrad = ctx.createLinearGradient(x, y, x, y + coqueH);
+            coqueGrad.addColorStop(0, coqueColors[0]);
+            coqueGrad.addColorStop(0.5, coqueColors[1]);
+            coqueGrad.addColorStop(1, coqueColors[2]);
+
+            ctx.fillStyle = coqueGrad;
+            ctx.beginPath();
+            ctx.ellipse(x, y + coqueH/2, coqueW/2, coqueH/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bordure
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Mât
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y + coqueH/2);
+            ctx.lineTo(x, y - size);
+            ctx.stroke();
+
+            // Voile triangulaire
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x - size/2, y);
+            ctx.lineTo(x + size/3, y - size/3);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#ced4da';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
+        }
 
         // Fonction pour télécharger un canvas
         function downloadCanvas(canvasId, filename) {
@@ -217,6 +291,26 @@
             animationRunning = !animationRunning;
             document.querySelector('.animation-toggle').textContent = 
                 animationRunning ? '⏸️ Pause Animations' : '▶️ Play Animations';
+        }
+
+        // Télécharger tous les visuels
+        function downloadAll() {
+            const visuals = [
+                { id: 'heroBanner', name: 'hero-banner-web.png' },
+                { id: 'instagramPost', name: 'instagram-post.png' },
+                { id: 'twitterHeader', name: 'twitter-header.png' },
+                { id: 'facebookCover', name: 'facebook-cover.png' },
+                { id: 'instagramStory', name: 'instagram-story.png' },
+                { id: 'youtubeThumbnail', name: 'youtube-thumbnail.png' }
+            ];
+
+            visuals.forEach((visual, index) => {
+                setTimeout(() => {
+                    downloadCanvas(visual.id, visual.name);
+                }, index * 300); // Délai pour éviter le blocage du navigateur
+            });
+
+            alert('✅ Téléchargement de tous les visuels en cours... (6 fichiers)');
         }
 
         // === VISUAL 1: Hero Banner ===
@@ -249,10 +343,10 @@
             }
             ctx.restore();
 
-            // Floating boat
+            // Floating boat (using real game boat)
             const boatY = canvas.height / 2 + Math.sin(time) * 20;
-            ctx.font = 'bold 120px Arial';
-            ctx.fillText('🚣', 100, boatY);
+            const boatSize = 60;
+            drawBoatIcon(ctx, 150, boatY - 30, boatSize, 'red');
 
             // Title
             ctx.fillStyle = '#fff';
@@ -300,9 +394,13 @@
             ctx.fill();
             ctx.restore();
 
-            // Boat icon
-            ctx.font = 'bold 180px Arial';
-            ctx.fillText('🚣', 440, 450);
+            // Boat icon or game icon
+            if (iconLoaded) {
+                const iconSize = 180;
+                ctx.drawImage(gameIcon, 440, 270, iconSize, iconSize);
+            } else {
+                drawBoatIcon(ctx, 540, 380, 90, 'red');
+            }
 
             // Distance counter
             ctx.fillStyle = '#FFD700';
@@ -359,9 +457,8 @@
             ctx.fill();
             ctx.restore();
 
-            // Boat
-            ctx.font = 'bold 100px Arial';
-            ctx.fillText('🚣', 100, 300);
+            // Boat (using game boat)
+            drawBoatIcon(ctx, 150, 280, 50, 'red');
 
             // Text
             ctx.fillStyle = '#fff';
@@ -407,9 +504,8 @@
             }
             ctx.restore();
 
-            // Content
-            ctx.font = 'bold 50px Arial';
-            ctx.fillText('🚣', 50, 100);
+            // Content (using game boat)
+            drawBoatIcon(ctx, 100, 80, 25, 'red');
 
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 50px Arial';
@@ -455,10 +551,13 @@
             }
             ctx.restore();
 
-            // Boat (centered and large)
-            ctx.font = 'bold 250px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('🚣', 540, 600);
+            // Boat (centered and large) - using game icon if loaded or drawn boat
+            if (iconLoaded) {
+                const iconSize = 250;
+                ctx.drawImage(gameIcon, 540 - iconSize/2, 475, iconSize, iconSize);
+            } else {
+                drawBoatIcon(ctx, 540, 550, 125, 'red');
+            }
 
             // Title
             ctx.fillStyle = '#fff';
@@ -521,10 +620,14 @@
             ctx.fill();
             ctx.restore();
 
-            // Boat
-            ctx.font = 'bold 200px Arial';
+            // Boat - using game icon if loaded
             ctx.textAlign = 'center';
-            ctx.fillText('🚣', 640, 300);
+            if (iconLoaded) {
+                const iconSize = 200;
+                ctx.drawImage(gameIcon, 640 - iconSize/2, 200, iconSize, iconSize);
+            } else {
+                drawBoatIcon(ctx, 640, 280, 100, 'red');
+            }
 
             // Title
             ctx.fillStyle = '#FFD700';
