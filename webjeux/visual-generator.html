@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de Visuels - Le Petit Bateau Rouge</title>
-    <meta name="description" content="33 Millions de Cœurs Libérés pour Partager la Paix - Générateur de visuels marketing pour réseaux sociaux">
+    <meta name="description" content="33 Millions de Raisons de Partager la Paix - Générateur de visuels marketing pour réseaux sociaux">
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -126,7 +126,7 @@
 <body>
     <div class="container">
         <h1>🎨 Générateur de Visuels Marketing</h1>
-        <p class="subtitle">Le Petit Bateau Rouge – 33 Millions de Cœurs Libérés pour Partager la Paix</p>
+        <p class="subtitle">Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix</p>
 
         <div class="info">
             <strong>🚣 À PROPOS DU JEU :</strong><br>
@@ -328,27 +328,27 @@
             alert('✅ Téléchargement de tous les visuels en cours... (6 fichiers)');
         }
 
-        // === VISUAL 1: Hero Banner ===
+        // === VISUAL 1: Hero Banner - "33 Millions de Raisons de Partager la Paix" ===
         function drawHeroBanner() {
             const canvas = document.getElementById('heroBanner');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Gradient background
+            // Gradient background élégant
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0a1929');
-            gradient.addColorStop(0.5, '#1e3a5f');
-            gradient.addColorStop(1, '#2d5a7b');
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Animated waves
+            // Vagues animées lisses
             ctx.save();
             for (let i = 0; i < 3; i++) {
-                ctx.fillStyle = `rgba(135, 206, 235, ${0.1 + i * 0.05})`;
+                ctx.fillStyle = `rgba(255, 107, 107, ${0.08 + i * 0.04})`;
                 ctx.beginPath();
                 for (let x = 0; x < canvas.width; x++) {
-                    const y = Math.sin((x + time * 100 * (i + 1)) / 100) * 20 + canvas.height - 100 + i * 30;
+                    const y = Math.sin((x + time * 80 * (i + 1)) / 120) * 25 + canvas.height - 120 + i * 40;
                     if (x === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
@@ -358,97 +358,122 @@
             }
             ctx.restore();
 
-            // Floating boat (using real game boat)
-            const boatY = canvas.height / 2 + Math.sin(time) * 20;
-            const boatSize = 60;
-            drawBoatIcon(ctx, 150, boatY - 30, boatSize, 'red');
+            // Bateau flottant
+            const boatY = canvas.height / 2 - 50 + Math.sin(time) * 15;
+            const boatSize = 70;
+            drawBoatIcon(ctx, 180, boatY, boatSize, 'red');
 
-            // Title
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 80px Arial';
-            ctx.fillText('Le Petit Bateau Rouge', 350, 250);
+            // Titre principal
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 72px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Le Petit Bateau Rouge', 380, 220);
 
-            ctx.font = '35px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('33 Millions de Cœurs Libérés', 350, 295);
-            ctx.fillText('pour Partager la Paix', 350, 335);
+            // Message principal - NOUVEAU
+            ctx.font = 'bold 44px Arial';
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText('33 Millions de Raisons', 380, 280);
+            ctx.fillText('de Partager la Paix', 380, 330);
 
-            ctx.font = '40px Arial';
-            ctx.fillStyle = '#FFD700';
-            ctx.fillText('33 000 000 km', 350, 390);
+            // Sous-titre
+            ctx.font = '32px Arial';
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillText('Un voyage poétique qui touche le cœur', 380, 390);
 
-            ctx.font = '30px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('Un voyage poétique vers la liberté', 350, 400);
-
-            // CTA
-            ctx.fillStyle = '#ff4444';
-            ctx.fillRect(350, 440, 400, 70);
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 35px Arial';
-            ctx.fillText('🎮 Commencer le Voyage', 380, 487);
+            // CTA moderne
+            const buttonX = 380;
+            const buttonY = 440;
+            const buttonW = 420;
+            const buttonH = 70;
+            
+            // Ombre du bouton
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(buttonX + 5, buttonY + 5, buttonW, buttonH);
+            
+            // Bouton gradient
+            const btnGradient = ctx.createLinearGradient(buttonX, buttonY, buttonX, buttonY + buttonH);
+            btnGradient.addColorStop(0, '#ff6b6b');
+            btnGradient.addColorStop(1, '#ee5a52');
+            ctx.fillStyle = btnGradient;
+            ctx.fillRect(buttonX, buttonY, buttonW, buttonH);
+            
+            // Texte bouton
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 32px Arial';
+            ctx.fillText('🚣 Découvrez maintenant', buttonX + 40, buttonY + 47);
 
             if (animationRunning) {
                 animationFrames.heroBanner = requestAnimationFrame(drawHeroBanner);
             }
         }
 
-        // === VISUAL 2: Instagram Post ===
+        // === VISUAL 2: Instagram Post - "33 M de Cœurs Libérées" ===
         function drawInstagramPost() {
             const canvas = document.getElementById('instagramPost');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Gradient background
+            // Gradient background rose-violet élégant
             const gradient = ctx.createRadialGradient(540, 540, 100, 540, 540, 700);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(1, '#764ba2');
+            gradient.addColorStop(0, '#ff6b6b');
+            gradient.addColorStop(0.5, '#ee5a52');
+            gradient.addColorStop(1, '#c44569');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Pulsing circle
+            // Cercles de cœurs flottants animés
             ctx.save();
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.1 + Math.sin(time * 2) * 0.05})`;
-            ctx.beginPath();
-            ctx.arc(540, 540, 300 + Math.sin(time * 2) * 20, 0, Math.PI * 2);
-            ctx.fill();
+            for (let i = 0; i < 5; i++) {
+                const angle = (time + i * 1.2) * 0.5;
+                const radius = 250 + Math.sin(time + i) * 30;
+                const x = 540 + Math.cos(angle) * radius;
+                const y = 540 + Math.sin(angle) * radius;
+                const heartSize = 25 + Math.sin(time * 2 + i) * 5;
+                
+                // Dessiner cœur
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(time * 2 + i) * 0.15})`;
+                ctx.font = `${heartSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('💖', x, y);
+            }
             ctx.restore();
 
-            // Boat icon or game icon
+            // Bateau au centre ou icône
             if (iconLoaded) {
-                const iconSize = 180;
-                ctx.drawImage(gameIcon, 440, 270, iconSize, iconSize);
+                const iconSize = 160;
+                ctx.drawImage(gameIcon, 460, 280, iconSize, iconSize);
             } else {
-                drawBoatIcon(ctx, 540, 380, 90, 'red');
+                drawBoatIcon(ctx, 540, 380, 85, 'white');
             }
 
-            // Distance counter
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 90px Arial';
+            // Message principal - NOUVEAU
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 85px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('33M km', 540, 650);
+            ctx.fillText('33 Millions', 540, 580);
+            
+            ctx.font = 'bold 75px Arial';
+            ctx.fillText('de Cœurs Libérées', 540, 660);
 
-            // Title
+            // Sous-titre
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 55px Arial';
+            ctx.font = 'bold 48px Arial';
             ctx.fillText('Le Petit Bateau Rouge', 540, 750);
 
-            // Subtitle slogan
+            // Détails
             ctx.font = '32px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('33 Millions de Cœurs Libérés', 540, 795);
-            ctx.fillText('de Partager la Paix', 540, 835);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText('Un voyage qui touche le cœur et ouvre l\'esprit', 540, 810);
 
-            // Details
-            ctx.font = '35px Arial';
-            ctx.fillStyle = '#fff';
-            ctx.fillText('33 énigmes • 14 langues', 540, 890);
-            ctx.fillText('🎮 Jeu gratuit & poétique', 540, 930);
+            // Éléments visuels
+            ctx.font = '36px Arial';
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText('💖 14 langues • 100% gratuit • 33 énigmes poétiques', 540, 880);
 
             // Hashtags
-            ctx.font = '30px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('#33MillionsDeRaisons #PartagerLaPaix', 540, 1000);
+            ctx.font = '28px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('#33MillionsDeRaisons #PartagerLaPaix #Love', 540, 980);
 
             ctx.textAlign = 'left';
 
@@ -457,25 +482,26 @@
             }
         }
 
-        // === VISUAL 3: Twitter Header ===
+        // === VISUAL 3: Twitter Header - "33 M de Raisons d'Aimer" ===
         function drawTwitterHeader() {
             const canvas = document.getElementById('twitterHeader');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Background
+            // Background gradient amour/passion
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-            gradient.addColorStop(0, '#1e3a5f');
-            gradient.addColorStop(1, '#667eea');
+            gradient.addColorStop(0, '#ff6b6b');
+            gradient.addColorStop(0.5, '#ff8787');
+            gradient.addColorStop(1, '#ffd93d');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Waves animation
+            // Vagues d'amour animées
             ctx.save();
-            ctx.fillStyle = 'rgba(135, 206, 235, 0.2)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.beginPath();
             for (let x = 0; x < canvas.width; x++) {
-                const y = Math.sin((x + time * 150) / 80) * 15 + canvas.height - 60;
+                const y = Math.sin((x + time * 120) / 90) * 20 + canvas.height - 80;
                 if (x === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
@@ -484,49 +510,61 @@
             ctx.fill();
             ctx.restore();
 
-            // Boat (using game boat)
-            drawBoatIcon(ctx, 150, 280, 50, 'red');
+            // Bateau
+            drawBoatIcon(ctx, 180, 270, 55, 'white');
 
-            // Text
+            // Message principal - NOUVEAU
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 68px Arial';
+            ctx.fillText('33 Millions de Raisons d\'Aimer', 340, 200);
+
+            ctx.font = 'bold 52px Arial';
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 70px Arial';
-            ctx.fillText('Le Petit Bateau Rouge', 280, 210);
+            ctx.fillText('Le Petit Bateau Rouge', 340, 260);
 
-            ctx.font = '35px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('33 Millions de Cœurs Libérés', 280, 255);
-            ctx.fillText('pour Partager la Paix', 280, 295);
+            ctx.font = '38px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fillText('Un voyage poétique qui touche le cœur et ouvre l\'esprit', 340, 310);
 
-            ctx.font = '40px Arial';
-            ctx.fillStyle = '#FFD700';
-            ctx.fillText('Un voyage interactif vers la paix', 280, 345);
-
-            ctx.font = '35px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('🎮 Jeu poétique gratuit • 🌍 14 langues • 💖 33 énigmes', 280, 355);
+            // Éléments visuels avec cœurs
+            ctx.font = '36px Arial';
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText('💖 14 langues • � 100% gratuit • ✨ 33 énigmes', 340, 360);
 
             if (animationRunning) {
                 animationFrames.twitterHeader = requestAnimationFrame(drawTwitterHeader);
             }
         }
 
-        // === VISUAL 4: Facebook Cover ===
+        // === VISUAL 4: Facebook Cover - Rotation des 3 messages ===
         function drawFacebookCover() {
             const canvas = document.getElementById('facebookCover');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Background
-            ctx.fillStyle = '#0a1929';
+            // Rotation des 3 messages (changement toutes les 5 secondes)
+            const messageIndex = Math.floor(time / 5) % 3;
+            const messages = [
+                { title: '33 Millions de Raisons', subtitle: 'de Partager la Paix', color1: '#1e3a5f', color2: '#16213e' },
+                { title: '33 Millions', subtitle: 'de Cœurs Libérées', color1: '#c44569', color2: '#944e63' },
+                { title: '33 Millions de Raisons', subtitle: 'd\'Aimer', color1: '#ff6b6b', color2: '#ee5a52' }
+            ];
+            const currentMsg = messages[messageIndex];
+
+            // Background avec couleur du message
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, currentMsg.color1);
+            gradient.addColorStop(1, currentMsg.color2);
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Waves
+            // Vagues
             ctx.save();
             for (let i = 0; i < 2; i++) {
-                ctx.fillStyle = `rgba(70, 130, 180, ${0.2 + i * 0.1})`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + i * 0.08})`;
                 ctx.beginPath();
                 for (let x = 0; x < canvas.width; x++) {
-                    const y = Math.sin((x + time * 80 * (i + 1)) / 60) * 10 + canvas.height - 40 + i * 15;
+                    const y = Math.sin((x + time * 80 * (i + 1)) / 60) * 12 + canvas.height - 50 + i * 20;
                     if (x === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
@@ -536,93 +574,98 @@
             }
             ctx.restore();
 
-            // Content (using game boat)
-            drawBoatIcon(ctx, 100, 80, 25, 'red');
+            // Bateau
+            drawBoatIcon(ctx, 120, 90, 30, 'white');
 
+            // Texte - Message rotatif
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 50px Arial';
-            ctx.fillText('Le Petit Bateau Rouge', 150, 110);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(currentMsg.title, 180, 100);
+            
+            ctx.font = 'bold 42px Arial';
+            ctx.fillText(currentMsg.subtitle, 180, 145);
 
-            ctx.font = '28px Arial';
-            ctx.fillStyle = '#FFD700';
-            ctx.fillText('33M km • 33 énigmes • 14 langues', 150, 155);
-
-            ctx.fillStyle = '#87CEEB';
-            ctx.font = '24px Arial';
-            ctx.fillText('🎮 Jouez gratuitement sur emmanuel.gallery', 150, 195);
+            ctx.font = '26px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText('Le Petit Bateau Rouge • 14 langues • 100% gratuit', 180, 185);
 
             if (animationRunning) {
                 animationFrames.facebookCover = requestAnimationFrame(drawFacebookCover);
             }
         }
 
-        // === VISUAL 5: Instagram Story ===
+        // === VISUAL 5: Instagram Story - Message alternatif ===
         function drawInstagramStory() {
             const canvas = document.getElementById('instagramStory');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Vertical gradient
+            // Gradient vertical élégant
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(0.5, '#764ba2');
-            gradient.addColorStop(1, '#1e3a5f');
+            gradient.addColorStop(0, '#ff6b6b');
+            gradient.addColorStop(0.5, '#c44569');
+            gradient.addColorStop(1, '#16213e');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Animated particles
+            // Particules de cœurs animées
             ctx.save();
-            for (let i = 0; i < 50; i++) {
-                const x = (i * 100 + time * 50) % canvas.width;
-                const y = (i * 150) % canvas.height;
-                const size = 2 + Math.sin(time + i) * 2;
-                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(time + i) * 0.2})`;
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                ctx.fill();
+            for (let i = 0; i < 40; i++) {
+                const x = (i * 120 + time * 40) % canvas.width;
+                const y = (i * 180 + time * 30) % canvas.height;
+                const size = 15 + Math.sin(time * 2 + i) * 5;
+                ctx.font = `${size}px Arial`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + Math.sin(time + i) * 0.15})`;
+                ctx.textAlign = 'center';
+                ctx.fillText('💖', x, y);
             }
             ctx.restore();
 
-            // Boat (centered and large) - using game icon if loaded or drawn boat
+            // Icône du jeu ou bateau (centré et grand)
             if (iconLoaded) {
-                const iconSize = 250;
-                ctx.drawImage(gameIcon, 540 - iconSize/2, 475, iconSize, iconSize);
+                const iconSize = 220;
+                ctx.drawImage(gameIcon, 540 - iconSize/2, 450, iconSize, iconSize);
             } else {
-                drawBoatIcon(ctx, 540, 550, 125, 'red');
+                drawBoatIcon(ctx, 540, 550, 110, 'white');
             }
 
-            // Title
+            // Titre
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 70px Arial';
-            ctx.fillText('Le Petit Bateau', 540, 800);
-            ctx.fillText('Rouge', 540, 880);
+            ctx.font = 'bold 65px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Le Petit Bateau', 540, 790);
+            ctx.fillText('Rouge', 540, 860);
 
-            // Distance
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 100px Arial';
-            ctx.fillText('33M km', 540, 1050);
+            // Message principal
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 80px Arial';
+            ctx.fillText('33 Millions', 540, 1000);
+            
+            ctx.font = 'bold 70px Arial';
+            ctx.fillText('de Cœurs Libérées', 540, 1080);
 
             // Description
             ctx.fillStyle = '#fff';
+            ctx.font = '42px Arial';
+            ctx.fillText('Un voyage qui touche le cœur', 540, 1190);
+            ctx.fillText('et ouvre l\'esprit', 540, 1245);
+
+            // Icônes
             ctx.font = '45px Arial';
-            ctx.fillText('Un voyage poétique', 540, 1200);
-            ctx.fillText('vers la liberté', 540, 1260);
+            ctx.fillText('💖 🌍 🎵 ✨', 540, 1370);
 
-            // Icons
-            ctx.font = '40px Arial';
-            ctx.fillText('🎮 💖 🌍 🎵', 540, 1400);
-
-            // CTA
-            ctx.fillStyle = '#ff4444';
-            ctx.fillRect(240, 1500, 600, 90);
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 45px Arial';
-            ctx.fillText('Swipe Up', 540, 1560);
+            // CTA moderne
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(240, 1480, 600, 100);
+            
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText('🚣 Jouez maintenant', 540, 1545);
 
             // Footer
-            ctx.font = '35px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillText('emmanuel.gallery', 540, 1750);
+            ctx.font = '32px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('unispourlapaix.github.io/petitbateau', 540, 1720);
 
             ctx.textAlign = 'left';
 
@@ -631,55 +674,75 @@
             }
         }
 
-        // === VISUAL 6: YouTube Thumbnail ===
+        // === VISUAL 6: YouTube Thumbnail - "33 Millions de Raisons d'Aimer" ===
         function drawYoutubeThumbnail() {
             const canvas = document.getElementById('youtubeThumbnail');
             const ctx = canvas.getContext('2d');
             const time = Date.now() / 1000;
 
-            // Background
+            // Background gradient passion
             const gradient = ctx.createRadialGradient(640, 360, 100, 640, 360, 800);
-            gradient.addColorStop(0, '#ff4444');
-            gradient.addColorStop(1, '#1e3a5f');
+            gradient.addColorStop(0, '#ffd93d');
+            gradient.addColorStop(0.5, '#ff6b6b');
+            gradient.addColorStop(1, '#c44569');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Pulsing effect
+            // Effet pulsant d'amour
             ctx.save();
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.05 + Math.sin(time * 3) * 0.05})`;
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.08 + Math.sin(time * 3) * 0.06})`;
             ctx.beginPath();
-            ctx.arc(640, 360, 400 + Math.sin(time * 2) * 30, 0, Math.PI * 2);
+            ctx.arc(640, 360, 380 + Math.sin(time * 2) * 35, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
 
-            // Boat - using game icon if loaded
+            // Cœurs flottants autour
+            ctx.save();
+            for (let i = 0; i < 8; i++) {
+                const angle = (time * 0.3 + i * Math.PI / 4);
+                const radius = 300 + Math.sin(time + i) * 40;
+                const x = 640 + Math.cos(angle) * radius;
+                const y = 360 + Math.sin(angle) * radius;
+                ctx.font = '40px Arial';
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + Math.sin(time * 2 + i) * 0.2})`;
+                ctx.textAlign = 'center';
+                ctx.fillText('💖', x, y);
+            }
+            ctx.restore();
+
+            // Icône du jeu ou bateau
             ctx.textAlign = 'center';
             if (iconLoaded) {
-                const iconSize = 200;
-                ctx.drawImage(gameIcon, 640 - iconSize/2, 200, iconSize, iconSize);
+                const iconSize = 180;
+                ctx.drawImage(gameIcon, 640 - iconSize/2, 180, iconSize, iconSize);
             } else {
-                drawBoatIcon(ctx, 640, 280, 100, 'red');
+                drawBoatIcon(ctx, 640, 270, 95, 'white');
             }
 
-            // Title
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 90px Arial';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 5;
-            ctx.strokeText('33 MILLIONS', 640, 450);
-            ctx.fillText('33 MILLIONS', 640, 450);
+            // Message principal - NOUVEAU
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 85px Arial';
+            ctx.strokeStyle = '#c44569';
+            ctx.lineWidth = 6;
+            ctx.strokeText('33 MILLIONS', 640, 430);
+            ctx.fillText('33 MILLIONS', 640, 430);
 
+            ctx.font = 'bold 75px Arial';
+            ctx.strokeText('DE RAISONS D\'AIMER', 640, 520);
+            ctx.fillText('DE RAISONS D\'AIMER', 640, 520);
+
+            // Sous-titre avec cœur
             ctx.fillStyle = '#fff';
-            ctx.strokeText('DE KILOMÈTRES', 640, 540);
-            ctx.fillText('DE KILOMÈTRES', 640, 540);
+            ctx.font = 'bold 52px Arial';
+            ctx.fillText('Le Petit Bateau Rouge', 640, 600);
 
-            // Subtitle
-            ctx.font = '50px Arial';
-            ctx.fillStyle = '#87CEEB';
-            ctx.strokeStyle = '#000';
+            // Description
+            ctx.font = '46px Arial';
+            ctx.fillStyle = '#ffd700';
+            ctx.strokeStyle = '#c44569';
             ctx.lineWidth = 3;
-            ctx.strokeText('🎮 JEU GRATUIT • 14 LANGUES', 640, 630);
-            ctx.fillText('🎮 JEU GRATUIT • 14 LANGUES', 640, 630);
+            ctx.strokeText('💖 JEU GRATUIT • 14 LANGUES • 33 ÉNIGMES', 640, 665);
+            ctx.fillText('💖 JEU GRATUIT • 14 LANGUES • 33 ÉNIGMES', 640, 665);
 
             ctx.textAlign = 'left';
 
