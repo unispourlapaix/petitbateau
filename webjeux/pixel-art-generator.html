@@ -532,58 +532,64 @@
             }
         }
 
-        // Fonction pour dessiner un pixel art boat
+        // Fonction pour dessiner le bateau (identique au jeu)
         function drawPixelBoat(ctx, x, y, size, color) {
-            const pixelSize = size / 16;
-            ctx.imageSmoothingEnabled = true;
+            ctx.save();
 
-            // Définir les couleurs
-            const colors = {
-                red: ['#ff6b6b', '#e74c3c', '#c0392b'],
-                hull: ['#c0392b', '#a93226', '#7f1d1d'],
-                sail: ['#ffffff', '#e5e7eb', '#d1d5db'],
-                mast: ['#8b4513', '#654321'],
-                water: ['#3b82f6', '#2563eb', '#1e40af']
-            };
-
-            const c = color === 'red' ? colors.red : colors.hull;
-
-            // Coque (pixel art)
-            ctx.fillStyle = c[0];
-            ctx.fillRect(x, y + 8 * pixelSize, 12 * pixelSize, 4 * pixelSize);
-            
-            ctx.fillStyle = c[1];
-            ctx.fillRect(x + 2 * pixelSize, y + 6 * pixelSize, 8 * pixelSize, 2 * pixelSize);
-            
-            ctx.fillStyle = c[2];
-            ctx.fillRect(x + 4 * pixelSize, y + 12 * pixelSize, 4 * pixelSize, 2 * pixelSize);
-
-            // Bordure noire
-            ctx.fillStyle = '#000';
-            for (let i = 0; i < 12; i++) {
-                ctx.fillRect(x + i * pixelSize, y + 8 * pixelSize, pixelSize, pixelSize);
-                ctx.fillRect(x + i * pixelSize, y + 11 * pixelSize, pixelSize, pixelSize);
+            // Couleurs selon le type
+            let coqueColors, borderColor;
+            if (color === 'red') {
+                coqueColors = ['#ff6b6b', '#e74c3c', '#c0392b'];
+                borderColor = '#a93226';
+            } else if (color === 'blue') {
+                coqueColors = ['#74b9ff', '#0984e3', '#2d3436'];
+                borderColor = '#2d3436';
+            } else {
+                coqueColors = ['#ffffff', '#e5e7eb', '#d1d5db'];
+                borderColor = '#8b4513';
             }
-            ctx.fillRect(x, y + 9 * pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x + 11 * pixelSize, y + 9 * pixelSize, pixelSize, 2 * pixelSize);
+
+            // Coque simplifiée
+            const coqueW = size * 1.5;
+            const coqueH = size * 0.8;
+
+            const coqueGrad = ctx.createLinearGradient(x, y, x, y + coqueH);
+            coqueGrad.addColorStop(0, coqueColors[0]);
+            coqueGrad.addColorStop(0.5, coqueColors[1]);
+            coqueGrad.addColorStop(1, coqueColors[2]);
+
+            ctx.fillStyle = coqueGrad;
+            ctx.beginPath();
+            ctx.ellipse(x, y + coqueH/2, coqueW/2, coqueH/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bordure
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
             // Mât
-            ctx.fillStyle = colors.mast[0];
-            ctx.fillRect(x + 6 * pixelSize, y, pixelSize, 8 * pixelSize);
-            ctx.fillStyle = colors.mast[1];
-            ctx.fillRect(x + 7 * pixelSize, y, pixelSize, 8 * pixelSize);
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y + coqueH/2);
+            ctx.lineTo(x, y - size);
+            ctx.stroke();
 
             // Voile triangulaire
-            ctx.fillStyle = colors.sail[0];
-            for (let i = 0; i < 6; i++) {
-                ctx.fillRect(x + (6 - i) * pixelSize, y + i * pixelSize, i * pixelSize, pixelSize);
-            }
-            
-            // Contour voile
-            ctx.fillStyle = '#000';
-            for (let i = 0; i < 6; i++) {
-                ctx.fillRect(x + (6 - i) * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
-            }
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x - size/2, y);
+            ctx.lineTo(x + size/3, y - size/3);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#ced4da';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
         }
 
         // Fonction pour dessiner des vagues pixel art
