@@ -2481,6 +2481,15 @@
 
         // Bouton menu HOME supprimé
 
+        // Objet bouton menu énigmes
+        let boutonMenuEnigmes = {
+            x: 0,
+            y: 0,
+            width: 50,
+            height: 50,
+            hover: false
+        };
+
         // État du menu énigmes dans le canvas
         let menuEnigmesCanvas = {
             visible: false,
@@ -17052,8 +17061,59 @@ Elle a besoin de ponts.`
         canvas.addEventListener('touchstart', e => {
             e.preventDefault(); tactile = true;
 
-            // Vérifier le clic sur le bouton passer
+            // 📱 GESTION TACTILE DES MENUS ET BOUTONS
             const pos = obtenirPosition(e);
+            const x = pos.x;
+            const y = pos.y || 0;
+            
+            // 1. Vérifier le bouton menu énigmes (en haut à droite)
+            const headerH = Math.max(C.H * 0.045, 32);
+            const boutonMenuX = C.W - 65;
+            const boutonMenuY = Math.max(headerH / 2 - 25, 5);
+            const boutonMenuRayon = 25;
+            
+            const distMenu = Math.sqrt(
+                Math.pow(x - (boutonMenuX + boutonMenuRayon), 2) + 
+                Math.pow(y - (boutonMenuY + boutonMenuRayon), 2)
+            );
+            
+            if (distMenu < boutonMenuRayon + 10) { // +10 pour zone tactile plus large
+                // 🔊 Son de clic
+                if (AudioSystem && AudioSystem.playClick) {
+                    AudioSystem.playClick();
+                }
+                // Ouvrir le menu
+                if (typeof ouvrirMenuEnigmesCanvas === 'function') {
+                    ouvrirMenuEnigmesCanvas();
+                }
+                return;
+            }
+            
+            // 2. Vérifier la zone du drapeau (changement de langue)
+            const statsY = Math.max(C.H * 0.045, 30);
+            const flagZone = {
+                x: 10,
+                y: statsY - 15,
+                width: 130,
+                height: 30
+            };
+            
+            if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
+                y >= flagZone.y && y <= flagZone.y + flagZone.height) {
+                // 🔊 Son de clic
+                if (AudioSystem && AudioSystem.playClick) {
+                    AudioSystem.playClick();
+                }
+                // Ouvrir le menu énigme sur l'onglet langues
+                if (!menuEnigmesCanvas.visible && typeof ouvrirMenuEnigmesCanvas === 'function') {
+                    ouvrirMenuEnigmesCanvas();
+                }
+                menuEnigmesCanvas.ongletActif = 'langues';
+                menuEnigmesCanvas.scrollY = 0;
+                return;
+            }
+
+            // Vérifier le clic sur le bouton passer
             if (verifierClicBoutonPasser(pos.x, pos.y)) {
                 // Bouton fictif - afficher "NON!" au lieu de passer
                 // 🔊 Son de refus
