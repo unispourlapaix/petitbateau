@@ -3752,6 +3752,43 @@
                     ctx.fillText(projectTitle, btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
                 });
 
+                // 🔄 BOUTON RESET À ZÉRO - En bas du menu
+                const resetButtonY = yPos + menuEnigmesCanvas.projectButtons.length * 47 + 30;
+                const resetButtonWidth = 240;
+                const resetButtonHeight = 45;
+                const resetButtonX = C.W / 2 - resetButtonWidth / 2;
+
+                // Stocker les coordonnées du bouton reset
+                if (!menuEnigmesCanvas.resetButton) {
+                    menuEnigmesCanvas.resetButton = {
+                        x: resetButtonX,
+                        y: resetButtonY,
+                        width: resetButtonWidth,
+                        height: resetButtonHeight
+                    };
+                } else {
+                    menuEnigmesCanvas.resetButton.x = resetButtonX;
+                    menuEnigmesCanvas.resetButton.y = resetButtonY;
+                    menuEnigmesCanvas.resetButton.width = resetButtonWidth;
+                    menuEnigmesCanvas.resetButton.height = resetButtonHeight;
+                }
+
+                // Dessiner le bouton reset
+                ctx.fillStyle = '#fee2e2'; // Rouge très clair
+                ctx.strokeStyle = '#dc2626'; // Rouge
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                ctx.roundRect(resetButtonX, resetButtonY, resetButtonWidth, resetButtonHeight, 10);
+                ctx.fill();
+                ctx.stroke();
+
+                // Texte du bouton
+                ctx.font = 'bold 18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#dc2626';
+                ctx.textAlign = 'center';
+                ctx.fillText(getTranslatedText('ui.reset_button', '🔄 Recommencer à zéro'), resetButtonX + resetButtonWidth / 2, resetButtonY + resetButtonHeight / 2 + 5);
+
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'classement') {
                 // Afficher le classement des scores
@@ -10452,215 +10489,105 @@
 
         // Vraie lanterne volante avec halo bougie et nouveaux effets
         function dessinerLanterne() {
-            // Dessiner la lanterne éteinte comme balle du jeu UNIQUEMENT pendant la phase casse-briques
+            // ⚡ VERSION OPTIMISÉE - Lanterne simplifiée pour performances
             if (animationBateau.active || !balle.visible || phaseJeu !== 'lanterne') return;
 
             ctx.save();
 
-            const posX = balle.x || 0; // Position de la balle
-            const posY = balle.y || 0; // Position de la balle
+            const posX = balle.x || 0;
+            const posY = balle.y || 0;
             const temps = Date.now() * 0.001;
 
-            // Vérification de sécurité pour éviter les valeurs non finies
             if (!isFinite(posX) || !isFinite(posY) || !isFinite(C.BS)) {
                 ctx.restore();
                 return;
             }
 
-            // EFFET TRAÎNÉE VERTE (power-up vitesse)
+            // EFFET TRAÎNÉE VERTE (power-up vitesse) - SIMPLIFIÉ
             if(balle.traineeVerte && balle.vitesseActive) {
-                // Traînée verte dynamique
-                for(let i = 0; i < 5; i++) {
-                    const alpha = (5 - i) / 5 * 0.6;
-                    const size = C.BS * (1 - i * 0.15);
+                // Traînée simple sans gradients
+                for(let i = 0; i < 3; i++) { // Réduit de 5 à 3
+                    const alpha = (3 - i) / 3 * 0.5;
+                    const size = C.BS * (1 - i * 0.2);
                     const offsetX = (balle.dx || 0) * -i * 2;
                     const offsetY = (balle.dy || 0) * -i * 2;
 
-                    const grad = ctx.createRadialGradient(
-                        posX + offsetX, posY + offsetY, 0,
-                        posX + offsetX, posY + offsetY, size
-                    );
-                    grad.addColorStop(0, `rgba(0, 255, 0, ${alpha})`);
-                    grad.addColorStop(0.5, `rgba(50, 255, 50, ${alpha * 0.5})`);
-                    grad.addColorStop(1, `rgba(0, 255, 0, 0)`);
-
-                    ctx.fillStyle = grad;
+                    ctx.fillStyle = `rgba(0, 255, 0, ${alpha})`;
                     ctx.beginPath();
                     ctx.arc(posX + offsetX, posY + offsetY, size, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            // 1. HALO DE BOUGIE SIMPLE (seulement si lanterne active)
-            if(lanterne.active) {
-                // Halo simple statique
-                const haloSize = C.BS * 1.5;
-                const haloIntensity = 0.4;
-
-                // Halo principal simple avec vérification
-                if (isFinite(haloSize) && haloSize > 0) {
-                    const haloGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, haloSize);
-                haloGrad.addColorStop(0, `rgba(255, 220, 150, ${haloIntensity})`);
-                haloGrad.addColorStop(0.3, `rgba(255, 180, 100, ${haloIntensity * 0.7})`);
-                haloGrad.addColorStop(0.7, `rgba(255, 140, 60, ${haloIntensity * 0.3})`);
-                haloGrad.addColorStop(1, 'rgba(255, 100, 30, 0)');
-
-                    ctx.fillStyle = haloGrad;
-                    ctx.beginPath();
-                    ctx.arc(posX, posY, haloSize, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            // 2. LANTERNE CYLINDRIQUE CLASSIQUE
-
-            // Dimensions de la lanterne avec multiplicateur de taille si actif
+            // Dimensions simplifiées
             const multiplTaille = balle.multiplicateurTaille || 1;
-            const rayon = C.BS * 0.4 * multiplTaille;        // Rayon du cylindre
-            const corpsH = C.BS * 1.2 * multiplTaille;       // Hauteur du corps cylindrique
-            const domeH = C.BS * 0.1 * multiplTaille;        // Hauteur du dôme
-            const baseH = C.BS * 0.1 * multiplTaille;        // Hauteur de la base
+            const rayon = C.BS * 0.5 * multiplTaille;
 
-            // LUEUR DOUCE AUTOUR DE LA LANTERNE
+            // 1. HALO SIMPLE (seulement si lanterne active) - 1 SEUL GRADIENT
             if(lanterne.active) {
-                // Halo de lueur douce adapté à la taille
-                const lueurSize = rayon * 1.25;
-                if (isFinite(rayon) && isFinite(lueurSize) && rayon > 0 && lueurSize > 0) {
-                    const lueurGrad = ctx.createRadialGradient(posX, posY, rayon, posX, posY, lueurSize);
-                lueurGrad.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
-                lueurGrad.addColorStop(0.5, 'rgba(255, 180, 0, 0.2)');
-                lueurGrad.addColorStop(1, 'rgba(255, 140, 0, 0)');
-                ctx.fillStyle = lueurGrad;
-                    ctx.beginPath();
-                    ctx.arc(posX, posY, lueurSize, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                const haloSize = rayon * 2;
+                const haloGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, haloSize);
+                haloGrad.addColorStop(0, 'rgba(255, 220, 150, 0.4)');
+                haloGrad.addColorStop(1, 'rgba(255, 100, 30, 0)');
+                ctx.fillStyle = haloGrad;
+                ctx.beginPath();
+                ctx.arc(posX, posY, haloSize, 0, Math.PI * 2);
+                ctx.fill();
             }
 
-            // Armature métallique de la lanterne
-            const armatureColor = lanterne.active ? '#B8860B' : '#654321';
-            ctx.strokeStyle = armatureColor;
-            ctx.lineWidth = 2;
-
-            // BASE RONDE plus petite
-            const baseY = posY + corpsH/2;
-            ctx.fillStyle = armatureColor;
-            ctx.beginPath();
-            ctx.ellipse(posX, baseY, rayon * 1.05, baseH, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // CORPS CYLINDRIQUE
-            const corpsTop = posY - corpsH/2;
-            const corpsBottom = posY + corpsH/2;
-
-            // Vitres cylindriques
+            // 2. CORPS DE LA LANTERNE - CERCLE SIMPLE
             if(lanterne.active) {
-                // Vitres dorées lumineuses
-                if (isFinite(rayon) && rayon > 0) {
-                    const vitreGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, rayon);
-                    vitreGrad.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
-                    vitreGrad.addColorStop(0.7, 'rgba(255, 200, 0, 0.6)');
-                    vitreGrad.addColorStop(1, 'rgba(255, 180, 0, 0.4)');
-                    ctx.fillStyle = vitreGrad;
-                } else {
-                    ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
-                }
+                // Corps doré simple
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
             } else {
-                // Vitres éteintes
+                // Corps éteint
                 ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
             }
             ctx.beginPath();
-            ctx.ellipse(posX, posY, rayon, corpsH/2, 0, 0, Math.PI * 2);
+            ctx.arc(posX, posY, rayon, 0, Math.PI * 2);
             ctx.fill();
 
-            // Contour du cylindre
-            ctx.strokeStyle = armatureColor;
+            // Contour simple
+            ctx.strokeStyle = lanterne.active ? '#B8860B' : '#654321';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Barreaux en forme de croix
+            // Croix centrale simple
             ctx.beginPath();
-            // Barre verticale
-            ctx.moveTo(posX, corpsTop);
-            ctx.lineTo(posX, corpsBottom);
-            // Barre horizontale
+            ctx.moveTo(posX, posY - rayon);
+            ctx.lineTo(posX, posY + rayon);
             ctx.moveTo(posX - rayon, posY);
             ctx.lineTo(posX + rayon, posY);
             ctx.stroke();
 
-            // DÔME SUPÉRIEUR
-            const domeTop = corpsTop - domeH;
-            ctx.fillStyle = armatureColor;
-            ctx.strokeStyle = '#CD7F32';
-            ctx.lineWidth = 2;
-
-            // Dôme en forme d'ellipse plus petit
-            ctx.beginPath();
-            ctx.ellipse(posX, domeTop + domeH/2, rayon * 0.9, domeH/2, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // 3. FLAMME AVEC ANIMATIONS TRÈS LENTES
+            // 3. FLAMME SIMPLIFIÉE
             if(lanterne.active) {
-                // Flamme avec mouvement encore plus lent et doux
-                const flammeX = posX + Math.sin(temps * 0.1) * 1 * multiplTaille; // Encore plus lent
-                const flammeY = posY - C.BS * 0.3 * multiplTaille;
-                const flammeH = C.BS * 0.6 * multiplTaille;
-                const flammeW = C.BS * 0.3 * multiplTaille;
+                // Flamme simple sans animation complexe
+                const flammeX = posX;
+                const flammeY = posY - rayon * 0.3;
+                const flammeSize = rayon * 0.4;
 
-                // Flamme principale avec danse très douce
-                if (isFinite(flammeX) && isFinite(flammeY) && isFinite(flammeH) && flammeH > 0) {
-                    const flammeGrad = ctx.createRadialGradient(flammeX, flammeY, 0, flammeX, flammeY, flammeH);
-                flammeGrad.addColorStop(0, '#FFFF99');
-                flammeGrad.addColorStop(0.3, '#FFD700');
-                flammeGrad.addColorStop(0.6, '#FFA500');
-                flammeGrad.addColorStop(1, '#FF6347');
+                // Flamme simple - cercle doré
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(flammeX, flammeY, flammeSize, 0, Math.PI * 2);
+                ctx.fill();
 
-                    ctx.fillStyle = flammeGrad;
-                    ctx.beginPath();
-                    // Forme de flamme avec variations encore plus lentes
-                    ctx.ellipse(flammeX, flammeY, flammeW * (0.6 + Math.sin(temps * 0.12) * 0.05), flammeH * (0.8 + Math.cos(temps * 0.1) * 0.05), Math.sin(temps * 0.06) * 0.05, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Cœur de la flamme plus lumineux
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                    ctx.beginPath();
-                    ctx.ellipse(flammeX, flammeY, flammeW * 0.3, flammeH * 0.4, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Mèche de la bougie
-                ctx.fillStyle = '#654321';
-                ctx.fillRect(posX - 1 * multiplTaille, posY, 2 * multiplTaille, C.BS * 0.2 * multiplTaille);
+                // Cœur blanc simple
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(flammeX, flammeY, flammeSize * 0.5, 0, Math.PI * 2);
+                ctx.fill();
             } else {
-                // Mèche éteinte
-                ctx.fillStyle = '#654321';
-                ctx.fillRect(posX - 1, posY - 2, 2, 4);
-
-                // Cœur d'humanité au repos
-                const coeurSize = C.BS * 0.4;
+                // Cœur rouge simple quand éteint
                 ctx.fillStyle = '#e74c3c';
                 ctx.beginPath();
-                ctx.moveTo(posX, posY + coeurSize*0.3);
-                ctx.bezierCurveTo(posX, posY, posX - coeurSize*0.5, posY, posX - coeurSize*0.5, posY + coeurSize*0.3);
-                ctx.bezierCurveTo(posX - coeurSize*0.5, posY + coeurSize*0.7, posX, posY + coeurSize*0.7, posX, posY + coeurSize);
-                ctx.bezierCurveTo(posX, posY + coeurSize*0.7, posX + coeurSize*0.5, posY + coeurSize*0.7, posX + coeurSize*0.5, posY + coeurSize*0.3);
-                ctx.bezierCurveTo(posX + coeurSize*0.5, posY, posX, posY, posX, posY + coeurSize*0.3);
+                ctx.arc(posX, posY, rayon * 0.3, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // 4. SYSTÈME DE SUSPENSION SIMPLE
-            const cordeLength = C.BS * 1;
-            ctx.strokeStyle = lanterne.active ? '#8B4513' : '#4a4a4a';
-            ctx.lineWidth = 2;
-
-            // Cordes depuis le dôme adaptées à la taille
-            ctx.beginPath();
-            ctx.moveTo(posX - rayon*0.6, domeTop); // Gauche du dôme
-            ctx.lineTo(posX - rayon*0.2, posY - cordeLength);
-            ctx.moveTo(posX + rayon*0.6, domeTop); // Droite du dôme
-            ctx.lineTo(posX + rayon*0.2, posY - cordeLength);
+            ctx.restore();
+        }
             ctx.stroke();
 
             // Corde centrale
@@ -11046,6 +10973,10 @@
 
         // Vraies briques avec cœurs à l'intérieur pour le casse-brique
         function dessinerPrejuges() {
+            // ⚡ OPTIMISATION: Ne pas calculer si pas de briques visibles
+            const briquesVisibles = briques.filter(b => b.visible);
+            if (briquesVisibles.length === 0) return;
+            
             // Mot-clé qui se révèle en cassant les briques (phases 17-22)
             if(narrationManager && narrationManager.currentPhase >= 17 && narrationManager.currentPhase <= 22) {
                 // Mots-clés pour chaque phase
@@ -11096,8 +11027,14 @@
                 ctx.restore();
             }
 
-            briques.forEach((brique, index) => {
-                if(!brique.visible) return;
+            // ⚡ OPTIMISATION: Pré-calculer phase actuelle et mode
+            const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
+            const afficherTexte = phaseActuelle < 17 || phaseActuelle > 22;
+            const modeStars = phaseJeu === 'stars';
+            const modeLanterne = phaseJeu === 'lanterne';
+
+            // ⚡ OPTIMISATION: Boucle sur briques visibles uniquement
+            briquesVisibles.forEach((brique, index) => {
 
                 const centreX = brique.x + brique.w/2;
                 const centreY = brique.y + brique.h/2;
@@ -11124,26 +11061,20 @@
                     ctx.fillRect(brique.x + 2, brique.y + 2, brique.w - 4, brique.h * 0.3);
                 } else {
                     // STYLE NORMAL : Briques classiques avec effets 3D
-                    // Couleur selon la vie restante
-                    let couleurBrique = couleur;
-                    if (brique.vieMax === 2) {
-                        // Phase lanterne : 2 vies maximum
-                        if (brique.vie === 1) {
-                            // Brique endommagée (1er coup reçu sur 2)
-                            couleurBrique = `rgba(${parseInt(couleur.slice(1,3), 16)}, ${parseInt(couleur.slice(3,5), 16)}, ${parseInt(couleur.slice(5,7), 16)}, 0.6)`;
-                        }
+                    // ⚡ OPTIMISATION: Utiliser globalAlpha au lieu de recalculer RGBA
+                    ctx.fillStyle = couleur;
+                    
+                    // Calculer l'opacité selon les dégâts
+                    if (brique.vieMax === 2 && brique.vie === 1) {
+                        ctx.globalAlpha = 0.6; // Phase lanterne endommagée
+                    } else if (brique.vieMax === 3 && brique.vie === 2) {
+                        ctx.globalAlpha = 0.8; // Phase stars légèrement endommagée
+                    } else if (brique.vie === 1) {
+                        ctx.globalAlpha = 0.5; // Très endommagée
                     } else {
-                        // Phase stars : 3 vies maximum
-                        if (brique.vie === 2) {
-                            // Brique légèrement endommagée (1er coup reçu sur 3)
-                            couleurBrique = `rgba(${parseInt(couleur.slice(1,3), 16)}, ${parseInt(couleur.slice(3,5), 16)}, ${parseInt(couleur.slice(5,7), 16)}, 0.8)`;
-                        } else if (brique.vie === 1) {
-                            // Brique très endommagée (2ème coup reçu sur 3)
-                            couleurBrique = `rgba(${parseInt(couleur.slice(1,3), 16)}, ${parseInt(couleur.slice(3,5), 16)}, ${parseInt(couleur.slice(5,7), 16)}, 0.5)`;
-                        }
+                        ctx.globalAlpha = 1.0; // Intacte
                     }
 
-                    ctx.fillStyle = couleurBrique;
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 2;
 
@@ -11165,39 +11096,56 @@
                     ctx.fillRect(brique.x, brique.y + brique.h * 0.8, brique.w, brique.h * 0.2); // Ombre du bas
                 }
 
-                // Dessiner les fissures zigzag blanches selon les dégâts (pas pour les murs)
+                // ⚡ OPTIMISATION: Fissures simples en mode lanterne (pas de sin/cos)
                 if (!estBriqueMur && ((brique.vieMax === 2 && brique.vie <= 1) || (brique.vieMax === 3 && brique.vie <= 2))) {
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 2;
-                    // Première fissure zigzag après le 1er coup
-                    ctx.beginPath();
-                    const startX1 = brique.x + brique.w * 0.3;
-                    const endX1 = brique.x + brique.w * 0.2;
-                    const segments = 4; // Nombre de segments zigzag
-                    for(let i = 0; i <= segments; i++) {
-                        const progress = i / segments;
-                        const y = brique.y + progress * brique.h;
-                        const x = startX1 + (endX1 - startX1) * progress + (i % 2 === 0 ? 0 : brique.w * 0.05) * Math.sin(progress * Math.PI);
-                        if(i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
+                    
+                    if (modeLanterne) {
+                        // Fissure simple en mode lanterne (ligne droite)
+                        ctx.beginPath();
+                        ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
+                        ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
+                        ctx.stroke();
+                    } else {
+                        // Fissure zigzag détaillée en mode normal
+                        ctx.beginPath();
+                        const startX1 = brique.x + brique.w * 0.3;
+                        const endX1 = brique.x + brique.w * 0.2;
+                        const segments = 4;
+                        for(let i = 0; i <= segments; i++) {
+                            const progress = i / segments;
+                            const y = brique.y + progress * brique.h;
+                            const x = startX1 + (endX1 - startX1) * progress + (i % 2 === 0 ? 0 : brique.w * 0.05) * Math.sin(progress * Math.PI);
+                            if(i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
                     }
-                    ctx.stroke();
                 }
 
                 if (!estBriqueMur && brique.vie <= 1) {
-                    // Deuxième fissure zigzag après le 2ème coup
-                    ctx.beginPath();
-                    const startX2 = brique.x + brique.w * 0.7;
-                    const endX2 = brique.x + brique.w * 0.8;
-                    const segments = 4;
-                    for(let i = 0; i <= segments; i++) {
-                        const progress = i / segments;
-                        const y = brique.y + progress * brique.h;
-                        const x = startX2 + (endX2 - startX2) * progress + (i % 2 === 1 ? 0 : brique.w * 0.04) * Math.cos(progress * Math.PI);
-                        if(i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
+                    if (modeLanterne) {
+                        // Deuxième fissure simple en mode lanterne
+                        ctx.beginPath();
+                        ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
+                        ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
+                        ctx.stroke();
+                    } else {
+                        // Deuxième fissure zigzag détaillée
+                        ctx.beginPath();
+                        const startX2 = brique.x + brique.w * 0.7;
+                        const endX2 = brique.x + brique.w * 0.8;
+                        const segments = 4;
+                        for(let i = 0; i <= segments; i++) {
+                            const progress = i / segments;
+                            const y = brique.y + progress * brique.h;
+                            const x = startX2 + (endX2 - startX2) * progress + (i % 2 === 1 ? 0 : brique.w * 0.04) * Math.cos(progress * Math.PI);
+                            if(i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
                     }
-                    ctx.stroke();
                 }
 
                 ctx.restore();
@@ -11213,29 +11161,33 @@
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#ffffff';
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                    ctx.shadowBlur = 5;
+                    // ⚡ OPTIMISATION: Pas de shadowBlur en mode lanterne
+                    if (!modeLanterne) {
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                        ctx.shadowBlur = 5;
+                    }
                     ctx.fillText(brique.drapeau, centreX, centreY);
-                    ctx.shadowBlur = 0;
+                    if (!modeLanterne) ctx.shadowBlur = 0;
                 }
 
                 // En phase stars (nuit), afficher les mots pour guider le joueur
-                // Sauf pour les phases 17-22 (montagnes) où le texte est invisible
-                const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
-                const afficherTexte = phaseActuelle < 17 || phaseActuelle > 22;
-
-                if(phaseJeu === 'stars' && brique.etape && (typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom) && afficherTexte) {
+                // ⚡ OPTIMISATION: Pas de texte en mode lanterne (déjà calculé au début)
+                if(modeStars && brique.etape && (typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom) && afficherTexte) {
                     ctx.fillStyle = '#FFFFFF';
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
                     ctx.font = `bold ${Math.max(12, brique.w * 0.15)}px Arial`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    // Contour noir pour la lisibilité
+                    // ⚡ OPTIMISATION: Un seul fillText (pas de strokeText pour économiser)
                     const nomBrique = typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom;
-                    ctx.strokeText(nomBrique, centreX, centreY + brique.h * 0.3);
-                    // Texte blanc par-dessus
+                    // Ombre simple au lieu de strokeText
+                    ctx.shadowColor = '#000000';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
                     ctx.fillText(nomBrique, centreX, centreY + brique.h * 0.3);
+                    ctx.shadowBlur = 0;
                 }
 
                 // En phase lanterne, le texte reste caché - il n'apparaît que lors de l'explosion
@@ -12591,14 +12543,14 @@
                 // Effet de pulsation encore plus douce
                 lanterne.intensite = 0.7 + 0.3 * Math.sin(Date.now() * 0.001);
 
-                // Créer quelques particules dorées plus rarement (seulement en mode lanterne)
-                if(Math.random() < 0.02) {
+                // ⚡ OPTIMISATION: Créer des particules dorées BEAUCOUP plus rarement (0.5% au lieu de 2%)
+                if(Math.random() < 0.005) {
                     const angle = Math.random() * Math.PI * 2;
                     const dist = C.BS + Math.random() * 10;
                     ajouterParticules(
                         balle.x + Math.cos(angle) * dist,
                         balle.y + Math.sin(angle) * dist,
-                        '#FFD700', 1
+                        '#FFD700', 1 // Réduit à 1 particule au lieu de par défaut
                     );
                 }
             }
@@ -12798,8 +12750,9 @@
                                 AudioSystem.playBrickBreakCrack();
                             }
 
-                            // Explosion en 3 petits cœurs seulement
-                            for(let j = 0; j < 3; j++) {
+                            // ⚡ OPTIMISATION: En mode lanterne, réduire les particules de cœurs (1 au lieu de 3)
+                            const nombreCoeurs = phaseJeu === 'lanterne' ? 1 : 3;
+                            for(let j = 0; j < nombreCoeurs; j++) {
                                 particules.push({
                                     x: brique.x + brique.w/2 + (Math.random() - 0.5) * 20,
                                     y: brique.y + brique.h/2 + (Math.random() - 0.5) * 20,
@@ -12813,8 +12766,8 @@
                             }
 
                             // Texte du cœur qui grossit et monte au ciel
-                            // En mode lanterne : afficher seulement 1 texte sur 4 pour éviter la surcharge
-                            if (phaseJeu !== 'lanterne' || Math.random() < 0.25) {
+                            // En mode lanterne : afficher seulement 1 texte sur 6 pour éviter la surcharge (optimisé de 1/4 à 1/6)
+                            if (phaseJeu !== 'lanterne' || Math.random() < 0.17) {
                                 ajouterTexteVolant(typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom, brique.x + brique.w/2, brique.y + brique.h/2);
                             }
 
@@ -13829,8 +13782,13 @@
 
         // Système de particules d'espoir
         function ajouterParticules(x, y, couleur, nombre = 8) {
+            // ⚡ OPTIMISATION MODE LANTERNE: Réduire drastiquement les particules
+            if (phaseJeu === 'lanterne') {
+                nombre = Math.ceil(nombre * 0.3); // 70% de réduction !
+            }
+            
             // Limite stricte pour éviter les bugs de performance
-            const maxParticules = 120; // Réduit de 200 à 120
+            const maxParticules = phaseJeu === 'lanterne' ? 60 : 120; // Encore plus strict en mode lanterne
             if(particules.length + nombre > maxParticules) {
                 const aSupprimer = (particules.length + nombre) - maxParticules;
                 particules.splice(0, aSupprimer); // Supprimer les plus anciennes
@@ -13974,8 +13932,13 @@
 
         // Particules en forme de petits cœurs qui volent vers le haut
         function ajouterParticulesCoeurs(x, y, couleur, nombre = 8) {
+            // ⚡ OPTIMISATION MODE LANTERNE: Réduire drastiquement les particules de cœurs
+            if (phaseJeu === 'lanterne') {
+                nombre = Math.ceil(nombre * 0.25); // 75% de réduction !
+            }
+            
             // Limiter le nombre total de particules pour les performances
-            const maxParticules = 200;
+            const maxParticules = phaseJeu === 'lanterne' ? 100 : 200;
             if(particules.length >= maxParticules) {
                 particules.splice(0, nombre); // Supprimer les plus anciennes
             }
@@ -14765,8 +14728,9 @@
                                         AudioSystem.playWallBreak();
                                 }
 
-                                // Explosion en 3 petits cœurs
-                                for(let j = 0; j < 3; j++) {
+                                // ⚡ OPTIMISATION: En mode lanterne, réduire les particules de cœurs (1 au lieu de 3)
+                                const nombreCoeurs = phaseJeu === 'lanterne' ? 1 : 3;
+                                for(let j = 0; j < nombreCoeurs; j++) {
                                     particules.push({
                                         x: brique.x + brique.w/2 + (Math.random() - 0.5) * 20,
                                         y: brique.y + brique.h/2 + (Math.random() - 0.5) * 20,
@@ -15238,8 +15202,8 @@
                         }
 
                         // Texte du cœur qui grossit et monte au ciel
-                        // En mode lanterne : afficher seulement 1 texte sur 4 pour éviter la surcharge
-                        if (phaseJeu !== 'lanterne' || Math.random() < 0.25) {
+                        // En mode lanterne : afficher seulement 1 texte sur 6 pour éviter la surcharge (optimisé de 1/4 à 1/6)
+                        if (phaseJeu !== 'lanterne' || Math.random() < 0.17) {
                             ajouterTexteVolant(typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom, brique.x + brique.w/2, brique.y + brique.h/2);
                         }
 
@@ -17785,6 +17749,47 @@ Elle a besoin de ponts.`
                             return;
                         }
                     }
+
+                    // 🔄 Bouton RESET À ZÉRO
+                    if (menuEnigmesCanvas.resetButton) {
+                        const resetBtn = menuEnigmesCanvas.resetButton;
+                        if (x >= resetBtn.x && x <= resetBtn.x + resetBtn.width &&
+                            y >= resetBtn.y && y <= resetBtn.y + resetBtn.height) {
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            
+                            // Double confirmation pour éviter les accidents
+                            const confirmMsg1 = getTranslatedText('ui.confirm_reset_1', 
+                                '🔄 ATTENTION : Recommencer le jeu à zéro ?\n\n' +
+                                '⚠️ Cela va :\n' +
+                                '- Effacer votre progression\n' +
+                                '- Supprimer votre sauvegarde\n' +
+                                '- Redémarrer à la phase 1\n\n' +
+                                'Voulez-vous continuer ?');
+                            
+                            if (confirm(confirmMsg1)) {
+                                const confirmMsg2 = getTranslatedText('ui.confirm_reset_2',
+                                    '⚠️ DERNIÈRE CONFIRMATION\n\n' +
+                                    'Êtes-vous VRAIMENT sûr ?\n' +
+                                    'Cette action est irréversible.');
+                                
+                                if (confirm(confirmMsg2)) {
+                                    console.log('🔄 Reset à zéro confirmé par utilisateur');
+                                    
+                                    // Effacer la sauvegarde
+                                    GameSaveSystem.clear();
+                                    
+                                    // 🔄 VRAI RELOAD du canvas - réinitialise tous les timings narratifs
+                                    console.log('🔄 Rechargement complet de la page...');
+                                    window.location.reload();
+                                } else {
+                                    console.log('❌ Reset annulé (2ème confirmation)');
+                                }
+                            } else {
+                                console.log('❌ Reset annulé (1ère confirmation)');
+                            }
+                            return;
+                        }
+                    }
                 }
                 
                 // Touch dans le menu mais pas sur élément interactif → ne rien faire
@@ -20193,16 +20198,41 @@ Elle a besoin de ponts.`
                                 `🎯 Phase: ${saveInfo.phase}\n` +
                                 `⭐ Score: ${saveInfo.score}\n` +
                                 `❤️ Vies: ${saveInfo.vies}\n\n` +
-                                `Voulez-vous reprendre cette partie ?`;
+                                `Voulez-vous reprendre cette partie ?\n\n` +
+                                `✅ OUI = Reprendre la partie\n` +
+                                `❌ NON = Recommencer à zéro (efface la sauvegarde)`;
                     
                     if (confirm(msg)) {
+                        // Charger la partie sauvegardée
                         const gameState = GameSaveSystem.load();
                         if (gameState) {
                             GameSaveSystem.restore(gameState);
                             console.log('✅ Partie chargée avec succès !');
                         }
                     } else {
-                        console.log('ℹ️ Nouvelle partie démarrée');
+                        // L'utilisateur veut recommencer à zéro
+                        const confirmReset = confirm(
+                            '🔄 Recommencer à zéro ?\n\n' +
+                            '⚠️ Cela va :\n' +
+                            '- Effacer votre progression\n' +
+                            '- Supprimer votre sauvegarde\n' +
+                            '- Redémarrer à la phase 1\n\n' +
+                            'Êtes-vous sûr ?'
+                        );
+                        
+                        if (confirmReset) {
+                            // Effacer la sauvegarde et reload
+                            GameSaveSystem.clear();
+                            console.log('🔄 Sauvegarde effacée - Rechargement...');
+                            window.location.reload();
+                        } else {
+                            // Annulé - Charger la sauvegarde finalement
+                            const gameState = GameSaveSystem.load();
+                            if (gameState) {
+                                GameSaveSystem.restore(gameState);
+                                console.log('✅ Partie chargée avec succès !');
+                            }
+                        }
                     }
                 }
             }

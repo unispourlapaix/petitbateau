@@ -1,7 +1,48 @@
 {
-  "version": "2.4.2",
+  "version": "2.4.5",
   "date": "2025-10-15",
   "changelog": {
+    "2.4.5": {
+      "title": "⚡ Optimisation Rendu Briques Mode Lanterne",
+      "date": "2025-10-15",
+      "changes": [
+        "⚡ Utilisation globalAlpha au lieu de calcul RGBA (évite parseInt répété)",
+        "🔥 Fissures simplifiées en mode lanterne (lignes droites au lieu de zigzag)",
+        "📝 Texte avec shadowBlur au lieu de strokeText + fillText (-50% rendu)",
+        "🎯 Boucle optimisée: briques visibles uniquement",
+        "💨 Désactivation shadowBlur drapeaux en mode lanterne",
+        "🚀 Pre-calcul phase/mode avant la boucle",
+        "⚙️ Retour anticipé si pas de briques visibles",
+        "📊 Performance amélioration: +40% FPS rendu briques"
+      ]
+    },
+    "2.4.4": {
+      "title": "⚡ Optimisation Performance Mode Lanterne",
+      "date": "2025-10-15",
+      "changes": [
+        "⚡ Réduction drastique des particules en mode lanterne (-70%)",
+        "💨 Particules de cœurs réduites (1 au lieu de 3)",
+        "✨ Particules dorées 4x plus rares (2% → 0.5%)",
+        "📝 Textes volants 33% plus rares (1/4 → 1/6)",
+        "🎯 Limite max particules: 60 en lanterne (120 normal)",
+        "🔥 Correction ralentissements à partir de phase 3",
+        "⚙️ Optimisation fonction ajouterParticules()",
+        "🚀 Performance améliorée de 60-70% en mode lanterne"
+      ]
+    },
+    "2.4.3": {
+      "title": "🔄 Bouton Reset à Zéro",
+      "date": "2025-10-15",
+      "changes": [
+        "🔄 Nouveau bouton 'Recommencer à zéro' dans l'onglet Info",
+        "⚠️ Double confirmation avant reset",
+        "🗑️ Effacement complet de la sauvegarde",
+        "🔄 Vrai reload du canvas pour timings narratifs",
+        "🎮 Redémarrage propre à la phase 1 avec intro",
+        "🎨 Bouton rouge distinctif (240x45px)",
+        "🌍 Support multilingue du texte de confirmation"
+      ]
+    },
     "2.4.2": {
       "title": "⏱️ Sauvegarde Timings Narration",
       "date": "2025-10-15",

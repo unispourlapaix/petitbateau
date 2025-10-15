@@ -80,7 +80,11 @@
       "es": "PEQUEÑO BARCO",
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
-    }
+    },
+    "reset_button": "🔄 Recommencer à zéro",
+    "confirm_reset_1": "🔄 ATTENTION : Recommencer le jeu à zéro ?\n\n⚠️ Cela va :\n- Effacer votre progression\n- Supprimer votre sauvegarde\n- Redémarrer à la phase 1\n\nVoulez-vous continuer ?",
+    "confirm_reset_2": "⚠️ DERNIÈRE CONFIRMATION\n\nÊtes-vous VRAIMENT sûr ?\nCette action est irréversible.",
+    "game_reset": "Jeu réinitialisé !"
   },
   "game": {
     "messages": {
