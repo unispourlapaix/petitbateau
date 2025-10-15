@@ -73,7 +73,7 @@ Ce n'est pas tous les jours qu'un jeu vous touche autant.
 
 Le Petit Bateau Rouge m'a fait comprendre ce que signifie vraiment "chercher un refuge".
 
-🚣 Un voyage de 33M km
+🚣 Un voyage de 33 raisons d'aimer
 💭 Des énigmes qui font réfléchir
 🎵 De la musique qui touche l'âme
 

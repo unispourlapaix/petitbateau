@@ -228,6 +228,51 @@
             background: #ff6b6b;
         }
 
+        .audio-controls {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            border: 3px solid #0f0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .audio-controls h4 {
+            color: #ffd700;
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+        }
+
+        .audio-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: #0f0;
+            color: #000;
+            border: 2px solid #0a0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .audio-btn:hover {
+            background: #0a0;
+        }
+
+        .audio-btn.active {
+            background: #ffd700;
+            border-color: #ffaa00;
+        }
+
+        .volume-control {
+            width: 100%;
+            margin: 10px 0 5px 0;
+        }
+
         .scanline {
             position: fixed;
             top: 0;
@@ -377,9 +422,116 @@
         ⏸️ PAUSE
     </div>
 
+    <div class="audio-controls">
+        <h4>🎵 AMBIANCE</h4>
+        <button class="audio-btn" id="waveBtn" onclick="toggleWaves()">🌊 Vagues OFF</button>
+        <button class="audio-btn" id="musicBtn" onclick="toggleMusic()">🎵 Musique OFF</button>
+        <label style="color: #0f0; font-size: 0.8em;">Volume:</label>
+        <input type="range" class="volume-control" id="volumeSlider" min="0" max="100" value="30" onchange="updateVolume()">
+    </div>
+
     <script>
         let animationRunning = true;
         let animationFrames = {};
+
+        // === SYSTÈME AUDIO ===
+        let waveAudio = null;
+        let musicAudio = null;
+        let wavesPlaying = false;
+        let musicPlaying = false;
+
+        // Créer l'audio des vagues (son généré)
+        function createWaveSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            return { audioContext, oscillator, gainNode };
+        }
+
+        // Toggle vagues
+        function toggleWaves() {
+            const btn = document.getElementById('waveBtn');
+            if (!wavesPlaying) {
+                // Charger et jouer le son de vagues (bruit blanc filtré)
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = 4096;
+                const whiteNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+                const gainNode = audioCtx.createGain();
+                const biquadFilter = audioCtx.createBiquadFilter();
+                
+                biquadFilter.type = 'lowpass';
+                biquadFilter.frequency.value = 300;
+                
+                whiteNoise.onaudioprocess = function(e) {
+                    const output = e.outputBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                };
+                
+                gainNode.gain.value = document.getElementById('volumeSlider').value / 300;
+                
+                whiteNoise.connect(biquadFilter);
+                biquadFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                waveAudio = { audioCtx, whiteNoise, gainNode };
+                wavesPlaying = true;
+                btn.textContent = '🌊 Vagues ON';
+                btn.classList.add('active');
+            } else {
+                if (waveAudio) {
+                    waveAudio.whiteNoise.disconnect();
+                    waveAudio.audioCtx.close();
+                    waveAudio = null;
+                }
+                wavesPlaying = false;
+                btn.textContent = '🌊 Vagues OFF';
+                btn.classList.remove('active');
+            }
+        }
+
+        // Toggle musique
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            if (!musicPlaying) {
+                if (!musicAudio) {
+                    musicAudio = new Audio('../modules/gospel/Un vent Espoir.mp3');
+                    musicAudio.loop = true;
+                    musicAudio.volume = document.getElementById('volumeSlider').value / 100;
+                }
+                musicAudio.play().catch(e => console.log('Audio play error:', e));
+                musicPlaying = true;
+                btn.textContent = '🎵 Musique ON';
+                btn.classList.add('active');
+            } else {
+                if (musicAudio) {
+                    musicAudio.pause();
+                }
+                musicPlaying = false;
+                btn.textContent = '🎵 Musique OFF';
+                btn.classList.remove('active');
+            }
+        }
+
+        // Mettre à jour le volume
+        function updateVolume() {
+            const volume = document.getElementById('volumeSlider').value / 100;
+            if (waveAudio && waveAudio.gainNode) {
+                waveAudio.gainNode.gain.value = volume / 3;
+            }
+            if (musicAudio) {
+                musicAudio.volume = volume;
+            }
+        }
 
         // Fonction pour dessiner un pixel art boat
         function drawPixelBoat(ctx, x, y, size, color) {
@@ -595,7 +747,7 @@
 
             // Texte
             ctx.textAlign = 'center';
-            drawPixelText(ctx, '33M KM', 540, 600, 80, '#ffd700');
+            drawPixelText(ctx, '33 RAISONS D\'AIMER', 540, 600, 80, '#ffd700');
             drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 540, 720, 45, '#ffffff');
             drawPixelText(ctx, '33 Millions de Raisons', 540, 780, 30, '#87ceeb');
             drawPixelText(ctx, 'de Partager la Paix', 540, 820, 30, '#87ceeb');
@@ -677,10 +829,10 @@
 
             // Texte
             ctx.textAlign = 'center';
-            drawPixelText(ctx, 'LE PETIT', 540, 1100, 60, '#ffffff');
+            drawPixelText(ctx, 'LE PETIT', 540, 1100, 60, '#87ceeb');
             drawPixelText(ctx, 'BATEAU ROUGE', 540, 1180, 60, '#ff6b6b');
             
-            drawPixelText(ctx, '33M KM', 540, 1300, 90, '#ffd700');
+            drawPixelText(ctx, '33 RAISONS D\'AIMER', 540, 1300, 90, '#ffd700');
             
             drawPixelText(ctx, '33 Millions de Raisons', 540, 1420, 38, '#ffffff');
             drawPixelText(ctx, 'de Partager la Paix', 540, 1470, 38, '#ffffff');
