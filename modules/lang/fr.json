@@ -356,9 +356,7 @@
       "error": "Erreur",
       "text_copied_clipboard": "✅ Texte copié dans le presse-papiers !\n\nPartagez-le sur vos réseaux sociaux 🌍",
       "enigma_not_discovered": "Énigme non découverte",
-      "no_exclamation": "NON !",
-      "portrait_required": "Mode Portrait Requis",
-      "rotate_device": "Veuillez tourner votre appareil en mode portrait"
+      "no_exclamation": "NON !"
     },
     "labels": {
       "mystery": "Mystère",

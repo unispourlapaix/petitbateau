@@ -298,7 +298,7 @@
             }
         }
         
-        /* Message d'orientation pour mobile en mode paysage */
+        /* Message d'orientation 100% VISUEL - Pas de texte, juste des icônes */
         .orientation-warning {
             display: none;
             position: fixed;
@@ -311,15 +311,9 @@
             color: white;
             text-align: center;
             padding: 20px;
-            font-size: 18px;
         }
         
-        .rotate-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: rotate-pulse 2s ease-in-out infinite;
-        }
-        
+        /* Animation de rotation du téléphone */
         @keyframes rotate-pulse {
             0%, 100% { transform: rotate(0deg) scale(1); }
             50% { transform: rotate(90deg) scale(1.1); }
@@ -1379,14 +1373,16 @@
 
         </style></head>
 <body>
-    <!-- Message d'orientation pour mobile en mode paysage -->
+    <!-- Message d'orientation pour mobile en mode paysage - 100% VISUEL -->
     <div class="orientation-warning">
-        <div class="rotate-icon">📱</div>
-        <div id="orientation-title" style="font-size: 24px; font-weight: bold; margin-bottom: 15px;" data-i18n="interface.system.portrait_required">
-            Portrait Mode Required
+        <div style="font-size: 120px; margin-bottom: 30px; animation: rotate-pulse 2s ease-in-out infinite;">
+            📱
         </div>
-        <div id="orientation-message" style="font-size: 16px; opacity: 0.9;" data-i18n="interface.system.rotate_device">
-            Please rotate your device to portrait mode
+        <div style="font-size: 100px; margin-bottom: 20px;">
+            ↻
+        </div>
+        <div style="font-size: 60px; opacity: 0.9;">
+            ⬆️
         </div>
     </div>
     
