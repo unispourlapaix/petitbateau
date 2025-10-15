@@ -356,7 +356,9 @@
       "error": "Error",
       "text_copied_clipboard": "✅ Text copied to clipboard!\n\nShare it on your social networks 🌍",
       "enigma_not_discovered": "Enigma not discovered",
-      "no_exclamation": "NO!"
+      "no_exclamation": "NO!",
+      "portrait_required": "Portrait Mode Required",
+      "rotate_device": "Please rotate your device to portrait mode"
     },
     "labels": {
       "mystery": "Mystery",

@@ -2,7 +2,7 @@
 <html lang="fr"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- SEO Meta Tags Français -->
     <title>Petit Bateau Rouge ⛵ - Jeu d'Énigmes Poétique par Emmanuel Payet</title>
@@ -108,16 +108,41 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 25%, #f1f3f4 75%, #e9ecef 100%);
-            min-height: 100vh; width: 100%; margin: 0; padding: 0;
+            min-height: 100vh; 
+            min-height: -webkit-fill-available; /* iOS fix */
+            width: 100%; margin: 0; padding: 0;
             display: flex; align-items: center; justify-content: center;
             color: #2c3e50; overflow: hidden;
+            position: fixed; /* Empêche le scroll sur mobile */
         }
 
         .game-container {
             position: relative;
-            width: 100vw; height: 100vh;
+            width: 100vw; 
+            width: 100dvw; /* Dynamic viewport for mobile */
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport for mobile */
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
+        }
+        
+        /* Optimisation mobile - Plein écran natif */
+        @media (max-width: 499px) {
+            body {
+                height: 100vh;
+                height: -webkit-fill-available;
+            }
+            
+            .game-container {
+                width: 100vw;
+                height: 100vh;
+                height: -webkit-fill-available;
+            }
+            
+            #gameCanvas {
+                max-width: 100%;
+                max-height: 100%;
+            }
         }
 
         #gameCanvas {
@@ -270,6 +295,44 @@
                     0 4px 20px rgba(0,0,0,0.4),
                     0 0 30px rgba(77,166,255,0.5),
                     inset 0 1px 1px rgba(255,255,255,0.2);
+            }
+        }
+        
+        /* Message d'orientation pour mobile en mode paysage */
+        .orientation-warning {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        
+        .rotate-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: rotate-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes rotate-pulse {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(90deg) scale(1.1); }
+        }
+        
+        /* Afficher le warning en mode paysage sur mobile */
+        @media (max-width: 499px) and (orientation: landscape) {
+            .orientation-warning {
+                display: flex !important;
+            }
+            
+            .game-container {
+                display: none !important;
             }
         }
 
@@ -1316,6 +1379,17 @@
 
         </style></head>
 <body>
+    <!-- Message d'orientation pour mobile en mode paysage -->
+    <div class="orientation-warning">
+        <div class="rotate-icon">📱</div>
+        <div id="orientation-title" style="font-size: 24px; font-weight: bold; margin-bottom: 15px;" data-i18n="interface.system.portrait_required">
+            Portrait Mode Required
+        </div>
+        <div id="orientation-message" style="font-size: 16px; opacity: 0.9;" data-i18n="interface.system.rotate_device">
+            Please rotate your device to portrait mode
+        </div>
+    </div>
+    
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
 
@@ -1443,12 +1517,44 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Détection mobile et tactile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                         || (window.innerWidth < 500);
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
         // Configuration responsive avec ratio fixe
         function setupCanvas() {
             const container = document.querySelector('.game-container');
-            const width = container.clientWidth;
-            const height = container.clientHeight;
+            let width = container.clientWidth;
+            let height = container.clientHeight;
 
+            // Sur mobile, utiliser les dimensions réelles de l'écran
+            if (isMobile) {
+                // Utiliser window.screen pour une meilleure résolution sur mobile
+                const pixelRatio = window.devicePixelRatio || 1;
+                
+                // Dimensions physiques de l'écran
+                width = window.innerWidth;
+                height = window.innerHeight;
+                
+                // Sur iOS, corriger pour la barre d'adresse
+                if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    height = window.innerHeight;
+                }
+                
+                // Optimiser le canvas pour le pixel ratio
+                canvas.width = width * pixelRatio;
+                canvas.height = height * pixelRatio;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                
+                // Scaler le contexte pour compenser le pixel ratio
+                ctx.scale(pixelRatio, pixelRatio);
+                
+                return { width, height };
+            }
+
+            // PC : comportement normal
             canvas.width = width;
             canvas.height = height;
             canvas.style.width = width + 'px';
@@ -16887,11 +16993,20 @@ Elle a besoin de ponts.`
             }
         }
 
-        // Contrôles tactiles et souris unifiés
+        // Contrôles tactiles et souris unifiés avec support pixel ratio
         function obtenirPosition(e) {
             const rect = canvas.getBoundingClientRect();
             const touch = e.touches ? e.touches[0] : e;
-            return { x: touch.clientX - rect.left };
+            
+            // Calculer la position relative au canvas
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            // Position ajustée pour le pixel ratio sur mobile
+            const x = (touch.clientX - rect.left) * (isMobile ? 1 : scaleX / (window.devicePixelRatio || 1));
+            const y = (touch.clientY - rect.top) * (isMobile ? 1 : scaleY / (window.devicePixelRatio || 1));
+            
+            return { x, y };
         }
 
         // Variable pour throttle du son de voile
@@ -17766,18 +17881,39 @@ Elle a besoin de ponts.`
             }
         });
 
-        // Redimensionnement responsive
+        // Redimensionnement responsive avec gestion orientation mobile
+        let resizeTimer;
         window.addEventListener('resize', () => {
-            size = setupCanvas();
-            // Mettre à jour l'objet C avec les nouvelles dimensions
-            C.W = size.width;
-            C.H = size.height;
-            C.PW = Math.max(size.width * 0.3, 100);
-            C.PH = Math.max(size.height * 0.025, 15);
-            C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-            C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
-            if(!jeu) initJeu();
+            // Débounce pour éviter trop d'appels
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                size = setupCanvas();
+                // Mettre à jour l'objet C avec les nouvelles dimensions
+                C.W = size.width;
+                C.H = size.height;
+                C.PW = Math.max(size.width * 0.3, 100);
+                C.PH = Math.max(size.height * 0.025, 15);
+                C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
+                C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
+                if(!jeu) initJeu();
+            }, 100);
         });
+        
+        // Gestion changement d'orientation sur mobile
+        if (isMobile) {
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    size = setupCanvas();
+                    C.W = size.width;
+                    C.H = size.height;
+                    C.PW = Math.max(size.width * 0.3, 100);
+                    C.PH = Math.max(size.height * 0.025, 15);
+                    C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
+                    C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
+                    if(!jeu) initJeu();
+                }, 300); // Délai pour laisser le temps au navigateur de se repositionner
+            });
+        }
 
         // ========== MODULE MODE SECRET - INITIALISATION ==========
         function initSecretModeModule() {
