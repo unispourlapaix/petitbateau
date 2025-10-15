@@ -1748,14 +1748,14 @@
 
         // 🎮 Sauvegarder automatiquement toutes les 30 secondes pendant le jeu
         setInterval(() => {
-            if (jeu && !PRODUCTION_MODE) {
+            if (typeof jeu !== 'undefined' && jeu && !PRODUCTION_MODE) {
                 GameSaveSystem.save();
             }
         }, 30000);
 
         // 💾 Sauvegarder avant fermeture de la page
         window.addEventListener('beforeunload', () => {
-            if (jeu) {
+            if (typeof jeu !== 'undefined' && jeu) {
                 GameSaveSystem.save();
             }
         });
@@ -10585,16 +10585,6 @@
                 ctx.arc(posX, posY, rayon * 0.3, 0, Math.PI * 2);
                 ctx.fill();
             }
-
-            ctx.restore();
-        }
-            ctx.stroke();
-
-            // Corde centrale
-            ctx.beginPath();
-            ctx.moveTo(posX, domeTop); // Centre du dôme
-            ctx.lineTo(posX, posY - cordeLength);
-            ctx.stroke();
 
             ctx.restore();
         }
