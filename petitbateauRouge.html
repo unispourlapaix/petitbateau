@@ -17177,8 +17177,100 @@ Elle a besoin de ponts.`
             const x = pos.x;
             const y = pos.y || 0;
             
-            // 1. Vérifier le bouton plein écran (en haut à droite, avant le menu)
+            // 🎯 PRIORITÉ 1: Gestion du menu énigmes s'il est déjà ouvert
+            if (menuEnigmesCanvas.visible) {
+                const menuPadding = 40;
+                const menuWidth = C.W - 2 * menuPadding;
+                const menuHeight = C.H - 2 * menuPadding;
+                const menuX = menuPadding;
+                const menuY = menuPadding;
+                
+                // Vérifier le clic sur le bouton de fermeture (X)
+                const closeBtn = menuEnigmesCanvas.closeButton;
+                if (x >= closeBtn.x && x <= closeBtn.x + closeBtn.width &&
+                    y >= closeBtn.y && y <= closeBtn.y + closeBtn.height) {
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    fermerMenuEnigmesCanvas();
+                    return;
+                }
+                
+                // Si le clic est en dehors du menu, le fermer
+                if (x < menuX || x > menuX + menuWidth ||
+                    y < menuY || y > menuY + menuHeight) {
+                    fermerMenuEnigmesCanvas();
+                    return;
+                }
+                
+                // Vérifier les onglets
+                const ongletEnigmes = menuEnigmesCanvas.onglets.enigmes;
+                if (x >= ongletEnigmes.x && x <= ongletEnigmes.x + ongletEnigmes.width &&
+                    y >= ongletEnigmes.y && y <= ongletEnigmes.y + ongletEnigmes.height) {
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    menuEnigmesCanvas.ongletActif = 'enigmes';
+                    menuEnigmesCanvas.scrollY = 0;
+                    return;
+                }
+
+                const ongletClassement = menuEnigmesCanvas.onglets.classement;
+                if (x >= ongletClassement.x && x <= ongletClassement.x + ongletClassement.width &&
+                    y >= ongletClassement.y && y <= ongletClassement.y + ongletClassement.height) {
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    menuEnigmesCanvas.ongletActif = 'classement';
+                    menuEnigmesCanvas.scrollY = 0;
+                    return;
+                }
+
+                const ongletLangues = menuEnigmesCanvas.onglets.langues;
+                if (x >= ongletLangues.x && x <= ongletLangues.x + ongletLangues.width &&
+                    y >= ongletLangues.y && y <= ongletLangues.y + ongletLangues.height) {
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    menuEnigmesCanvas.ongletActif = 'langues';
+                    menuEnigmesCanvas.scrollY = 0;
+                    return;
+                }
+
+                // Clic sur les boutons de langue dans l'onglet langues
+                if (menuEnigmesCanvas.ongletActif === 'langues' && menuEnigmesCanvas.langueButtons) {
+                    for (const btn of menuEnigmesCanvas.langueButtons) {
+                        if (x >= btn.x && x <= btn.x + btn.width &&
+                            y >= btn.y && y <= btn.y + btn.height) {
+                            if (window.i18n && btn.code !== window.i18n.getCurrentLanguage()) {
+                                if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                                const languageNames = {
+                                    'fr': 'Français', 'en': 'English', 'es': 'Español',
+                                    'jp': '日本語', 'uk': 'Українська'
+                                };
+                                const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
+                                const confirmMessages = {
+                                    'fr': `🌍 Changer la langue vers ${newLangName} ?\n\nLa page sera rechargée.`,
+                                    'en': `🌍 Change language to ${newLangName}?\n\nThe page will be reloaded.`,
+                                    'es': `🌍 ¿Cambiar idioma a ${newLangName}?\n\nLa página se recargará.`,
+                                    'jp': `🌍 言語を${newLangName}に変更しますか？\n\nページが再読み込みされます。`,
+                                    'uk': `🌍 Змінити мову на ${newLangName}?\n\nСторінка буде перезавантажена.`
+                                };
+                                const currentLangCode = window.i18n.getCurrentLanguage() || 'fr';
+                                const confirmMessage = confirmMessages[currentLangCode] || confirmMessages['en'];
+                                if (confirm(confirmMessage)) {
+                                    window.i18n.setLanguage(btn.code).then(() => {
+                                        currentLang = btn.code;
+                                        localStorage.setItem('petit_bateau_lang', btn.code);
+                                        setTimeout(() => location.reload(), 500);
+                                    });
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+                
+                // Si on touche dans le menu mais pas sur un élément interactif, ne rien faire
+                return;
+            }
+            
+            // 🎯 PRIORITÉ 2: Boutons d'en-tête (seulement si menu fermé)
             const headerH = Math.max(C.H * 0.045, 32);
+            
+            // 2.1 Bouton plein écran
             const boutonPleinEcranX = C.W - 120;
             const boutonPleinEcranY = Math.max(headerH / 2 - 25, 5);
             const boutonPleinEcranRayon = 25;
@@ -17188,12 +17280,12 @@ Elle a besoin de ponts.`
                 Math.pow(y - (boutonPleinEcranY + boutonPleinEcranRayon), 2)
             );
             
-            if (distPleinEcran < boutonPleinEcranRayon + 10) { // +10 pour zone tactile plus large
+            if (distPleinEcran < boutonPleinEcranRayon + 10) {
                 toggleFullscreen();
                 return;
             }
             
-            // 2. Vérifier le bouton menu énigmes (en haut à droite)
+            // 2.2 Bouton menu énigmes
             const boutonMenuX = C.W - 65;
             const boutonMenuY = Math.max(headerH / 2 - 25, 5);
             const boutonMenuRayon = 25;
@@ -17203,19 +17295,17 @@ Elle a besoin de ponts.`
                 Math.pow(y - (boutonMenuY + boutonMenuRayon), 2)
             );
             
-            if (distMenu < boutonMenuRayon + 10) { // +10 pour zone tactile plus large
-                // 🔊 Son de clic
+            if (distMenu < boutonMenuRayon + 10) {
                 if (AudioSystem && AudioSystem.playClick) {
                     AudioSystem.playClick();
                 }
-                // Ouvrir le menu
                 if (typeof ouvrirMenuEnigmesCanvas === 'function') {
                     ouvrirMenuEnigmesCanvas();
                 }
                 return;
             }
             
-            // 3. Vérifier la zone du drapeau (changement de langue)
+            // 2.3 Zone du drapeau (changement de langue)
             const statsY = Math.max(C.H * 0.045, 30);
             const flagZone = {
                 x: 10,
@@ -17226,11 +17316,9 @@ Elle a besoin de ponts.`
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
-                // 🔊 Son de clic
                 if (AudioSystem && AudioSystem.playClick) {
                     AudioSystem.playClick();
                 }
-                // Ouvrir le menu énigme sur l'onglet langues
                 if (!menuEnigmesCanvas.visible && typeof ouvrirMenuEnigmesCanvas === 'function') {
                     ouvrirMenuEnigmesCanvas();
                 }
