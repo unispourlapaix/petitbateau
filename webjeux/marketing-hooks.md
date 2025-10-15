@@ -7,42 +7,43 @@
 
 ## 📱 Posts Réseaux Sociaux
 
-### Hook 1 : Émotionnel + Slogan
+### Hook 1 : Émotionnel + Poétique
 ```
 🚣 Le Petit Bateau Rouge
 33 Millions de Raisons de Partager la Paix
 
-33 millions de raisons...
-C'est la distance parcourue chaque année par ceux qui cherchent la liberté.
+Il y a en chacun de nous un voyageur...
 
-Ce voyage transformé en expérience poétique.
+Un voyage poétique et interactif à travers 33 énigmes philosophiques 
+qui explorent la foi, l'espoir et l'amour.
 
-💖 33 énigmes sur la foi, l'espoir et l'amour
+💖 33 raisons d'aimer la vie
 🌍 14 langues pour toucher le monde entier
 🎵 Gospel original pour accompagner votre périple
 
-Êtes-vous prêt pour ce voyage ?
+Êtes-vous prêt à naviguer vers la paix ?
 
 🎮 Jouez gratuitement : https://unispourlapaix.github.io/petitbateau/
 
 #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix
 ```
 
-### Hook 2 : Curiosité
+### Hook 2 : Introspection
 ```
-Que se passerait-il si...
+Il y a en chacun de nous un voyageur...
 
-...un simple jeu pouvait vous faire ressentir l'émotion d'un voyage de millions de kilomètres ?
+Où nous mène-t-il ? Vers quelle paix ?
 
 🚣 Le Petit Bateau Rouge n'est pas qu'un jeu.
-C'est une expérience qui change votre regard sur le monde.
+C'est un miroir de notre humanité, une quête universelle.
 
-✨ Découvrez pourquoi des milliers de joueurs ont été touchés
-🎮 Gratuit • 14 langues • Accessible partout
+✨ 33 énigmes qui nous révèlent à nous-mêmes
+💭 Foi, espoir, amour : les trois piliers de la paix
+🎮 Gratuit • 14 langues • Accessible à tous
 
 https://unispourlapaix.github.io/petitbateau/
 
-#GameWithPurpose #IndieGame #ArtGame
+#VoyageInterieur #GameWithPurpose #ArtGame
 ```
 
 ### Hook 3 : Statistique Choc
