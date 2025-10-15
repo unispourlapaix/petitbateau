@@ -1522,6 +1522,31 @@
                          || (window.innerWidth < 500);
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+        // 🔒 VERROUILLAGE D'ORIENTATION EN MODE PORTRAIT (PWA/Installée)
+        if (isMobile && screen.orientation && screen.orientation.lock) {
+            // Tenter de verrouiller en portrait (fonctionne dans les PWA installées)
+            screen.orientation.lock('portrait').then(() => {
+                console.log('✅ Orientation verrouillée en mode portrait');
+            }).catch(err => {
+                console.warn('⚠️ Verrouillage orientation échoué (normal en mode navigateur):', err);
+                // Pas grave, le CSS media query fera le travail
+            });
+        }
+        
+        // Alternative : API ScreenOrientation pour PWA
+        if (isMobile && window.screen && window.screen.orientation) {
+            // Écouter les changements d'orientation
+            window.screen.orientation.addEventListener('change', () => {
+                const orientation = window.screen.orientation.type;
+                console.log('📱 Orientation changée:', orientation);
+                
+                // Si paysage détecté, afficher le message
+                if (orientation.includes('landscape')) {
+                    console.warn('⚠️ Mode paysage détecté - Message d\'avertissement actif');
+                }
+            });
+        }
+
         // Configuration responsive avec ratio fixe
         function setupCanvas() {
             const container = document.querySelector('.game-container');
@@ -17901,8 +17926,35 @@ Elle a besoin de ponts.`
         
         // Gestion changement d'orientation sur mobile
         if (isMobile) {
+            // Fonction pour vérifier et afficher/masquer le message d'orientation
+            function checkOrientation() {
+                const orientationWarning = document.querySelector('.orientation-warning');
+                const gameContainer = document.querySelector('.game-container');
+                
+                if (!orientationWarning || !gameContainer) return;
+                
+                // Détecter l'orientation réelle (fonctionne dans les PWA)
+                const isLandscape = window.innerWidth > window.innerHeight;
+                
+                if (isLandscape && window.innerWidth < 900) {
+                    // Mode paysage sur mobile/tablette
+                    orientationWarning.style.display = 'flex';
+                    gameContainer.style.display = 'none';
+                    console.warn('⚠️ Mode paysage détecté - Jeu masqué');
+                } else {
+                    // Mode portrait ou écran large (PC)
+                    orientationWarning.style.display = 'none';
+                    gameContainer.style.display = 'flex';
+                }
+            }
+            
+            // Vérifier au chargement
+            checkOrientation();
+            
+            // Event orientationchange (API standard)
             window.addEventListener('orientationchange', () => {
                 setTimeout(() => {
+                    checkOrientation();
                     size = setupCanvas();
                     C.W = size.width;
                     C.H = size.height;
@@ -17912,6 +17964,11 @@ Elle a besoin de ponts.`
                     C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
                     if(!jeu) initJeu();
                 }, 300); // Délai pour laisser le temps au navigateur de se repositionner
+            });
+            
+            // Event resize (backup pour PWA qui n'utilisent pas orientationchange)
+            window.addEventListener('resize', () => {
+                checkOrientation();
             });
         }
 
