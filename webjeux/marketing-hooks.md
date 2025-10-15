@@ -12,7 +12,7 @@
 🚣 Le Petit Bateau Rouge
 33 Millions de Raisons de Partager la Paix
 
-33 millions de kilomètres...
+33 millions de raisons...
 C'est la distance parcourue chaque année par ceux qui cherchent la liberté.
 
 Ce voyage transformé en expérience poétique.
@@ -23,7 +23,7 @@ Ce voyage transformé en expérience poétique.
 
 Êtes-vous prêt pour ce voyage ?
 
-🎮 Jouez gratuitement : [LIEN]
+🎮 Jouez gratuitement : https://unispourlapaix.github.io/petitbateau/
 
 #LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix
 ```
@@ -40,7 +40,7 @@ C'est une expérience qui change votre regard sur le monde.
 ✨ Découvrez pourquoi des milliers de joueurs ont été touchés
 🎮 Gratuit • 14 langues • Accessible partout
 
-[LIEN]
+https://unispourlapaix.github.io/petitbateau/
 
 #GameWithPurpose #IndieGame #ArtGame
 ```
@@ -60,7 +60,7 @@ C'est l'équivalent d'un aller-retour vers Mars.
 💖 33 questions sur l'humanité
 🌍 Pour tous, dans 14 langues
 
-Vivez le voyage : [LIEN]
+Vivez le voyage : https://unispourlapaix.github.io/petitbateau/
 
 #DidYouKnow #HumanRights #GamingForGood
 ```
@@ -79,7 +79,7 @@ Le Petit Bateau Rouge m'a fait comprendre ce que signifie vraiment "chercher un 
 
 Gratuit, profond, inoubliable.
 
-Essayez : [LIEN]
+Essayez : https://unispourlapaix.github.io/petitbateau/
 
 #Gaming #EmotionalJourney #ArtisticGame
 ```
@@ -100,7 +100,7 @@ Trouveriez-vous la force de continuer ?
 ✅ Gospel original d'Emmanuel Payet
 ✅ 14 langues disponibles
 
-Testez votre humanité : [LIEN]
+Testez votre humanité : https://unispourlapaix.github.io/petitbateau/
 
 #InteractiveArt #SocialImpact #FreeGame
 ```
