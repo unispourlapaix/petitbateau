@@ -1,6 +1,6 @@
 # 🚣 Le Petit Bateau Rouge
 
-> **33 Millions de Raisons de Partager la Paix**
+> **33 Millions de Cœurs Libérés pour Partager la Paix**
 > 
 > Les voyages sont notre liberté, notre humanité. Guidez un petit bateau rouge à travers la découverte d'énigmes philosophiques sur la vie, l'espoir et l'amour.
 

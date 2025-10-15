@@ -1,7 +1,7 @@
 # 🎯 Marketing Hooks - Le Petit Bateau Rouge
 
 ## 🌟 Slogan Principal
-**"Le Petit Bateau Rouge – 33 Millions de Raisons de Partager la Paix"**
+**"Le Petit Bateau Rouge – 33 Millions de Cœurs Libérés pour Partager la Paix"**
 
 ---
 
@@ -10,7 +10,7 @@
 ### Hook 1 : Émotionnel + Humanité
 ```
 🚣 Le Petit Bateau Rouge
-33 Millions de Raisons de Partager la Paix
+33 Millions de Cœurs Libérés pour Partager la Paix
 
 Les voyages sont notre liberté, notre humanité.
 
