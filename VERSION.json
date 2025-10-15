@@ -1,0 +1,33 @@
+{
+  "version": "2.2.1",
+  "date": "2025-10-15",
+  "changelog": {
+    "2.2.1": {
+      "title": "🐛 Corrections critiques",
+      "date": "2025-10-15",
+      "changes": [
+        "✅ Menu visible en fin de jeu",
+        "✅ Contrôles tactiles ultra-simplifiés",
+        "✅ Popup Info Artiste corrigé",
+        "✅ Power-ups timing conditionnel (phases 17-22)",
+        "✅ Rainbow hope immortel sans duplication",
+        "✅ Messages XP avec fond rose visible",
+        "✅ Throttle messages XP (anti-spam)",
+        "✅ Sillage bateau animé (2 lignes)",
+        "⚡ Mode production (console.log désactivés)",
+        "🧹 Code nettoyé (-250 lignes)"
+      ]
+    },
+    "2.0.0": {
+      "title": "🎨 Version initiale PWA",
+      "date": "2025-10-14",
+      "changes": [
+        "🚀 PWA complète avec icônes",
+        "🌍 14 langues supportées",
+        "🎮 23 phases de jeu",
+        "💖 33 énigmes philosophiques",
+        "🎵 Musique gospel intégrée"
+      ]
+    }
+  }
+}

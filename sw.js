@@ -1,5 +1,8 @@
-const CACHE_NAME = 'petit-bateau-v2.0.0'; // Version mise à jour avec branding cohérent
+// 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
+// Pour déployer une nouvelle version, modifie juste VERSION.json
+const CACHE_NAME = 'petit-bateau-v2.2.1'; // Synchronisé avec VERSION.json
 const urlsToCache = [
+  './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
   './manifest.json',
   // Icônes PWA

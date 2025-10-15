@@ -19783,19 +19783,43 @@ Elle a besoin de ponts.`
                         const newWorker = registration.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nouvelle version disponible avec nouvelles icônes
-                                const updateMessage = '🎨 Nouvelle version disponible avec des icônes améliorées !\n\n' +
-                                                     '✨ Nouvelles icônes optimisées\n' +
-                                                     '🔧 Améliorations PWA\n\n' +
-                                                     'Voulez-vous mettre à jour maintenant ?';
-                                
-                                if (confirm(updateMessage)) {
-                                    newWorker.postMessage({type: 'SKIP_WAITING'});
-                                    window.location.reload();
-                                } else {
-                                    // Afficher un bouton de mise à jour dans le jeu
-                                    showUpdateBanner();
-                                }
+                                // Charger les notes de version depuis VERSION.json
+                                fetch('./VERSION.json')
+                                    .then(res => res.json())
+                                    .then(versionData => {
+                                        const version = versionData.version;
+                                        const changelog = versionData.changelog[version];
+                                        
+                                        // Message avec notes de version
+                                        let updateMessage = `🎮 ${changelog.title}\n\n`;
+                                        updateMessage += `📦 Version ${version}\n`;
+                                        updateMessage += `📅 ${changelog.date}\n\n`;
+                                        updateMessage += changelog.changes.slice(0, 5).join('\n');
+                                        if (changelog.changes.length > 5) {
+                                            updateMessage += `\n... et ${changelog.changes.length - 5} autres améliorations`;
+                                        }
+                                        updateMessage += '\n\nVoulez-vous mettre à jour maintenant ?';
+                                        
+                                        if (confirm(updateMessage)) {
+                                            newWorker.postMessage({type: 'SKIP_WAITING'});
+                                            window.location.reload();
+                                        } else {
+                                            // Afficher un bouton de mise à jour dans le jeu
+                                            showUpdateBanner(version, changelog);
+                                        }
+                                    })
+                                    .catch(() => {
+                                        // Fallback si VERSION.json non disponible
+                                        const updateMessage = '🎨 Nouvelle version disponible !\n\n' +
+                                                             'Voulez-vous mettre à jour maintenant ?';
+                                        
+                                        if (confirm(updateMessage)) {
+                                            newWorker.postMessage({type: 'SKIP_WAITING'});
+                                            window.location.reload();
+                                        } else {
+                                            showUpdateBanner();
+                                        }
+                                    });
                             }
                         });
                     });
@@ -19850,7 +19874,7 @@ Elle a besoin de ponts.`
     }
 
     // Fonction pour afficher un banner de mise à jour
-    function showUpdateBanner() {
+    function showUpdateBanner(version, changelog) {
         const banner = document.createElement('div');
         banner.id = 'update-banner';
         banner.style.cssText = `
@@ -19868,8 +19892,13 @@ Elle a besoin de ponts.`
             animation: slideDown 0.5s ease-out;
         `;
         
+        // Message avec détails de version si disponibles
+        let message = version && changelog 
+            ? `🎮 ${changelog.title} - v${version} disponible !`
+            : '🎨 Nouvelle version disponible !';
+        
         banner.innerHTML = `
-            🎨 Nouvelle version avec icônes améliorées disponible !
+            ${message}
             <button onclick="updateApp()" style="
                 background: white; 
                 color: #4169E1; 
@@ -19888,7 +19917,7 @@ Elle a besoin de ponts.`
                 margin-left: 10px; 
                 border-radius: 20px; 
                 cursor: pointer;
-             data-i18n="ui.buttons.later">Plus tard</button>
+            ">Plus tard</button>
         `;
         
         // Ajouter animation CSS
