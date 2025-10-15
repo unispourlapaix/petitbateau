@@ -1,7 +1,18 @@
 {
-  "version": "2.4.0",
+  "version": "2.4.1",
   "date": "2025-10-15",
   "changelog": {
+    "2.4.1": {
+      "title": "🔄 Restart Phase 2 après fin",
+      "date": "2025-10-15",
+      "changes": [
+        "🔄 Redémarrage automatique à la phase 2 après score",
+        "⏭️ Skip intro après avoir terminé le jeu",
+        "🎮 Nouvelle fonction recommencerDepuisPhase2()",
+        "✨ Meilleure expérience rejouabilité",
+        "⚡ Lancement direct dans l'action"
+      ]
+    },
     "2.4.0": {
       "title": "💾 Système de Sauvegarde",
       "date": "2025-10-15",

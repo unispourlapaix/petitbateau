@@ -7397,6 +7397,11 @@
                     // Ouvrir la page artiste
                     const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
                     window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                    
+                    // 🔄 Redémarrer le jeu à la phase 2 après fermeture
+                    setTimeout(() => {
+                        recommencerDepuisPhase2();
+                    }, 500);
                 }, email && pseudo ? 1500 : 0); // Attendre 1.5s si enregistré, sinon immédiat
             };
         }
@@ -16024,7 +16029,72 @@ Elle a besoin de ponts.`
             hardResetGame();
         }
 
-        // 🔥 HARD RESET COMPLET - Efface TOUT
+        // � Recommencer à la phase 2 (après avoir terminé le jeu)
+        function recommencerDepuisPhase2() {
+            console.log('🔄 Redémarrage depuis la phase 2...');
+            
+            // Réinitialiser les variables de jeu
+            chapitre = 1;
+            VOYAGE = JOUR;
+            phaseJeu = 'tir_coeurs_haut';
+            score = 0;
+            vies = 3;
+            brises = 0;
+            jeu = false;
+            formulaireFinAffiche = false;
+            
+            // Réinitialiser les systèmes
+            animationBateau.active = false;
+            phaseIntro = { active: false, etape: 'terminee', tempsDebut: 0 }; // Pas d'intro
+            
+            // Nettoyer les éléments de jeu
+            briques = [];
+            projectiles = [];
+            starsProjectiles = [];
+            particules = [];
+            powerUps = [];
+            coeurs = [];
+            petitsCoeurs = [];
+            
+            // Réinitialiser le narration manager à la phase 2
+            if (narrationManager) {
+                narrationManager.currentPhase = 1; // On va à la phase 2 ensuite
+                narrationManager.phaseHistory = [];
+                narrationManager.isTransitioning = false;
+            }
+            
+            // Fermer tous les menus/overlays
+            const overlay = document.getElementById('formulaire-fin-overlay');
+            if (overlay) overlay.remove();
+            
+            if (menuEnigmesCanvas) {
+                menuEnigmesCanvas.visible = false;
+            }
+            
+            // Cacher tous les messages
+            cacherMessage();
+            if (messageNarratifActif) {
+                messageNarratifActif = null;
+            }
+            if (messagePowerupActif) {
+                messagePowerupActif = null;
+            }
+            
+            // Relancer l'initialisation
+            initJeu();
+            
+            // Démarrer directement à la phase 2 (sauter l'intro)
+            setTimeout(() => {
+                if (narrationManager) {
+                    narrationManager.currentPhase = 1; // Index 1 = Phase 2
+                    narrationManager.goToNextPhaseDirect(); // Passe à la phase 2
+                    jeu = true; // Activer le jeu
+                }
+                console.log('✅ Jeu redémarré à la phase 2');
+            }, 500);
+        }
+
+        // �🔥 HARD RESET COMPLET - Efface TOUT
         function hardResetGame() {
             console.log('🔥 HARD RESET - Effacement complet du jeu...');
             
