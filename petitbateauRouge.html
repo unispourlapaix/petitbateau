@@ -17254,32 +17254,16 @@ Elle a besoin de ponts.`
 
         // Variables pour l'inertie du bateau
         let vitesseBateau = 0; // Vitesse actuelle
-        let derniereTouchX = 0; // Dernière position du touch
         let dernierePositionX = 0; // Dernière position du bateau
         let dernierTemps = 0; // Dernier timestamp
-        
-        // Préférence de positionnement du bateau (choix utilisateur)
-        let bateauAGauche = true; // Par défaut à gauche du doigt
-        // L'utilisateur peut changer en tapant sur les bords de l'écran
 
         function deplacerRaquette(x) {
             if(!jeu) return;
             const ancienX = raquette.x;
             
-            // 📱 POSITIONNEMENT TACTILE : Selon la préférence utilisateur
-            const offsetTactile = isTouchDevice ? 100 : 0; // Décalage de 100px
-            
-            let targetX;
-            if (bateauAGauche) {
-                // Bateau à GAUCHE du doigt
-                targetX = x - offsetTactile - C.PW;
-            } else {
-                // Bateau à DROITE du doigt
-                targetX = x + offsetTactile;
-            }
-            
-            // Positionner le bateau
-            raquette.x = targetX;
+            // 📱 CONTRÔLE SIMPLIFIÉ : Le bateau se centre sur le doigt
+            // Centrer le bateau sur la position X du touch
+            raquette.x = x - C.PW / 2;
             
             // Limites du canvas
             raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
@@ -17293,7 +17277,6 @@ Elle a besoin de ponts.`
                 }
                 dernierePositionX = raquette.x;
                 dernierTemps = maintenant;
-                derniereTouchX = x;
             }
 
             // 🔊 Son de voile quand le bateau bouge (avec throttle)
@@ -17324,7 +17307,7 @@ Elle a besoin de ponts.`
             }
         }
 
-        // Événements tactiles - REFONTE COMPLÈTE
+        // Événements tactiles - REFONTE SIMPLIFIÉE
         canvas.addEventListener('touchstart', e => {
             e.preventDefault();
             tactile = true;
@@ -17332,33 +17315,6 @@ Elle a besoin de ponts.`
             const pos = obtenirPosition(e);
             const x = pos.x;
             const y = pos.y || 0;
-            
-            // ═══════════════════════════════════════════════════════════════
-            // 🎯 PRIORITÉ 0: ZONES DE CONTRÔLE (bords gauche/droit)
-            // ═══════════════════════════════════════════════════════════════
-            // Zone tactile des bords pour changer la préférence de positionnement
-            const largeurZoneBord = 60; // 60px de chaque côté
-            const hauteurMinZone = C.H * 0.2; // À partir de 20% de la hauteur (éviter le header)
-            
-            if (y > hauteurMinZone && !menuEnigmesCanvas.visible) {
-                // Touch sur le bord GAUCHE → Bateau à DROITE du doigt
-                if (x < largeurZoneBord) {
-                    bateauAGauche = false; // Bateau à droite
-                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                    // Petit feedback visuel
-                    afficherMessagePowerupSimple('🚢 ➡️');
-                    return;
-                }
-                
-                // Touch sur le bord DROIT → Bateau à GAUCHE du doigt
-                if (x > C.W - largeurZoneBord) {
-                    bateauAGauche = true; // Bateau à gauche
-                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                    // Petit feedback visuel
-                    afficherMessagePowerupSimple('⬅️ 🚢');
-                    return;
-                }
-            }
             
             // ═══════════════════════════════════════════════════════════════
             // 🎯 PRIORITÉ 1: MENU ÉNIGMES OUVERT
@@ -19874,148 +19830,6 @@ Elle a besoin de ponts.`
             }, 500);
         });
     </script>
-
-
-<div id="info-artist-container" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; background: linear-gradient(135deg, rgb(26, 26, 46), rgb(22, 33, 62), rgb(15, 52, 96)); overflow-y: auto; padding: 20px; z-index: 10000; display: none; font-family: Georgia, serif; color: rgb(255, 255, 255);">
-    <div class="module-container">
-
-        
-        <div class="header">
-            <h1 class="main-title pulse">Emmanuel Payet</h1>
-            <p class="subtitle">Artiste Chrétien • Créateur • Inspirateur</p>
-        </div>
-
-        <div class="platforms-grid">
-            <div class="platform-card" style="opacity: 0; transform: translateY(30px); transition: opacity 0.6s, transform 0.6s;">
-                <div class="platform-icon gallery-icon" style="transition: transform 0.6s;">◆</div>
-                <h3 class="platform-title">Jeux &amp; Déco</h3>
-                <p class="platform-description">Découvre mes créations visuelles, jeux interactifs et décorations artistiques qui célèbrent la foi et la beauté.</p>
-                <a href="https://emmanuel.gallery/" class="platform-url" target="_blank">emmanuel.gallery</a>
-            </div>
-
-            <div class="platform-card" style="opacity: 0; transform: translateY(30px); transition: opacity 0.6s 0.2s, transform 0.6s 0.2s;">
-                <div class="platform-icon art-icon" style="transition: transform 0.6s;">▲</div>
-                <h3 class="platform-title">Livres &amp; Art</h3>
-                <p class="platform-description">Plonge dans mes œuvres littéraires et artistiques, créées avec ma fille Béthanie, pour nourrir l'âme et l'esprit.</p>
-                <a href="https://emmanuelpayet.art/" class="platform-url" target="_blank">emmanuelpayet.art</a>
-            </div>
-
-            <div class="platform-card" style="opacity: 0; transform: translateY(30px); transition: opacity 0.6s 0.4s, transform 0.6s 0.4s;">
-                <div class="platform-icon music-icon" style="transition: transform 0.6s;">●</div>
-                <h3 class="platform-title">Gospel Gratuit</h3>
-                <p class="platform-description">Écoute mes compositions gospel sur AudioMack, des mélodies qui louent Dieu et inspirent l'unité dans la diversité.</p>
-                <a href="https://audiomack.com/emmanuelpayet888" class="platform-url" target="_blank">AudioMack - emmanuelpayet888</a>
-            </div>
-
-            <div class="platform-card" style="opacity: 0; transform: translateY(30px); transition: opacity 0.6s 0.6s, transform 0.6s 0.6s;">
-                <div class="platform-icon shop-icon" style="transition: transform 0.6s;">■</div>
-                <h3 class="platform-title">La Bonne Heure</h3>
-                <p class="platform-description">C'est maintenant ! Découvre ma boutique Redbubble avec des designs uniques et des créations inspirantes à porter.</p>
-                <a href="https://www.redbubble.com/fr/people/h777plx/shop" class="platform-url" target="_blank">Redbubble Shop</a>
-            </div>
-        </div>
-
-        <div class="inspiring-quote">
-            L'art chrétien unit les cœurs au-delà des différences, 
-célébrant la beauté de la création divine dans toute sa diversité.
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #95a5a6; font-style: italic;">
-            Codé par Claude • Idée originale Emmanuel Payet
-        </div>
-    </div>
-
-    <script>
-        // Animation au scroll pour les cartes
-        const cards = document.querySelectorAll('.platform-card');
-        
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
-            observer.observe(card);
-        });
-
-        // Animation des icônes au survol
-        cards.forEach(card => {
-            const icon = card.querySelector('.platform-icon');
-            
-            card.addEventListener('mouseenter', () => {
-                icon.style.transform = 'rotateY(180deg)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                icon.style.transform = 'rotateY(0deg)';
-            });
-            
-            icon.style.transition = 'transform 0.6s ease';
-        });
-    </script>
-
-</div><div id="info-artist-container" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; background: linear-gradient(135deg, rgb(26, 26, 46), rgb(22, 33, 62), rgb(15, 52, 96)); overflow-y: auto; padding: 20px; z-index: 10000; display: none; font-family: Georgia, serif; color: rgb(255, 255, 255);">
-    <div class="module-container">
-
-        
-        <div class="header">
-            <h1 class="main-title pulse">Emmanuel Payet</h1>
-            <p class="subtitle">Artiste Chrétien • Créateur • Inspirateur</p>
-        </div>
-
-        <div class="platforms-grid">
-            <div class="platform-card">
-                <div class="platform-icon gallery-icon">◆</div>
-                <h3 class="platform-title">Jeux &amp; Déco</h3>
-                <p class="platform-description">Découvre mes créations visuelles, jeux interactifs et décorations artistiques qui célèbrent la foi et la beauté.</p>
-                <a href="https://emmanuel.gallery/" class="platform-url" target="_blank">emmanuel.gallery</a>
-            </div>
-
-            <div class="platform-card">
-                <div class="platform-icon art-icon">▲</div>
-                <h3 class="platform-title">Livres &amp; Art</h3>
-                <p class="platform-description">Plonge dans mes œuvres littéraires et artistiques, créées avec ma fille Béthanie, pour nourrir l'âme et l'esprit.</p>
-                <a href="https://emmanuelpayet.art/" class="platform-url" target="_blank">emmanuelpayet.art</a>
-            </div>
-
-            <div class="platform-card">
-                <div class="platform-icon music-icon">●</div>
-                <h3 class="platform-title">Gospel Gratuit</h3>
-                <p class="platform-description">Écoute mes compositions gospel sur AudioMack, des mélodies qui louent Dieu et inspirent l'unité dans la diversité.</p>
-                <a href="https://audiomack.com/emmanuelpayet888" class="platform-url" target="_blank">AudioMack - emmanuelpayet888</a>
-            </div>
-
-            <div class="platform-card">
-                <div class="platform-icon shop-icon">■</div>
-                <h3 class="platform-title">La Bonne Heure</h3>
-                <p class="platform-description">C'est maintenant ! Découvre ma boutique Redbubble avec des designs uniques et des créations inspirantes à porter.</p>
-                <a href="https://www.redbubble.com/fr/people/h777plx/shop" class="platform-url" target="_blank">Redbubble Shop</a>
-            </div>
-        </div>
-
-        <div class="inspiring-quote">
-            L'art chrétien unit les cœurs au-delà des différences, 
-célébrant la beauté de la création divine dans toute sa diversité.
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #95a5a6; font-style: italic;">
-            Codé par Claude • Idée originale Emmanuel Payet
-        </div>
-    </div>
-
-</div>
 
 <!-- PWA Service Worker -->
 <script>
