@@ -1,7 +1,31 @@
 {
-  "version": "2.2.1",
+  "version": "2.4.0",
   "date": "2025-10-15",
   "changelog": {
+    "2.4.0": {
+      "title": "💾 Système de Sauvegarde",
+      "date": "2025-10-15",
+      "changes": [
+        "💾 Sauvegarde automatique de la progression (toutes les 30s)",
+        "📂 Chargement au démarrage si partie existante",
+        "🎯 Sauvegarde à chaque changement de phase",
+        "💽 Sauvegarde avant fermeture de page",
+        "⌨️ Raccourcis K (sauvegarder) et L (charger)",
+        "🔍 Affichage infos sauvegarde (date, phase, score, vies)",
+        "✅ Reprise exacte de la progression"
+      ]
+    },
+    "2.3.0": {
+      "title": "🔥 Hard Reset & Nettoyage",
+      "date": "2025-10-15",
+      "changes": [
+        "🔥 Hard Reset complet du jeu (localStorage, cache, cookies)",
+        "🎮 Fonction window.hardReset() accessible en console",
+        "⚠️ Double confirmation pour éviter suppressions accidentelles",
+        "🧹 Nettoyage automatique Service Worker cache",
+        "✨ Reset total vers état première installation"
+      ]
+    },
     "2.2.1": {
       "title": "🐛 Corrections critiques",
       "date": "2025-10-15",

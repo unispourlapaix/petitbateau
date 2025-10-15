@@ -1507,7 +1507,185 @@
                 console.debug = noop;
                 originalConsole.log('🚫 Logs désactivés - Mode production');
             };
+            
+            // 🔥 Fonction de HARD RESET accessible depuis la console
+            // Utilisation: window.hardReset() dans la console
+            window.hardReset = () => {
+                if (confirm('🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?')) {
+                    if (confirm('⚠️ DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?')) {
+                        hardResetGame();
+                    } else {
+                        originalConsole.log('❌ Hard Reset annulé (2ème confirmation)');
+                    }
+                } else {
+                    originalConsole.log('❌ Hard Reset annulé');
+                }
+            };
         }
+
+        // 💾 === SYSTÈME DE SAUVEGARDE/REPRISE DE JEU ===
+        const GameSaveSystem = {
+            SAVE_KEY: 'petit_bateau_save',
+            VERSION: '1.0',
+
+            // Sauvegarder l'état du jeu
+            save() {
+                try {
+                    const saveData = {
+                        version: this.VERSION,
+                        timestamp: Date.now(),
+                        gameState: {
+                            // Variables essentielles
+                            chapitre: typeof chapitre !== 'undefined' ? chapitre : 1,
+                            periode: periode || 'jour',
+                            phaseJeu: phaseJeu || 'tir_coeurs_haut',
+                            score: score || 0,
+                            vies: vies || 3,
+                            brises: brises || 0,
+                            
+                            // Narration
+                            currentPhase: narrationManager ? narrationManager.currentPhase : 1,
+                            phaseHistory: narrationManager ? narrationManager.phaseHistory : [],
+                            
+                            // Progression
+                            pointsConnaissance: pointsConnaissance || 0,
+                            
+                            // État du jeu
+                            jeu: jeu || false,
+                            modeSecret: modeSecret || false
+                        }
+                    };
+
+                    localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
+                    console.log('💾 Jeu sauvegardé:', saveData);
+                    return true;
+                } catch (e) {
+                    console.error('❌ Erreur sauvegarde:', e);
+                    return false;
+                }
+            },
+
+            // Charger l'état du jeu
+            load() {
+                try {
+                    const savedData = localStorage.getItem(this.SAVE_KEY);
+                    if (!savedData) {
+                        console.log('ℹ️ Aucune sauvegarde trouvée');
+                        return null;
+                    }
+
+                    const save = JSON.parse(savedData);
+                    
+                    // Vérifier la version
+                    if (save.version !== this.VERSION) {
+                        console.warn('⚠️ Version de sauvegarde incompatible');
+                        return null;
+                    }
+
+                    console.log('💾 Sauvegarde chargée:', save);
+                    return save.gameState;
+                } catch (e) {
+                    console.error('❌ Erreur chargement:', e);
+                    return null;
+                }
+            },
+
+            // Restaurer l'état du jeu
+            restore(gameState) {
+                if (!gameState) return false;
+
+                try {
+                    // Restaurer les variables globales
+                    if (typeof chapitre !== 'undefined') chapitre = gameState.chapitre || 1;
+                    periode = gameState.periode || 'jour';
+                    phaseJeu = gameState.phaseJeu || 'tir_coeurs_haut';
+                    score = gameState.score || 0;
+                    vies = gameState.vies || 3;
+                    brises = gameState.brises || 0;
+                    pointsConnaissance = gameState.pointsConnaissance || 0;
+                    jeu = gameState.jeu || false;
+                    modeSecret = gameState.modeSecret || false;
+
+                    // Restaurer le voyage
+                    VOYAGE = (periode === 'nuit') ? NUIT : JOUR;
+
+                    // Restaurer la narration
+                    if (narrationManager && gameState.currentPhase) {
+                        narrationManager.currentPhase = gameState.currentPhase;
+                        narrationManager.phaseHistory = gameState.phaseHistory || [];
+                    }
+
+                    // Réinitialiser le jeu avec les nouvelles valeurs
+                    initJeu();
+
+                    // Recréer les éléments selon la phase
+                    if (phaseJeu === 'tir_coeurs_haut' || phaseJeu === 'tir_coeurs_bas') {
+                        creerPetitsCoeurs();
+                    } else if (phaseJeu === 'mur') {
+                        creerMurDansLaMer();
+                    }
+
+                    console.log('✅ État du jeu restauré avec succès');
+                    return true;
+                } catch (e) {
+                    console.error('❌ Erreur restauration:', e);
+                    return false;
+                }
+            },
+
+            // Vérifier s'il existe une sauvegarde
+            hasSave() {
+                return localStorage.getItem(this.SAVE_KEY) !== null;
+            },
+
+            // Supprimer la sauvegarde
+            clear() {
+                localStorage.removeItem(this.SAVE_KEY);
+                console.log('🗑️ Sauvegarde supprimée');
+            },
+
+            // Obtenir l'info de la sauvegarde
+            getSaveInfo() {
+                try {
+                    const savedData = localStorage.getItem(this.SAVE_KEY);
+                    if (!savedData) return null;
+
+                    const save = JSON.parse(savedData);
+                    return {
+                        date: new Date(save.timestamp),
+                        phase: save.gameState.currentPhase,
+                        score: save.gameState.score,
+                        vies: save.gameState.vies
+                    };
+                } catch (e) {
+                    return null;
+                }
+            }
+        };
+
+        // 🎮 Sauvegarder automatiquement toutes les 30 secondes pendant le jeu
+        setInterval(() => {
+            if (jeu && !PRODUCTION_MODE) {
+                GameSaveSystem.save();
+            }
+        }, 30000);
+
+        // 💾 Sauvegarder avant fermeture de la page
+        window.addEventListener('beforeunload', () => {
+            if (jeu) {
+                GameSaveSystem.save();
+            }
+        });
+
+        // 🎯 Fonctions globales accessibles
+        window.saveGame = () => GameSaveSystem.save();
+        window.loadGame = () => {
+            const state = GameSaveSystem.load();
+            if (state) {
+                GameSaveSystem.restore(state);
+            }
+        };
+        window.getSaveInfo = () => GameSaveSystem.getSaveInfo();
     </script>
 
     <script>
@@ -5484,6 +5662,9 @@
                 if (this.nextPhase()) {
                     const phase = this.getCurrentPhase();
                     if (phase) {
+                        // 💾 Sauvegarder la progression à chaque changement de phase
+                        GameSaveSystem.save();
+                        
                         // Afficher le titre du voyage
                         this.afficherTitreVoyage();
 
@@ -15840,40 +16021,116 @@ Elle a besoin de ponts.`
 
         function recommencerJeu() {
             // Réinitialiser complètement le jeu
+            hardResetGame();
+        }
+
+        // 🔥 HARD RESET COMPLET - Efface TOUT
+        function hardResetGame() {
+            console.log('🔥 HARD RESET - Effacement complet du jeu...');
+            
+            // 1. Effacer TOUT le localStorage
+            try {
+                localStorage.clear();
+                console.log('✅ localStorage effacé');
+            } catch(e) {
+                console.warn('⚠️ Erreur effacement localStorage:', e);
+            }
+            
+            // 2. Effacer TOUT le sessionStorage
+            try {
+                sessionStorage.clear();
+                console.log('✅ sessionStorage effacé');
+            } catch(e) {
+                console.warn('⚠️ Erreur effacement sessionStorage:', e);
+            }
+            
+            // 3. Effacer les cookies
+            try {
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                console.log('✅ Cookies effacés');
+            } catch(e) {
+                console.warn('⚠️ Erreur effacement cookies:', e);
+            }
+            
+            // 4. Effacer le cache du Service Worker
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                    console.log('✅ Cache Service Worker effacé');
+                });
+            }
+            
+            // 5. Réinitialiser les variables globales du jeu
             chapitre = 1;
             VOYAGE = JOUR;
             phaseJeu = 'tir_coeurs_haut';
             score = 0;
-
-            // Les objets kawaii sont réservés au mode secret seulement
-            // activerObjetsKawaii(); // SUPPRIMÉ - uniquement pour mode secret
             vies = 3;
             brises = 0;
-            jeu = false; // Commencer avec jeu désactivé pour l'intro
-
-            // Réinitialiser les systèmes
+            jeu = false;
+            formulaireFinAffiche = false;
+            
+            // 6. Réinitialiser les systèmes
             animationBateau.active = false;
             phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
-            narrationManager.reset();
-
-            // Nettoyer les éléments de jeu
+            
+            // 7. Nettoyer les éléments de jeu
             briques = [];
             projectiles = [];
             starsProjectiles = [];
             particules = [];
             powerUps = [];
-
-            // Relancer l'initialisation
+            coeurs = [];
+            
+            // 8. Réinitialiser le narration manager
+            if (narrationManager) {
+                narrationManager.reset();
+            }
+            
+            // 9. Réinitialiser l'énigme collector
+            if (enigmaCollector) {
+                enigmaCollector.enigmesCollectees.clear();
+                enigmaCollector.enigmesVues.clear();
+            }
+            
+            // 10. Fermer tous les menus/overlays
+            const overlay = document.getElementById('formulaire-fin-overlay');
+            if (overlay) overlay.remove();
+            
+            if (menuEnigmesCanvas) {
+                menuEnigmesCanvas.visible = false;
+            }
+            
+            // 11. Cacher tous les messages
+            cacherMessage();
+            if (messageNarratifActif) {
+                messageNarratifActif = null;
+            }
+            if (messagePowerupActif) {
+                messagePowerupActif = null;
+            }
+            
+            // 12. Relancer l'initialisation complète
             initJeu();
             creerPetitsCoeurs();
-
-            // Cacher le message
-            cacherMessage();
-
-            // Démarrer la narration complète P1 à P16
+            
+            // 13. Redémarrer la narration depuis le début
             setTimeout(() => {
-                narrationManager.start();
+                if (narrationManager) {
+                    narrationManager.start();
+                }
+                console.log('🎮 HARD RESET terminé - Jeu redémarré');
             }, 1000);
+            
+            // 14. Recharger la page après un court délai pour être sûr
+            setTimeout(() => {
+                console.log('🔄 Rechargement de la page pour reset total...');
+                window.location.reload(true); // force=true pour ignorer le cache
+            }, 2000);
         }
 
         // 🔄 Recommencer directement à la phase 2 (sauter la phase 1)
@@ -19378,6 +19635,27 @@ Elle a besoin de ponts.`
                 }
             }
 
+            // 💾 Touche K pour sauvegarder manuellement
+            if (e.key === 'k' || e.key === 'K') {
+                e.preventDefault();
+                if (GameSaveSystem.save()) {
+                    afficherMessagePowerupSimple('💾 Partie sauvegardée !');
+                }
+            }
+
+            // 📂 Touche L pour charger la sauvegarde
+            if (e.key === 'l' || e.key === 'L') {
+                e.preventDefault();
+                const state = GameSaveSystem.load();
+                if (state) {
+                    if (GameSaveSystem.restore(state)) {
+                        afficherMessagePowerupSimple('📂 Partie chargée !');
+                    }
+                } else {
+                    afficherMessagePowerupSimple('❌ Aucune sauvegarde trouvée');
+                }
+            }
+
             // Mode passe : Touche T pour passer au chapitre suivant
             if(e.key === 't' || e.key === 'T') {
                 e.preventDefault();
@@ -19750,6 +20028,30 @@ Elle a besoin de ponts.`
             // Initialiser les tableaux de briques
             if (JOUR.length === 0 || NUIT.length === 0) {
                 initializeBrickArrays();
+            }
+
+            // 💾 Vérifier s'il existe une sauvegarde et proposer de la charger
+            if (GameSaveSystem.hasSave()) {
+                const saveInfo = GameSaveSystem.getSaveInfo();
+                if (saveInfo) {
+                    const dateStr = saveInfo.date.toLocaleString('fr-FR');
+                    const msg = `💾 Partie sauvegardée trouvée !\n\n` +
+                                `📅 Date: ${dateStr}\n` +
+                                `🎯 Phase: ${saveInfo.phase}\n` +
+                                `⭐ Score: ${saveInfo.score}\n` +
+                                `❤️ Vies: ${saveInfo.vies}\n\n` +
+                                `Voulez-vous reprendre cette partie ?`;
+                    
+                    if (confirm(msg)) {
+                        const gameState = GameSaveSystem.load();
+                        if (gameState) {
+                            GameSaveSystem.restore(gameState);
+                            console.log('✅ Partie chargée avec succès !');
+                        }
+                    } else {
+                        console.log('ℹ️ Nouvelle partie démarrée');
+                    }
+                }
             }
 
             // Attente pour s'assurer que tout est initialisé
