@@ -319,8 +319,8 @@
             50% { transform: rotate(90deg) scale(1.1); }
         }
         
-        /* Afficher le warning en mode paysage sur mobile */
-        @media (max-width: 499px) and (orientation: landscape) {
+        /* Afficher le warning en mode paysage sur mobile UNIQUEMENT sur très petits écrans */
+        @media (max-width: 768px) and (max-height: 500px) and (orientation: landscape) {
             .orientation-warning {
                 display: flex !important;
             }
@@ -1518,15 +1518,11 @@
                          || (window.innerWidth < 500);
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        // 🔒 VERROUILLAGE D'ORIENTATION EN MODE PORTRAIT (PWA/Installée)
+        // 🔒 ORIENTATION FLEXIBLE - Autoriser portrait et paysage
         if (isMobile && screen.orientation && screen.orientation.lock) {
-            // Tenter de verrouiller en portrait (fonctionne dans les PWA installées)
-            screen.orientation.lock('portrait').then(() => {
-                console.log('✅ Orientation verrouillée en mode portrait');
-            }).catch(err => {
-                console.warn('⚠️ Verrouillage orientation échoué (normal en mode navigateur):', err);
-                // Pas grave, le CSS media query fera le travail
-            });
+            // NE PAS verrouiller - laisser l'utilisateur choisir
+            console.log('📱 Orientation libre - Portrait et Paysage autorisés');
+            // Note: Le CSS bloquera uniquement les très petits écrans en paysage (< 500px hauteur)
         }
         
         // Alternative : API ScreenOrientation pour PWA
@@ -1535,11 +1531,6 @@
             window.screen.orientation.addEventListener('change', () => {
                 const orientation = window.screen.orientation.type;
                 console.log('📱 Orientation changée:', orientation);
-                
-                // Si paysage détecté, afficher le message
-                if (orientation.includes('landscape')) {
-                    console.warn('⚠️ Mode paysage détecté - Message d\'avertissement actif');
-                }
             });
         }
 
@@ -18203,16 +18194,18 @@ Elle a besoin de ponts.`
                 
                 if (!orientationWarning || !gameContainer) return;
                 
-                // Détecter l'orientation réelle (fonctionne dans les PWA)
+                // Détecter l'orientation réelle
                 const isLandscape = window.innerWidth > window.innerHeight;
+                const isVerySmallHeight = window.innerHeight < 500;
                 
-                if (isLandscape && window.innerWidth < 900) {
-                    // Mode paysage sur mobile/tablette
+                // Bloquer UNIQUEMENT les paysages sur très petits écrans (< 500px hauteur)
+                if (isLandscape && isVerySmallHeight && window.innerWidth < 900) {
+                    // Mode paysage problématique (trop petit verticalement)
                     orientationWarning.style.display = 'flex';
                     gameContainer.style.display = 'none';
-                    console.warn('⚠️ Mode paysage détecté - Jeu masqué');
+                    console.warn('⚠️ Écran trop petit en paysage - Jeu masqué');
                 } else {
-                    // Mode portrait ou écran large (PC)
+                    // Mode portrait ou paysage avec hauteur suffisante
                     orientationWarning.style.display = 'none';
                     gameContainer.style.display = 'flex';
                 }
