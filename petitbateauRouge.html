@@ -7062,12 +7062,9 @@
                             </div>
                         </details>
 
-                        <div style="margin-top: 25px; display: flex; gap: 10px;">
-                            <button id="fin-enregistrer" data-i18n="ui.buttons.save" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: all 0.2s;">
-                                💾 Enregistrer
-                            </button>
-                            <button id="fin-passer" data-i18n="ui.buttons.skip" style="flex: 1; padding: 14px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.4); border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">
-                                Passer
+                        <div style="margin-top: 25px;">
+                            <button id="fin-enregistrer" data-i18n="ui.buttons.save_and_discover" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: all 0.2s;">
+                                💾 Enregistrer & Découvrir 🎨
                             </button>
                         </div>
 
@@ -7151,80 +7148,75 @@
                 }, 100);
             }
 
-            // Gestionnaire d'enregistrement
+            // Gestionnaire d'enregistrement ET ouverture emmanuel-artist-module
             document.getElementById('fin-enregistrer').onclick = async () => {
-                console.log('🔘 Bouton Enregistrer cliqué');
+                console.log('🔘 Bouton Enregistrer & Découvrir cliqué');
                 const emailInput = document.getElementById('fin-email');
                 const pseudoInput = document.getElementById('fin-pseudo');
-                
-                console.log('📧 Email input:', emailInput, emailInput ? emailInput.value : 'NOT FOUND');
-                console.log('👤 Pseudo input:', pseudoInput, pseudoInput ? pseudoInput.value : 'NOT FOUND');
                 
                 const email = emailInput ? emailInput.value.trim() : '';
                 const pseudo = pseudoInput ? pseudoInput.value.trim() : '';
 
-                if (!email || !pseudo) {
-                    console.log('❌ Email ou pseudo manquant');
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.email_pseudo_required', 'Email et pseudo requis') + '</span>';
-                    return;
+                // Si email et pseudo remplis, enregistrer le score
+                if (email && pseudo) {
+                    if (!email.includes('@')) {
+                        console.log('❌ Email invalide');
+                        document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
+                        return;
+                    }
+
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
+
+                    try {
+                        console.log('💾 Début enregistrement...');
+                        const ville = document.getElementById('fin-ville').value.trim() || 'Inconnue';
+                        const pays = document.getElementById('fin-pays').value.trim() || 'Inconnu';
+                        const age = parseInt(document.getElementById('fin-age').value) || null;
+                        const genre = document.getElementById('fin-genre').value || null;
+                        const avatar = document.getElementById('fin-avatar').value || null;
+
+                        console.log('👤 Création/récupération utilisateur...', { email, pseudo, ville, pays, age, genre, avatar });
+                        await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
+
+                        // Calculer le niveau de sagesse
+                        const niveauSagesse = getNiveauSagesse(scoreSagesse);
+
+                        await supabaseScores.saveScore(scoreTotal, {
+                            niveau_atteint: 23,
+                            temps_jeu: Math.floor(Date.now() / 1000),
+                            donnees_extra: {
+                                xp,
+                                score: scoreJeu,
+                                sagesse: scoreSagesse,
+                                niveau: niveauSagesse.titre,
+                                niveau_icone: niveauSagesse.icone,
+                                enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0,
+                                id: idUnique
+                            }
+                        });
+
+                        document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !') + '</span>';
+
+                        // Récupérer le meilleur score de l'utilisateur
+                        userBestScore = await supabaseScores.getBestScore();
+                        await chargerClassement();
+
+                    } catch (error) {
+                        console.error('❌ Erreur sauvegarde:', error);
+                        document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ ' + getTranslatedText('interface.system.error', 'Erreur') + ' : ' + error.message + '</span>';
+                    }
                 }
 
-                if (!email.includes('@')) {
-                    console.log('❌ Email invalide');
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
-                    return;
-                }
-
-                document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
-
-                try {
-                    console.log('💾 Début enregistrement...');
-                    const ville = document.getElementById('fin-ville').value.trim() || 'Inconnue';
-                    const pays = document.getElementById('fin-pays').value.trim() || 'Inconnu';
-                    const age = parseInt(document.getElementById('fin-age').value) || null;
-                    const genre = document.getElementById('fin-genre').value || null;
-                    const avatar = document.getElementById('fin-avatar').value || null;
-
-                    console.log('👤 Création/récupération utilisateur...', { email, pseudo, ville, pays, age, genre, avatar });
-                    await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
-
-                    // Calculer le niveau de sagesse
-                    const niveauSagesse = getNiveauSagesse(scoreSagesse);
-
-                    await supabaseScores.saveScore(scoreTotal, {
-                        niveau_atteint: 23,
-                        temps_jeu: Math.floor(Date.now() / 1000),
-                        donnees_extra: {
-                            xp,
-                            score: scoreJeu,
-                            sagesse: scoreSagesse,
-                            niveau: niveauSagesse.titre,
-                            niveau_icone: niveauSagesse.icone,
-                            enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0,
-                            id: idUnique
-                        }
-                    });
-
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !') + '</span>';
-
-                    // Récupérer le meilleur score de l'utilisateur
-                    userBestScore = await supabaseScores.getBestScore();
-
-                    await chargerClassement();
-
-                    setTimeout(() => {
-                        afficherMenuFinal();
-                    }, 1500);
-
-                } catch (error) {
-                    console.error('❌ Erreur sauvegarde:', error);
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ ' + getTranslatedText('interface.system.error', 'Erreur') + ' : ' + error.message + '</span>';
-                }
-            };
-
-            // Gestionnaire passer
-            document.getElementById('fin-passer').onclick = () => {
-                afficherMenuFinal();
+                // Dans tous les cas, ouvrir emmanuel-artist-module.html après 1 seconde
+                setTimeout(() => {
+                    // Fermer le formulaire
+                    const overlay = document.getElementById('formulaire-fin-overlay');
+                    if (overlay) overlay.remove();
+                    
+                    // Ouvrir la page artiste
+                    const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+                    window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                }, email && pseudo ? 1500 : 0); // Attendre 1.5s si enregistré, sinon immédiat
             };
         }
 
