@@ -1468,6 +1468,49 @@
 
 
     <script>
+        // 🚫 MODE PRODUCTION - Désactiver tous les console.log
+        // Mettre PRODUCTION_MODE = false pour réactiver les logs en développement
+        const PRODUCTION_MODE = true;
+        window.PRODUCTION_MODE = PRODUCTION_MODE; // Variable globale pour les modules
+        
+        if (PRODUCTION_MODE) {
+            const noop = () => {};
+            const originalConsole = {
+                log: console.log,
+                warn: console.warn,
+                error: console.error,
+                info: console.info,
+                debug: console.debug
+            };
+            
+            // Désactiver les logs sauf les erreurs
+            console.log = noop;
+            console.info = noop;
+            console.debug = noop;
+            // Garder console.warn et console.error pour les bugs critiques
+            
+            // Fonction pour réactiver temporairement les logs (console du navigateur)
+            // Utilisation: window.enableLogs() dans la console
+            window.enableLogs = () => {
+                console.log = originalConsole.log;
+                console.warn = originalConsole.warn;
+                console.error = originalConsole.error;
+                console.info = originalConsole.info;
+                console.debug = originalConsole.debug;
+                console.log('✅ Logs réactivés - Mode debug activé');
+            };
+            
+            // Fonction pour redésactiver les logs
+            window.disableLogs = () => {
+                console.log = noop;
+                console.info = noop;
+                console.debug = noop;
+                originalConsole.log('🚫 Logs désactivés - Mode production');
+            };
+        }
+    </script>
+
+    <script>
         // ============================================
         // 🌍 SYSTÈME DE TRADUCTION MULTILINGUE
         // ============================================
@@ -10769,32 +10812,38 @@
                 }
             }
 
-            ctx.restore();
-        }
-
-        // 🌊 Écume en avant-plan du bateau
-        function dessinerEcume() {
-            if (modeSecret || !raquette.vitesse || Math.abs(raquette.vitesse) < 0.5) return;
-
-            const nbBulles = 5;
-
-            for (let i = 0; i < nbBulles; i++) {
-                const offsetX = (Math.random() - 0.5) * C.PW * 0.8;
-                const offsetY = Math.random() * 5;
-                const taille = 2 + Math.random() * 3;
-                const alpha = 0.3 + Math.random() * 0.4;
-
-                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                ctx.beginPath();
-                ctx.arc(
-                    raquette.x + C.PW/2 + offsetX,
-                    raquette.y + C.PH + offsetY,
-                    taille,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fill();
+            // 🌊 SILLAGE BLANC ANIMÉ - Deux lignes centrées qui dépassent du bateau
+            if (!modeSecret) {
+                const time = Date.now() * 0.003;
+                const baseY = raquette.y + C.PH * 1.3;
+                const centerX = raquette.x + C.PW * 0.5; // Centre du bateau
+                const largeurLigne = C.PW * 1.3; // Dépasse un peu de chaque côté
+                
+                // Dessiner 2 lignes horizontales ondulantes superposées
+                for (let wave = 0; wave < 2; wave++) {
+                    const waveOffset = wave * 8;
+                    const alpha = 0.5 - wave * 0.15;
+                    const waveY = baseY + waveOffset;
+                    
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.lineWidth = 3 - wave * 0.5;
+                    ctx.beginPath();
+                    
+                    // Ligne horizontale avec minimum de points (5)
+                    const startX = centerX - largeurLigne / 2;
+                    for (let i = 0; i <= 5; i++) {
+                        const t = i / 5;
+                        const x = startX + t * largeurLigne;
+                        const y = waveY + Math.sin(t * Math.PI * 4 + time + wave) * 3;
+                        
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
             }
+
+            ctx.restore();
         }
 
         // Vraies briques avec cœurs à l'intérieur pour le casse-brique
@@ -10999,6 +11048,7 @@
         // Messages simples centrés pour powerups et narratifs
         let messagePowerupActif = null;
         let messageNarratifActif = null;
+        let dernierMessageXP = 0; // Throttle pour messages +100 XP
 
         // Système d'éclairs pour le mode nuit
         let eclairNuit = {
@@ -11258,9 +11308,26 @@
             // Position plus haute pour meilleure visibilité
             const posY = C.H * 0.25; // 25% de la hauteur (plus haut que le centre)
 
-            // Texte avec ombre fine
-            ctx.fillStyle = '#FFFFFF';
+            // Mesurer le texte pour dimensionner le fond
             ctx.font = '14px Arial';
+            const textMetrics = ctx.measureText(messagePowerupActif.texte);
+            const textWidth = textMetrics.width;
+            const padding = 10; // Réduit de 15 à 10
+            
+            // Fond rose moins translucide et plus compact
+            ctx.fillStyle = 'rgba(255, 182, 193, 0.8)'; // Moins transparent (0.8 au lieu de 0.5)
+            ctx.beginPath();
+            ctx.roundRect(
+                C.W/2 - textWidth/2 - padding, 
+                posY - padding/2, // Hauteur réduite
+                textWidth + padding * 2, 
+                24, // Hauteur fixe plus petite (30 + padding devient 24)
+                8 // Coins un peu moins arrondis
+            );
+            ctx.fill();
+
+            // Texte blanc avec ombre
+            ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
 
@@ -12216,20 +12283,29 @@
                     continue; // Skip l'expiration pour ce power-up spécial
                 }
                 
-                // Si le power-up a vécu plus de 4 secondes (240 frames)
-                if(power.temps > 240) {
+                // ⏱️ TIMING CONDITIONNEL : Expiration uniquement pour phases 17-22 (mode mur)
+                // Avant la phase 17, les power-ups restent jusqu'à être récupérés
+                const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
+                const phaseAvecTiming = phaseActuelle >= 17 && phaseActuelle <= 22;
+                
+                // Si le power-up a vécu plus de 4 secondes ET qu'on est en mode mur (phases 17-22)
+                if(phaseAvecTiming && power.temps > 240) {
                     // Explosion visuelle
                     ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFD700', 20);
                     
                     // Donner 100 XP
                     score += 100;
                     
-                    // Message d'expiration
-                    afficherMessagePowerupSimple('💫 +100 XP');
+                    // Message d'expiration (throttle : max 1 toutes les 3 secondes)
+                    const maintenant = Date.now();
+                    if (maintenant - dernierMessageXP > 3000) {
+                        afficherMessagePowerupSimple('💫 +100 XP');
+                        dernierMessageXP = maintenant;
+                    }
                     
                     // Supprimer le power-up
                     powerUps.splice(i, 1);
-                    console.log(`⏱️ Power-up expiré après 4s - +100 XP`);
+                    console.log(`⏱️ Power-up expiré après 4s (Phase ${phaseActuelle}) - +100 XP`);
                 }
             }
         }
@@ -13030,36 +13106,43 @@
             }
 
             // 🌈 Phase 22 UNIQUEMENT : Créer un power-up ESPOIR caché derrière le mur
-            if (phaseActuelle === 22) {
-                // Positionner au centre, dans la 3e ligne du mur (ligne index 2) - plus profond !
-                const ligneCache = 2; // Troisième ligne (index 2) - plus caché !
-                const yPowerUp = startY + (ligneCache * hauteurBrique) + (hauteurBrique / 2) - 15; // -15 pour centrer (30/2)
-                
-                const powerUpEspoir = {
-                    x: C.W / 2 - 15, // Centre horizontal (décalé de la moitié de la largeur - 30/2)
-                    y: yPowerUp, // Dans la 3e ligne du mur, au centre vertical de la brique
-                    w: 30, // ← Plus discret ! (réduit de 60)
-                    h: 30, // ← Plus discret ! (réduit de 60)
-                    type: 'rainbow_hope', // Type spécial arc-en-ciel
-                    emoji: '🌈',
-                    visible: true,
-                    temps: 0,
-                    collected: false,
-                    decouvert: false, // ← Nouveau : pour détecter la première découverte
-                    colorIndex: 0,
-                    colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
-                };
-                
-                // Ajouter aux power-ups globaux
+            if (narrationManager && narrationManager.currentPhase === 22) {
+                // ✅ PROTECTION : Ne créer le rainbow_hope que s'il n'existe pas déjà !
+                // Évite la duplication quand le mur se recrée (après destruction mais avant collecte)
                 if (!powerUps) powerUps = [];
-                powerUps.push(powerUpEspoir);
+                const espoirExiste = powerUps.some(p => p.type === 'rainbow_hope');
                 
-                console.log('🌈 Power-up ESPOIR créé dans le mur en phase 22 (ligne 2, centre) !');
-                console.log('   Position:', powerUpEspoir.x.toFixed(1), powerUpEspoir.y.toFixed(1));
-                console.log('   StartY du mur:', startY.toFixed(1));
-                console.log('   Hauteur brique:', hauteurBrique.toFixed(1));
-                console.log('   Type:', powerUpEspoir.type);
-                console.log('   Total power-ups:', powerUps.length);
+                if (!espoirExiste) {
+                    // Positionner au centre, dans la 3e ligne du mur (ligne index 2) - plus profond !
+                    const ligneCache = 2; // Troisième ligne (index 2) - plus caché !
+                    const yPowerUp = startY + (ligneCache * hauteurBrique) + (hauteurBrique / 2) - 15; // -15 pour centrer (30/2)
+                    
+                    const powerUpEspoir = {
+                        x: C.W / 2 - 15, // Centre horizontal (décalé de la moitié de la largeur - 30/2)
+                        y: yPowerUp, // Dans la 3e ligne du mur, au centre vertical de la brique
+                        w: 30, // ← Plus discret ! (réduit de 60)
+                        h: 30, // ← Plus discret ! (réduit de 60)
+                        type: 'rainbow_hope', // Type spécial arc-en-ciel
+                        emoji: '🌈',
+                        visible: true,
+                        temps: 0,
+                        collected: false,
+                        decouvert: false, // ← Nouveau : pour détecter la première découverte
+                        colorIndex: 0,
+                        colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
+                    };
+                    
+                    powerUps.push(powerUpEspoir);
+                    
+                    console.log('🌈 Power-up ESPOIR créé dans le mur en phase 22 (ligne 2, centre) !');
+                    console.log('   Position:', powerUpEspoir.x.toFixed(1), powerUpEspoir.y.toFixed(1));
+                    console.log('   StartY du mur:', startY.toFixed(1));
+                    console.log('   Hauteur brique:', hauteurBrique.toFixed(1));
+                    console.log('   Type:', powerUpEspoir.type);
+                    console.log('   Total power-ups:', powerUps.length);
+                } else {
+                    console.log('🌈 Power-up ESPOIR déjà présent - pas de duplication !');
+                }
             }
         }
 
@@ -16470,6 +16553,9 @@ Elle a besoin de ponts.`
         // Rendu principal
         function dessiner() {
 
+            // 📱 Appliquer l'inertie du bateau (après touch)
+            appliquerInertieBateau();
+
             // Fond dégradé selon le chapitre
             // Protection contre les valeurs non finies
             if (!isFinite(C.H) || C.H <= 0) {
@@ -16574,7 +16660,6 @@ Elle a besoin de ponts.`
             }
             
             dessinerBateau();
-            dessinerEcume(); // Écume en avant-plan du bateau
             afficherMunitions();
             dessinerStarsProjectiles(); // Étoiles mode stars (phases tir coeurs)
             dessinerProjectiles(); // Étoiles (phase briques)
@@ -17167,17 +17252,75 @@ Elle a besoin de ponts.`
         let dernierSonVoile = 0;
         const delaiSonVoile = 600; // 600ms entre chaque son
 
+        // Variables pour l'inertie du bateau
+        let vitesseBateau = 0; // Vitesse actuelle
+        let derniereTouchX = 0; // Dernière position du touch
+        let dernierePositionX = 0; // Dernière position du bateau
+        let dernierTemps = 0; // Dernier timestamp
+        
+        // Préférence de positionnement du bateau (choix utilisateur)
+        let bateauAGauche = true; // Par défaut à gauche du doigt
+        // L'utilisateur peut changer en tapant sur les bords de l'écran
+
         function deplacerRaquette(x) {
             if(!jeu) return;
             const ancienX = raquette.x;
-            raquette.x = x - C.PW/2;
+            
+            // 📱 POSITIONNEMENT TACTILE : Selon la préférence utilisateur
+            const offsetTactile = isTouchDevice ? 100 : 0; // Décalage de 100px
+            
+            let targetX;
+            if (bateauAGauche) {
+                // Bateau à GAUCHE du doigt
+                targetX = x - offsetTactile - C.PW;
+            } else {
+                // Bateau à DROITE du doigt
+                targetX = x + offsetTactile;
+            }
+            
+            // Positionner le bateau
+            raquette.x = targetX;
+            
+            // Limites du canvas
             raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
+
+            // Calculer la vitesse pour l'inertie (uniquement en tactile)
+            if (isTouchDevice) {
+                const maintenant = Date.now();
+                const deltaTemps = maintenant - dernierTemps;
+                if (deltaTemps > 0) {
+                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 16; // Normaliser à 60fps
+                }
+                dernierePositionX = raquette.x;
+                dernierTemps = maintenant;
+                derniereTouchX = x;
+            }
 
             // 🔊 Son de voile quand le bateau bouge (avec throttle)
             const now = Date.now();
             if (Math.abs(raquette.x - ancienX) > 5 && now - dernierSonVoile > delaiSonVoile) {
                 AudioSystem.playVoile();
                 dernierSonVoile = now;
+            }
+        }
+
+        // Fonction d'inertie appelée dans la boucle de jeu
+        function appliquerInertieBateau() {
+            if (!jeu || !isTouchDevice || tactile) return; // Pas d'inertie si le doigt est sur l'écran
+            
+            if (Math.abs(vitesseBateau) > 0.1) {
+                raquette.x += vitesseBateau;
+                
+                // Limites du canvas
+                raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
+                
+                // Friction pour ralentir progressivement
+                vitesseBateau *= 0.92; // Décélération douce
+                
+                // Arrêter si vitesse très faible
+                if (Math.abs(vitesseBateau) < 0.1) {
+                    vitesseBateau = 0;
+                }
             }
         }
 
@@ -17189,6 +17332,33 @@ Elle a besoin de ponts.`
             const pos = obtenirPosition(e);
             const x = pos.x;
             const y = pos.y || 0;
+            
+            // ═══════════════════════════════════════════════════════════════
+            // 🎯 PRIORITÉ 0: ZONES DE CONTRÔLE (bords gauche/droit)
+            // ═══════════════════════════════════════════════════════════════
+            // Zone tactile des bords pour changer la préférence de positionnement
+            const largeurZoneBord = 60; // 60px de chaque côté
+            const hauteurMinZone = C.H * 0.2; // À partir de 20% de la hauteur (éviter le header)
+            
+            if (y > hauteurMinZone && !menuEnigmesCanvas.visible) {
+                // Touch sur le bord GAUCHE → Bateau à DROITE du doigt
+                if (x < largeurZoneBord) {
+                    bateauAGauche = false; // Bateau à droite
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    // Petit feedback visuel
+                    afficherMessagePowerupSimple('🚢 ➡️');
+                    return;
+                }
+                
+                // Touch sur le bord DROIT → Bateau à GAUCHE du doigt
+                if (x > C.W - largeurZoneBord) {
+                    bateauAGauche = true; // Bateau à gauche
+                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                    // Petit feedback visuel
+                    afficherMessagePowerupSimple('⬅️ 🚢');
+                    return;
+                }
+            }
             
             // ═══════════════════════════════════════════════════════════════
             // 🎯 PRIORITÉ 1: MENU ÉNIGMES OUVERT
