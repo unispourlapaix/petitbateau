@@ -2907,78 +2907,14 @@
 
         // Fonction pour ouvrir l'info artiste
         function ouvrirInfoArtiste() {
-            // Version simplifiée pour éviter les erreurs de syntaxe
-            const infoArtistePage = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emmanuel Payet - Artiste</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            text-align: center;
-        }
-        h1 { color: #2c3e50; margin-bottom: 20px; }
-        .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <button class="close-btn" onclick="window.close()">×</button>
-    <div class="container">
-        <h1>Emmanuel Payet</h1>
-        <p>Artiste Chretien - Createur - Inspirateur</p>
-        <br>
-        <div>
-            <h3>Jeux & Deco</h3>
-            <p>Decouvre mes creations visuelles et jeux interactifs</p>
-            <a href="https://emmanuel.gallery" target="_blank">emmanuel.gallery</a>
-        </div>
-        <br>
-        <div>
-            <h3>Livres & Art</h3>
-            <p>Mes oeuvres litteraires et artistiques</p>
-            <a href="https://emmanuelpayet.art" target="_blank">emmanuelpayet.art</a>
-        </div>
-        <br>
-        <div>
-            <h3>Gospel Gratuit</h3>
-            <p>Mes compositions gospel sur AudioMack</p>
-            <a href="https://audiomack.com/emmanuelpayet888" target="_blank">AudioMack</a>
-        </div>
-    </div>
-</body>
-</html>`;
-
-            // Ouvrir dans une nouvelle fenêtre
-            const newWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
-            newWindow.document.write(infoArtistePage);
-            newWindow.document.close();
+            // Utiliser le fichier externe emmanuel-artist-module.html (plus fiable que document.write)
+            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+            const newWindow = window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+            
+            // Fallback si le popup est bloqué
+            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                alert('⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.');
+            }
         }
 
         // Fonction pour ouvrir les énigmes complètes avec le nouveau style
