@@ -17222,6 +17222,16 @@ Elle a besoin de ponts.`
                         menuEnigmesCanvas.scrollY = 0;
                         return;
                     }
+                    
+                    // Onglet Info
+                    if (onglets.info && x >= onglets.info.x && x <= onglets.info.x + onglets.info.width &&
+                        y >= onglets.info.y && y <= onglets.info.y + onglets.info.height) {
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        menuEnigmesCanvas.ongletActif = 'info';
+                        menuEnigmesCanvas.scrollY = 0;
+                        menuEnigmesCanvas.projectButtons = null; // Réinitialiser pour recréation
+                        return;
+                    }
                 }
                 
                 // Boutons de langue (onglet langues)
@@ -17259,6 +17269,31 @@ Elle a besoin de ponts.`
                                     });
                                 }
                             }
+                            return;
+                        }
+                    }
+                }
+                
+                // Boutons de projets (onglet info)
+                if (menuEnigmesCanvas.ongletActif === 'info' && menuEnigmesCanvas.projectButtons) {
+                    for (const btn of menuEnigmesCanvas.projectButtons) {
+                        if (x >= btn.x && x <= btn.x + btn.width &&
+                            y >= btn.y && y <= btn.y + btn.height) {
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            
+                            let projectUrl = btn.link;
+                            
+                            // Lien externe → ouvrir directement
+                            if (projectUrl.startsWith('http')) {
+                                window.open(projectUrl, '_blank');
+                            } else {
+                                // Lien interne → ajouter la langue actuelle
+                                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+                                projectUrl += projectUrl.includes('?') ? `&lang=${currentLang}` : `?lang=${currentLang}`;
+                                window.open(projectUrl, '_blank');
+                            }
+                            
+                            console.log(`🚀 Ouverture du projet: ${btn.title}`);
                             return;
                         }
                     }
