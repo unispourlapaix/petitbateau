@@ -3000,10 +3000,10 @@
 
         // Dessiner le menu énigmes dans le canvas
         function dessinerMenuEnigmesCanvas() {
-            // Cacher le menu pendant les phases 17-22 (murs)
+            // Cacher le menu pendant les phases 17-22 (murs) UNIQUEMENT en mode 'mur'
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
-            if (phaseActuelle >= 17 && phaseActuelle <= 22) {
-                return; // Ne pas afficher le menu pendant les phases de mur
+            if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+                return; // Ne pas afficher le menu pendant les phases de mur actives
             }
 
             if (!menuEnigmesCanvas.visible) {
