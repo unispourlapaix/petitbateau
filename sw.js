@@ -1,8 +1,8 @@
-const CACHE_NAME = 'petit-bateau-v1.1.0'; // Nouvelle version pour mise à jour des icônes
+const CACHE_NAME = 'petit-bateau-v2.0.0'; // Version mise à jour avec branding cohérent
 const urlsToCache = [
   './petitbateauRouge.html',
   './manifest.json',
-  // Ajouter les nouvelles icônes au cache
+  // Icônes PWA
   './icons/icon-72x72.png',
   './icons/icon-96x96.png',
   './icons/icon-128x128.png',
@@ -11,6 +11,7 @@ const urlsToCache = [
   './icons/icon-192x192.png',
   './icons/icon-384x384.png',
   './icons/icon-512x512.png',
+  // Modules JavaScript
   './modules/audio-manager.js',
   './modules/corbeau-module.js',
   './modules/game-manager.js',
@@ -29,34 +30,40 @@ const urlsToCache = [
   './modules/saisonefect.js',
   './modules/secret-mode.js',
   './modules/supabase-scores.js',
+  // Configuration
   './modules/config/game-config.js',
+  // Graphiques
   './modules/graphics/boat-renderer.js',
   './modules/graphics/environment-renderer.js',
   './modules/graphics/heart-renderer.js',
   './modules/graphics/lantern-renderer.js',
+  // Langues
   './modules/lang/en.json',
   './modules/lang/fr.json',
   './modules/lang/jp.json',
   './modules/lang/uk.json',
+  // Styles
   './modules/styles/ui-styles.css',
+  // Systèmes
   './modules/systems/chapter-manager.js',
   './modules/systems/corbeau-system.js',
   './modules/systems/particle-system.js',
   './modules/systems/scoring-system.js',
+  // Traductions
   './modules/translations/fr.json'
 ];
 
 // Installation du Service Worker
 self.addEventListener('install', event => {
-  console.log('🔧 Installation du Service Worker Petit Bateau');
+  console.log('🔧 Installation du Service Worker - Le Petit Bateau Rouge v2.0.0');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('📦 Mise en cache des ressources');
+        console.log('📦 Mise en cache des ressources...');
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log('✅ Installation terminée');
+        console.log('✅ Installation terminée - 33 Millions de Raisons de Partager la Paix');
         self.skipWaiting();
       })
       .catch(error => {
