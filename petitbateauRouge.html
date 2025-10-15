@@ -1525,6 +1525,30 @@
             // Note: Le CSS bloquera uniquement les très petits écrans en paysage (< 500px hauteur)
         }
         
+        // 📱 PLEIN ÉCRAN AUTOMATIQUE SUR MOBILE
+        if (isMobile) {
+            // Attendre le premier clic/touch pour activer le plein écran (contrainte navigateur)
+            const activerPleinEcranMobile = () => {
+                const elem = document.documentElement;
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen().catch(err => {
+                            console.log('ℹ️ Plein écran non disponible:', err);
+                        });
+                    } else if (elem.webkitRequestFullscreen) { // Safari iOS
+                        elem.webkitRequestFullscreen();
+                    }
+                }
+                // Retirer l'écouteur après la première activation
+                document.removeEventListener('touchstart', activerPleinEcranMobile);
+                document.removeEventListener('click', activerPleinEcranMobile);
+            };
+            
+            document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
+            document.addEventListener('click', activerPleinEcranMobile, { once: true });
+            console.log('📱 Plein écran automatique activé - En attente du premier touch');
+        }
+        
         // Alternative : API ScreenOrientation pour PWA
         if (isMobile && window.screen && window.screen.orientation) {
             // Écouter les changements d'orientation
@@ -16587,8 +16611,7 @@ Elle a besoin de ponts.`
             // Menu énigmes
             dessinerMenuEnigmesCanvas();
 
-            // Bouton plein écran
-            dessinerBoutonPleinEcran();
+            // Bouton plein écran retiré - Plein écran automatique sur mobile
 
             // 🌍 Ancien icône de langue désactivé - remplacé par l'onglet langues intégré
             // Le sélecteur de langue est maintenant dans le menu énigmes (onglet Langues)
@@ -17306,22 +17329,6 @@ Elle a besoin de ponts.`
             // ═══════════════════════════════════════════════════════════════
             // 🎯 PRIORITÉ 2: BOUTONS D'INTERFACE (menu fermé)
             // ═══════════════════════════════════════════════════════════════
-            const headerH = Math.max(C.H * 0.045, 32);
-            
-            // Bouton plein écran (en haut à droite)
-            const btnFullscreen = {
-                x: C.W - 120,
-                y: Math.max(headerH / 2 - 25, 5),
-                radius: 25
-            };
-            const distFullscreen = Math.sqrt(
-                Math.pow(x - (btnFullscreen.x + btnFullscreen.radius), 2) + 
-                Math.pow(y - (btnFullscreen.y + btnFullscreen.radius), 2)
-            );
-            if (distFullscreen < btnFullscreen.radius + 10) {
-                toggleFullscreen();
-                return;
-            }
             
             // Zone drapeau (en haut à gauche) → ouvre menu langues
             const statsY = Math.max(C.H * 0.045, 30);
