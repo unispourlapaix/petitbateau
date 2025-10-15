@@ -16587,8 +16587,7 @@ Elle a besoin de ponts.`
             // Menu énigmes
             dessinerMenuEnigmesCanvas();
 
-            // Boutons d'interface (menu & plein écran)
-            dessinerBoutonMenuEnigmes();
+            // Bouton plein écran
             dessinerBoutonPleinEcran();
 
             // 🌍 Ancien icône de langue désactivé - remplacé par l'onglet langues intégré
@@ -17159,16 +17158,18 @@ Elle a besoin de ponts.`
             }
         }
 
-        // Événements tactiles
+        // Événements tactiles - REFONTE COMPLÈTE
         canvas.addEventListener('touchstart', e => {
-            e.preventDefault(); tactile = true;
+            e.preventDefault();
+            tactile = true;
 
-            // 📱 GESTION TACTILE DES MENUS ET BOUTONS
             const pos = obtenirPosition(e);
             const x = pos.x;
             const y = pos.y || 0;
             
-            // 🎯 PRIORITÉ 1: Gestion du menu énigmes s'il est déjà ouvert
+            // ═══════════════════════════════════════════════════════════════
+            // 🎯 PRIORITÉ 1: MENU ÉNIGMES OUVERT
+            // ═══════════════════════════════════════════════════════════════
             if (menuEnigmesCanvas.visible) {
                 const menuPadding = 40;
                 const menuWidth = C.W - 2 * menuPadding;
@@ -17176,71 +17177,80 @@ Elle a besoin de ponts.`
                 const menuX = menuPadding;
                 const menuY = menuPadding;
                 
-                // Vérifier le clic sur le bouton de fermeture (X)
+                // Bouton fermer (X)
                 const closeBtn = menuEnigmesCanvas.closeButton;
-                if (x >= closeBtn.x && x <= closeBtn.x + closeBtn.width &&
+                if (closeBtn && x >= closeBtn.x && x <= closeBtn.x + closeBtn.width &&
                     y >= closeBtn.y && y <= closeBtn.y + closeBtn.height) {
                     if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                     fermerMenuEnigmesCanvas();
                     return;
                 }
                 
-                // Si le clic est en dehors du menu, le fermer
+                // Clic en dehors du menu → fermer
                 if (x < menuX || x > menuX + menuWidth ||
                     y < menuY || y > menuY + menuHeight) {
                     fermerMenuEnigmesCanvas();
                     return;
                 }
                 
-                // Vérifier les onglets
-                const ongletEnigmes = menuEnigmesCanvas.onglets.enigmes;
-                if (x >= ongletEnigmes.x && x <= ongletEnigmes.x + ongletEnigmes.width &&
-                    y >= ongletEnigmes.y && y <= ongletEnigmes.y + ongletEnigmes.height) {
-                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                    menuEnigmesCanvas.ongletActif = 'enigmes';
-                    menuEnigmesCanvas.scrollY = 0;
-                    return;
+                // Onglets
+                const onglets = menuEnigmesCanvas.onglets;
+                if (onglets) {
+                    // Onglet Énigmes
+                    if (onglets.enigmes && x >= onglets.enigmes.x && x <= onglets.enigmes.x + onglets.enigmes.width &&
+                        y >= onglets.enigmes.y && y <= onglets.enigmes.y + onglets.enigmes.height) {
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        menuEnigmesCanvas.ongletActif = 'enigmes';
+                        menuEnigmesCanvas.scrollY = 0;
+                        return;
+                    }
+                    
+                    // Onglet Classement
+                    if (onglets.classement && x >= onglets.classement.x && x <= onglets.classement.x + onglets.classement.width &&
+                        y >= onglets.classement.y && y <= onglets.classement.y + onglets.classement.height) {
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        menuEnigmesCanvas.ongletActif = 'classement';
+                        menuEnigmesCanvas.scrollY = 0;
+                        return;
+                    }
+                    
+                    // Onglet Langues
+                    if (onglets.langues && x >= onglets.langues.x && x <= onglets.langues.x + onglets.langues.width &&
+                        y >= onglets.langues.y && y <= onglets.langues.y + onglets.langues.height) {
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        menuEnigmesCanvas.ongletActif = 'langues';
+                        menuEnigmesCanvas.scrollY = 0;
+                        return;
+                    }
                 }
-
-                const ongletClassement = menuEnigmesCanvas.onglets.classement;
-                if (x >= ongletClassement.x && x <= ongletClassement.x + ongletClassement.width &&
-                    y >= ongletClassement.y && y <= ongletClassement.y + ongletClassement.height) {
-                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                    menuEnigmesCanvas.ongletActif = 'classement';
-                    menuEnigmesCanvas.scrollY = 0;
-                    return;
-                }
-
-                const ongletLangues = menuEnigmesCanvas.onglets.langues;
-                if (x >= ongletLangues.x && x <= ongletLangues.x + ongletLangues.width &&
-                    y >= ongletLangues.y && y <= ongletLangues.y + ongletLangues.height) {
-                    if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                    menuEnigmesCanvas.ongletActif = 'langues';
-                    menuEnigmesCanvas.scrollY = 0;
-                    return;
-                }
-
-                // Clic sur les boutons de langue dans l'onglet langues
+                
+                // Boutons de langue (onglet langues)
                 if (menuEnigmesCanvas.ongletActif === 'langues' && menuEnigmesCanvas.langueButtons) {
                     for (const btn of menuEnigmesCanvas.langueButtons) {
                         if (x >= btn.x && x <= btn.x + btn.width &&
                             y >= btn.y && y <= btn.y + btn.height) {
                             if (window.i18n && btn.code !== window.i18n.getCurrentLanguage()) {
                                 if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                                
                                 const languageNames = {
                                     'fr': 'Français', 'en': 'English', 'es': 'Español',
-                                    'jp': '日本語', 'uk': 'Українська'
+                                    'jp': '日本語', 'uk': 'Українська', 'de': 'Deutsch',
+                                    'it': 'Italiano', 'pt': 'Português', 'ru': 'Русский',
+                                    'ar': 'العربية', 'zh': '中文', 'hi': 'हिन्दी',
+                                    'sw': 'Kiswahili', 'he': 'עברית'
                                 };
                                 const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
+                                
                                 const confirmMessages = {
-                                    'fr': `🌍 Changer la langue vers ${newLangName} ?\n\nLa page sera rechargée.`,
-                                    'en': `🌍 Change language to ${newLangName}?\n\nThe page will be reloaded.`,
-                                    'es': `🌍 ¿Cambiar idioma a ${newLangName}?\n\nLa página se recargará.`,
-                                    'jp': `🌍 言語を${newLangName}に変更しますか？\n\nページが再読み込みされます。`,
-                                    'uk': `🌍 Змінити мову на ${newLangName}?\n\nСторінка буде перезавантажена.`
+                                    'fr': `🌍 Changer vers ${newLangName} ?\n\nLa page sera rechargée.`,
+                                    'en': `🌍 Change to ${newLangName}?\n\nPage will reload.`,
+                                    'es': `🌍 ¿Cambiar a ${newLangName}?\n\nLa página se recargará.`,
+                                    'jp': `🌍 ${newLangName}に変更?\n\nページ再読み込み。`,
+                                    'uk': `🌍 Змінити на ${newLangName}?\n\nПерезавантаження.`
                                 };
                                 const currentLangCode = window.i18n.getCurrentLanguage() || 'fr';
                                 const confirmMessage = confirmMessages[currentLangCode] || confirmMessages['en'];
+                                
                                 if (confirm(confirmMessage)) {
                                     window.i18n.setLanguage(btn.code).then(() => {
                                         currentLang = btn.code;
@@ -17254,62 +17264,37 @@ Elle a besoin de ponts.`
                     }
                 }
                 
-                // Si on touche dans le menu mais pas sur un élément interactif, ne rien faire
+                // Touch dans le menu mais pas sur élément interactif → ne rien faire
                 return;
             }
             
-            // 🎯 PRIORITÉ 2: Boutons d'en-tête (seulement si menu fermé)
+            // ═══════════════════════════════════════════════════════════════
+            // 🎯 PRIORITÉ 2: BOUTONS D'INTERFACE (menu fermé)
+            // ═══════════════════════════════════════════════════════════════
             const headerH = Math.max(C.H * 0.045, 32);
             
-            // 2.1 Bouton plein écran
-            const boutonPleinEcranX = C.W - 120;
-            const boutonPleinEcranY = Math.max(headerH / 2 - 25, 5);
-            const boutonPleinEcranRayon = 25;
-            
-            const distPleinEcran = Math.sqrt(
-                Math.pow(x - (boutonPleinEcranX + boutonPleinEcranRayon), 2) + 
-                Math.pow(y - (boutonPleinEcranY + boutonPleinEcranRayon), 2)
+            // Bouton plein écran (en haut à droite)
+            const btnFullscreen = {
+                x: C.W - 120,
+                y: Math.max(headerH / 2 - 25, 5),
+                radius: 25
+            };
+            const distFullscreen = Math.sqrt(
+                Math.pow(x - (btnFullscreen.x + btnFullscreen.radius), 2) + 
+                Math.pow(y - (btnFullscreen.y + btnFullscreen.radius), 2)
             );
-            
-            if (distPleinEcran < boutonPleinEcranRayon + 10) {
+            if (distFullscreen < btnFullscreen.radius + 10) {
                 toggleFullscreen();
                 return;
             }
             
-            // 2.2 Bouton menu énigmes
-            const boutonMenuX = C.W - 65;
-            const boutonMenuY = Math.max(headerH / 2 - 25, 5);
-            const boutonMenuRayon = 25;
-            
-            const distMenu = Math.sqrt(
-                Math.pow(x - (boutonMenuX + boutonMenuRayon), 2) + 
-                Math.pow(y - (boutonMenuY + boutonMenuRayon), 2)
-            );
-            
-            if (distMenu < boutonMenuRayon + 10) {
-                if (AudioSystem && AudioSystem.playClick) {
-                    AudioSystem.playClick();
-                }
-                if (typeof ouvrirMenuEnigmesCanvas === 'function') {
-                    ouvrirMenuEnigmesCanvas();
-                }
-                return;
-            }
-            
-            // 2.3 Zone du drapeau (changement de langue)
+            // Zone drapeau (en haut à gauche) → ouvre menu langues
             const statsY = Math.max(C.H * 0.045, 30);
-            const flagZone = {
-                x: 10,
-                y: statsY - 15,
-                width: 130,
-                height: 30
-            };
+            const flagZone = { x: 10, y: statsY - 15, width: 130, height: 30 };
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
-                if (AudioSystem && AudioSystem.playClick) {
-                    AudioSystem.playClick();
-                }
+                if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                 if (!menuEnigmesCanvas.visible && typeof ouvrirMenuEnigmesCanvas === 'function') {
                     ouvrirMenuEnigmesCanvas();
                 }
@@ -17317,51 +17302,60 @@ Elle a besoin de ponts.`
                 menuEnigmesCanvas.scrollY = 0;
                 return;
             }
-
-            // Vérifier le clic sur le bouton passer
-            if (verifierClicBoutonPasser(pos.x, pos.y)) {
-                // Bouton fictif - afficher "NON!" au lieu de passer
-                // 🔊 Son de refus
-                AudioSystem.playNegative();
+            
+            // ═══════════════════════════════════════════════════════════════
+            // 🎯 PRIORITÉ 3: BOUTON "PASSER" (si visible)
+            // ═══════════════════════════════════════════════════════════════
+            if (verifierClicBoutonPasser && verifierClicBoutonPasser(x, y)) {
+                if (AudioSystem && AudioSystem.playNegative) AudioSystem.playNegative();
                 afficherMessagePowerupSimple(getTranslatedText('interface.system.no_exclamation', 'NON!'));
                 return;
             }
-
-            if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             
-            // Redémarrage automatique supprimé - utiliser le bouton dans le message de Game Over
-
-            if(phaseJeu === 'stars') {
-                // Phase stars : tir d'étoiles tactile
-                const pos = obtenirPosition(e);
-                tirerStarsProjectile(pos.x, pos.y);
-                libererVaguesAmour(); // Libérer les cœurs d'amour en phase stars
-            } else if(phaseJeu === 'lanterne' || phaseJeu === 'mur') {
-                // Mode casse-briques : lancer la balle si elle est en attente
-                if(balle.enAttente) {
-                    // Lancer la balle vers le haut
-                    balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance; // Direction aléatoire
-                    balle.dy = -C.SP * 1.5 * multiplicateurPuissance; // Vers le haut
-                    balle.enAttente = false; // Plus en attente
-                    afficherMessagePowerupSimple(phaseJeu === 'mur' ? getTranslatedText('game.messages.attack_launched', '🧱 Attaque lancée !') : getTranslatedText('game.messages.lantern_launched', '🏮 Lanterne lancée !'));
-                } else if(window.modeTirStars && window.modeTirStars.actif) {
-                    // Mode tir étoiles activé par power-up
-                    if(Date.now() > window.modeTirStars.fin) {
+            // ═══════════════════════════════════════════════════════════════
+            // 🎯 PRIORITÉ 4: INTERACTIONS DE JEU
+            // ═══════════════════════════════════════════════════════════════
+            
+            // Bloquer si animation ou transition
+            if (animationBateau.active || narrationManager.isTransitioning) {
+                return;
+            }
+            
+            // Phase STARS → tir d'étoiles
+            if (phaseJeu === 'stars') {
+                tirerStarsProjectile(x, y);
+                if (typeof libererVaguesAmour === 'function') libererVaguesAmour();
+                return;
+            }
+            
+            // Phase LANTERNE ou MUR → casse-briques
+            if (phaseJeu === 'lanterne' || phaseJeu === 'mur') {
+                if (balle.enAttente) {
+                    // Lancer la balle
+                    balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
+                    balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
+                    balle.enAttente = false;
+                    const msg = phaseJeu === 'mur' 
+                        ? getTranslatedText('game.messages.attack_launched', '🧱 Attaque lancée !')
+                        : getTranslatedText('game.messages.lantern_launched', '🏮 Lanterne lancée !');
+                    afficherMessagePowerupSimple(msg);
+                } else if (window.modeTirStars && window.modeTirStars.actif) {
+                    // Mode tir étoiles (power-up)
+                    if (Date.now() > window.modeTirStars.fin) {
                         window.modeTirStars.actif = false;
                     } else {
-                        const pos = obtenirPosition(e);
-                        tirerStarsProjectile(pos.x, pos.y);
+                        tirerStarsProjectile(x, y);
                     }
                 } else {
-                    // Si la balle est déjà en mouvement, déplacer la raquette
-                    const pos = obtenirPosition(e);
-                    deplacerRaquette(pos.x);
+                    // Déplacer la raquette
+                    deplacerRaquette(x);
                 }
-            } else {
-                const pos = obtenirPosition(e);
-                deplacerRaquette(pos.x);
-                libererVaguesAmour(); // Libérer une vague d'amour
+                return;
             }
+            
+            // Autres phases → déplacer bateau + amour
+            deplacerRaquette(x);
+            if (typeof libererVaguesAmour === 'function') libererVaguesAmour();
         });
 
         canvas.addEventListener('touchmove', e => {
