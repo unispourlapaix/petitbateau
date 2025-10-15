@@ -294,7 +294,7 @@
     
     <div class="container">
         <h1>🎮 PIXEL ART GENERATOR</h1>
-        <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE CŒURS LIBÉRÉS</p>
+        <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE RAISONS</p>
 
         <div class="info">
             <strong>� LE PETIT BATEAU ROUGE</strong><br>
@@ -535,7 +535,7 @@
         // Fonction pour dessiner un pixel art boat
         function drawPixelBoat(ctx, x, y, size, color) {
             const pixelSize = size / 16;
-            ctx.imageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = true;
 
             // Définir les couleurs
             const colors = {
@@ -588,8 +588,9 @@
 
         // Fonction pour dessiner des vagues pixel art
         function drawPixelWaves(ctx, width, height, time, offset = 0) {
+            ctx.imageSmoothingEnabled = true;
             const waveHeight = 20;
-            const pixelSize = 4;
+            const pixelSize = 2; // Réduit de 4 à 2 pour plus de fluidité
             
             for (let x = 0; x < width; x += pixelSize) {
                 const wave = Math.sin((x + time * 50 + offset) / 30) * waveHeight;
@@ -604,7 +605,8 @@
 
         // Fonction pour dessiner du texte pixel art
         function drawPixelText(ctx, text, x, y, size, color) {
-            ctx.font = `bold ${size}px "Courier New", monospace`;
+            ctx.imageSmoothingEnabled = true;
+            ctx.font = `bold ${size}px Arial, sans-serif`; // Plus moderne
             ctx.fillStyle = '#000';
             ctx.fillText(text, x + 2, y + 2);
             ctx.fillStyle = color;
@@ -613,11 +615,12 @@
 
         // Fonction pour dessiner des étoiles pixel
         function drawPixelStars(ctx, width, height, count, time) {
+            ctx.imageSmoothingEnabled = true;
             for (let i = 0; i < count; i++) {
                 const x = (i * 137 + time * 10) % width;
                 const y = (i * 211) % height;
                 const brightness = (Math.sin(time + i) + 1) / 2;
-                const size = 2 + Math.floor(brightness * 2);
+                const size = 3 + Math.floor(brightness * 3); // Étoiles plus grandes et lisses
                 
                 ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + brightness * 0.5})`;
                 ctx.fillRect(x, y, size, size);
@@ -687,7 +690,7 @@
 
             // Titre
             drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 350, 200, 60, '#ffffff');
-            drawPixelText(ctx, '33 Millions de Cœurs Libérés', 350, 260, 30, '#87ceeb');
+            drawPixelText(ctx, '33 Millions de Raisons', 350, 260, 30, '#87ceeb');
             drawPixelText(ctx, 'de Partager la Paix', 350, 300, 30, '#87ceeb');
 
             // Distance
@@ -748,7 +751,7 @@
             ctx.textAlign = 'center';
             drawPixelText(ctx, '33 RAISONS D\'AIMER', 540, 600, 80, '#ffd700');
             drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 540, 720, 45, '#ffffff');
-            drawPixelText(ctx, '33 Millions de Cœurs Libérés', 540, 780, 30, '#87ceeb');
+            drawPixelText(ctx, '33 Millions de Raisons', 540, 780, 30, '#87ceeb');
             drawPixelText(ctx, 'de Partager la Paix', 540, 820, 30, '#87ceeb');
             drawPixelText(ctx, '33 ENIGMES * 14 LANGUES', 540, 900, 28, '#ffffff');
             drawPixelText(ctx, '#33MillionsDeRaisons', 540, 980, 25, '#0f0');
@@ -787,7 +790,7 @@
 
             // Texte
             drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 280, 160, 55, '#ffffff');
-            drawPixelText(ctx, '33 Millions de Cœurs Libérés', 280, 220, 32, '#ffd700');
+            drawPixelText(ctx, '33 Millions de Raisons de Partager la Paix', 280, 220, 32, '#ffd700');
             drawPixelText(ctx, 'JEU POETIQUE * 14 LANGUES * 33 ENIGMES', 280, 310, 28, '#87ceeb');
 
             if (animationRunning) {
@@ -833,7 +836,7 @@
             
             drawPixelText(ctx, '33 RAISONS D\'AIMER', 540, 1300, 90, '#ffd700');
             
-            drawPixelText(ctx, '33 Millions de Cœurs Libérés', 540, 1420, 38, '#ffffff');
+            drawPixelText(ctx, '33 Millions de Raisons', 540, 1420, 38, '#ffffff');
             drawPixelText(ctx, 'de Partager la Paix', 540, 1470, 38, '#ffffff');
 
             drawPixelText(ctx, 'JEU * 8-BIT * GRATUIT', 540, 1600, 35, '#0f0');
