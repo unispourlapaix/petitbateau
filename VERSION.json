@@ -1,7 +1,20 @@
 {
-  "version": "2.4.1",
+  "version": "2.4.2",
   "date": "2025-10-15",
   "changelog": {
+    "2.4.2": {
+      "title": "⏱️ Sauvegarde Timings Narration",
+      "date": "2025-10-15",
+      "changes": [
+        "⏱️ Sauvegarde des messages narratifs actifs",
+        "💡 Sauvegarde des messages power-up en cours",
+        "🚢 Sauvegarde de l'état animation bateau",
+        "🎬 Sauvegarde de la phase intro",
+        "⏳ Calcul précis du temps restant des messages",
+        "✅ Restauration exacte de tous les timings",
+        "🎯 Reprise parfaite de l'expérience narrative"
+      ]
+    },
     "2.4.1": {
       "title": "🔄 Restart Phase 2 après fin",
       "date": "2025-10-15",

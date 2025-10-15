@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.4.1'; // Synchronisé avec VERSION.json
+const CACHE_NAME = 'petit-bateau-v2.4.2'; // Synchronisé avec VERSION.json
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',

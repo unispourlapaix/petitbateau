@@ -1547,6 +1547,38 @@
                             currentPhase: narrationManager ? narrationManager.currentPhase : 1,
                             phaseHistory: narrationManager ? narrationManager.phaseHistory : [],
                             
+                            // Timings de narration
+                            messageNarratifActif: messageNarratifActif ? {
+                                texte: messageNarratifActif.texte,
+                                tempsRestant: messageNarratifActif.temps - Date.now(),
+                                tempsTotal: messageNarratifActif.temps - messageNarratifActif.tempsDebut,
+                                alpha: messageNarratifActif.alpha,
+                                avecRestart: messageNarratifActif.avecRestart || false,
+                                lienLivre: messageNarratifActif.lienLivre || null,
+                                avecPartage: messageNarratifActif.avecPartage || false,
+                                textePartage: messageNarratifActif.textePartage || null
+                            } : null,
+                            
+                            messagePowerupActif: messagePowerupActif ? {
+                                texte: messagePowerupActif.texte,
+                                tempsRestant: messagePowerupActif.temps - Date.now(),
+                                alpha: messagePowerupActif.alpha
+                            } : null,
+                            
+                            // Animation bateau
+                            animationBateau: animationBateau ? {
+                                active: animationBateau.active,
+                                phase: animationBateau.phase,
+                                tempsEcoule: animationBateau.tempsDebut ? Date.now() - animationBateau.tempsDebut : 0
+                            } : null,
+                            
+                            // Phase intro
+                            phaseIntro: phaseIntro ? {
+                                active: phaseIntro.active,
+                                etape: phaseIntro.etape,
+                                tempsEcoule: phaseIntro.tempsDebut ? Date.now() - phaseIntro.tempsDebut : 0
+                            } : null,
+                            
                             // Progression
                             pointsConnaissance: pointsConnaissance || 0,
                             
@@ -1613,6 +1645,57 @@
                     if (narrationManager && gameState.currentPhase) {
                         narrationManager.currentPhase = gameState.currentPhase;
                         narrationManager.phaseHistory = gameState.phaseHistory || [];
+                    }
+
+                    // Restaurer les messages narratifs actifs
+                    if (gameState.messageNarratifActif) {
+                        const msg = gameState.messageNarratifActif;
+                        const now = Date.now();
+                        messageNarratifActif = {
+                            texte: msg.texte,
+                            temps: now + Math.max(0, msg.tempsRestant),
+                            tempsDebut: now - (msg.tempsTotal - msg.tempsRestant),
+                            alpha: msg.alpha,
+                            avecRestart: msg.avecRestart || false,
+                            lienLivre: msg.lienLivre || null,
+                            avecPartage: msg.avecPartage || false,
+                            textePartage: msg.textePartage || null
+                        };
+                        console.log('📝 Message narratif restauré:', messageNarratifActif.texte.substring(0, 50));
+                    } else {
+                        messageNarratifActif = null;
+                    }
+
+                    // Restaurer les messages de power-up actifs
+                    if (gameState.messagePowerupActif) {
+                        const msg = gameState.messagePowerupActif;
+                        const now = Date.now();
+                        messagePowerupActif = {
+                            texte: msg.texte,
+                            temps: now + Math.max(0, msg.tempsRestant),
+                            alpha: msg.alpha
+                        };
+                        console.log('💡 Message power-up restauré:', messagePowerupActif.texte);
+                    } else {
+                        messagePowerupActif = null;
+                    }
+
+                    // Restaurer l'animation du bateau
+                    if (gameState.animationBateau) {
+                        const anim = gameState.animationBateau;
+                        animationBateau.active = anim.active;
+                        animationBateau.phase = anim.phase;
+                        animationBateau.tempsDebut = Date.now() - anim.tempsEcoule;
+                        console.log('🚢 Animation bateau restaurée:', anim.phase);
+                    }
+
+                    // Restaurer la phase intro
+                    if (gameState.phaseIntro) {
+                        const intro = gameState.phaseIntro;
+                        phaseIntro.active = intro.active;
+                        phaseIntro.etape = intro.etape;
+                        phaseIntro.tempsDebut = Date.now() - intro.tempsEcoule;
+                        console.log('🎬 Phase intro restaurée:', intro.etape);
                     }
 
                     // Réinitialiser le jeu avec les nouvelles valeurs

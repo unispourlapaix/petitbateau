@@ -23,6 +23,26 @@ Le jeu sauvegarde automatiquement votre progression pour vous permettre de repre
 - **Historique des phases** parcourues
 - **Énigmes collectées** (via enigmaCollector)
 
+### ⏱️ **NOUVEAU v2.4.2** : Timings de Narration
+- **Message narratif actif**
+  - Texte complet du message
+  - Temps restant d'affichage
+  - Temps total du message
+  - Niveau d'alpha (transparence)
+  - Flags spéciaux (restart, partage, lien livre)
+- **Message power-up actif**
+  - Texte du power-up
+  - Temps restant d'affichage
+  - Niveau d'alpha
+- **Animation du bateau**
+  - État actif/inactif
+  - Phase de l'animation (arrivée, arrêt, départ)
+  - Temps écoulé depuis le début
+- **Phase intro**
+  - État actif/inactif
+  - Étape de l'intro
+  - Temps écoulé
+
 ---
 
 ## ⚙️ Fonctionnement
@@ -114,7 +134,32 @@ GameSaveSystem.clear()
     "phaseHistory": [1, 2, 3, 4, 5, 6, 7, 8],
     "pointsConnaissance": 230,
     "jeu": true,
-    "modeSecret": false
+    "modeSecret": false,
+    "messageNarratifActif": {
+      "texte": "On m'a dit qu'ils étaient tous des monstres...",
+      "tempsRestant": 8500,
+      "tempsTotal": 12000,
+      "alpha": 1.0,
+      "avecRestart": false,
+      "lienLivre": null,
+      "avecPartage": false,
+      "textePartage": null
+    },
+    "messagePowerupActif": {
+      "texte": "+100 XP !",
+      "tempsRestant": 2000,
+      "alpha": 0.8
+    },
+    "animationBateau": {
+      "active": true,
+      "phase": "arrivee",
+      "tempsEcoule": 5000
+    },
+    "phaseIntro": {
+      "active": true,
+      "etape": "arrivee_bateau",
+      "tempsEcoule": 3000
+    }
   }
 }
 ```
@@ -223,9 +268,9 @@ GameSaveSystem.restore(customState);
 - **Pas d'historique** : Pas d'annulation possible
 
 ### Performance
-- ⚡ Sauvegarde : ~5ms
-- ⚡ Chargement : ~10ms
-- 💾 Taille : ~1-2 KB
+- ⚡ Sauvegarde : ~5-10ms
+- ⚡ Chargement : ~15-20ms
+- 💾 Taille : ~2-4 KB (avec timings)
 - 🔋 Impact CPU : Négligeable
 
 ---
@@ -233,7 +278,8 @@ GameSaveSystem.restore(customState);
 ## 🚀 Version
 
 **Système de sauvegarde v1.0**  
-Implémenté dans la version **2.4.0** du jeu
+Implémenté dans la version **2.4.0** du jeu  
+**Timings de narration** ajoutés en version **2.4.2**
 
 ---
 
