@@ -7,43 +7,47 @@
 
 ## 📱 Posts Réseaux Sociaux
 
-### Hook 1 : Émotionnel + Poétique
+### Hook 1 : Émotionnel + Humanité
 ```
 🚣 Le Petit Bateau Rouge
 33 Millions de Raisons de Partager la Paix
 
-Il y a en chacun de nous un voyageur...
+Les voyages sont notre liberté, notre humanité.
 
-Un voyage poétique et interactif à travers 33 énigmes philosophiques 
-qui explorent la foi, l'espoir et l'amour.
+Découvrez Le Petit Bateau Rouge : Des énigmes poétiques, 14 langues, 100% gratuit. 
+Un voyage qui touche le cœur et ouvre l'esprit.
 
-💖 33 raisons d'aimer la vie
-🌍 14 langues pour toucher le monde entier
+Guidez un petit bateau rouge à travers la découverte d'énigmes philosophiques 
+sur la vie, l'espoir et l'amour.
+
+💖 Vie, espoir & amour
+🌍 Notre liberté, notre humanité
 🎵 Gospel original pour accompagner votre périple
 
 Êtes-vous prêt à naviguer vers la paix ?
 
-🎮 Jouez gratuitement : https://unispourlapaix.github.io/petitbateau/
+🎮 Jouez maintenant : https://unispourlapaix.github.io/petitbateau/
 
-#LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix
+#LePetitBateauRouge #33MillionsDeRaisons #PartagerLaPaix #Love
 ```
 
-### Hook 2 : Introspection
+### Hook 2 : Liberté & Découverte
 ```
-Il y a en chacun de nous un voyageur...
-
-Où nous mène-t-il ? Vers quelle paix ?
+Les voyages sont notre liberté, notre humanité.
 
 🚣 Le Petit Bateau Rouge n'est pas qu'un jeu.
-C'est un miroir de notre humanité, une quête universelle.
+C'est un miroir de notre humanité, une quête de découverte.
 
-✨ 33 énigmes qui nous révèlent à nous-mêmes
-💭 Foi, espoir, amour : les trois piliers de la paix
+Guidez un petit bateau rouge à travers des énigmes philosophiques 
+sur la vie, l'espoir et l'amour.
+
+✨ Des énigmes poétiques qui touchent le cœur et ouvrent l'esprit
+💭 Vie, espoir, amour : notre voyage universel
 🎮 Gratuit • 14 langues • Accessible à tous
 
-https://unispourlapaix.github.io/petitbateau/
+Jouez maintenant : https://unispourlapaix.github.io/petitbateau/
 
-#VoyageInterieur #GameWithPurpose #ArtGame
+#LePetitBateauRouge #PartagerLaPaix #Love #VoyageInterieur
 ```
 
 ### Hook 3 : Statistique Choc

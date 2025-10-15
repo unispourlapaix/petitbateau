@@ -2,7 +2,7 @@
 
 > **33 Millions de Raisons de Partager la Paix**
 > 
-> Il y a en chacun de nous un voyageur... Un voyage poétique et interactif à travers 33 énigmes philosophiques sur la foi, l'espoir et l'amour.
+> Les voyages sont notre liberté, notre humanité. Guidez un petit bateau rouge à travers la découverte d'énigmes philosophiques sur la vie, l'espoir et l'amour.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://unispourlapaix.github.io/petitbateau/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -10,7 +10,7 @@
 
 ## 🌊 À propos
 
-**Le Petit Bateau Rouge** est un jeu narratif et poétique inspiré par les 33 millions de raisons de partager notre humanité. À travers 23 phases interactives, guidez un petit bateau rouge dans un périple philosophique explorant la foi, l'espoir et l'amour - les trois piliers de la paix universelle.
+**Le Petit Bateau Rouge** est un jeu narratif et poétique qui touche le cœur et ouvre l'esprit. À travers 23 phases interactives, découvrez des énigmes philosophiques sur la vie, l'espoir et l'amour. Les voyages sont notre liberté, notre humanité - une quête universelle inspirée par les 33 millions de raisons de partager la paix.
 
 Ce n'est pas qu'un jeu, c'est une expérience émotionnelle qui mêle :
 - 🎮 **Gameplay varié** : collecte de cœurs, tir d'étoiles, défis de survie
