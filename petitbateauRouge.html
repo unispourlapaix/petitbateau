@@ -2490,6 +2490,16 @@
             hover: false
         };
 
+        // Objet bouton plein écran
+        let boutonPleinEcran = {
+            x: 0,
+            y: 0,
+            width: 50,
+            height: 50,
+            hover: false,
+            isFullscreen: false
+        };
+
         // État du menu énigmes dans le canvas
         let menuEnigmesCanvas = {
             visible: false,
@@ -2716,6 +2726,103 @@
 
             ctx.restore();
         }
+
+        // Dessiner le bouton plein écran dans le canvas
+        function dessinerBoutonPleinEcran() {
+            // Position dans le header à droite, à gauche du bouton menu
+            const headerH = Math.max(C.H * 0.045, 32);
+            boutonPleinEcran.x = C.W - 120; // 55px à gauche du bouton menu
+            boutonPleinEcran.y = Math.max(headerH / 2 - 25, 5);
+
+            ctx.save();
+
+            // Effet de survol
+            const scale = boutonPleinEcran.hover ? 1.1 : 1;
+            const alpha = boutonPleinEcran.hover ? 1 : 0.8;
+
+            ctx.globalAlpha = alpha;
+            ctx.translate(boutonPleinEcran.x + boutonPleinEcran.width/2,
+                         boutonPleinEcran.y + boutonPleinEcran.height/2);
+            ctx.scale(scale, scale);
+
+            // Arrière-plan du bouton
+            const gradient = ctx.createLinearGradient(-25, -25, 25, 25);
+            gradient.addColorStop(0, '#1a2d4a');
+            gradient.addColorStop(1, '#0a1428');
+
+            ctx.fillStyle = gradient;
+            ctx.strokeStyle = boutonPleinEcran.isFullscreen ? '#fbbf24' : '#64ffda';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Icône plein écran ou minimiser
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = boutonPleinEcran.isFullscreen ? '#fbbf24' : '#64ffda';
+            ctx.fillText(boutonPleinEcran.isFullscreen ? '🗗' : '⛶', 0, 0);
+
+            ctx.restore();
+        }
+
+        // Fonction pour basculer le plein écran
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // Entrer en plein écran
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { // Safari
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) { // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) { // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+                boutonPleinEcran.isFullscreen = true;
+                
+                // 🔊 Son de succès
+                if (AudioSystem && AudioSystem.playPowerUp) {
+                    AudioSystem.playPowerUp();
+                }
+            } else {
+                // Sortir du plein écran
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                boutonPleinEcran.isFullscreen = false;
+                
+                // 🔊 Son de clic
+                if (AudioSystem && AudioSystem.playClick) {
+                    AudioSystem.playClick();
+                }
+            }
+        }
+
+        // Écouter les changements d'état du plein écran
+        document.addEventListener('fullscreenchange', () => {
+            boutonPleinEcran.isFullscreen = !!document.fullscreenElement;
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            boutonPleinEcran.isFullscreen = !!document.webkitFullscreenElement;
+        });
+        document.addEventListener('mozfullscreenchange', () => {
+            boutonPleinEcran.isFullscreen = !!document.mozFullScreenElement;
+        });
+        document.addEventListener('MSFullscreenChange', () => {
+            boutonPleinEcran.isFullscreen = !!document.msFullscreenElement;
+        });
 
         // Fonctions menu HOME supprimées
 
@@ -16489,6 +16596,10 @@ Elle a besoin de ponts.`
             // Menu énigmes
             dessinerMenuEnigmesCanvas();
 
+            // Boutons d'interface (menu & plein écran)
+            dessinerBoutonMenuEnigmes();
+            dessinerBoutonPleinEcran();
+
             // 🌍 Ancien icône de langue désactivé - remplacé par l'onglet langues intégré
             // Le sélecteur de langue est maintenant dans le menu énigmes (onglet Langues)
             if (false && languageSelector.languageChosen) {
@@ -17066,8 +17177,23 @@ Elle a besoin de ponts.`
             const x = pos.x;
             const y = pos.y || 0;
             
-            // 1. Vérifier le bouton menu énigmes (en haut à droite)
+            // 1. Vérifier le bouton plein écran (en haut à droite, avant le menu)
             const headerH = Math.max(C.H * 0.045, 32);
+            const boutonPleinEcranX = C.W - 120;
+            const boutonPleinEcranY = Math.max(headerH / 2 - 25, 5);
+            const boutonPleinEcranRayon = 25;
+            
+            const distPleinEcran = Math.sqrt(
+                Math.pow(x - (boutonPleinEcranX + boutonPleinEcranRayon), 2) + 
+                Math.pow(y - (boutonPleinEcranY + boutonPleinEcranRayon), 2)
+            );
+            
+            if (distPleinEcran < boutonPleinEcranRayon + 10) { // +10 pour zone tactile plus large
+                toggleFullscreen();
+                return;
+            }
+            
+            // 2. Vérifier le bouton menu énigmes (en haut à droite)
             const boutonMenuX = C.W - 65;
             const boutonMenuY = Math.max(headerH / 2 - 25, 5);
             const boutonMenuRayon = 25;
@@ -17089,7 +17215,7 @@ Elle a besoin de ponts.`
                 return;
             }
             
-            // 2. Vérifier la zone du drapeau (changement de langue)
+            // 3. Vérifier la zone du drapeau (changement de langue)
             const statsY = Math.max(C.H * 0.045, 30);
             const flagZone = {
                 x: 10,
