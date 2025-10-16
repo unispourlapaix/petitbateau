@@ -365,6 +365,50 @@
             }
         }
 
+        /* Bouton Installation PWA */
+        #install-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        #install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        #install-button:active {
+            transform: translateY(0);
+        }
+
+        #install-button::before {
+            content: '📥 ';
+            font-size: 16px;
+        }
+
+        /* Sur mobile, adapter la position */
+        @media (max-width: 768px) {
+            #install-button {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
         /* ═══════════════════════════════════════════════════════════════════ */
         /* 🎬 STYLES TEXTANIMATOR OPTIMISÉ */
         /* ═══════════════════════════════════════════════════════════════════ */
@@ -1404,6 +1448,9 @@
             ↻
         </div>
     </div>
+
+    <!-- Bouton Installation PWA -->
+    <button id="install-button" onclick="installPWA()">Installer l'app</button>
     
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
@@ -20628,35 +20675,89 @@ Elle a besoin de ponts.`
     window.addEventListener('languageChanged', (event) => {
         console.log('🌍 Langue changée vers:', event.detail.language);
         // L'affichage sera automatiquement mis à jour au prochain render du menu
+        
+        // Mettre à jour le texte du bouton d'installation
+        updateInstallButtonText();
     });
+    
+    // Fonction pour mettre à jour le texte du bouton selon la langue
+    function updateInstallButtonText() {
+        const installBtn = document.getElementById('install-button');
+        if (!installBtn) return;
+        
+        const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
+        const btnText = getTranslatedText('ui.install_app', 'Installer l\'app');
+        installBtn.textContent = btnText;
+    }
+    
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('🔧 PWA installable détectée');
         e.preventDefault();
         deferredPrompt = e;
         
-        // Optionnel: Afficher un bouton d'installation personnalisé
-        // showInstallButton();
+        // Afficher le bouton d'installation
+        const installBtn = document.getElementById('install-button');
+        if (installBtn) {
+            installBtn.style.display = 'block';
+            updateInstallButtonText();
+        }
     });
 
     // Détecter si l'app est installée
     window.addEventListener('appinstalled', (evt) => {
         console.log('🎉 PWA installée avec succès');
         deferredPrompt = null;
+        
+        // Masquer le bouton d'installation
+        const installBtn = document.getElementById('install-button');
+        if (installBtn) {
+            installBtn.style.display = 'none';
+        }
     });
 
-    // Fonction pour déclencher l'installation (optionnelle)
+    // Fonction pour déclencher l'installation
     function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((result) => {
-                if (result.outcome === 'accepted') {
-                    console.log('✅ Utilisateur a accepté l\'installation');
-                } else {
-                    console.log('❌ Utilisateur a refusé l\'installation');
-                }
-                deferredPrompt = null;
-            });
+        if (!deferredPrompt) {
+            console.log('⚠️ Prompt d\'installation non disponible');
+            
+            // Si déjà installée ou pas supporté, afficher un message
+            const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
+            const message = getTranslatedText('ui.already_installed', 'L\'application est déjà installée ou votre navigateur ne supporte pas l\'installation.');
+            
+            if (typeof afficherMessagePowerupSimple === 'function') {
+                afficherMessagePowerupSimple(message);
+            } else {
+                alert(message);
+            }
+            return;
         }
+        
+        // Afficher le prompt natif
+        deferredPrompt.prompt();
+        
+        // Attendre la réponse de l'utilisateur
+        deferredPrompt.userChoice.then((result) => {
+            const getTranslatedText = window.getTranslatedText || ((key, fallback) => fallback);
+            
+            if (result.outcome === 'accepted') {
+                console.log('✅ Utilisateur a accepté l\'installation');
+                const successMsg = getTranslatedText('ui.install_success', '🎉 Application installée avec succès !');
+                
+                if (typeof afficherMessagePowerupSimple === 'function') {
+                    afficherMessagePowerupSimple(successMsg);
+                }
+                
+                // Masquer le bouton
+                const installBtn = document.getElementById('install-button');
+                if (installBtn) {
+                    installBtn.style.display = 'none';
+                }
+            } else {
+                console.log('❌ Utilisateur a refusé l\'installation');
+            }
+            
+            deferredPrompt = null;
+        });
     }
 
     // Fonction pour afficher un banner de mise à jour
