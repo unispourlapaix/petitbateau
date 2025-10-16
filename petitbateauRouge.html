@@ -7715,11 +7715,13 @@
                         const saveInfo = GameSaveSystem.getSaveInfo();
                         if (saveInfo && saveInfo.hasSave) {
                             // Proposer de reprendre depuis la sauvegarde
-                            const reprendre = confirm(
-                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
-                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
-                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
-                            );
+                            const message = getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + 
+                                '\n\n' + 
+                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + 
+                                '\n' + 
+                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2');
+                            
+                            const reprendre = confirm(message);
                             
                             if (reprendre) {
                                 // Charger la sauvegarde
@@ -8069,7 +8071,7 @@
 
                     // Ajoute un caractère aléatoire si on n'est pas à la fin
                     if (this.currentIndex < textOnly.length) {
-                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\\\|~^&%$#@!?';
+                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\|~^&%$#@!?';
                         displayText += digitalChars.charAt(Math.floor(Math.random() * digitalChars.length));
                     }
 
@@ -8260,7 +8262,7 @@
                 }
 
                 let displayText = this._buildHtmlText(this.currentIndex);
-                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\\\|~^&%$#@!?';
+                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\|~^&%$#@!?';
                 displayText += digitalChars[Math.floor(Math.random() * digitalChars.length)];
 
                 this.element.innerHTML = displayText;
