@@ -82,6 +82,18 @@
       "ko": "작은 배"
     }
   },
+  "language_selector": {
+    "confirm_change": "🌍 Sprache zu {language} wechseln?\n\nDie Seite wird neu geladen, um die Übersetzungen anzuwenden."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ACHTUNG: Dies wird ALLES löschen (Fortschritt, Punkte, gesammelte Rätsel).\n\nSind Sie SICHER, dass Sie fortfahren möchten?",
+    "confirm_2": "⚠️ LETZTE BESTÄTIGUNG: Diese Aktion ist UNWIDERRUFLICH.\n\nWirklich fortfahren?",
+    "cancelled": "❌ Hard Reset abgebrochen",
+    "cancelled_step_2": "❌ Hard Reset abgebrochen (2. Bestätigung)"
+  },
+  "popup": {
+    "blocked": "⚠️ Popup blockiert! Bitte erlauben Sie Popups, um die Künstlerinfo zu sehen."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 +100 Punkte für das Ansehen der vollständigen Einführung! 🌟",
@@ -668,9 +680,27 @@
     "rc": "Kréol Rényoné"
   },
   "pwa": {
-    "update_message": "🎨 Neue Version mit verbesserten Symbolen verfügbar!\n\n✨ Neue optimierte Symbole\n🔧 PWA-Verbesserungen\n\nMöchtest du jetzt aktualisieren?",
-    "update_banner": "🎨 Neue Version mit verbesserten Symbolen verfügbar!",
+    "update_message": "🎨 Neue Version mit verbesserten Icons verfügbar!\n\n✨ Neue optimierte Icons\n🔧 PWA-Verbesserungen\n\nMöchten Sie jetzt aktualisieren?",
+    "update_banner": "🎨 Neue Version mit verbesserten Icons verfügbar!",
     "update_button": "Aktualisieren",
     "later_button": "Später"
+  },
+  "save": {
+    "found_title": "💾 Gespeichertes Spiel gefunden!",
+    "date": "📅 Datum: {date}",
+    "phase": "🎯 Phase: {phase}",
+    "score": "⭐ Punkte: {score}",
+    "lives": "❤️ Leben: {lives}",
+    "confirm_load": "Möchten Sie dieses Spiel fortsetzen?",
+    "yes_load": "✅ JA = Spiel fortsetzen",
+    "no_reset": "❌ NEIN = Neu beginnen (Speicherstand löschen)",
+    "confirm_reset_title": "🔄 Neu beginnen?",
+    "confirm_reset_warning": "⚠️ Dies wird:",
+    "reset_action1": "- Ihren Fortschritt löschen",
+    "reset_action2": "- Ihren Spielstand löschen",
+    "reset_action3": "- Von Phase 1 neu starten",
+    "confirm_reset_question": "Sind Sie sicher?",
+    "loaded": "📂 Spiel geladen!",
+    "not_found": "❌ Kein Spielstand gefunden"
   }
 }

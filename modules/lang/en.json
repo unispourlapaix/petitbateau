@@ -83,8 +83,20 @@
     },
     "reset_button": "🔄 Reset to Zero",
     "confirm_reset_1": "🔄 WARNING: Reset the game to zero?\n\n⚠️ This will:\n- Erase your progress\n- Delete your save\n- Restart at phase 1\n\nDo you want to continue?",
-    "confirm_reset_2": "⚠️ FINAL CONFIRMATION\n\nAre you REALLY sure?\nThis action is irreversible.",
+    "confirm_reset_2": "⚠️ LAST CONFIRMATION\n\nAre you REALLY sure?\nThis action is irreversible.",
     "game_reset": "Game reset!"
+  },
+  "language_selector": {
+    "confirm_change": "🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 WARNING: This will DELETE EVERYTHING (progress, scores, collected enigmas).\n\nAre you SURE you want to continue?",
+    "confirm_2": "⚠️ FINAL CONFIRMATION: This action is IRREVERSIBLE.\n\nReally continue?",
+    "cancelled": "❌ Hard Reset cancelled",
+    "cancelled_step_2": "❌ Hard Reset cancelled (2nd confirmation)"
+  },
+  "popup": {
+    "blocked": "⚠️ Popup blocked! Please allow popups to see artist info."
   },
   "game": {
     "messages": {
@@ -676,5 +688,23 @@
     "update_banner": "🎨 New version with improved icons available!",
     "update_button": "Update",
     "later_button": "Later"
+  },
+  "save": {
+    "found_title": "💾 Saved game found!",
+    "date": "📅 Date: {date}",
+    "phase": "🎯 Phase: {phase}",
+    "score": "⭐ Score: {score}",
+    "lives": "❤️ Lives: {lives}",
+    "confirm_load": "Do you want to resume this game?",
+    "yes_load": "✅ YES = Resume game",
+    "no_reset": "❌ NO = Start over (delete save)",
+    "confirm_reset_title": "🔄 Start over?",
+    "confirm_reset_warning": "⚠️ This will:",
+    "reset_action1": "- Erase your progress",
+    "reset_action2": "- Delete your save",
+    "reset_action3": "- Restart from phase 1",
+    "confirm_reset_question": "Are you sure?",
+    "loaded": "📂 Game loaded!",
+    "not_found": "❌ No save found"
   }
 }

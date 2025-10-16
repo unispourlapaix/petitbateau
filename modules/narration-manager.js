@@ -8,7 +8,7 @@ class NarrationManager {
 
         // Configuration modulaire
         this.config = {
-            debug: config.debug || false,
+            debug: true, // 🔥 ACTIVÉ pour debug
             autoProgress: config.autoProgress || true,
             transitionDelay: config.transitionDelay || 1000,
             ...config
@@ -173,12 +173,27 @@ class NarrationManager {
 
     // API publique simplifiée
     start() {
+        console.log('🎬 NarrationManager.start() appelé');
+        console.log('   - window.isRestoringGame:', window.isRestoringGame);
+        console.log('   - currentPhase avant:', this.currentPhase);
+        
+        // 🔥 Ne pas démarrer la narration si on restaure une sauvegarde
+        if (window.isRestoringGame) {
+            console.log('   ⚠️ Restauration en cours - narration désactivée - RETURN');
+            this.log('⚠️ Restauration en cours - narration désactivée');
+            return;
+        }
+        
+        console.log('   ⚡ Appel de reset() qui va remettre currentPhase à 1');
         this.log('Démarrage de la narration');
         this.reset();
+        console.log('   - currentPhase après reset:', this.currentPhase);
         this.executeCurrentPhase();
     }
 
     reset() {
+        console.log('🔄 NarrationManager.reset() appelé - ATTENTION: Va réinitialiser à phase 1');
+        console.trace('Stack trace du reset:');
         this.log('Reset de la narration');
         this.currentPhase = 1;
         this.phaseHistory = [];
@@ -241,6 +256,17 @@ class NarrationManager {
 
     // Exécution de phase avec découplage
     executeCurrentPhase() {
+        console.log('▶️ NarrationManager.executeCurrentPhase() appelé');
+        console.log('   - window.isRestoringGame:', window.isRestoringGame);
+        console.log('   - currentPhase:', this.currentPhase);
+        
+        // 🔥 Ne pas exécuter si on restaure une sauvegarde
+        if (window.isRestoringGame) {
+            console.log('   ⚠️ Restauration en cours - executeCurrentPhase désactivé - RETURN');
+            this.log('⚠️ Restauration en cours - executeCurrentPhase désactivé');
+            return;
+        }
+        
         const phaseData = this.getCurrentPhaseData();
         if (!phaseData) {
             this.finalize();

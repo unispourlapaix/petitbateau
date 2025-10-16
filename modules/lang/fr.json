@@ -86,6 +86,18 @@
     "confirm_reset_2": "⚠️ DERNIÈRE CONFIRMATION\n\nÊtes-vous VRAIMENT sûr ?\nCette action est irréversible.",
     "game_reset": "Jeu réinitialisé !"
   },
+  "language_selector": {
+    "confirm_change": "🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?",
+    "confirm_2": "⚠️ DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?",
+    "cancelled": "❌ Hard Reset annulé",
+    "cancelled_step_2": "❌ Hard Reset annulé (2ème confirmation)"
+  },
+  "popup": {
+    "blocked": "⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 +100 Points pour avoir regardé l'introduction complète ! 🌟",
@@ -676,5 +688,23 @@
     "update_banner": "🎨 Nouvelle version avec icônes améliorées disponible !",
     "update_button": "Mettre à jour",
     "later_button": "Plus tard"
+  },
+  "save": {
+    "found_title": "💾 Partie sauvegardée trouvée !",
+    "date": "📅 Date: {date}",
+    "phase": "🎯 Phase: {phase}",
+    "score": "⭐ Score: {score}",
+    "lives": "❤️ Vies: {lives}",
+    "confirm_load": "Voulez-vous reprendre cette partie ?",
+    "yes_load": "✅ OUI = Reprendre la partie",
+    "no_reset": "❌ NON = Recommencer à zéro (efface la sauvegarde)",
+    "confirm_reset_title": "🔄 Recommencer à zéro ?",
+    "confirm_reset_warning": "⚠️ Cela va :",
+    "reset_action1": "- Effacer votre progression",
+    "reset_action2": "- Supprimer votre sauvegarde",
+    "reset_action3": "- Redémarrer à la phase 1",
+    "confirm_reset_question": "Êtes-vous sûr ?",
+    "loaded": "📂 Partie chargée !",
+    "not_found": "❌ Aucune sauvegarde trouvée"
   }
 }

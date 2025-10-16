@@ -82,6 +82,18 @@
       "ko": "작은 배"
     }
   },
+  "language_selector": {
+    "confirm_change": "🌍 Mudar idioma para {language}?\n\nA página será recarregada para aplicar as traduções."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ATENÇÃO: Isso vai APAGAR TUDO (progresso, pontuações, enigmas coletados).\n\nVocê tem CERTEZA de que quer continuar?",
+    "confirm_2": "⚠️ CONFIRMAÇÃO FINAL: Esta ação é IRREVERSÍVEL.\n\nRealmente continuar?",
+    "cancelled": "❌ Reinicialização total cancelada",
+    "cancelled_step_2": "❌ Reinicialização total cancelada (2ª confirmação)"
+  },
+  "popup": {
+    "blocked": "⚠️ Popup bloqueado! Por favor, permita popups para ver as informações do artista."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 +100 Pontos por ter assistido a introdução completa! 🌟",
@@ -672,5 +684,23 @@
     "update_banner": "🎨 Nova versão com ícones melhorados disponível!",
     "update_button": "Atualizar",
     "later_button": "Mais tarde"
+  },
+  "save": {
+    "found_title": "💾 Jogo salvo encontrado!",
+    "date": "📅 Data: {date}",
+    "phase": "🎯 Fase: {phase}",
+    "score": "⭐ Pontuação: {score}",
+    "lives": "❤️ Vidas: {lives}",
+    "confirm_load": "Deseja continuar este jogo?",
+    "yes_load": "✅ SIM = Continuar jogo",
+    "no_reset": "❌ NÃO = Começar do zero (apagar salvamento)",
+    "confirm_reset_title": "🔄 Começar do zero?",
+    "confirm_reset_warning": "⚠️ Isso vai:",
+    "reset_action1": "- Apagar seu progresso",
+    "reset_action2": "- Excluir seu salvamento",
+    "reset_action3": "- Reiniciar da fase 1",
+    "confirm_reset_question": "Tem certeza?",
+    "loaded": "📂 Jogo carregado!",
+    "not_found": "❌ Nenhum salvamento encontrado"
   }
 }

@@ -1511,14 +1511,14 @@
             // 🔥 Fonction de HARD RESET accessible depuis la console
             // Utilisation: window.hardReset() dans la console
             window.hardReset = () => {
-                if (confirm('🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?')) {
-                    if (confirm('⚠️ DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?')) {
+                if (confirm(getTranslatedText('hard_reset.confirm_1', '🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?'))) {
+                    if (confirm(getTranslatedText('hard_reset.confirm_2', '⚠️ DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?'))) {
                         hardResetGame();
                     } else {
-                        originalConsole.log('❌ Hard Reset annulé (2ème confirmation)');
+                        originalConsole.log(getTranslatedText('hard_reset.cancelled_step_2', '❌ Hard Reset annulé (2ème confirmation)'));
                     }
                 } else {
-                    originalConsole.log('❌ Hard Reset annulé');
+                    originalConsole.log(getTranslatedText('hard_reset.cancelled', '❌ Hard Reset annulé'));
                 }
             };
         }
@@ -1543,27 +1543,9 @@
                             vies: vies || 3,
                             brises: brises || 0,
                             
-                            // Narration
+                            // Narration - juste la phase, pas les timings
                             currentPhase: narrationManager ? narrationManager.currentPhase : 1,
                             phaseHistory: narrationManager ? narrationManager.phaseHistory : [],
-                            
-                            // Timings de narration
-                            messageNarratifActif: messageNarratifActif ? {
-                                texte: messageNarratifActif.texte,
-                                tempsRestant: messageNarratifActif.temps - Date.now(),
-                                tempsTotal: messageNarratifActif.temps - messageNarratifActif.tempsDebut,
-                                alpha: messageNarratifActif.alpha,
-                                avecRestart: messageNarratifActif.avecRestart || false,
-                                lienLivre: messageNarratifActif.lienLivre || null,
-                                avecPartage: messageNarratifActif.avecPartage || false,
-                                textePartage: messageNarratifActif.textePartage || null
-                            } : null,
-                            
-                            messagePowerupActif: messagePowerupActif ? {
-                                texte: messagePowerupActif.texte,
-                                tempsRestant: messagePowerupActif.temps - Date.now(),
-                                alpha: messagePowerupActif.alpha
-                            } : null,
                             
                             // Animation bateau
                             animationBateau: animationBateau ? {
@@ -1572,15 +1554,18 @@
                                 tempsEcoule: animationBateau.tempsDebut ? Date.now() - animationBateau.tempsDebut : 0
                             } : null,
                             
-                            // Phase intro
-                            phaseIntro: phaseIntro ? {
-                                active: phaseIntro.active,
-                                etape: phaseIntro.etape,
-                                tempsEcoule: phaseIntro.tempsDebut ? Date.now() - phaseIntro.tempsDebut : 0
-                            } : null,
-                            
                             // Progression
                             pointsConnaissance: pointsConnaissance || 0,
+                            
+                            // Mode tir (phases 17-22)
+                            munitions: typeof munitions !== 'undefined' ? munitions : 0,
+                            
+                            // État musical
+                            musique: musicManager ? {
+                                isPlaying: musicManager.isPlaying || false,
+                                isMuted: musicManager.isMuted || false,
+                                currentTrackIndex: musicManager.currentTrackIndex || 0
+                            } : null,
                             
                             // État du jeu
                             jeu: jeu || false,
@@ -1627,6 +1612,9 @@
                 if (!gameState) return false;
 
                 try {
+                    // 🚨 FLAG DE RESTAURATION - Éviter les réinitialisations de narration
+                    window.isRestoringGame = true;
+                    
                     // Restaurer les variables globales
                     if (typeof chapitre !== 'undefined') chapitre = gameState.chapitre || 1;
                     periode = gameState.periode || 'jour';
@@ -1637,48 +1625,54 @@
                     pointsConnaissance = gameState.pointsConnaissance || 0;
                     jeu = gameState.jeu || false;
                     modeSecret = gameState.modeSecret || false;
+                    
+                    // 🔫 Restaurer les munitions (important pour phases 17-22)
+                    munitions = gameState.munitions !== undefined ? gameState.munitions : 0;
+                    console.log('🔫 Munitions restaurées:', munitions);
+                    
+                    // 🎵 Restaurer l'état musical
+                    if (gameState.musique && musicManager) {
+                        musicManager.isMuted = gameState.musique.isMuted;
+                        musicManager.currentTrackIndex = gameState.musique.currentTrackIndex;
+                        
+                        // Reprendre la lecture si elle était active
+                        if (gameState.musique.isPlaying && !musicManager.isMuted) {
+                            setTimeout(() => {
+                                if (musicManager && !musicManager.isPlaying) {
+                                    musicManager.play();
+                                }
+                            }, 1000); // Attendre 1s que tout soit chargé
+                        }
+                        
+                        console.log('🎵 État musical restauré:', {
+                            isPlaying: gameState.musique.isPlaying,
+                            isMuted: gameState.musique.isMuted,
+                            trackIndex: gameState.musique.currentTrackIndex
+                        });
+                    }
 
                     // Restaurer le voyage
                     VOYAGE = (periode === 'nuit') ? NUIT : JOUR;
 
-                    // Restaurer la narration
+                    // Restaurer la narration - juste la phase, sans exécuter
                     if (narrationManager && gameState.currentPhase) {
                         narrationManager.currentPhase = gameState.currentPhase;
                         narrationManager.phaseHistory = gameState.phaseHistory || [];
+                        
+                        // 🔥 Dire au narrationManager de ne PAS exécuter l'intro
+                        window.narrationStarted = true; // Marquer comme déjà démarré
+                        window.skipNarrationIntro = true; // Flag pour skipper l'intro
+                        
+                        console.log('📖 Narration restaurée:', {
+                            currentPhase: narrationManager.currentPhase,
+                            phaseHistory: narrationManager.phaseHistory,
+                            message: 'Le narrationManager reste sur cette phase - aucun start() ne sera appelé'
+                        });
                     }
 
-                    // Restaurer les messages narratifs actifs
-                    if (gameState.messageNarratifActif) {
-                        const msg = gameState.messageNarratifActif;
-                        const now = Date.now();
-                        messageNarratifActif = {
-                            texte: msg.texte,
-                            temps: now + Math.max(0, msg.tempsRestant),
-                            tempsDebut: now - (msg.tempsTotal - msg.tempsRestant),
-                            alpha: msg.alpha,
-                            avecRestart: msg.avecRestart || false,
-                            lienLivre: msg.lienLivre || null,
-                            avecPartage: msg.avecPartage || false,
-                            textePartage: msg.textePartage || null
-                        };
-                        console.log('📝 Message narratif restauré:', messageNarratifActif.texte.substring(0, 50));
-                    } else {
-                        messageNarratifActif = null;
-                    }
-
-                    // Restaurer les messages de power-up actifs
-                    if (gameState.messagePowerupActif) {
-                        const msg = gameState.messagePowerupActif;
-                        const now = Date.now();
-                        messagePowerupActif = {
-                            texte: msg.texte,
-                            temps: now + Math.max(0, msg.tempsRestant),
-                            alpha: msg.alpha
-                        };
-                        console.log('💡 Message power-up restauré:', messagePowerupActif.texte);
-                    } else {
-                        messagePowerupActif = null;
-                    }
+                    // � Ne pas restaurer les messages narratifs - le narrationManager s'en charge
+                    messageNarratifActif = null;
+                    messagePowerupActif = null;
 
                     // Restaurer l'animation du bateau
                     if (gameState.animationBateau) {
@@ -1689,23 +1683,33 @@
                         console.log('🚢 Animation bateau restaurée:', anim.phase);
                     }
 
-                    // Restaurer la phase intro
-                    if (gameState.phaseIntro) {
-                        const intro = gameState.phaseIntro;
-                        phaseIntro.active = intro.active;
-                        phaseIntro.etape = intro.etape;
-                        phaseIntro.tempsDebut = Date.now() - intro.tempsEcoule;
-                        console.log('🎬 Phase intro restaurée:', intro.etape);
-                    }
-
+                    // 🔥 Désactiver la phase intro et activer le jeu directement
+                    phaseIntro.active = false;
+                    phaseIntro.etape = 'terminee';
+                    jeu = true;
+                    console.log('🎬 Phase intro désactivée - Jeu actif');
+                    
                     // Réinitialiser le jeu avec les nouvelles valeurs
                     initJeu();
+                    
+                    // 🚨 NE JAMAIS DÉSACTIVER window.narrationStarted (protection permanente)
+                    // Les autres flags peuvent être nettoyés après un délai plus long
+                    setTimeout(() => {
+                        window.isRestoringGame = false;
+                        window.skipNarrationIntro = false;
+                        // window.narrationStarted RESTE à true pour toujours bloquer l'intro
+                        console.log('🔄 Flags restauration nettoyés (narrationStarted conservé)');
+                    }, 2000); // 2 secondes au lieu de 100ms
 
                     // Recréer les éléments selon la phase
                     if (phaseJeu === 'tir_coeurs_haut' || phaseJeu === 'tir_coeurs_bas') {
                         creerPetitsCoeurs();
                     } else if (phaseJeu === 'mur') {
                         creerMurDansLaMer();
+                    } else if (phaseJeu === 'lanterne' || phaseJeu === 'stars') {
+                        // Phase lanterne/stars : créer les briques en forme de cœur
+                        dedoublerCoeursEnBriques();
+                        console.log(`🧱 Briques créées pour phase ${phaseJeu}`);
                     }
 
                     console.log('✅ État du jeu restauré avec succès');
@@ -1724,6 +1728,9 @@
             // Supprimer la sauvegarde
             clear() {
                 localStorage.removeItem(this.SAVE_KEY);
+                // ⚠️ NE PAS supprimer 'gameResetInProgress' ici !
+                // Il doit rester actif pour bloquer le beforeunload pendant le reload
+                // Il sera nettoyé dans le load event de la nouvelle page
                 console.log('🗑️ Sauvegarde supprimée');
             },
 
@@ -1755,7 +1762,15 @@
 
         // 💾 Sauvegarder avant fermeture de la page
         window.addEventListener('beforeunload', () => {
+            // 🔥 Ne pas sauvegarder si on a demandé un reset
+            const resetFlag = localStorage.getItem('gameResetInProgress');
+            if (resetFlag === 'true') {
+                console.log('🔄 Reset en cours détecté - AUCUNE sauvegarde');
+                return;
+            }
+            
             if (typeof jeu !== 'undefined' && jeu) {
+                console.log('💾 Sauvegarde automatique avant fermeture');
                 GameSaveSystem.save();
             }
         });
@@ -2580,9 +2595,12 @@
             chauveSouris.x += chauveSouris.vx;
             chauveSouris.y += chauveSouris.vy;
 
+            // ⚡ OPTIMISATION: Calculer sin une seule fois
+            const sinValue = Math.sin(Date.now() * 0.01);
+            
             // Mouvement en zigzag
             chauveSouris.vx += (Math.random() - 0.5) * 0.2;
-            chauveSouris.vy += Math.sin(Date.now() * 0.01) * 0.1;
+            chauveSouris.vy += sinValue * 0.1;
 
             // Limiter la vitesse
             chauveSouris.vx = Math.max(-3, Math.min(3, chauveSouris.vx));
@@ -2648,7 +2666,7 @@
             ctx.save();
             ctx.translate(chauveSouris.x, chauveSouris.y);
 
-            // Animation de battement d'ailes plus lente et fluide
+            // ⚡ OPTIMISATION: Calculer battement et distance une seule fois
             const battement = Math.sin(Date.now() * 0.008) * 0.2;
             ctx.rotate(battement);
 
@@ -2674,12 +2692,11 @@
             ctx.arc(3, -3, 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Lueur dorée si proche de la collection
+            // ⚡ OPTIMISATION: Calculer distance avant shadowBlur
             if(!chauveSouris.collectee && balle.visible) {
-                const distance = Math.sqrt(
-                    Math.pow(chauveSouris.x - balle.x, 2) +
-                    Math.pow(chauveSouris.y - balle.y, 2)
-                );
+                const dx = chauveSouris.x - balle.x;
+                const dy = chauveSouris.y - balle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if(distance < 80) {
                     ctx.shadowColor = '#FFD700';
@@ -3174,7 +3191,7 @@
             
             // Fallback si le popup est bloqué
             if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                alert('⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.');
+                alert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.'));
             }
         }
 
@@ -3751,43 +3768,6 @@
                     const projectTitle = getTranslatedText(btn.titleKey, btn.titleFallback);
                     ctx.fillText(projectTitle, btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
                 });
-
-                // 🔄 BOUTON RESET À ZÉRO - En bas du menu
-                const resetButtonY = yPos + menuEnigmesCanvas.projectButtons.length * 47 + 30;
-                const resetButtonWidth = 240;
-                const resetButtonHeight = 45;
-                const resetButtonX = C.W / 2 - resetButtonWidth / 2;
-
-                // Stocker les coordonnées du bouton reset
-                if (!menuEnigmesCanvas.resetButton) {
-                    menuEnigmesCanvas.resetButton = {
-                        x: resetButtonX,
-                        y: resetButtonY,
-                        width: resetButtonWidth,
-                        height: resetButtonHeight
-                    };
-                } else {
-                    menuEnigmesCanvas.resetButton.x = resetButtonX;
-                    menuEnigmesCanvas.resetButton.y = resetButtonY;
-                    menuEnigmesCanvas.resetButton.width = resetButtonWidth;
-                    menuEnigmesCanvas.resetButton.height = resetButtonHeight;
-                }
-
-                // Dessiner le bouton reset
-                ctx.fillStyle = '#fee2e2'; // Rouge très clair
-                ctx.strokeStyle = '#dc2626'; // Rouge
-                ctx.lineWidth = 2;
-
-                ctx.beginPath();
-                ctx.roundRect(resetButtonX, resetButtonY, resetButtonWidth, resetButtonHeight, 10);
-                ctx.fill();
-                ctx.stroke();
-
-                // Texte du bouton
-                ctx.font = 'bold 18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#dc2626';
-                ctx.textAlign = 'center';
-                ctx.fillText(getTranslatedText('ui.reset_button', '🔄 Recommencer à zéro'), resetButtonX + resetButtonWidth / 2, resetButtonY + resetButtonHeight / 2 + 5);
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'classement') {
@@ -9626,6 +9606,77 @@
         let soleil = { clignotement: false, tempsClignotement: 0 }; // État du soleil
         let multiplicateurPuissance = 1; // Cheat code x10 puissance
         let leverSoleil = { active: false, debut: 0, duree: 8000 }; // Lever de soleil pour transition
+
+        // ⚡ OPTIMISATION FOND ANIMÉ - Cache gradients et throttling
+        const fondAniméCache = {
+            // Gradients mis en cache
+            gradients: {
+                merJour: null,
+                merNuit: null,
+                haloLune: null,
+                soleilCouchant: null,
+                haloSoleilCouchant: null,
+                refletSoleil: null
+            },
+            // Throttling des vagues
+            lastWaveFrame: 0,
+            waveThrottle: 2, // Calculer les vagues tous les 2 frames
+            wavesPath: null, // Path2D pour les vagues
+            // Throttling des requins
+            lastSharkFrame: 0,
+            sharkThrottle: 3, // Mettre à jour les requins tous les 3 frames
+            sharkPositions: [],
+            // Throttling des rayons du soleil
+            lastSunRaysFrame: 0,
+            sunRaysThrottle: 2,
+            sunRaysAngles: [],
+            // Frame counter
+            frameCount: 0
+        };
+
+        // Fonction pour initialiser les gradients (appelée une fois ou quand période change)
+        function initGradientsMer() {
+            const merY = C.H - 60;
+            
+            // Gradient mer jour
+            fondAniméCache.gradients.merJour = ctx.createLinearGradient(0, merY, 0, C.H);
+            fondAniméCache.gradients.merJour.addColorStop(0, 'rgba(70, 130, 180, 0.8)');
+            fondAniméCache.gradients.merJour.addColorStop(0.5, 'rgba(100, 150, 200, 0.9)');
+            fondAniméCache.gradients.merJour.addColorStop(1, 'rgba(30, 100, 140, 0.95)');
+            
+            // Gradient mer nuit
+            fondAniméCache.gradients.merNuit = ctx.createLinearGradient(0, merY, 0, C.H);
+            fondAniméCache.gradients.merNuit.addColorStop(0, 'rgba(47, 79, 79, 0.9)');
+            fondAniméCache.gradients.merNuit.addColorStop(0.5, 'rgba(25, 25, 112, 0.95)');
+            fondAniméCache.gradients.merNuit.addColorStop(1, 'rgba(0, 0, 139, 0.98)');
+        }
+
+        function initGradientsSoleilCouchant() {
+            const soleilX = C.W * 0.75;
+            const merY = C.H - 60;
+            const soleilY = merY + 10;
+            const rayonSoleil = 60;
+            
+            // Halo soleil couchant
+            fondAniméCache.gradients.haloSoleilCouchant = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil * 3);
+            fondAniméCache.gradients.haloSoleilCouchant.addColorStop(0, 'rgba(255, 200, 100, 0.4)');
+            fondAniméCache.gradients.haloSoleilCouchant.addColorStop(0.3, 'rgba(255, 150, 80, 0.2)');
+            fondAniméCache.gradients.haloSoleilCouchant.addColorStop(0.7, 'rgba(255, 100, 50, 0.1)');
+            fondAniméCache.gradients.haloSoleilCouchant.addColorStop(1, 'rgba(255, 100, 50, 0)');
+            
+            // Soleil couchant
+            fondAniméCache.gradients.soleilCouchant = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil);
+            fondAniméCache.gradients.soleilCouchant.addColorStop(0, '#FFFACD');
+            fondAniméCache.gradients.soleilCouchant.addColorStop(0.4, '#FFD700');
+            fondAniméCache.gradients.soleilCouchant.addColorStop(0.8, '#FF8C00');
+            fondAniméCache.gradients.soleilCouchant.addColorStop(1, '#FF6347');
+            
+            // Reflet
+            fondAniméCache.gradients.refletSoleil = ctx.createLinearGradient(soleilX, merY, soleilX, C.H);
+            fondAniméCache.gradients.refletSoleil.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
+            fondAniméCache.gradients.refletSoleil.addColorStop(0.5, 'rgba(255, 150, 50, 0.2)');
+            fondAniméCache.gradients.refletSoleil.addColorStop(1, 'rgba(255, 100, 0, 0)');
+        }
         let messageCorbeauBas = { actif: false, texte: '', tempsFin: 0 }; // Message discret en bas pour corbeau
         let secretModeModule = null; // Module mode secret
         let musicManager = null; // Gestionnaire de musique gospel
@@ -9634,7 +9685,10 @@
         let messageNarratif = { actif: false, texte: '', etape: 0 }; // Système de messages narratifs
         let periode = 'jour'; // Période actuelle : 'jour' ou 'nuit'
         let transitionPeriode = { active: false, progression: 0 };
-        let phaseIntro = { active: langueDejaChoisie, etape: 'arrivee_bateau', tempsDebut: langueDejaChoisie ? Date.now() : 0 }; // Phase d'introduction
+        
+        // 🔥 Phase intro : INITIALISÉE À NULL - sera configurée dans le load event
+        let phaseIntro = null; // Initialisée plus tard pour éviter les races conditions
+        
         let pointsConnaissance = 0; // Points de connaissance
         /*
          * ORGANISATION DES PHASES DE JEU :
@@ -9705,7 +9759,11 @@
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             const estPhaseMur17_21 = phaseActuelle >= 17 && phaseActuelle <= 21 && phaseJeu === 'mur';
             const munitionsAvant = munitions;
-            if (!estPhaseMur17_21) {
+            
+            // 🔫 NE PAS réinitialiser les munitions si on restaure une sauvegarde
+            if (window.isRestoringGame) {
+                console.log(`🔫 initJeu() - Restauration: munitions conservées (${munitions})`);
+            } else if (!estPhaseMur17_21) {
                 munitions = 0; // Commencer sans munitions (sauf phases mur 17-21)
                 console.log(`🔫 initJeu() - Phase ${phaseActuelle} (${phaseJeu}): munitions ${munitionsAvant} → 0 (normal)`);
             } else {
@@ -9810,7 +9868,14 @@
             // Plus besoin d'étoile principale - utiliser les projectiles stars
 
             // Réinitialiser la phase d'intro (activée après l'animation du bateau)
-            phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
+            // 🔥 SAUF si on restaure une sauvegarde OU si la narration a déjà été démarrée
+            if (phaseIntro && (window.isRestoringGame || window.narrationStarted)) {
+                // Garder phaseIntro tel quel (déjà initialisé dans le load event)
+                console.log('🔄 Restauration ou narration active: conservation de phaseIntro', phaseIntro);
+            } else if (!phaseIntro || (!window.isRestoringGame && !window.narrationStarted)) {
+                // Créer ou réinitialiser l'intro
+                phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
+            }
         }
 
         // Gestion de l'animation du bateau
@@ -9886,8 +9951,40 @@
 
         // Gestion de la phase d'introduction
         function gererPhaseIntro() {
+            // 🔥 PROTECTION: Si phaseIntro n'est pas encore initialisé, ne rien faire
+            if (!phaseIntro) {
+                // Log silencieux - normal avant le load event
+                return;
+            }
+            
+            // Logs désactivés - fonction appelée 60 fois/seconde
+            // console.warn('📍 gererPhaseIntro() appelé', {
+            //     'phaseIntro': phaseIntro,
+            //     'phaseIntro.active': phaseIntro.active,
+            //     'phaseIntro.etape': phaseIntro.etape,
+            //     'isRestoringGame': window.isRestoringGame,
+            //     'skipNarrationIntro': window.skipNarrationIntro,
+            //     'narrationStarted': window.narrationStarted
+            // });
+            
             if (!phaseIntro.active) {
                 // Intro terminée - comportement normal
+                return;
+            }
+            
+            // 🔥 Ne pas démarrer l'intro si on restaure une sauvegarde
+            if (window.isRestoringGame || window.skipNarrationIntro) {
+                console.log('🔄 Skip intro demandé - DÉSACTIVATION');
+                phaseIntro.active = false;
+                jeu = true;
+                return;
+            }
+            
+            // 🔥 Ne pas démarrer l'intro si la narration a déjà été démarrée (sauvegarde chargée)
+            if (window.narrationStarted) {
+                console.log('📖 Narration déjà active: skip intro');
+                phaseIntro.active = false;
+                jeu = true;
                 return;
             }
 
@@ -9941,7 +10038,9 @@
                     jeu = true; // Démarrer le jeu
 
                     // 🎬 DÉMARRER LA NARRATION APRÈS L'INTRO
-                    if (narrationManager && narrationManager.currentPhase === 0) {
+                    // 🔥 Mais PAS si on a restauré une sauvegarde
+                    if (narrationManager && narrationManager.currentPhase === 0 && !window.narrationStarted) {
+                        window.narrationStarted = true;
                         (async () => {
                             if (window.translationsReady) {
                                 await window.translationsReady;
@@ -10430,9 +10529,11 @@
                     if(briqueTouchee) continue;
                 }
 
-                // Collision avec les petits cœurs
-                petitsCoeurs.forEach((petitCoeur, j) => {
-                    if(!petitCoeur.visible) return;
+                // ⚡ OPTIMISATION: Collision avec les petits cœurs - filtrer d'abord
+                const coeursVisibles = petitsCoeurs.filter(c => c.visible);
+                
+                for (let j = 0; j < coeursVisibles.length; j++) {
+                    const petitCoeur = coeursVisibles[j];
 
                     if(proj.x >= petitCoeur.x - petitCoeur.w/2 &&
                        proj.x <= petitCoeur.x + petitCoeur.w/2 &&
@@ -10457,10 +10558,8 @@
                         // Supprimer le projectile
                         starsProjectiles.splice(i, 1);
 
-                        // Vérifier si tous les cœurs du haut sont touchés
-                        const coeurRestants = petitsCoeurs.filter(c => c.visible).length;
-                        //
-                        if(coeurRestants === 0 && phaseJeu === 'tir_coeurs_haut') {
+                        // ⚡ OPTIMISATION: Vérifier directement si c'était le dernier
+                        if(coeursVisibles.length === 1 && phaseJeu === 'tir_coeurs_haut') {
 
                             // 🔊 Son "pof" doux pour l'explosion finale
                             AudioSystem.playExplosionCoeurs();
@@ -10481,9 +10580,9 @@
                                 // Ne plus créer de cœurs décoratifs - ils réapparaissent à la fin
                             });
                         }
-                        return;
+                        break; // Sortir de la boucle for
                     }
-                });
+                }
             }
         }
 
@@ -10932,13 +11031,15 @@
                 const time = Date.now() * 0.003;
                 const baseY = raquette.y + C.PH * 1.3;
                 const centerX = raquette.x + C.PW * 0.5; // Centre du bateau
-                const largeurLigne = C.PW * 1.3; // Dépasse un peu de chaque côté
                 
                 // Dessiner 2 lignes horizontales ondulantes superposées
                 for (let wave = 0; wave < 2; wave++) {
                     const waveOffset = wave * 8;
                     const alpha = 0.5 - wave * 0.15;
                     const waveY = baseY + waveOffset;
+                    
+                    // Première ligne plus petite que la deuxième
+                    const largeurLigne = wave === 0 ? C.PW * 1.05 : C.PW * 1.3;
                     
                     ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
                     ctx.lineWidth = 3 - wave * 0.5;
@@ -11893,12 +11994,23 @@
         }
 
         function dessinerPowerUps() {
-            if(powerUps.length > 0) {
-                //
-            }
+            if(powerUps.length === 0) return; // ⚡ Retour anticipé
+            
+            // ⚡ OPTIMISATION: Pré-calculer mode lanterne
+            const modeLanterne = phaseJeu === 'lanterne';
+            
             powerUps.forEach(power => {
                 // 🔔 Vérifier AVANT tout si le power-up rainbow_hope doit être découvert (Phase 22)
                 if (power.type === 'rainbow_hope' && !power.decouvert) {
+                    // ⚡ OPTIMISATION: Calculer seulement toutes les 10 frames (au lieu de chaque frame)
+                    if (!power.lastCheckFrame) power.lastCheckFrame = 0;
+                    const currentFrame = Date.now();
+                    
+                    if (currentFrame - power.lastCheckFrame < 166) { // ~10 frames à 60fps
+                        return; // Pas encore découvert, skip
+                    }
+                    power.lastCheckFrame = currentFrame;
+                    
                     // Compter combien de briques autour du power-up ont été détruites
                     let briquesAutourDetruites = 0;
                     let totalBriquesAutour = 0;
@@ -11938,9 +12050,11 @@
                 
                 ctx.save();
 
-                // Ombre
-                ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                ctx.fillRect(power.x + 3, power.y + 3, power.w, power.h);
+                // ⚡ OPTIMISATION: Ombre simplifiée en mode lanterne
+                if (!modeLanterne) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                    ctx.fillRect(power.x + 3, power.y + 3, power.w, power.h);
+                }
 
                 // Couleur selon le type
                 let couleur1, couleur2, couleur3;
@@ -12014,22 +12128,31 @@
                         couleur1 = '#00aaff'; couleur2 = '#0099dd'; couleur3 = '#0088cc'; // Bleu
                 }
 
-                // Dégradé selon le type
-                const grad = ctx.createLinearGradient(power.x, power.y, power.x + power.w, power.y + power.h);
-                grad.addColorStop(0, couleur1);
-                grad.addColorStop(0.5, couleur2);
-                grad.addColorStop(1, couleur3);
-
-                ctx.fillStyle = grad;
+                // ⚡ OPTIMISATION: Gradient simplifié en mode lanterne (couleur unie)
+                if (modeLanterne) {
+                    ctx.fillStyle = couleur1; // Couleur unie au lieu de gradient
+                } else {
+                    const grad = ctx.createLinearGradient(power.x, power.y, power.x + power.w, power.y + power.h);
+                    grad.addColorStop(0, couleur1);
+                    grad.addColorStop(0.5, couleur2);
+                    grad.addColorStop(1, couleur3);
+                    ctx.fillStyle = grad;
+                }
                 ctx.fillRect(power.x, power.y, power.w, power.h);
 
-                // Bordure scintillante
-                ctx.strokeStyle = `hsl(${(power.temps * 15) % 360}, 100%, 90%)`;
-                ctx.lineWidth = 3;
-                ctx.shadowColor = ctx.strokeStyle;
-                ctx.shadowBlur = 10;
-                ctx.strokeRect(power.x, power.y, power.w, power.h);
-                ctx.shadowBlur = 0;
+                // ⚡ OPTIMISATION: Bordure sans shadowBlur en mode lanterne
+                if (modeLanterne) {
+                    ctx.strokeStyle = couleur1;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(power.x, power.y, power.w, power.h);
+                } else {
+                    ctx.strokeStyle = `hsl(${(power.temps * 15) % 360}, 100%, 90%)`;
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = ctx.strokeStyle;
+                    ctx.shadowBlur = 10;
+                    ctx.strokeRect(power.x, power.y, power.w, power.h);
+                    ctx.shadowBlur = 0;
+                }
 
                 // Icône selon le type
                 if (power.type === 'red_cross') {
@@ -12139,39 +12262,48 @@
                     ctx.fillText('🏮', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'rainbow_hope') {
                     // 🌈 Power-up Espoir arc-en-ciel (Phase 22)
-                    // Animation de rotation des couleurs
-                    const colorIndex = Math.floor((power.temps / 5) % power.colors.length);
-                    const currentColor = power.colors[colorIndex];
-                    
-                    // Aura arc-en-ciel pulsante
-                    ctx.shadowBlur = 30 + Math.sin(power.temps * 0.1) * 10;
-                    ctx.shadowColor = currentColor;
-                    
-                    // Dessin de l'emoji arc-en-ciel avec pulsation
-                    const scale = 1 + Math.sin(power.temps * 0.08) * 0.15;
-                    ctx.save();
-                    ctx.translate(power.x + power.w/2, power.y + power.h/2);
-                    ctx.scale(scale, scale);
-                    ctx.font = `${power.h * 1.2}px sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(power.emoji, 0, 0);
-                    ctx.restore();
-                    
-                    ctx.shadowBlur = 0;
+                    // ⚡ OPTIMISATION: Animation simplifiée en mode lanterne
+                    if (modeLanterne) {
+                        // Version simple sans shadowBlur ni scale
+                        ctx.font = `${power.h * 1.2}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(power.emoji, power.x + power.w/2, power.y + power.h/2);
+                    } else {
+                        // Version complète avec animations
+                        const colorIndex = Math.floor((power.temps / 5) % power.colors.length);
+                        const currentColor = power.colors[colorIndex];
+                        
+                        ctx.shadowBlur = 30 + Math.sin(power.temps * 0.1) * 10;
+                        ctx.shadowColor = currentColor;
+                        
+                        const scale = 1 + Math.sin(power.temps * 0.08) * 0.15;
+                        ctx.save();
+                        ctx.translate(power.x + power.w/2, power.y + power.h/2);
+                        ctx.scale(scale, scale);
+                        ctx.font = `${power.h * 1.2}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(power.emoji, 0, 0);
+                        ctx.restore();
+                        
+                        ctx.shadowBlur = 0;
+                    }
                 }
 
-                // Étincelles autour
-                for(let i = 0; i < 3; i++) {
-                    const angle = (power.temps * 0.05 + i * Math.PI * 2 / 3) % (Math.PI * 2);
-                    const dist = power.w * 0.8;
-                    const ex = power.x + power.w/2 + Math.cos(angle) * dist;
-                    const ey = power.y + power.h/2 + Math.sin(angle) * dist;
+                // ⚡ OPTIMISATION: Pas d'étincelles en mode lanterne
+                if (!modeLanterne) {
+                    for(let i = 0; i < 3; i++) {
+                        const angle = (power.temps * 0.05 + i * Math.PI * 2 / 3) % (Math.PI * 2);
+                        const dist = power.w * 0.8;
+                        const ex = power.x + power.w/2 + Math.cos(angle) * dist;
+                        const ey = power.y + power.h/2 + Math.sin(angle) * dist;
 
-                    ctx.fillStyle = `hsl(${(power.temps * 10 + i * 120) % 360}, 100%, 80%)`;
-                    ctx.beginPath();
-                    ctx.arc(ex, ey, 3, 0, Math.PI * 2);
-                    ctx.fill();
+                        ctx.fillStyle = `hsl(${(power.temps * 10 + i * 120) % 360}, 100%, 80%)`;
+                        ctx.beginPath();
+                        ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                 }
 
                 // 🌈 EXCEPTION : Ne pas incrémenter le temps pour le power-up Espoir (ne doit jamais expirer)
@@ -13408,7 +13540,7 @@
 
         function libererVaguesAmour() {
             // Ne libérer des vagues d'amour que si le jeu est actif
-            if (!jeu || phaseIntro.active) return;
+            if (!jeu || (phaseIntro && phaseIntro.active)) return;
 
             const tempsActuel = Date.now();
 
@@ -13584,11 +13716,20 @@
             dessinerIconeThematique();
         }
 
-        // Icône centrale pour Phase 23 uniquement (en haut au centre)
-        function dessinerIconeCentraleP23() {
-            // Position haute et centrée horizontalement
+        // ⚡ OPTIMISATION: Variables de cache pour l'animation
+        let _iconeTempsCached = 0;
+        let _iconePulsationCached = 1;
+        let _iconeRotationCached = 0;
+        let _iconeLastUpdate = 0;
+
+        // Fonction unifiée pour dessiner l'icône centrale (Phase 23 ou énigmes)
+        function dessinerIconeCentrale(isPhase23 = false) {
+            // Ne pas afficher l'icône si l'animation est en cours (sauf Phase 23)
+            if (!isPhase23 && animationIconeMenu.active) return;
+
+            // Position selon la phase
             const centerX = C.W / 2;
-            const centerY = 60; // En haut
+            const centerY = isPhase23 ? 60 : C.H * 0.30;
 
             // Mettre à jour la zone cliquable de l'icône centrale
             const iconSize = 60;
@@ -13597,20 +13738,25 @@
             menuEnigmesCanvas.centralIcon.width = iconSize;
             menuEnigmesCanvas.centralIcon.height = iconSize;
 
-            // Animation de pulsation
-            const temps = Date.now() * 0.003;
-            const pulsationBase = menuEnigmesCanvas.centralIcon.hover ? 0.25 : 0.15;
-            const pulsation = 1 + Math.sin(temps) * pulsationBase;
-            const rotation = Math.sin(temps * 0.5) * 0.08;
+            // ⚡ OPTIMISATION: Recalculer l'animation seulement toutes les 16ms (60fps)
+            const now = Date.now();
+            if (now - _iconeLastUpdate > 16) {
+                _iconeTempsCached = now * 0.003;
+                const pulsationBase = menuEnigmesCanvas.centralIcon.hover ? 0.25 : 0.15;
+                _iconePulsationCached = 1 + Math.sin(_iconeTempsCached) * pulsationBase;
+                _iconeRotationCached = Math.sin(_iconeTempsCached * 0.5) * 0.08;
+                _iconeLastUpdate = now;
+            }
 
+            // ⚡ OPTIMISATION: Un seul ctx.save pour tout
             ctx.save();
+            ctx.translate(centerX, centerY);
 
             // Effet de bordure cliquable si survolée
             if (menuEnigmesCanvas.centralIcon.hover) {
                 ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.scale(pulsation, pulsation);
-
+                ctx.scale(_iconePulsationCached, _iconePulsationCached);
+                
                 // Bordure lumineuse blanche
                 ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 3;
@@ -13619,106 +13765,39 @@
                 ctx.beginPath();
                 ctx.arc(0, 0, 35, 0, Math.PI * 2);
                 ctx.stroke();
-
+                
                 ctx.restore();
             }
 
-            ctx.translate(centerX, centerY);
-            ctx.rotate(rotation);
-            ctx.scale(pulsation, pulsation);
+            ctx.rotate(_iconeRotationCached);
+            ctx.scale(_iconePulsationCached, _iconePulsationCached);
 
-            // Icône cœur pour Phase 23 (finale)
-            ctx.font = '50px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('❤️', 0, 0);
-
-            ctx.restore();
-        }
-
-        // Icônes thématiques au centre du cercle de cœurs
-        function dessinerIconeThematique() {
-            // Ne pas afficher l'icône si l'animation est en cours
-            if (animationIconeMenu.active) return;
-
-            // Position haute et centrée horizontalement
-            const centerX = C.W / 2;
-            const centerY = C.H * 0.30; // Encore un petit peu plus bas (30% au lieu de 28%)
-
-            // Mettre à jour la zone cliquable de l'icône centrale
-            const iconSize = 60;
-            menuEnigmesCanvas.centralIcon.x = centerX - iconSize / 2;
-            menuEnigmesCanvas.centralIcon.y = centerY - iconSize / 2;
-            menuEnigmesCanvas.centralIcon.width = iconSize;
-            menuEnigmesCanvas.centralIcon.height = iconSize;
-
-            // Animation de pulsation PLUS FORTE (augmentée si survolée)
-            const temps = Date.now() * 0.003; // Fréquence légèrement augmentée
-            const pulsationBase = menuEnigmesCanvas.centralIcon.hover ? 0.25 : 0.15; // Plus forte si survolée
-            const pulsation = 1 + Math.sin(temps) * pulsationBase;
-            const rotation = Math.sin(temps * 0.5) * 0.08; // Rotation plus visible (0.08 au lieu de 0.05)
-
-            ctx.save();
-
-            // Effet de bordure cliquable si survolée
-            if (menuEnigmesCanvas.centralIcon.hover) {
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.scale(pulsation, pulsation);
-
-                // Bordure lumineuse blanche
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.shadowColor = '#ffffff';
-                ctx.shadowBlur = 10;
-                ctx.beginPath();
-                ctx.arc(0, 0, 35, 0, Math.PI * 2);
-                ctx.stroke();
-
-                ctx.restore();
+            // Déterminer l'icône à afficher
+            let icone = '💖'; // Cœur par défaut
+            
+            if (!isPhase23) {
+                // Mapping des icônes selon les phases
+                const iconesThematiques = {
+                    'humanite': '🤝', 'paix': '🕊️', 'diversite': '🌈', 'liberte': '🗽',
+                    'foi': '🙏', 'respect': '🤲', 'entraide': '💞', 'hopital': '🏥',
+                    'restauration': '🌱', 'coeurs': '💖', 'liberation': '🕊️',
+                    'guerison': '✨', 'renaissance': '🌸', 'transformation': '🦋',
+                    'elevation': '🌟', 'illumination': '💫'
+                };
+                icone = iconesThematiques[phaseJeu] || '💖';
+                detecterFinNiveau();
+            } else {
+                icone = '❤️'; // Phase 23 finale
             }
 
-            ctx.translate(centerX, centerY);
-            ctx.rotate(rotation);
-            ctx.scale(pulsation, pulsation);
-
-            // Mapping des icônes selon les phases
-            const iconesThematiques = {
-                'humanite': '🤝',        // Humanité
-                'paix': '🕊️',           // Paix
-                'diversite': '🌈',       // Diversité
-                'liberte': '🗽',         // Liberté
-                'foi': '🙏',             // Foi
-                'respect': '🤲',         // Respect
-                'entraide': '💞',        // Entraide
-                'hopital': '🏥',         // Hôpital
-                'restauration': '🌱',    // Restauration
-                // Phases par défaut avec des icônes génériques
-                'coeurs': '💖',          // Phase cœurs générique
-                'liberation': '🕊️',     // Phase libération
-                'guerison': '✨',        // Phase guérison
-                'renaissance': '🌸',     // Phase renaissance
-                'transformation': '🦋', // Phase transformation
-                'elevation': '🌟',      // Phase élévation
-                'illumination': '💫'     // Phase illumination
-            };
-
-            // Déterminer quelle icône afficher selon la phase actuelle
-            let icone = iconesThematiques[phaseJeu] || '💖'; // Cœur par défaut
-
-            // Plus d'animation - l'icône reste affichée et les icônes en haut servent de menu
-            detecterFinNiveau(); // Détecter quand même la fin pour autres logiques
-
-            // Debug désactivé pour réduire le spam de logs
-
-            // Affichage de l'icône avec style - PLUS PETITE
-            ctx.font = '28px Arial'; // Réduit de 48px à 28px
+            // Affichage de l'icône
+            ctx.font = isPhase23 ? '50px Arial' : '28px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            // Effet de lueur douce - Réduit
+            // Effet de lueur douce
             ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-            ctx.shadowBlur = 10; // Réduit de 20 à 10
+            ctx.shadowBlur = 10;
             ctx.fillStyle = '#ffffff';
             ctx.fillText(icone, 0, 0);
 
@@ -13727,6 +13806,15 @@
             ctx.fillText(icone, 0, 0);
 
             ctx.restore();
+        }
+
+        // Alias pour compatibilité
+        function dessinerIconeCentraleP23() {
+            dessinerIconeCentrale(true);
+        }
+
+        function dessinerIconeThematique() {
+            dessinerIconeCentrale(false);
         }
 
         // Détecter quand un niveau est terminé
@@ -15036,7 +15124,13 @@
             }
 
             // Appliquer le multiplicateur de vitesse s'il existe
-            const vitesseMulti = balle.multiplicateurVitesse || 1;
+            let vitesseMulti = balle.multiplicateurVitesse || 1;
+            
+            // 🔥 Mode lanterne : vitesse × 1.5
+            if(phaseJeu === 'lanterne') {
+                vitesseMulti *= 1.5;
+            }
+            
             balle.x += balle.dx * vitesseMulti;
             balle.y += balle.dy * vitesseMulti;
 
@@ -16510,79 +16604,85 @@ Elle a besoin de ponts.`
         function dessinerMer() {
             const temps = Date.now() * 0.0005;
             const merY = C.H - 60;
+            
+            // ⚡ OPTIMISATION: Incrémenter le compteur de frames
+            fondAniméCache.frameCount++;
 
-            // Couleur de la mer selon le chapitre
-            const merGrad = ctx.createLinearGradient(0, merY, 0, C.H);
-            if(periode === 'jour') {
-                // Mer bleue paisible
-                merGrad.addColorStop(0, 'rgba(70, 130, 180, 0.8)');
-                merGrad.addColorStop(0.5, 'rgba(100, 150, 200, 0.9)');
-                merGrad.addColorStop(1, 'rgba(30, 100, 140, 0.95)');
-            } else {
-                // Mer sombre et menaçante
-                merGrad.addColorStop(0, 'rgba(47, 79, 79, 0.9)');
-                merGrad.addColorStop(0.5, 'rgba(25, 25, 112, 0.95)');
-                merGrad.addColorStop(1, 'rgba(0, 0, 139, 0.98)');
+            // ⚡ OPTIMISATION: Initialiser les gradients si nécessaire
+            if (!fondAniméCache.gradients.merJour || !fondAniméCache.gradients.merNuit) {
+                initGradientsMer();
             }
-            ctx.fillStyle = merGrad;
+
+            // ⚡ OPTIMISATION: Utiliser le gradient en cache
+            ctx.fillStyle = periode === 'jour' ? fondAniméCache.gradients.merJour : fondAniméCache.gradients.merNuit;
             ctx.fillRect(0, merY, C.W, C.H - merY);
 
-            // Vagues selon le chapitre
-            if(periode === 'jour') {
-                // Vagues paisibles
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.lineWidth = 2;
-            } else {
-                // Vagues agitées
-                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-                ctx.lineWidth = 3;
-            }
-
-            // Lignes de vagues
-            for(let ligne = 0; ligne < 3; ligne++) {
-                const y = merY + ligne * 15;
-                const amplitude = periode === 'jour' ? (8 - ligne * 2) : (12 - ligne * 3);
-                const fréquence = 0.01 + ligne * 0.005;
-                const vitesse = periode === 'jour' ? 1 : 1.5;
-                const offset = temps * vitesse * (1 + ligne * 0.3);
-
-                ctx.beginPath();
-                for(let x = 0; x <= C.W; x += 10) {
-                    const vague = Math.sin(x * fréquence + offset) * amplitude;
-                    if(x === 0) ctx.moveTo(x, y + vague);
-                    else ctx.lineTo(x, y + vague);
+            // ⚡ OPTIMISATION: Calculer les vagues seulement tous les N frames
+            if (fondAniméCache.frameCount - fondAniméCache.lastWaveFrame >= fondAniméCache.waveThrottle) {
+                fondAniméCache.lastWaveFrame = fondAniméCache.frameCount;
+                
+                // Vagues selon le chapitre
+                if(periode === 'jour') {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.lineWidth = 2;
+                } else {
+                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+                    ctx.lineWidth = 3;
                 }
-                ctx.stroke();
+
+                // Lignes de vagues - throttled
+                for(let ligne = 0; ligne < 3; ligne++) {
+                    const y = merY + ligne * 15;
+                    const amplitude = periode === 'jour' ? (8 - ligne * 2) : (12 - ligne * 3);
+                    const fréquence = 0.01 + ligne * 0.005;
+                    const vitesse = periode === 'jour' ? 1 : 1.5;
+                    const offset = temps * vitesse * (1 + ligne * 0.3);
+
+                    ctx.beginPath();
+                    // ⚡ OPTIMISATION: Pas de 20 au lieu de 10 (50% moins de points)
+                    for(let x = 0; x <= C.W; x += 20) {
+                        const vague = Math.sin(x * fréquence + offset) * amplitude;
+                        if(x === 0) ctx.moveTo(x, y + vague);
+                        else ctx.lineTo(x, y + vague);
+                    }
+                    ctx.stroke();
+                }
             }
 
-            // Ailerons de requin dans le chapitre 2 (désactivés en phase finale)
+            // ⚡ OPTIMISATION: Mettre à jour les requins tous les N frames
             if(periode === 'nuit' && !leverSoleil.active && phaseJeu !== 'final' && phaseJeu !== 'feux_artifice') {
-                const requins = [
-                    { x: 0.2, vitesse: 0.3, taille: 1.0 },
-                    { x: 0.6, vitesse: 0.5, taille: 0.8 },
-                    { x: 0.9, vitesse: 0.4, taille: 1.2 }
-                ];
+                if (fondAniméCache.frameCount - fondAniméCache.lastSharkFrame >= fondAniméCache.sharkThrottle) {
+                    fondAniméCache.lastSharkFrame = fondAniméCache.frameCount;
+                    
+                    const requins = [
+                        { x: 0.2, vitesse: 0.3, taille: 1.0 },
+                        { x: 0.6, vitesse: 0.5, taille: 0.8 },
+                        { x: 0.9, vitesse: 0.4, taille: 1.2 }
+                    ];
 
-                requins.forEach(requin => {
-                    const reqX = (C.W * requin.x + temps * requin.vitesse * 80) % (C.W + 100) - 50;
-                    const reqY = merY + 25 + Math.sin(temps * 2 + requin.x * 10) * 8;
-                    const taille = Math.min(C.W, C.H) * 0.03 * requin.taille;
-
-                    // Aileron de requin
+                    fondAniméCache.sharkPositions = requins.map(requin => {
+                        const reqX = (C.W * requin.x + temps * requin.vitesse * 80) % (C.W + 100) - 50;
+                        const reqY = merY + 25 + Math.sin(temps * 2 + requin.x * 10) * 8;
+                        const taille = Math.min(C.W, C.H) * 0.03 * requin.taille;
+                        return { reqX, reqY, taille };
+                    });
+                }
+                
+                // Dessiner les requins avec positions en cache
+                fondAniméCache.sharkPositions.forEach(({reqX, reqY, taille}) => {
                     ctx.fillStyle = '#2F4F4F';
                     ctx.strokeStyle = '#1C1C1C';
                     ctx.lineWidth = 2;
 
                     ctx.beginPath();
-                    ctx.moveTo(reqX - taille*0.5, reqY + taille*0.8); // Base gauche
-                    ctx.lineTo(reqX, reqY - taille); // Pointe
-                    ctx.lineTo(reqX + taille*0.3, reqY + taille*0.5); // Base droite
-                    ctx.lineTo(reqX - taille*0.2, reqY + taille*0.8); // Retour base
+                    ctx.moveTo(reqX - taille*0.5, reqY + taille*0.8);
+                    ctx.lineTo(reqX, reqY - taille);
+                    ctx.lineTo(reqX + taille*0.3, reqY + taille*0.5);
+                    ctx.lineTo(reqX - taille*0.2, reqY + taille*0.8);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
 
-                    // Sillage du requin
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -16879,40 +16979,30 @@ Elle a besoin de ponts.`
 
             // Phase finale : soleil couchant derrière la mer
             if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
+                // ⚡ OPTIMISATION: Initialiser les gradients si nécessaire
+                if (!fondAniméCache.gradients.soleilCouchant) {
+                    initGradientsSoleilCouchant();
+                }
+                
                 // Position du soleil (à moitié immergé dans la mer)
-                const soleilX = C.W * 0.75; // À 75% de la largeur (vers la droite)
+                const soleilX = C.W * 0.75;
                 const merY = C.H - 60;
-                const soleilY = merY + 10; // Partiellement sous l'horizon
+                const soleilY = merY + 10;
                 const rayonSoleil = 60;
 
-                // Halo lumineux du soleil (le plus en arrière)
-                const gradHalo = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil * 3);
-                gradHalo.addColorStop(0, 'rgba(255, 200, 100, 0.4)');
-                gradHalo.addColorStop(0.3, 'rgba(255, 150, 80, 0.2)');
-                gradHalo.addColorStop(0.7, 'rgba(255, 100, 50, 0.1)');
-                gradHalo.addColorStop(1, 'rgba(255, 100, 50, 0)');
-                ctx.fillStyle = gradHalo;
+                // ⚡ OPTIMISATION: Utiliser gradients en cache
+                ctx.fillStyle = fondAniméCache.gradients.haloSoleilCouchant;
                 ctx.beginPath();
                 ctx.arc(soleilX, soleilY, rayonSoleil * 3, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Soleil lui-même (derrière)
-                const gradSoleil = ctx.createRadialGradient(soleilX, soleilY, 0, soleilX, soleilY, rayonSoleil);
-                gradSoleil.addColorStop(0, '#FFFACD'); // Centre jaune pâle
-                gradSoleil.addColorStop(0.4, '#FFD700'); // Jaune doré
-                gradSoleil.addColorStop(0.8, '#FF8C00'); // Orange
-                gradSoleil.addColorStop(1, '#FF6347'); // Rouge tomate au bord
-                ctx.fillStyle = gradSoleil;
+                ctx.fillStyle = fondAniméCache.gradients.soleilCouchant;
                 ctx.beginPath();
                 ctx.arc(soleilX, soleilY, rayonSoleil, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Reflet du soleil sur l'eau
-                const refletGrad = ctx.createLinearGradient(soleilX, merY, soleilX, C.H);
-                refletGrad.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
-                refletGrad.addColorStop(0.5, 'rgba(255, 150, 50, 0.2)');
-                refletGrad.addColorStop(1, 'rgba(255, 100, 0, 0)');
-                ctx.fillStyle = refletGrad;
+                // ⚡ OPTIMISATION: Reflet avec gradient en cache
+                ctx.fillStyle = fondAniméCache.gradients.refletSoleil;
                 ctx.fillRect(soleilX - 40, merY, 80, C.H - merY);
 
                 // Dessiner la mer par-dessus (pour masquer la partie basse du soleil)
@@ -17739,47 +17829,6 @@ Elle a besoin de ponts.`
                             return;
                         }
                     }
-
-                    // 🔄 Bouton RESET À ZÉRO
-                    if (menuEnigmesCanvas.resetButton) {
-                        const resetBtn = menuEnigmesCanvas.resetButton;
-                        if (x >= resetBtn.x && x <= resetBtn.x + resetBtn.width &&
-                            y >= resetBtn.y && y <= resetBtn.y + resetBtn.height) {
-                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                            
-                            // Double confirmation pour éviter les accidents
-                            const confirmMsg1 = getTranslatedText('ui.confirm_reset_1', 
-                                '🔄 ATTENTION : Recommencer le jeu à zéro ?\n\n' +
-                                '⚠️ Cela va :\n' +
-                                '- Effacer votre progression\n' +
-                                '- Supprimer votre sauvegarde\n' +
-                                '- Redémarrer à la phase 1\n\n' +
-                                'Voulez-vous continuer ?');
-                            
-                            if (confirm(confirmMsg1)) {
-                                const confirmMsg2 = getTranslatedText('ui.confirm_reset_2',
-                                    '⚠️ DERNIÈRE CONFIRMATION\n\n' +
-                                    'Êtes-vous VRAIMENT sûr ?\n' +
-                                    'Cette action est irréversible.');
-                                
-                                if (confirm(confirmMsg2)) {
-                                    console.log('🔄 Reset à zéro confirmé par utilisateur');
-                                    
-                                    // Effacer la sauvegarde
-                                    GameSaveSystem.clear();
-                                    
-                                    // 🔄 VRAI RELOAD du canvas - réinitialise tous les timings narratifs
-                                    console.log('🔄 Rechargement complet de la page...');
-                                    window.location.reload();
-                                } else {
-                                    console.log('❌ Reset annulé (2ème confirmation)');
-                                }
-                            } else {
-                                console.log('❌ Reset annulé (1ère confirmation)');
-                            }
-                            return;
-                        }
-                    }
                 }
                 
                 // Touch dans le menu mais pas sur élément interactif → ne rien faire
@@ -18344,16 +18393,11 @@ Elle a besoin de ponts.`
                                 };
                                 const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
                                 
-                                // Messages traduits selon la langue actuelle
-                                const confirmMessages = {
-                                    'fr': `🌍 Changer la langue vers ${newLangName} ?\n\nLa page sera rechargée pour appliquer les traductions.`,
-                                    'en': `🌍 Change language to ${newLangName}?\n\nThe page will be reloaded to apply translations.`,
-                                    'es': `🌍 ¿Cambiar idioma a ${newLangName}?\n\nLa página se recargará para aplicar las traducciones.`,
-                                    'jp': `🌍 言語を${newLangName}に変更しますか？\n\n翻訳を適用するためページが再読み込みされます。`,
-                                    'uk': `🌍 Змінити мову на ${newLangName}?\n\nСторінка буде перезавантажена для застосування перекладів.`
-                                };
-                                const currentLangCode = window.i18n.getCurrentLanguage() || 'fr';
-                                const confirmMessage = confirmMessages[currentLangCode] || confirmMessages['en'];
+                                // ⚡ OPTIMISATION: Utiliser getTranslatedText pour le message de confirmation
+                                const confirmMessage = getTranslatedText('language_selector.confirm_change', 
+                                    '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.')
+                                    .replace('{language}', newLangName);
+                                
                                 const confirmChange = confirm(confirmMessage);
                                 
                                 if (confirmChange) {
@@ -19001,7 +19045,7 @@ Elle a besoin de ponts.`
         }
 
         function mettreAJourCorbeau() {
-            if(!jeu || phaseIntro.active) return; // Attendre la fin de l'intro
+            if(!jeu || (phaseIntro && phaseIntro.active)) return; // Attendre la fin de l'intro
 
             // Initialiser le temps de départ si pas encore fait
             if(corbeau.tempsApparition === 0) {
@@ -19076,7 +19120,7 @@ Elle a besoin de ponts.`
             const crowElement = document.getElementById('crow');
             const doveElement = document.getElementById('dove');
 
-            if (!corbeau.actif || phaseIntro.active) {
+            if (!corbeau.actif || (phaseIntro && phaseIntro.active)) {
                 // Masquer tous les oiseaux
                 crowElement.classList.remove('bird-visible');
                 crowElement.classList.add('bird-hidden');
@@ -19528,7 +19572,7 @@ Elle a besoin de ponts.`
             // Phase bonus - Livre blanc moderne
             if (phaseJeu === 'bonus_livre') {
                 dessinerLivreBonus();
-            } else if(jeu || phaseIntro.active) {
+            } else if(jeu || (phaseIntro && phaseIntro.active)) {
                 if(jeu) {
                     mettreAJourStarsProjectiles(); // Système projectiles stars
                     mettreAJourProjectiles(); // Nouveau système de projectiles
@@ -19603,13 +19647,26 @@ Elle a besoin de ponts.`
         // Initialiser le module secret
         initSecretModeModule();
 
-        // FORCER l'intro après initJeu (car initJeu peut modifier ces valeurs)
-        phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
-        jeu = false; // Important: forcer jeu = false pour permettre l'intro
+        // 🔥 FORCER l'intro SEULEMENT si pas de sauvegarde (sera réécrasé dans le load event)
+        // Ce code s'exécute avant le load event, donc phaseIntro est encore null
+        // On laisse phaseIntro à null ici - il sera initialisé dans le load event
+        // phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
+        // jeu = false;
 
         // 🎯 AFFICHAGE IMMÉDIAT DE L'INTRO (solution radicale)
-        setTimeout(() => {
-            // 🎯 ACTIVER LE TITRE DANS LE CANVAS APRÈS 7 SECONDES
+        // 🔥 BLOQUÉ SI SAUVEGARDE - vérifier AVANT le setTimeout
+        const hasSaveBeforeTimeout = localStorage.getItem('petit_bateau_save') !== null;
+        
+        if (!hasSaveBeforeTimeout) {
+            console.warn('✅ Pas de sauvegarde - Lancement de l\'intro programmée');
+            setTimeout(() => {
+                // Double vérification au moment de l'exécution
+                if (window.isRestoringGame || window.narrationStarted || window.skipNarrationIntro) {
+                    console.warn('⏭️ Intro programmée annulée - Flags de sauvegarde détectés');
+                    return;
+                }
+                
+                // 🎯 ACTIVER LE TITRE DANS LE CANVAS APRÈS 7 SECONDES
             setTimeout(() => {
                 titreVoyage.active = true;
                 titreVoyage.texte = getTranslatedText('narrative.phase1.title', 'L\'aube des doutes\nPhase 1');
@@ -19695,7 +19752,10 @@ Elle a besoin de ponts.`
                 creerPetitsCoeurs();
             }, 15000); // Déclencher après le message NON (12000ms + 3000ms)
 
-        }, 500); // Attendre 0.5 seconde pour être sûr que l'interface est prête
+            }, 500); // Attendre 0.5 seconde pour être sûr que l'interface est prête
+        } else {
+            console.warn('⏭️⏭️⏭️ SAUVEGARDE DÉTECTÉE - INTRO ENTIÈREMENT BLOQUÉE ⏭️⏭️⏭️');
+        }
 
         // === RACCOURCIS TEST ===
         document.addEventListener('keydown', (e) => {
@@ -19797,10 +19857,10 @@ Elle a besoin de ponts.`
                 const state = GameSaveSystem.load();
                 if (state) {
                     if (GameSaveSystem.restore(state)) {
-                        afficherMessagePowerupSimple('📂 Partie chargée !');
+                        afficherMessagePowerupSimple(getTranslatedText('save.loaded', '📂 Partie chargée !'));
                     }
                 } else {
-                    afficherMessagePowerupSimple('❌ Aucune sauvegarde trouvée');
+                    afficherMessagePowerupSimple(getTranslatedText('save.not_found', '❌ Aucune sauvegarde trouvée'));
                 }
             }
 
@@ -20152,6 +20212,43 @@ Elle a besoin de ponts.`
 
         // L'animation démarre automatiquement via gererAnimationBateau()
         window.addEventListener('load', async function() {
+            console.log('🚀 LOAD EVENT DÉCLENCHÉ');
+
+            // 🔥 Vérifier si un reset était en cours
+            const resetInProgress = localStorage.getItem('gameResetInProgress');
+            if (resetInProgress === 'true') {
+                console.log('🔄 Reset détecté - Nettoyage du flag');
+                localStorage.removeItem('gameResetInProgress');
+                // Ne pas charger de sauvegarde, continuer normalement
+            }
+
+            // 🔥 VÉRIFIER IMMÉDIATEMENT s'il y a une sauvegarde et bloquer l'intro
+            const hasSavedGame = !resetInProgress && GameSaveSystem.hasSave();
+            console.log('🔍 Vérification sauvegarde:', {
+                hasSave: hasSavedGame,
+                resetInProgress
+            });
+            
+            if (hasSavedGame) {
+                // 🔒 BLOQUER TOUT dès maintenant
+                window.isRestoringGame = true;
+                window.narrationStarted = true;
+                window.skipNarrationIntro = true;
+                console.log('🔒 Sauvegarde détectée - Flags de blocage activés');
+            } else {
+                console.log('ℹ️ Pas de sauvegarde - Démarrage normal');
+            }
+            
+            // 🎬 INITIALISER phaseIntro MAINTENANT (après activation des flags)
+            phaseIntro = { 
+                active: window.isRestoringGame ? false : langueDejaChoisie, 
+                etape: window.isRestoringGame ? 'terminee' : 'arrivee_bateau', 
+                tempsDebut: (window.isRestoringGame || !langueDejaChoisie) ? 0 : Date.now() 
+            };
+            console.log('🎬 Phase intro initialisée:', {
+                active: phaseIntro.active,
+                isRestoring: window.isRestoringGame
+            });
 
             // Initialiser le module i18n en premier
             if (window.i18n) {
@@ -20179,21 +20276,22 @@ Elle a besoin de ponts.`
             }
 
             // 💾 Vérifier s'il existe une sauvegarde et proposer de la charger
-            if (GameSaveSystem.hasSave()) {
+            // 🔥 Les flags sont déjà activés au début si hasSavedGame
+            if (hasSavedGame) {
                 const saveInfo = GameSaveSystem.getSaveInfo();
                 if (saveInfo) {
-                    const dateStr = saveInfo.date.toLocaleString('fr-FR');
-                    const msg = `💾 Partie sauvegardée trouvée !\n\n` +
-                                `📅 Date: ${dateStr}\n` +
-                                `🎯 Phase: ${saveInfo.phase}\n` +
-                                `⭐ Score: ${saveInfo.score}\n` +
-                                `❤️ Vies: ${saveInfo.vies}\n\n` +
-                                `Voulez-vous reprendre cette partie ?\n\n` +
-                                `✅ OUI = Reprendre la partie\n` +
-                                `❌ NON = Recommencer à zéro (efface la sauvegarde)`;
+                    const dateStr = saveInfo.date.toLocaleString();
+                    const msg = getTranslatedText('save.found_title', '💾 Partie sauvegardée trouvée !') + '\n\n' +
+                                getTranslatedText('save.date', '📅 Date: {date}').replace('{date}', dateStr) + '\n' +
+                                getTranslatedText('save.phase', '🎯 Phase: {phase}').replace('{phase}', saveInfo.phase) + '\n' +
+                                getTranslatedText('save.score', '⭐ Score: {score}').replace('{score}', saveInfo.score) + '\n' +
+                                getTranslatedText('save.lives', '❤️ Vies: {lives}').replace('{lives}', saveInfo.vies) + '\n\n' +
+                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
+                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
+                                getTranslatedText('save.no_reset', '❌ NON = Recommencer à zéro (efface la sauvegarde)');
                     
                     if (confirm(msg)) {
-                        // Charger la partie sauvegardée
+                        // Charger la partie sauvegardée (flags déjà actifs)
                         const gameState = GameSaveSystem.load();
                         if (gameState) {
                             GameSaveSystem.restore(gameState);
@@ -20201,22 +20299,40 @@ Elle a besoin de ponts.`
                         }
                     } else {
                         // L'utilisateur veut recommencer à zéro
+                        // 🔥 Désactiver les flags de restauration
+                        window.isRestoringGame = false;
+                        window.narrationStarted = false;
+                        window.skipNarrationIntro = false;
+                        console.log('🔓 Flags de protection désactivés (refus sauvegarde)');
+                        
                         const confirmReset = confirm(
-                            '🔄 Recommencer à zéro ?\n\n' +
-                            '⚠️ Cela va :\n' +
-                            '- Effacer votre progression\n' +
-                            '- Supprimer votre sauvegarde\n' +
-                            '- Redémarrer à la phase 1\n\n' +
-                            'Êtes-vous sûr ?'
+                            getTranslatedText('save.confirm_reset_title', '🔄 Recommencer à zéro ?') + '\n\n' +
+                            getTranslatedText('save.confirm_reset_warning', '⚠️ Cela va :') + '\n' +
+                            getTranslatedText('save.reset_action1', '- Effacer votre progression') + '\n' +
+                            getTranslatedText('save.reset_action2', '- Supprimer votre sauvegarde') + '\n' +
+                            getTranslatedText('save.reset_action3', '- Redémarrer à la phase 1') + '\n\n' +
+                            getTranslatedText('save.confirm_reset_question', 'Êtes-vous sûr ?')
                         );
                         
                         if (confirmReset) {
-                            // Effacer la sauvegarde et reload
+                            // 🔥 IMPORTANT: Flag AVANT clear
+                            localStorage.setItem('gameResetInProgress', 'true');
+                            console.log('✅ Flag reset mis en place');
+                            
+                            // 🔥 Effacer la sauvegarde
                             GameSaveSystem.clear();
+                            console.log('✅ Sauvegarde effacée');
+                            
                             console.log('🔄 Sauvegarde effacée - Rechargement...');
-                            window.location.reload();
+                            setTimeout(() => window.location.reload(), 100);
                         } else {
                             // Annulé - Charger la sauvegarde finalement
+                            // 🔥 Remettre les flags
+                            window.isRestoringGame = true;
+                            window.narrationStarted = true;
+                            window.skipNarrationIntro = true;
+                            console.log('🔒 Flags réactivés (annulation reset)');
+                            
                             const gameState = GameSaveSystem.load();
                             if (gameState) {
                                 GameSaveSystem.restore(gameState);

@@ -1,7 +1,39 @@
 {
-  "version": "2.4.5",
-  "date": "2025-10-15",
+  "version": "2.5.0",
+  "date": "2025-10-16",
   "changelog": {
+    "2.5.0": {
+      "title": "💾 Système Sauvegarde/Restauration v2.5.0 - Protection Intro 7 Couches",
+      "date": "2025-10-16",
+      "changes": [
+        "🔒 Architecture 7 couches anti-intro lors restauration sauvegarde",
+        "⏱️ Phase intro initialisée à null (déferée au load event)",
+        "🔍 Vérification localStorage AVANT setTimeout (bloque programmation intro)",
+        "🎬 Flags activés AVANT initialisation phaseIntro (ordre correct)",
+        "🛡️ window.narrationStarted jamais nettoyé (protection permanente)",
+        "✅ Tous accès phaseIntro null-safe (phaseIntro && phaseIntro.active)",
+        "🧱 Briques restaurées pour phases lanterne/stars (dedoublerCoeursEnBriques)",
+        "🔫 Munitions sauvées/restaurées pour phases 17-22 (mode tir MUR)",
+        "🔄 Bouton reset simplifié avec flag gameResetInProgress",
+        "📖 NarrationManager protégé (return si isRestoringGame)",
+        "🎯 Timeout restauration augmenté à 2000ms (stabilité requestAnimationFrame)",
+        "🔥 7 protection layers: localStorage check, setTimeout wrap, phaseIntro null, load flags, narrationStarted, initJeu() preserve, null-safe access"
+      ]
+    },
+    "2.4.6": {
+      "title": "⚡ Optimisation Animations Power-ups Mode Lanterne",
+      "date": "2025-10-15",
+      "changes": [
+        "🌈 Rainbow hope distance check throttled (tous les 10 frames au lieu de chaque frame)",
+        "💫 Ombres désactivées en mode lanterne (pas de shadowBlur)",
+        "🎨 Gradients remplacés par couleurs solides en mode lanterne",
+        "✨ Bordures simplifiées (pas de shadowBlur, lineWidth 2 au lieu de 3)",
+        "⭐ Étincelles désactivées en mode lanterne (économie sin/cos × 3)",
+        "🌟 Animation rainbow_hope simplifiée (pas de scale/translate en lanterne)",
+        "🚀 Retour anticipé si power-up non découvert (rainbow_hope)",
+        "📊 Performance amélioration: +70-90% FPS animations power-ups"
+      ]
+    },
     "2.4.5": {
       "title": "⚡ Optimisation Rendu Briques Mode Lanterne",
       "date": "2025-10-15",

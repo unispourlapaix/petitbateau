@@ -82,6 +82,18 @@
       "ko": "작은 배"
     }
   },
+  "language_selector": {
+    "confirm_change": "🌍 Cambiare lingua in {language}?\n\nLa pagina verrà ricaricata per applicare le traduzioni."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ATTENZIONE: Questo CANCELLERÀ TUTTO (progressi, punteggi, enigmi raccolti).\n\nSei SICURO di voler continuare?",
+    "confirm_2": "⚠️ CONFERMA FINALE: Questa azione è IRREVERSIBILE.\n\nVuoi davvero continuare?",
+    "cancelled": "❌ Reset completo annullato",
+    "cancelled_step_2": "❌ Reset completo annullato (2ª conferma)"
+  },
+  "popup": {
+    "blocked": "⚠️ Popup bloccato! Consenti i popup per vedere le informazioni sull'artista."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 +100 Punti per aver guardato l'introduzione completa! 🌟",
@@ -672,5 +684,23 @@
     "update_banner": "🎨 Nuova versione con icone migliorate disponibile!",
     "update_button": "Aggiorna",
     "later_button": "Più tardi"
+  },
+  "save": {
+    "found_title": "💾 Partita salvata trovata!",
+    "date": "📅 Data: {date}",
+    "phase": "🎯 Fase: {phase}",
+    "score": "⭐ Punteggio: {score}",
+    "lives": "❤️ Vite: {lives}",
+    "confirm_load": "Vuoi riprendere questa partita?",
+    "yes_load": "✅ SÌ = Riprendi partita",
+    "no_reset": "❌ NO = Ricomincia da zero (cancella salvataggio)",
+    "confirm_reset_title": "🔄 Ricominciare da zero?",
+    "confirm_reset_warning": "⚠️ Questo farà:",
+    "reset_action1": "- Cancellare i tuoi progressi",
+    "reset_action2": "- Eliminare il tuo salvataggio",
+    "reset_action3": "- Ricominciare dalla fase 1",
+    "confirm_reset_question": "Sei sicuro?",
+    "loaded": "📂 Partita caricata!",
+    "not_found": "❌ Nessun salvataggio trovato"
   }
 }

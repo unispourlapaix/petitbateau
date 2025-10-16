@@ -82,6 +82,18 @@
       "ko": "작은 배"
     }
   },
+  "language_selector": {
+    "confirm_change": "🌍 Badilisha lugha kwenda {language}?\n\nUkurasa utapakiwa tena ili kutumia tafsiri."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ONYO: Hii itafuta KILA KITU (maendeleo, alama, fumbo zilizokusanywa).\n\nUna hakika unataka kuendelea?",
+    "confirm_2": "⚠️ UTHIBITISHO WA MWISHO: Hatua hii HAIWEZI KURUDISHWA.\n\nKweli unataka kuendelea?",
+    "cancelled": "❌ Kuweka upya kwa ukamili kumeghairiwa",
+    "cancelled_step_2": "❌ Kuweka upya kwa ukamili kumeghairiwa (uthibitisho wa 2)"
+  },
+  "popup": {
+    "blocked": "⚠️ Dirisha la pop-up limezuiwa! Tafadhali ruhusu pop-ups ili kuona habari za msanii."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 +100 Pwin pou lé vwar lintrodixion konplèt ! 🌟",
@@ -672,5 +684,23 @@
     "update_banner": "🎨 Nouvo vèrsion èk ikòn amélyoré disponib !",
     "update_button": "Mèt azour",
     "later_button": "Pli tar"
+  },
+  "save": {
+    "found_title": "💾 Nou la gingn in zé souvgardé!",
+    "date": "📅 Dat: {date}",
+    "phase": "🎯 Faz: {phase}",
+    "score": "⭐ Skor: {score}",
+    "lives": "❤️ Lavi: {lives}",
+    "confirm_load": "Ou vé kontiné sa zé-la?",
+    "yes_load": "✅ WI = Kontiné le zé",
+    "no_reset": "❌ NON = Komans a zéro (éfas la souvgard)",
+    "confirm_reset_title": "🔄 Komans a zéro?",
+    "confirm_reset_warning": "⚠️ Sa i va fé:",
+    "reset_action1": "- Éfas out progrésyon",
+    "reset_action2": "- Éfas out souvgard",
+    "reset_action3": "- Rokomans dépi faz 1",
+    "confirm_reset_question": "Ou lé sir?",
+    "loaded": "📂 Zé lé sarzé!",
+    "not_found": "❌ Nana pwin souvgard"
   }
 }

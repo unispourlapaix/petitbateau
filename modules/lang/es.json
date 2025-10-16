@@ -82,6 +82,18 @@
       "ko": "작은 배"
     }
   },
+  "language_selector": {
+    "confirm_change": "🌍 ¿Cambiar idioma a {language}?\n\nLa página se recargará para aplicar las traducciones."
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 ATENCIÓN: Esto BORRARÁ TODO (progreso, puntuaciones, enigmas recopilados).\n\n¿Estás SEGURO de que quieres continuar?",
+    "confirm_2": "⚠️ CONFIRMACIÓN FINAL: Esta acción es IRREVERSIBLE.\n\n¿Realmente continuar?",
+    "cancelled": "❌ Reinicio total cancelado",
+    "cancelled_step_2": "❌ Reinicio total cancelado (2ª confirmación)"
+  },
+  "popup": {
+    "blocked": "⚠️ ¡Ventana emergente bloqueada! Permite las ventanas emergentes para ver la información del artista."
+  },
   "game": {
     "messages": {
       "intro_bonus": "🌟 ¡+100 Puntos por ver la introducción completa! 🌟",
@@ -846,9 +858,27 @@
     "rc": "Kréol Rényoné"
   },
   "pwa": {
-    "update_message": "🎨 ¡Nueva versión disponible con iconos mejorados!\n\n✨ Nuevos iconos optimizados\n🔧 Mejoras PWA\n\n¿Quieres actualizar ahora?",
+    "update_message": "🎨 ¡Nueva versión disponible con iconos mejorados!\n\n✨ Nuevos iconos optimizados\n🔧 Mejoras de PWA\n\n¿Deseas actualizar ahora?",
     "update_banner": "🎨 ¡Nueva versión con iconos mejorados disponible!",
     "update_button": "Actualizar",
     "later_button": "Más tarde"
+  },
+  "save": {
+    "found_title": "💾 ¡Partida guardada encontrada!",
+    "date": "📅 Fecha: {date}",
+    "phase": "🎯 Fase: {phase}",
+    "score": "⭐ Puntuación: {score}",
+    "lives": "❤️ Vidas: {lives}",
+    "confirm_load": "¿Deseas continuar esta partida?",
+    "yes_load": "✅ SÍ = Continuar partida",
+    "no_reset": "❌ NO = Empezar de nuevo (borrar guardado)",
+    "confirm_reset_title": "🔄 ¿Empezar de nuevo?",
+    "confirm_reset_warning": "⚠️ Esto hará:",
+    "reset_action1": "- Borrar tu progreso",
+    "reset_action2": "- Eliminar tu guardado",
+    "reset_action3": "- Reiniciar desde la fase 1",
+    "confirm_reset_question": "¿Estás seguro?",
+    "loaded": "📂 ¡Partida cargada!",
+    "not_found": "❌ No se encontró guardado"
   }
 }
