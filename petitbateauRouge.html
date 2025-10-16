@@ -379,10 +379,11 @@
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             cursor: pointer;
-            z-index: 1000;
+            z-index: 10001;
             display: none;
             transition: all 0.3s ease;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            pointer-events: auto;
         }
 
         #install-button:hover {
@@ -1450,7 +1451,7 @@
     </div>
 
     <!-- Bouton Installation PWA -->
-    <button id="install-button" onclick="installPWA()">Installer l'app</button>
+    <button id="install-button">Installer l'app</button>
     
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
@@ -20689,6 +20690,17 @@ Elle a besoin de ponts.`
         const btnText = getTranslatedText('ui.install_app', 'Installer l\'app');
         installBtn.textContent = btnText;
     }
+    
+    // Attacher l'event listener au bouton d'installation
+    window.addEventListener('DOMContentLoaded', () => {
+        const installBtn = document.getElementById('install-button');
+        if (installBtn) {
+            installBtn.addEventListener('click', installPWA);
+            console.log('📥 Bouton d\'installation PWA initialisé');
+        } else {
+            console.warn('⚠️ Bouton d\'installation PWA non trouvé dans le DOM');
+        }
+    });
     
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('🔧 PWA installable détectée');
