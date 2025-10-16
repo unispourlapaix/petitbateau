@@ -6,6 +6,9 @@
     "og_description": "מסע פילוסופי דרך חידות האנושות. נוצר על ידי עמנואל פאייט, זמין ב-14 שפות. יעד: 33 מיליון שחקנים!"
   },
   "ui": {
+    "install_app": "התקן אפליקציה",
+    "already_installed": "האפליקציה כבר מותקנת או שהדפדפן שלך אינו תומך בהתקנה.",
+    "install_success": "🎉 האפליקציה הותקנה בהצלחה!",
     "skip_button": "דלג",
     "continue_button": "המשך",
     "save_score_ranking": "שמרו את הניקוד שלכם כדי להופיע בדירוג העולמי!",

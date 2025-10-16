@@ -6,6 +6,9 @@
     "og_description": "Un viaje filosófico a través de los enigmas de la humanidad. Creado por Emmanuel Payet, disponible en 14 idiomas. ¡Objetivo: 33 millones de jugadores!"
   },
   "ui": {
+    "install_app": "Instalar app",
+    "already_installed": "La aplicación ya está instalada o tu navegador no soporta la instalación.",
+    "install_success": "🎉 ¡Aplicación instalada con éxito!",
     "skip_button": "Saltar",
     "continue_button": "Continuar",
     "save_score_ranking": "¡Guarda tu puntuación para aparecer en la clasificación mundial!",

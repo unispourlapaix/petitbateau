@@ -6,6 +6,9 @@
     "og_description": "인류의 수수께끼를 통한 철학적 여행. Emmanuel Payet 작품, 14개 언어로 제공. 목표: 3천3백만 플레이어!"
   },
   "ui": {
+    "install_app": "앱 설치",
+    "already_installed": "애플리케이션이 이미 설치되어 있거나 브라우저가 설치를 지원하지 않습니다.",
+    "install_success": "🎉 애플리케이션이 성공적으로 설치되었습니다!",
     "skip_button": "건너뛰기",
     "continue_button": "계속",
     "save_score_ranking": "세계 랭킹에 등록하려면 점수를 저장하세요!",

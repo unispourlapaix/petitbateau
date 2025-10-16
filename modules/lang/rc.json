@@ -6,6 +6,9 @@
     "og_description": "Ènn voyaz filozofik atravèr zénigm la lhumanité. Kréyé pa Emmanuel Payet, disponib dann 14 lang. Obyéktif : 33 milion zouèr !"
   },
   "ui": {
+    "install_app": "Instale laplikasion",
+    "already_installed": "Laplikasion lé déza instalé ou out navigatèr i sipport pa linstalasion.",
+    "install_success": "🎉 Laplikasion lé instalé avèk sikse !",
     "skip_button": "Passe",
     "continue_button": "Kontinié",
     "save_score_ranking": "Anrézistre out skore pou aparèt dann klasemin mondial !",

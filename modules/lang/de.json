@@ -6,6 +6,9 @@
     "og_description": "Eine philosophische Reise durch die Rätsel der Menschheit. Erschaffen von Emmanuel Payet, verfügbar in 14 Sprachen. Ziel: 33 Millionen Spieler!"
   },
   "ui": {
+    "install_app": "App installieren",
+    "already_installed": "Die Anwendung ist bereits installiert oder Ihr Browser unterstützt die Installation nicht.",
+    "install_success": "🎉 Anwendung erfolgreich installiert!",
     "skip_button": "Überspringen",
     "continue_button": "Weiter",
     "save_score_ranking": "Speichere deinen Punktestand, um in der weltweiten Rangliste zu erscheinen!",
