@@ -3046,7 +3046,12 @@
                 classement: { x: 0, y: 0, width: 0, height: 0, hover: false },
                 langues: { x: 0, y: 0, width: 0, height: 0, hover: false },
                 info: { x: 0, y: 0, width: 0, height: 0, hover: false }
-            }
+            },
+            // Cache pour optimisation des calculs répétés
+            cachedTabWidths: null,
+            cachedMenuDimensions: null,
+            lastCalculationTime: 0,
+            needsRecalculation: true
         };
 
         // Initialiser le module InfoAuteur
@@ -3404,6 +3409,9 @@
             menuEnigmesCanvas.scrollY = 0;
             menuEnigmesCanvas.ongletActif = 'enigmes'; // Réinitialiser à l'onglet Énigmes à chaque ouverture
 
+            // Marquer que les calculs doivent être refaits
+            menuEnigmesCanvas.needsRecalculation = true;
+
             // Générer les positions des cartes
             genererPositionsCartesEnigmes();
         }
@@ -3508,48 +3516,57 @@
             // Onglets modernes et élégants - style minimaliste - 4 onglets ADAPTATIFS
             const ongletHeight = 45;
             const ongletY = menuY + 10;
-            const espacementOnglets = 8; // Espacement entre onglets
-            const paddingTexteInactif = 30; // Padding pour onglets inactifs
-            const paddingTexteActif = 50; // Padding pour onglet actif (plus large)
+            const espacementOnglets = 8;
+            const paddingTexteInactif = 30;
+            const paddingTexteActif = 50;
             
-            // Mesurer la largeur nécessaire pour chaque onglet - TEXTE SANS ICÔNES
-            ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-            const texteEnigmes = getTranslatedText('interface.tabs.enigmas', 'Énigmes');
-            const texteScores = getTranslatedText('interface.tabs.scores', 'Scores');
-            const texteLangue = getTranslatedText('interface.tabs.language', 'Langue');
-            const texteInfo = getTranslatedText('interface.tabs.info', 'Info');
-            
-            // Déterminer quel onglet est actif pour lui donner plus de padding
-            const ongletActif = menuEnigmesCanvas.ongletActif;
-            const paddingEnigmes = (ongletActif === 'enigmes') ? paddingTexteActif : paddingTexteInactif;
-            const paddingScores = (ongletActif === 'classement') ? paddingTexteActif : paddingTexteInactif;
-            const paddingLangue = (ongletActif === 'langues') ? paddingTexteActif : paddingTexteInactif;
-            const paddingInfo = (ongletActif === 'info') ? paddingTexteActif : paddingTexteInactif;
-            
-            const largeurEnigmes = ctx.measureText(texteEnigmes).width + paddingEnigmes * 2;
-            const largeurScores = ctx.measureText(texteScores).width + paddingScores * 2;
-            const largeurLangue = ctx.measureText(texteLangue).width + paddingLangue * 2;
-            const largeurInfo = ctx.measureText(texteInfo).width + paddingInfo * 2;
-            
-            // Largeur totale nécessaire
-            const largeurTotaleOnglets = largeurEnigmes + largeurScores + largeurLangue + largeurInfo + (espacementOnglets * 3);
-            const largeurDisponible = menuWidth - 50; // Marges
-            
-            // Si les onglets sont trop larges, on les réduit proportionnellement
-            let facteurReduction = 1;
-            if (largeurTotaleOnglets > largeurDisponible) {
-                facteurReduction = largeurDisponible / largeurTotaleOnglets;
+            // OPTIMISATION: Cache des calculs de largeur d'onglets (recalculer seulement si changement de langue ou onglet)
+            const now = Date.now();
+            if (menuEnigmesCanvas.needsRecalculation || !menuEnigmesCanvas.cachedTabWidths || (now - menuEnigmesCanvas.lastCalculationTime) > 1000) {
+                ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
+                const texteEnigmes = getTranslatedText('interface.tabs.enigmas', 'Énigmes');
+                const texteScores = getTranslatedText('interface.tabs.scores', 'Scores');
+                const texteLangue = getTranslatedText('interface.tabs.language', 'Langue');
+                const texteInfo = getTranslatedText('interface.tabs.info', 'Info');
+                
+                const ongletActif = menuEnigmesCanvas.ongletActif;
+                const paddingEnigmes = (ongletActif === 'enigmes') ? paddingTexteActif : paddingTexteInactif;
+                const paddingScores = (ongletActif === 'classement') ? paddingTexteActif : paddingTexteInactif;
+                const paddingLangue = (ongletActif === 'langues') ? paddingTexteActif : paddingTexteInactif;
+                const paddingInfo = (ongletActif === 'info') ? paddingTexteActif : paddingTexteInactif;
+                
+                const largeurEnigmes = ctx.measureText(texteEnigmes).width + paddingEnigmes * 2;
+                const largeurScores = ctx.measureText(texteScores).width + paddingScores * 2;
+                const largeurLangue = ctx.measureText(texteLangue).width + paddingLangue * 2;
+                const largeurInfo = ctx.measureText(texteInfo).width + paddingInfo * 2;
+                
+                const largeurTotaleOnglets = largeurEnigmes + largeurScores + largeurLangue + largeurInfo + (espacementOnglets * 3);
+                const largeurDisponible = menuWidth - 50;
+                
+                let facteurReduction = 1;
+                if (largeurTotaleOnglets > largeurDisponible) {
+                    facteurReduction = largeurDisponible / largeurTotaleOnglets;
+                }
+                
+                menuEnigmesCanvas.cachedTabWidths = {
+                    texteEnigmes,
+                    texteScores,
+                    texteLangue,
+                    texteInfo,
+                    ongletWidthEnigmes: largeurEnigmes * facteurReduction,
+                    ongletWidthScores: largeurScores * facteurReduction,
+                    ongletWidthLangue: largeurLangue * facteurReduction,
+                    ongletWidthInfo: largeurInfo * facteurReduction,
+                    largeurTotaleReelle: (largeurEnigmes + largeurScores + largeurLangue + largeurInfo) * facteurReduction + (espacementOnglets * 3)
+                };
+                
+                menuEnigmesCanvas.lastCalculationTime = now;
+                menuEnigmesCanvas.needsRecalculation = false;
             }
             
-            const ongletWidthEnigmes = largeurEnigmes * facteurReduction;
-            const ongletWidthScores = largeurScores * facteurReduction;
-            const ongletWidthLangue = largeurLangue * facteurReduction;
-            const ongletWidthInfo = largeurInfo * facteurReduction;
-
-            // Calculer la largeur totale réelle après réduction
-            const largeurTotaleReelle = ongletWidthEnigmes + ongletWidthScores + ongletWidthLangue + ongletWidthInfo + (espacementOnglets * 3);
+            // Utiliser les valeurs en cache
+            const { texteEnigmes, texteScores, texteLangue, texteInfo, ongletWidthEnigmes, ongletWidthScores, ongletWidthLangue, ongletWidthInfo, largeurTotaleReelle } = menuEnigmesCanvas.cachedTabWidths;
             
-            // Centrer les onglets horizontalement
             const offsetCentrage = (menuWidth - largeurTotaleReelle) / 2;
 
             // Onglet Énigmes - CENTRÉ
@@ -9716,6 +9733,12 @@
         // Variables de jeu
         let score = 0, vies = 3, brises = 0, jeu = false, tactile = false;
 
+        // DeltaTime pour vitesse indépendante du framerate
+        let lastTime = performance.now();
+        let deltaTime = 0;
+        const TARGET_FPS = 60;
+        const FRAME_DURATION = 1000 / TARGET_FPS; // ~16.67ms pour 60 FPS
+
         // Sélecteur de langue au démarrage - BLOQUE LE JEU
         // Si langue déjà choisie (dans localStorage), on skip le sélecteur
         const langueDejaChoisie = localStorage.getItem('petit_bateau_lang') !== null;
@@ -11270,7 +11293,7 @@
                     22: 'ESPOIR'
                 };
 
-                const phaseActuelle = narrationManager.currentPhase;
+                const phaseActuelle = narrationManager ? narrationManager.currentPhase : 17;
                 const motComplet = motsEnigmes[phaseActuelle] || 'ÉNIGME';
 
                 // Calculer progression : nombre de briques détruites / total
@@ -15295,6 +15318,9 @@
 
         // Physique zen de la bulle - UNIQUEMENT pour le mode casse-briques
         function mettreAJourBulle() {
+            // Déclarer phaseActuelle en début de fonction pour la rendre accessible partout
+            const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
+            
             // Gérer la balle pour le mode casse-briques uniquement
             if(phaseJeu !== 'lanterne') {
                 return; // Ignorer dans les autres phases
@@ -15321,8 +15347,9 @@
                 vitesseMulti *= 1.5;
             }
             
-            balle.x += balle.dx * vitesseMulti;
-            balle.y += balle.dy * vitesseMulti;
+            // Appliquer deltaTime pour vitesse indépendante du framerate
+            balle.x += balle.dx * vitesseMulti * deltaTime;
+            balle.y += balle.dy * vitesseMulti * deltaTime;
 
             // Mode casse-briques : rebonds classiques (lanterne et mur)
             if(phaseJeu === 'lanterne' || phaseJeu === 'mur') {
@@ -15492,7 +15519,7 @@
 
                         // Chance de créer un power-up bleu
                         // Phase 22 : taux réduit à 5% pour ne pas masquer le rainbow_hope
-                        const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
+                        // phaseActuelle est déjà déclarée en début de fonction
                         const tauxPowerupBalle = (phaseActuelle === 22 && phaseJeu === 'mur') ? 0.05 : 0.3;
                         if(Math.random() < tauxPowerupBalle) {
                             creerPowerUp(brique.x + brique.w/2 - C.BS*0.75, brique.y + brique.h/2 - C.BS*0.75);
@@ -17924,6 +17951,7 @@ Elle a besoin de ponts.`
                         if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                         menuEnigmesCanvas.ongletActif = 'enigmes';
                         menuEnigmesCanvas.scrollY = 0;
+                        menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
                         return;
                     }
                     
@@ -17933,6 +17961,7 @@ Elle a besoin de ponts.`
                         if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                         menuEnigmesCanvas.ongletActif = 'classement';
                         menuEnigmesCanvas.scrollY = 0;
+                        menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
                         return;
                     }
                     
@@ -17942,6 +17971,7 @@ Elle a besoin de ponts.`
                         if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                         menuEnigmesCanvas.ongletActif = 'langues';
                         menuEnigmesCanvas.scrollY = 0;
+                        menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
                         return;
                     }
                     
@@ -17952,6 +17982,7 @@ Elle a besoin de ponts.`
                         menuEnigmesCanvas.ongletActif = 'info';
                         menuEnigmesCanvas.scrollY = 0;
                         menuEnigmesCanvas.projectButtons = null; // Réinitialiser pour recréation
+                        menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
                         return;
                     }
                 }
@@ -19499,6 +19530,14 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
+            // Calculer le deltaTime (temps écoulé depuis la dernière frame)
+            const currentTime = performance.now();
+            deltaTime = (currentTime - lastTime) / FRAME_DURATION; // Normalisé à 60 FPS
+            lastTime = currentTime;
+            
+            // Limiter deltaTime pour éviter les sauts lors de lag/pause
+            deltaTime = Math.min(deltaTime, 3); // Max 3 frames de décalage
+            
             // Animation du survol du drapeau (simple)
             if (flagHover && flagHoverAnimation < 1) {
                 flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
