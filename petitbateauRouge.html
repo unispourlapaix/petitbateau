@@ -9844,7 +9844,7 @@
             sunRaysAngles: [],
             // Throttling vagues sélecteur langue
             lastLanguageWaveFrame: 0,
-            languageWaveThrottle: 3, // Calculer les vagues tous les 3 frames (20 FPS)
+            languageWaveThrottle: 2, // Calculer les vagues tous les 2 frames (30 FPS)
             languageWavesPath: [],
             // Frame counter
             frameCount: 0
@@ -19560,7 +19560,7 @@ Elle a besoin de ponts.`
                 ctx.fillStyle = fondAniméCache.gradients.languageSelector;
                 ctx.fillRect(0, 0, C.W, C.H);
 
-                // ⚡ OPTIMISATION: Calculer vagues tous les 3 frames (20 FPS au lieu de 60)
+                // ⚡ OPTIMISATION: Calculer vagues tous les 2 frames (30 FPS - fluide et performant)
                 const time = Date.now() / 1000;
                 
                 if (fondAniméCache.frameCount - fondAniméCache.lastLanguageWaveFrame >= fondAniméCache.languageWaveThrottle) {
