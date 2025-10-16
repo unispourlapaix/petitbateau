@@ -20,6 +20,13 @@ class SecretModeModule {
         this.duration = 60000; // 60 secondes
         this.previousPhase = null; // Sauvegarder la phase précédente
 
+        // ⚡ OPTIMISATION: Cache des éléments DOM (évite querySelectorAll chaque frame)
+        this.domCache = {
+            animals: [],
+            lanterns: [],
+            lastUpdate: 0,
+            updateInterval: 500 // Rafraîchir toutes les 500ms seulement
+        };
 
         // Éléments du jeu secret
         this.projectiles = [];
@@ -388,6 +395,14 @@ class SecretModeModule {
 
     // Vérifier les collisions
     checkCollisions() {
+        // ⚡ OPTIMISATION: Mettre à jour le cache DOM seulement toutes les 500ms
+        const now = Date.now();
+        if (now - this.domCache.lastUpdate > this.domCache.updateInterval) {
+            this.domCache.animals = Array.from(document.querySelectorAll('.crow, .dove, .bat'));
+            this.domCache.lanterns = Array.from(document.querySelectorAll('.lantern, .flashlight'));
+            this.domCache.lastUpdate = now;
+        }
+
         // Collision projectile-obstacle
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
@@ -418,11 +433,11 @@ class SecretModeModule {
         }
 
         // Collision projectile-animaux volants (corbeau, colombe, chauve-souris)
-        const animaux = document.querySelectorAll('.crow, .dove, .bat');
+        // ⚡ OPTIMISATION: Utiliser le cache DOM au lieu de querySelectorAll
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
 
-            for (let animal of animaux) {
+            for (let animal of this.domCache.animals) {
                 if (!animal) continue;
 
                 const rect = animal.getBoundingClientRect();
@@ -457,15 +472,18 @@ class SecretModeModule {
         }
 
         // TRANSFORMATION RÉVÉLATION - Lanterne sur corbeau/colombe → chauve-souris
-        const lanternes = document.querySelectorAll('.lantern, .flashlight');
-        const corbeauxEtColombes = document.querySelectorAll('.crow, .dove');
-
-        for (let lanterne of lanternes) {
+        // ⚡ OPTIMISATION: Utiliser le cache DOM
+        for (let lanterne of this.domCache.lanterns) {
             if (!lanterne) continue;
 
             const lantRect = lanterne.getBoundingClientRect();
 
-            for (let oiseau of corbeauxEtColombes) {
+            // ⚡ OPTIMISATION: Filtrer seulement corbeaux/colombes du cache
+            const oiseaux = this.domCache.animals.filter(a => 
+                a && (a.classList.contains('crow') || a.classList.contains('dove'))
+            );
+
+            for (let oiseau of oiseaux) {
                 if (!oiseau) continue;
 
                 const oiseauRect = oiseau.getBoundingClientRect();
@@ -519,9 +537,12 @@ class SecretModeModule {
 
                 if (!element) continue;
 
-                // Position de l'objet kawaii - SIMPLE: même système de coordonnées
-                const objX = parseFloat(element.style.left) || 0;
-                const objY = parseFloat(element.style.top) || 0;
+                // ⚡ OPTIMISATION: Lire transform au lieu de left/top
+                const currentTransform = element.style.transform || '';
+                const match = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+                
+                const objX = match ? parseFloat(match[1]) : (parseFloat(element.style.left) || 0);
+                const objY = match ? parseFloat(match[2]) : (parseFloat(element.style.top) || 0);
 
                 // Le conteneur kawaii commence à top:110px, donc ajuster
                 const objCanvasX = objX + 30; // Centre X
@@ -529,14 +550,13 @@ class SecretModeModule {
 
                 const dx = proj.x - objCanvasX;
                 const dy = proj.y - objCanvasY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // ⚡ OPTIMISATION: Éviter Math.sqrt avec distance au carré
+                const distSquared = dx * dx + dy * dy;
+                const collisionRadius = 40;
+                const collisionRadiusSquared = collisionRadius * collisionRadius;
 
-                // Zone de collision TRÈS généreuse pour les cœurs bleus
-                const collisionRadius = 40; // Zone fixe plus grande
-
-                // Debug collision désactivé pour moins de spam
-
-                if (distance < collisionRadius) {
+                if (distSquared < collisionRadiusSquared) {
                     // Collision détectée !
 
                     // Collision ! Détruire le projectile et l'objet kawaii
@@ -893,7 +913,9 @@ class SecretModeModule {
             'baleine': -20,       // 🐋 Très mal de tuer une baleine !
             'etoile': -10,        // ⭐ Étoile magique protectrice
             'lune': -30,          // 🌙 Objet sacré - très mal !
-            'banane': -5,         // 🍌 Fruit innocent
+
+            // OBJETS BONUS - Points positifs faibles (destruction recommandée)
+            'banane': +15,        // 🍌 Fruit bonus à collecter !
 
             // OBJETS DANGEREUX - Points positifs modérés (il faut les éliminer)
             'smartphone': +35,    // 📱 Dangereux - téléphone espion !
@@ -1000,34 +1022,24 @@ class SecretModeModule {
             const currentTime = Date.now();
             const timeElapsed = currentTime - gameData.startTime;
 
-            // Mettre à jour position
-            const currentX = parseFloat(element.style.left) || 0;
-            const currentY = parseFloat(element.style.top) || 0;
+            // ⚡ OPTIMISATION: Utiliser transform au lieu de left/top (GPU accelerated)
+            const currentTransform = element.style.transform || '';
+            const match = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+            
+            let currentX = match ? parseFloat(match[1]) : (parseFloat(element.style.left) || 0);
+            let currentY = match ? parseFloat(match[2]) : (parseFloat(element.style.top) || 0);
 
             let newX = currentX;
             let newY = currentY;
-
-            // DEBUG temporaire
-            if (Math.random() < 0.001) {
-                console.log(`⏰ ${kawaiiObj.type}: temps=${timeElapsed}ms, waitTime=${gameData.waitTime}ms, doit bouger=${timeElapsed >= gameData.waitTime}`);
-            }
 
             // Commencer à bouger seulement après le temps d'attente
             if (timeElapsed >= gameData.waitTime) {
                 newX = currentX + gameData.vx;
                 newY = currentY + gameData.vy;
             }
-            // Sinon, rester immobile en haut
 
-            element.style.left = newX + 'px';
-            element.style.top = newY + 'px';
-
-            // Debug retiré - objets descendent correctement
-
-            // Mouvement flottant DÉSACTIVÉ pour chute droite
-            // if (['baleine', 'etoile', 'lune', 'banane'].includes(kawaiiObj.type)) {
-            //     element.style.left = (newX + Math.sin(Date.now() * 0.003) * 2) + 'px';
-            // }
+            // ⚡ OPTIMISATION: Utiliser transform au lieu de left/top
+            element.style.transform = `translate(${newX}px, ${newY}px)`;
 
             // Diminuer durée de vie
             gameData.life -= 16; // ~60fps

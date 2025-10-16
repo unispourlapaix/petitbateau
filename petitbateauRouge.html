@@ -85,6 +85,12 @@
     <meta name="msapplication-TileColor" content="#ff6b6b">
     <meta name="msapplication-TileImage" content="./icons/icon-144x144.png">
     
+    <!-- 🔒 Forcer orientation portrait -->
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    
     <!-- Firefox PWA Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Petit Bateau Rouge">
@@ -298,17 +304,17 @@
             }
         }
         
-        /* Message d'orientation 100% VISUEL - Pas de texte, juste des icônes */
+        /* Message d'orientation 100% VISUEL - Fond blanc, juste ↻ */
         .orientation-warning {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: #ffffff;
             z-index: 10000;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #333;
             text-align: center;
             padding: 20px;
         }
@@ -319,10 +325,29 @@
             50% { transform: rotate(90deg) scale(1.1); }
         }
         
-        /* Afficher le warning en mode paysage sur mobile UNIQUEMENT sur très petits écrans */
+        /* 🔒 BLOQUER MODE PAYSAGE SUR MOBILE UNIQUEMENT - FORCER PORTRAIT */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .orientation-warning {
+                display: flex !important;
+                z-index: 9999 !important;
+                background: #ffffff !important;
+            }
+            
+            .game-container {
+                display: none !important;
+            }
+            
+            /* Bloquer aussi le scroll en paysage */
+            body, html {
+                overflow: hidden !important;
+            }
+        }
+        
+        /* Double sécurité : si très petit écran en paysage (mobile seulement) */
         @media (max-width: 768px) and (max-height: 500px) and (orientation: landscape) {
             .orientation-warning {
                 display: flex !important;
+                z-index: 9999 !important;
             }
             
             .game-container {
@@ -1373,16 +1398,10 @@
 
         </style></head>
 <body>
-    <!-- Message d'orientation pour mobile en mode paysage - 100% VISUEL -->
+    <!-- Message d'orientation pour mobile en mode paysage - Minimaliste -->
     <div class="orientation-warning">
-        <div style="font-size: 120px; margin-bottom: 30px; animation: rotate-pulse 2s ease-in-out infinite;">
-            📱
-        </div>
-        <div style="font-size: 100px; margin-bottom: 20px;">
+        <div style="font-size: 120px; color: #333; animation: rotate-pulse 2s ease-in-out infinite;">
             ↻
-        </div>
-        <div style="font-size: 60px; opacity: 0.9;">
-            ⬆️
         </div>
     </div>
     
@@ -1470,7 +1489,7 @@
     <script>
         // 🚫 MODE PRODUCTION - Désactiver tous les console.log
         // Mettre PRODUCTION_MODE = false pour réactiver les logs en développement
-        const PRODUCTION_MODE = true;
+        const PRODUCTION_MODE = true; // ✅ MODE PRODUCTION
         window.PRODUCTION_MODE = PRODUCTION_MODE; // Variable globale pour les modules
         
         if (PRODUCTION_MODE) {
@@ -1639,7 +1658,16 @@
                         if (gameState.musique.isPlaying && !musicManager.isMuted) {
                             setTimeout(() => {
                                 if (musicManager && !musicManager.isPlaying) {
-                                    musicManager.play();
+                                    // Charger et jouer la piste sauvegardée
+                                    const savedIndex = gameState.musique.currentTrackIndex || 0;
+                                    if (musicManager.playlist && musicManager.playlist[savedIndex]) {
+                                        musicManager.loadTrack(savedIndex).then(() => {
+                                            musicManager.play();
+                                            console.log(`🎵 Piste ${savedIndex} relancée après restauration`);
+                                        });
+                                    } else {
+                                        musicManager.play();
+                                    }
                                 }
                             }, 1000); // Attendre 1s que tout soit chargé
                         }
@@ -1837,35 +1865,129 @@
                          || (window.innerWidth < 500);
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        // 🔒 ORIENTATION FLEXIBLE - Autoriser portrait et paysage
-        if (isMobile && screen.orientation && screen.orientation.lock) {
-            // NE PAS verrouiller - laisser l'utilisateur choisir
-            console.log('📱 Orientation libre - Portrait et Paysage autorisés');
-            // Note: Le CSS bloquera uniquement les très petits écrans en paysage (< 500px hauteur)
+        // 🔒 FORCER MODE PORTRAIT SUR MOBILE
+        if (isMobile) {
+            const forcerPortrait = async () => {
+                try {
+                    // API Screen Orientation (Android Chrome, Firefox mobile)
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('portrait-primary');
+                        console.log('✅ Mode portrait forcé (orientation.lock)');
+                    } 
+                    // iOS Safari ne supporte pas orientation.lock
+                    else if (screen.lockOrientation) {
+                        screen.lockOrientation('portrait-primary');
+                        console.log('✅ Mode portrait forcé (lockOrientation)');
+                    } 
+                    else if (screen.mozLockOrientation) {
+                        screen.mozLockOrientation('portrait-primary');
+                        console.log('✅ Mode portrait forcé (mozLockOrientation)');
+                    } 
+                    else if (screen.msLockOrientation) {
+                        screen.msLockOrientation('portrait-primary');
+                        console.log('✅ Mode portrait forcé (msLockOrientation)');
+                    }
+                    else {
+                        console.log('⚠️ Lock orientation non supporté - Utilisation du CSS uniquement');
+                    }
+                } catch (err) {
+                    console.log('ℹ️ Orientation lock non disponible:', err.message);
+                    console.log('📱 Le CSS media query bloquera le paysage si nécessaire');
+                }
+            };
+            
+            // Tenter immédiatement
+            forcerPortrait();
+            
+            // Retenter au premier touch (requis sur certains navigateurs)
+            const activerPortraitAuTouch = () => {
+                forcerPortrait();
+                document.removeEventListener('touchstart', activerPortraitAuTouch);
+                document.removeEventListener('click', activerPortraitAuTouch);
+            };
+            document.addEventListener('touchstart', activerPortraitAuTouch, { once: true });
+            document.addEventListener('click', activerPortraitAuTouch, { once: true });
         }
         
         // 📱 PLEIN ÉCRAN AUTOMATIQUE SUR MOBILE
         if (isMobile) {
-            // Attendre le premier clic/touch pour activer le plein écran (contrainte navigateur)
-            const activerPleinEcranMobile = () => {
+            // Fonction pour activer le plein écran
+            const activerPleinEcranMobile = async () => {
                 const elem = document.documentElement;
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen().catch(err => {
-                            console.log('ℹ️ Plein écran non disponible:', err);
-                        });
-                    } else if (elem.webkitRequestFullscreen) { // Safari iOS
-                        elem.webkitRequestFullscreen();
-                    }
+                
+                // Vérifier si déjà en plein écran
+                if (document.fullscreenElement || document.webkitFullscreenElement || 
+                    document.mozFullScreenElement || document.msFullscreenElement) {
+                    console.log('✅ Déjà en plein écran');
+                    return;
                 }
-                // Retirer l'écouteur après la première activation
+                
+                try {
+                    // Tenter avec les différentes API selon le navigateur
+                    if (elem.requestFullscreen) {
+                        await elem.requestFullscreen({ navigationUI: "hide" });
+                        console.log('✅ Plein écran activé (standard)');
+                    } else if (elem.webkitRequestFullscreen) { // Safari iOS
+                        await elem.webkitRequestFullscreen();
+                        console.log('✅ Plein écran activé (webkit)');
+                    } else if (elem.mozRequestFullScreen) { // Firefox
+                        await elem.mozRequestFullScreen();
+                        console.log('✅ Plein écran activé (moz)');
+                    } else if (elem.msRequestFullscreen) { // IE/Edge
+                        await elem.msRequestFullscreen();
+                        console.log('✅ Plein écran activé (ms)');
+                    } else {
+                        console.log('⚠️ Plein écran non supporté par ce navigateur');
+                    }
+                    
+                    // Masquer la barre d'adresse sur mobile (iOS Safari)
+                    window.scrollTo(0, 1);
+                    setTimeout(() => window.scrollTo(0, 0), 0);
+                    
+                } catch (err) {
+                    console.log('ℹ️ Plein écran non activable automatiquement:', err.message);
+                }
+                
+                // Retirer les écouteurs après tentative
                 document.removeEventListener('touchstart', activerPleinEcranMobile);
                 document.removeEventListener('click', activerPleinEcranMobile);
+                canvas.removeEventListener('touchstart', activerPleinEcranMobile);
+                canvas.removeEventListener('click', activerPleinEcranMobile);
             };
             
+            // Tenter immédiatement (ne fonctionnera que si appelé depuis un event user)
+            activerPleinEcranMobile();
+            
+            // Si échec, attendre le premier touch/click
             document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
             document.addEventListener('click', activerPleinEcranMobile, { once: true });
-            console.log('📱 Plein écran automatique activé - En attente du premier touch');
+            
+            // Aussi écouter sur le canvas directement
+            setTimeout(() => {
+                if (canvas) {
+                    canvas.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
+                    canvas.addEventListener('click', activerPleinEcranMobile, { once: true });
+                }
+            }, 100);
+            
+            // Réactiver le plein écran si l'utilisateur en sort
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) {
+                    console.log('⚠️ Plein écran quitté - Réactivation au prochain touch');
+                    document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
+                    document.addEventListener('click', activerPleinEcranMobile, { once: true });
+                }
+            });
+            
+            // Pour webkit (Safari)
+            document.addEventListener('webkitfullscreenchange', () => {
+                if (!document.webkitFullscreenElement) {
+                    console.log('⚠️ Plein écran quitté (webkit) - Réactivation au prochain touch');
+                    document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
+                }
+            });
+            
+            console.log('📱 Système de plein écran automatique initialisé');
         }
         
         // Alternative : API ScreenOrientation pour PWA
@@ -1880,8 +2002,8 @@
         // Configuration responsive avec ratio fixe
         function setupCanvas() {
             const container = document.querySelector('.game-container');
-            let width = container.clientWidth;
-            let height = container.clientHeight;
+            let width = container?.clientWidth || 0;
+            let height = container?.clientHeight || 0;
 
             // Sur mobile, utiliser les dimensions réelles de l'écran
             if (isMobile) {
@@ -1889,13 +2011,17 @@
                 const pixelRatio = window.devicePixelRatio || 1;
                 
                 // Dimensions physiques de l'écran
-                width = window.innerWidth;
-                height = window.innerHeight;
+                width = window.innerWidth || 449;
+                height = window.innerHeight || 799;
                 
                 // Sur iOS, corriger pour la barre d'adresse
                 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    height = window.innerHeight;
+                    height = window.innerHeight || 799;
                 }
+                
+                // Sécurité: valeurs minimales
+                width = Math.max(width, 320);
+                height = Math.max(height, 480);
                 
                 // Optimiser le canvas pour le pixel ratio
                 canvas.width = width * pixelRatio;
@@ -1909,7 +2035,10 @@
                 return { width, height };
             }
 
-            // PC : comportement normal
+            // PC : comportement normal avec valeurs par défaut
+            width = width || 449;
+            height = height || 799;
+            
             canvas.width = width;
             canvas.height = height;
             canvas.style.width = width + 'px';
@@ -1919,6 +2048,17 @@
         }
 
         let size = setupCanvas();
+        
+        // Sécurité: forcer des valeurs minimales si setupCanvas retourne 0
+        if (!size.width || size.width <= 0) {
+            console.warn('⚠️ Largeur invalide détectée, utilisation de 449px par défaut');
+            size.width = 449;
+        }
+        if (!size.height || size.height <= 0) {
+            console.warn('⚠️ Hauteur invalide détectée, utilisation de 799px par défaut');
+            size.height = 799;
+        }
+        
         const C = {
             W: size.width, H: size.height,
             PW: Math.max(size.width * 0.3, 100),  // Plus large
@@ -1926,6 +2066,8 @@
             BS: Math.max(Math.min(size.width, size.height) * 0.025, 10),
             SP: Math.max(Math.min(size.width, size.height) * 0.002, 1.5)
         };
+        
+        console.log('✅ Canvas initialisé:', C.W + 'x' + C.H);
 
         // Déclaration des tableaux (seront initialisés après chargement des traductions)
         let JOUR = [];
@@ -17171,27 +17313,27 @@ Elle a besoin de ponts.`
             // Bouton Suivant simple pour phase 16
             dessinerBoutonSuivantP16();
 
-            // 🔊 Menu audio en haut à droite : +- pour passer les chansons
+            // 🔊 Menu audio en haut à droite : volume +/-
             const menuX = C.W - 50; // 50px du bord droit
             const menuY = 8;
 
             ctx.save();
-            ctx.font = '16px Arial';
+            ctx.font = '18px Arial';
             ctx.textBaseline = 'top';
             ctx.textAlign = 'center';
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 2;
+            ctx.shadowBlur = 3;
 
-            // Chanson précédente −
-            const prevBtn = { x: menuX, y: menuY, w: 16, h: 20 };
+            // Volume − (diminuer)
+            const prevBtn = { x: menuX - 10, y: menuY - 5, w: 26, h: 30 };
             window.prevSongZone = prevBtn;
-            ctx.fillText('−', prevBtn.x + prevBtn.w/2, prevBtn.y);
+            ctx.fillText('−', menuX, menuY);
 
-            // Chanson suivante +
-            const nextBtn = { x: menuX + 20, y: menuY, w: 16, h: 20 };
+            // Volume + (augmenter)
+            const nextBtn = { x: menuX + 10, y: menuY - 5, w: 26, h: 30 };
             window.nextSongZone = nextBtn;
-            ctx.fillText('+', nextBtn.x + nextBtn.w/2, nextBtn.y);
+            ctx.fillText('+', menuX + 20, menuY);
 
             ctx.restore();
 
@@ -18292,31 +18434,92 @@ Elle a besoin de ponts.`
             }
 
             // 🔊 Vérifier les clics sur les boutons audio
-            // Volume −
+            
+            // Volume − (diminuer)
             if (window.prevSongZone) {
                 const btn = window.prevSongZone;
                 if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
                     if (musicManager) {
-                        const volumes = [0, 0.33, 0.66, 1];
-                        const currentIndex = volumes.findIndex(v => v >= musicManager.volume.master);
-                        const newVol = volumes[Math.max(0, currentIndex - 1)] || 0;
+                        const volumes = [0, 0.25, 0.5, 0.75, 1.0];
+                        const currentVol = musicManager.volume.master;
+                        
+                        // Trouver l'index actuel
+                        let currentIndex = -1;
+                        for (let i = 0; i < volumes.length; i++) {
+                            if (Math.abs(volumes[i] - currentVol) < 0.05) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Si pas trouvé, trouver le niveau le plus proche
+                        if (currentIndex === -1) {
+                            for (let i = volumes.length - 1; i >= 0; i--) {
+                                if (currentVol >= volumes[i]) {
+                                    currentIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Diminuer le volume
+                        const newIndex = Math.max(0, currentIndex - 1);
+                        const newVol = volumes[newIndex];
+                        
                         musicManager.setVolume(newVol);
+                        
+                        // Si on passe à 0, muter
+                        if (newVol === 0 && !musicManager.isMuted) {
+                            musicManager.toggleMute();
+                        }
+                        
                         AudioSystem.playClick();
+                        console.log(`🔉 Volume: ${Math.round(newVol * 100)}%`);
                     }
                     return;
                 }
             }
 
-            // Volume +
+            // Volume + (augmenter)
             if (window.nextSongZone) {
                 const btn = window.nextSongZone;
                 if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
                     if (musicManager) {
-                        const volumes = [0, 0.33, 0.66, 1];
-                        const currentIndex = volumes.findIndex(v => v > musicManager.volume.master);
-                        const newVol = volumes[Math.min(volumes.length - 1, currentIndex)] || 1;
+                        const volumes = [0, 0.25, 0.5, 0.75, 1.0];
+                        const currentVol = musicManager.volume.master;
+                        
+                        // Si muté, démuter d'abord
+                        if (musicManager.isMuted) {
+                            musicManager.toggleMute();
+                            console.log('🔊 Démute automatique');
+                        }
+                        
+                        // Trouver l'index actuel
+                        let currentIndex = -1;
+                        for (let i = 0; i < volumes.length; i++) {
+                            if (Math.abs(volumes[i] - currentVol) < 0.05) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Si pas trouvé, trouver le niveau le plus proche
+                        if (currentIndex === -1) {
+                            for (let i = 0; i < volumes.length; i++) {
+                                if (currentVol <= volumes[i]) {
+                                    currentIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Augmenter le volume
+                        const newIndex = Math.min(volumes.length - 1, currentIndex + 1);
+                        const newVol = volumes[newIndex];
+                        
                         musicManager.setVolume(newVol);
                         AudioSystem.playClick();
+                        console.log(`🔊 Volume: ${Math.round(newVol * 100)}%`);
                     }
                     return;
                 }

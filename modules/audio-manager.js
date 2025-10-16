@@ -100,25 +100,36 @@ class AudioManager {
     // === CONTRÔLES GÉNÉRAUX ===
 
     setMasterVolume(level) {
-        // 3 niveaux : 0 (muet), 0.5 (moyen), 1 (fort)
-        this.volume.master = Math.round(level * 2) / 2;
+        // Support de tous les niveaux de volume (pas seulement 0, 0.5, 1)
+        this.volume.master = Math.max(0, Math.min(1, level)); // Clamp entre 0 et 1
         
         // Appliquer aux deux systèmes
-        this.musicPlayer.volume = this.volume.master * this.volume.music;
-        this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+        // IMPORTANT: Toujours appliquer le volume même si muté (pour que le démute fonctionne)
+        if (!this.isMuted) {
+            this.musicPlayer.volume = this.volume.master * this.volume.music;
+            this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+        }
+        
+        console.log(`🎚️ Volume master: ${Math.round(this.volume.master * 100)}% (musicPlayer: ${Math.round(this.musicPlayer.volume * 100)}%, muté: ${this.isMuted})`);
     }
 
     toggleMute() {
         this.isMuted = !this.isMuted;
         
         if (this.isMuted) {
+            // Sauvegarder le volume actuel avant de muter
+            this.volumeBeforeMute = this.volume.master;
             this.musicPlayer.volume = 0;
             this.masterGain.gain.value = 0;
             if (this.isPlaying) this.pause();
+            console.log('🔇 Muté (volume sauvegardé:', Math.round(this.volumeBeforeMute * 100) + '%)');
         } else {
-            this.musicPlayer.volume = this.volume.master * this.volume.music;
-            this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+            // Restaurer le volume d'avant le mute
+            const volToRestore = this.volumeBeforeMute || this.volume.master;
+            this.musicPlayer.volume = volToRestore * this.volume.music;
+            this.masterGain.gain.value = volToRestore * this.volume.sfx;
             if (!this.isPlaying) this.play();
+            console.log('🔊 Démuté (volume restauré:', Math.round(volToRestore * 100) + '%)');
         }
     }
 
@@ -336,7 +347,7 @@ class AudioManager {
     // Méthode de compatibilité avec l'ancien MusicManager
     setVolume(vol) {
         this.setMasterVolume(vol);
-        console.log('🔊 Volume : ' + Math.round(vol * 100) + '%');
+        // Note: le log détaillé est maintenant dans setMasterVolume
     }
 
     // Méthode de compatibilité pour obtenir l'état
