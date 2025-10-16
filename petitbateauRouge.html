@@ -8071,7 +8071,7 @@
 
                     // Ajoute un caractère aléatoire si on n'est pas à la fin
                     if (this.currentIndex < textOnly.length) {
-                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\|~^&%' + '$#@!?';
+                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/' + String.fromCharCode(92) + '|~^&%$#@!?';
                         displayText += digitalChars.charAt(Math.floor(Math.random() * digitalChars.length));
                     }
 
@@ -8262,7 +8262,7 @@
                 }
 
                 let displayText = this._buildHtmlText(this.currentIndex);
-                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\|~^&%' + '$#@!?';
+                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/' + String.fromCharCode(92) + '|~^&%$#@!?';
                 displayText += digitalChars[Math.floor(Math.random() * digitalChars.length)];
 
                 this.element.innerHTML = displayText;
