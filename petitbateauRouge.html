@@ -466,10 +466,13 @@
         /* Base commune pour tous les oiseaux */
         .bird-base {
             position: absolute;
+            left: 0;
+            top: 0;
             transform-origin: center;
             pointer-events: auto;
             transition: opacity 0.3s ease;
             cursor: pointer;
+            will-change: transform; /* Optimisation GPU */
         }
 
         /* États de visibilité */
@@ -1520,7 +1523,7 @@
         <!-- MODULE OISEAUX VOLANTS CSS -->
         <div class="flying-birds-overlay">
             <!-- Corbeau Badass -->
-            <div id="crow" class="bird-base bird-visible" style="left: 318.067px; top: 367.076px; animation: crow-auto-flight-left calc(2s / var(--animation-speed)) infinite;"></div>
+            <div id="crow" class="bird-base bird-hidden"></div>
 
             <!-- Colombe Élégante -->
             <div id="dove" class="bird-base bird-hidden"></div>
@@ -1593,7 +1596,7 @@
         // 💾 === SYSTÈME DE SAUVEGARDE/REPRISE DE JEU ===
         const GameSaveSystem = {
             SAVE_KEY: 'petit_bateau_save',
-            VERSION: '1.0',
+            VERSION: '1.1', // Fix vitesse balle + corbeau adaptatif
 
             // Sauvegarder l'état du jeu
             save() {
@@ -2112,7 +2115,8 @@
             PW: Math.max(size.width * 0.3, 100),  // Plus large
             PH: Math.max(size.height * 0.025, 15), // Plus haut
             BS: Math.max(Math.min(size.width, size.height) * 0.025, 10),
-            SP: Math.max(Math.min(size.width, size.height) * 0.002, 1.5)
+            SP: 5, // Vitesse fixe standard casse-briques (5 pixels/frame)
+            CV: Math.max(Math.min(size.width, size.height) * 0.0015, 0.5) // Vitesse corbeau réduite (~0.5-3 px/frame)
         };
         
         console.log('✅ Canvas initialisé:', C.W + 'x' + C.H);
@@ -9733,12 +9737,6 @@
         // Variables de jeu
         let score = 0, vies = 3, brises = 0, jeu = false, tactile = false;
 
-        // DeltaTime pour vitesse indépendante du framerate
-        let lastTime = performance.now();
-        let deltaTime = 0;
-        const TARGET_FPS = 60;
-        const FRAME_DURATION = 1000 / TARGET_FPS; // ~16.67ms pour 60 FPS
-
         // Sélecteur de langue au démarrage - BLOQUE LE JEU
         // Si langue déjà choisie (dans localStorage), on skip le sélecteur
         const langueDejaChoisie = localStorage.getItem('petit_bateau_lang') !== null;
@@ -9788,7 +9786,7 @@
         let textesVolants = []; // Textes qui montent au ciel
         let gouttesPlui = []; // Gouttes de pluie pour phase 5
         let pluieActive = false; // État de la pluie
-        let corbeau = { actif: false, x: 0, y: 0, touches: 0, type: 'corbeau', tempsApparition: 0, prochainPassage: 10000, direction: 1 }; // Corbeau secret (10s pour test)
+        let corbeau = { actif: false, x: 0, y: 0, vx: 0, touches: 0, type: 'corbeau', tempsApparition: 0, prochainPassage: 10000, direction: 1 }; // Corbeau secret (10s pour test)
 
         // Système de chauve-souris révélée par la lanterne
         let chauveSouris = {
@@ -15347,9 +15345,9 @@
                 vitesseMulti *= 1.5;
             }
             
-            // Appliquer deltaTime pour vitesse indépendante du framerate
-            balle.x += balle.dx * vitesseMulti * deltaTime;
-            balle.y += balle.dy * vitesseMulti * deltaTime;
+            // Mouvement de la balle (vitesse fixe classique casse-briques)
+            balle.x += balle.dx * vitesseMulti;
+            balle.y += balle.dy * vitesseMulti;
 
             // Mode casse-briques : rebonds classiques (lanterne et mur)
             if(phaseJeu === 'lanterne' || phaseJeu === 'mur') {
@@ -18103,9 +18101,9 @@ Elle a besoin de ponts.`
             // Phase LANTERNE ou MUR → casse-briques
             if (phaseJeu === 'lanterne' || phaseJeu === 'mur') {
                 if (balle.enAttente) {
-                    // Lancer la balle
-                    balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
-                    balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
+                    // Lancer la balle - vitesse standard casse-briques (5 px/frame)
+                    balle.dx = C.SP * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
+                    balle.dy = -C.SP * multiplicateurPuissance;
                     balle.enAttente = false;
                     const msg = phaseJeu === 'mur' 
                         ? getTranslatedText('game.messages.attack_launched', '🧱 Attaque lancée !')
@@ -19344,11 +19342,11 @@ Elle a besoin de ponts.`
                 if(corbeau.direction === 1) {
                     // Gauche vers droite
                     corbeau.x = -100;
-                    corbeau.vx = 0.8 / 1.5;
+                    corbeau.vx = C.CV; // Vitesse adaptative corbeau
                 } else {
                     // Droite vers gauche
                     corbeau.x = C.W + 100;
-                    corbeau.vx = -(0.8 / 1.5);
+                    corbeau.vx = -C.CV; // Vitesse adaptative corbeau
                 }
 
                 corbeau.y = C.H * 0.4; // Vers le milieu de l'écran
@@ -19419,9 +19417,12 @@ Elle a besoin de ponts.`
             inactiveElement.classList.remove('bird-visible');
             inactiveElement.classList.add('bird-hidden');
 
-            // Positionner et afficher l'oiseau actif
-            activeElement.style.left = corbeau.x + 'px';
-            activeElement.style.top = corbeau.y + 'px';
+            // Positionner et afficher l'oiseau actif avec transform au lieu de left/top
+            // Cela évite les reflows et utilise le GPU (pas de scintillement mer)
+            // IMPORTANT: On utilise left/top car l'animation CSS utilise déjà transform
+            activeElement.style.left = `${corbeau.x}px`;
+            activeElement.style.top = `${corbeau.y}px`;
+            activeElement.style.transform = `scale(var(--bird-scale))`; // Juste le scale
 
             // Orienter l'oiseau selon sa direction avec l'animation appropriée
             if (corbeau.vx < 0) {
@@ -19530,14 +19531,6 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
-            // Calculer le deltaTime (temps écoulé depuis la dernière frame)
-            const currentTime = performance.now();
-            deltaTime = (currentTime - lastTime) / FRAME_DURATION; // Normalisé à 60 FPS
-            lastTime = currentTime;
-            
-            // Limiter deltaTime pour éviter les sauts lors de lag/pause
-            deltaTime = Math.min(deltaTime, 3); // Max 3 frames de décalage
-            
             // Animation du survol du drapeau (simple)
             if (flagHover && flagHoverAnimation < 1) {
                 flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
