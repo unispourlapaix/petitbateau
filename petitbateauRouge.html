@@ -1712,10 +1712,10 @@
                                     // Charger et jouer la piste sauvegardée
                                     const savedIndex = gameState.musique.currentTrackIndex || 0;
                                     if (musicManager.playlist && musicManager.playlist[savedIndex]) {
-                                        musicManager.loadTrack(savedIndex).then(() => {
-                                            musicManager.play();
-                                            console.log(`🎵 Piste ${savedIndex} relancée après restauration`);
-                                        });
+                                        musicManager.currentTrackIndex = savedIndex;
+                                        musicManager.currentTrack = musicManager.playlist[savedIndex];
+                                        musicManager.play();
+                                        console.log(`🎵 Piste ${savedIndex} relancée après restauration`);
                                     } else {
                                         musicManager.play();
                                     }
@@ -3155,6 +3155,7 @@
             // La chauve-souris et l'ange sont gérés séparément et toujours visibles
             return;
 
+            /* Code désactivé - Affichage icônes enigmes (géré différemment maintenant)
             // Afficher les icônes de droite à gauche
             enigmesCollectees.forEach((enigme, index) => {
                 const x = startX - (index + 1) * spacing;
@@ -7709,9 +7710,28 @@
                     const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
                     window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
                     
-                    // 🔄 Redémarrer le jeu à la phase 2 après fermeture
+                    // 🔄 Vérifier s'il y a une sauvegarde disponible
                     setTimeout(() => {
-                        recommencerDepuisPhase2();
+                        const saveInfo = GameSaveSystem.getSaveInfo();
+                        if (saveInfo && saveInfo.hasSave) {
+                            // Proposer de reprendre depuis la sauvegarde
+                            const reprendre = confirm(
+                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
+                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
+                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
+                            );
+                            
+                            if (reprendre) {
+                                // Charger la sauvegarde
+                                window.loadGame();
+                            } else {
+                                // Recommencer à la phase 2
+                                recommencerDepuisPhase2();
+                            }
+                        } else {
+                            // Pas de sauvegarde, recommencer à la phase 2
+                            recommencerDepuisPhase2();
+                        }
                     }, 500);
                 }, email && pseudo ? 1500 : 0); // Attendre 1.5s si enregistré, sinon immédiat
             };
@@ -15638,23 +15658,41 @@
 
         function finDuVoyage() {
             jeu = false;
-            afficherMessage(`
-                <div style="font-weight: bold; font-size: 17px; text-align: center;">
-                    ${getTranslatedText('game.journey_continues', '😢 Le voyage vers la vérité continue...')}<br><br>
-                    "${getTranslatedText('game.truth_triumphs', 'La vérité finit toujours par triompher !')}"<br><br>
-                    <button onclick="recommencerJeuGameOver()" 
-                            style="background: linear-gradient(45deg, #4169E1, #1E90FF); 
-                                   color: white; border: none; padding: 15px 30px; 
-                                   border-radius: 25px; font-size: 18px; font-weight: bold; 
-                                   cursor: pointer; box-shadow: 0 4px 15px rgba(65,105,225,0.4);
-                                   transition: all 0.3s ease;
-                                   margin: 10px;"
-                            onmouseover="this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                        ${getTranslatedText('ui.restart_journey')}
-                    </button>
-                </div>
-            `, 0);
+            
+            // Afficher le formulaire de sauvegarde du score
+            if (typeof afficherFormulaireFinDeJeuAvecResume === 'function') {
+                // Calculer les scores
+                const xp = pointsConnaissance || 0;
+                const scoreJeu = window.score || score || 0;
+                const scoreTotal = xp + scoreJeu;
+                const scoreSagesse = Math.round(scoreTotal / 100);
+                
+                // Générer un ID unique
+                const timestamp = Date.now().toString(16);
+                const random = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+                const idUnique = `PB${timestamp}${random}`.toUpperCase();
+                
+                afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique);
+            } else {
+                // Fallback si la fonction n'existe pas
+                afficherMessage(`
+                    <div style="font-weight: bold; font-size: 17px; text-align: center;">
+                        ${getTranslatedText('game.journey_continues', '😢 Le voyage vers la vérité continue...')}<br><br>
+                        "${getTranslatedText('game.truth_triumphs', 'La vérité finit toujours par triompher !')}"<br><br>
+                        <button onclick="recommencerJeuGameOver()" 
+                                style="background: linear-gradient(45deg, #4169E1, #1E90FF); 
+                                       color: white; border: none; padding: 15px 30px; 
+                                       border-radius: 25px; font-size: 18px; font-weight: bold; 
+                                       cursor: pointer; box-shadow: 0 4px 15px rgba(65,105,225,0.4);
+                                       transition: all 0.3s ease;
+                                       margin: 10px;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                            ${getTranslatedText('ui.restart_journey')}
+                        </button>
+                    </div>
+                `, 0);
+            }
         }
 
         function recommencerJeuGameOver() {
@@ -15823,8 +15861,10 @@
 
         // Fonction pour passer au chapitre suivant (pour les tests)
         function passerChapitreTest() {
-            // Mode passe phase désactivé
+            // Mode passe phase désactivé - Code commenté car non utilisé
             return;
+            
+            /* Code désactivé pour les tests
             if(periode === 'jour') {
                 periode = 'nuit';
                 VOYAGE = NUIT;
@@ -16579,7 +16619,7 @@ Elle a besoin de ponts.`
 
             // Relancer l'initialisation
             initJeu();
-            creerBriques(); // Créer les briques pour la phase 2
+            dedoublerCoeursEnBriques(); // Créer les briques pour la phase 2
 
             // Cacher le message
             cacherMessage();
@@ -17876,7 +17916,7 @@ Elle a besoin de ponts.`
                 const maintenant = Date.now();
                 const deltaTemps = maintenant - dernierTemps;
                 if (deltaTemps > 0) {
-                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 16; // Normaliser à 60fps
+                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7; // Inertie réduite pour plus de réactivité
                 }
                 dernierePositionX = raquette.x;
                 dernierTemps = maintenant;

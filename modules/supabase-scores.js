@@ -47,42 +47,22 @@ class SupabaseScores {
         console.log('✅ Client Supabase initialisé');
     }
 
-    // Créer ou récupérer un utilisateur
+    // Créer ou récupérer un utilisateur (stocke localement pour saveScore Edge Function)
     async getOrCreateUser(email, pseudo, options = {}) {
         try {
-            // Chercher si l'utilisateur existe déjà
-            const { data: existingUser, error: searchError } = await this.client
-                .from('users')
-                .select('*')
-                .eq('email', email)
-                .single();
+            // Stocker les informations localement pour la fonction Edge
+            this.currentUser = {
+                email: email,
+                pseudo: pseudo,
+                avatar: options.avatar || null,
+                ville: options.ville || null,
+                pays: options.pays || null,
+                age: options.age || null,
+                genre: options.genre || null
+            };
 
-            if (existingUser) {
-                console.log('👤 Utilisateur trouvé:', existingUser.pseudo);
-                this.currentUser = existingUser;
-                return existingUser;
-            }
-
-            // Créer un nouvel utilisateur
-            const { data: newUser, error: createError } = await this.client
-                .from('users')
-                .insert([{
-                    email: email,
-                    pseudo: pseudo,
-                    avatar: options.avatar || null,
-                    ville: options.ville || null,
-                    pays: options.pays || null,
-                    age: options.age || null,
-                    genre: options.genre || null
-                }])
-                .select()
-                .single();
-
-            if (createError) throw createError;
-
-            console.log('✅ Nouvel utilisateur créé:', newUser.pseudo);
-            this.currentUser = newUser;
-            return newUser;
+            console.log('👤 Utilisateur configuré localement pour Edge Function:', pseudo);
+            return this.currentUser;
 
         } catch (error) {
             console.error('❌ Erreur getOrCreateUser:', error);
@@ -111,8 +91,48 @@ class SupabaseScores {
         }
     }
 
-    // Sauvegarder un score (remplace l'ancien si nouveau score est meilleur)
+    // Sauvegarder un score via la fonction Edge (sécurisé avec RLS)
     async saveScore(score, options = {}) {
+        try {
+            // Utiliser la fonction Edge au lieu de l'insertion directe
+            const response = await fetch(`${this.client.supabaseUrl}/functions/v1/save-game-score`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.client.supabaseKey}`
+                },
+                body: JSON.stringify({
+                    email: this.currentUser?.email,
+                    pseudo: this.currentUser?.pseudo,
+                    score: score,
+                    niveau_atteint: options.niveau_atteint || null,
+                    temps_jeu: options.temps_jeu || null,
+                    donnees_extra: options.donnees_extra || null,
+                    ville: this.currentUser?.ville,
+                    pays: this.currentUser?.pays,
+                    age: this.currentUser?.age,
+                    genre: this.currentUser?.genre,
+                    avatar: this.currentUser?.avatar
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Erreur lors de la sauvegarde');
+            }
+
+            console.log('✅ Score enregistré via Edge Function:', result);
+            return result;
+
+        } catch (error) {
+            console.error('❌ Erreur saveScore:', error);
+            return null;
+        }
+    }
+
+    // Méthode de sauvegarde classique (fallback si Edge Function indisponible)
+    async saveScoreClassic(score, options = {}) {
         if (!this.currentUser) {
             console.error('❌ Aucun utilisateur connecté');
             return null;
