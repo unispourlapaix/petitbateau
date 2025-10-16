@@ -9827,7 +9827,8 @@
                 haloLune: null,
                 soleilCouchant: null,
                 haloSoleilCouchant: null,
-                refletSoleil: null
+                refletSoleil: null,
+                languageSelector: null // Gradient sélecteur langue
             },
             // Throttling des vagues
             lastWaveFrame: 0,
@@ -9841,6 +9842,10 @@
             lastSunRaysFrame: 0,
             sunRaysThrottle: 2,
             sunRaysAngles: [],
+            // Throttling vagues sélecteur langue
+            lastLanguageWaveFrame: 0,
+            languageWaveThrottle: 3, // Calculer les vagues tous les 3 frames (20 FPS)
+            languageWavesPath: [],
             // Frame counter
             frameCount: 0
         };
@@ -19543,59 +19548,72 @@ Elle a besoin de ponts.`
                 // Clear canvas
                 ctx.clearRect(0, 0, C.W, C.H);
 
-                // Fond dégradé bleu roi -> blanc -> rouge
-                const gradient = ctx.createLinearGradient(0, 0, 0, C.H);
-                gradient.addColorStop(0, '#0055A4');      // Bleu roi
-                gradient.addColorStop(0.5, '#ffffff');    // Blanc
-                gradient.addColorStop(1, '#EF4135');      // Rouge
-                ctx.fillStyle = gradient;
+                // ⚡ OPTIMISATION: Créer gradient une seule fois
+                if (!fondAniméCache.gradients.languageSelector) {
+                    const gradient = ctx.createLinearGradient(0, 0, 0, C.H);
+                    gradient.addColorStop(0, '#0055A4');      // Bleu roi
+                    gradient.addColorStop(0.5, '#ffffff');    // Blanc
+                    gradient.addColorStop(1, '#EF4135');      // Rouge
+                    fondAniméCache.gradients.languageSelector = gradient;
+                }
+                
+                ctx.fillStyle = fondAniméCache.gradients.languageSelector;
                 ctx.fillRect(0, 0, C.W, C.H);
 
-                // Vagues animées en fond
+                // ⚡ OPTIMISATION: Calculer vagues tous les 3 frames (20 FPS au lieu de 60)
                 const time = Date.now() / 1000;
+                
+                if (fondAniméCache.frameCount - fondAniméCache.lastLanguageWaveFrame >= fondAniméCache.languageWaveThrottle) {
+                    fondAniméCache.lastLanguageWaveFrame = fondAniméCache.frameCount;
+                    fondAniméCache.languageWavesPath = [];
+                    
+                    ctx.save();
+
+                    // Vague 1 (arrière) - pas réduit de 5 à 10
+                    const wave1 = new Path2D();
+                    for (let x = 0; x <= C.W; x += 10) {
+                        const y = C.H * 0.3 + Math.sin(x * 0.01 + time * 0.5) * 40 + Math.cos(x * 0.02 + time * 0.3) * 20;
+                        if (x === 0) wave1.moveTo(x, y);
+                        else wave1.lineTo(x, y);
+                    }
+                    fondAniméCache.languageWavesPath[0] = { path: wave1, alpha: 0.15, width: 3 };
+
+                    // Vague 2 (milieu)
+                    const wave2 = new Path2D();
+                    for (let x = 0; x <= C.W; x += 10) {
+                        const y = C.H * 0.5 + Math.sin(x * 0.015 + time * 0.7) * 50 + Math.cos(x * 0.025 + time * 0.5) * 25;
+                        if (x === 0) wave2.moveTo(x, y);
+                        else wave2.lineTo(x, y);
+                    }
+                    fondAniméCache.languageWavesPath[1] = { path: wave2, alpha: 0.2, width: 4 };
+
+                    // Vague 3 (avant)
+                    const wave3 = new Path2D();
+                    for (let x = 0; x <= C.W; x += 10) {
+                        const y = C.H * 0.7 + Math.sin(x * 0.02 + time * 1) * 60 + Math.cos(x * 0.03 + time * 0.8) * 30;
+                        if (x === 0) wave3.moveTo(x, y);
+                        else wave3.lineTo(x, y);
+                    }
+                    fondAniméCache.languageWavesPath[2] = { path: wave3, alpha: 0.25, width: 5 };
+                    
+                    ctx.restore();
+                }
+                
+                // Dessiner les vagues en cache
                 ctx.save();
-
-                // Vague 1 (arrière)
-                ctx.globalAlpha = 0.15;
                 ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                for (let x = 0; x < C.W; x += 5) {
-                    const y = C.H * 0.3 + Math.sin(x * 0.01 + time * 0.5) * 40 + Math.cos(x * 0.02 + time * 0.3) * 20;
-                    if (x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-
-                // Vague 2 (milieu)
-                ctx.globalAlpha = 0.2;
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                for (let x = 0; x < C.W; x += 5) {
-                    const y = C.H * 0.5 + Math.sin(x * 0.015 + time * 0.7) * 50 + Math.cos(x * 0.025 + time * 0.5) * 25;
-                    if (x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-
-                // Vague 3 (avant)
-                ctx.globalAlpha = 0.25;
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                for (let x = 0; x < C.W; x += 5) {
-                    const y = C.H * 0.7 + Math.sin(x * 0.02 + time * 1) * 60 + Math.cos(x * 0.03 + time * 0.8) * 30;
-                    if (x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-
+                fondAniméCache.languageWavesPath.forEach(wave => {
+                    ctx.globalAlpha = wave.alpha;
+                    ctx.lineWidth = wave.width;
+                    ctx.stroke(wave.path);
+                });
                 ctx.globalAlpha = 1;
                 ctx.restore();
 
-                // Particules décoratives (réduites)
-                for (let i = 0; i < 15; i++) {
-                    const x = (i * C.W / 15) + (Math.sin(time + i) * 50);
-                    const y = (i * C.H / 15) + (Math.cos(time + i) * 30);
+                // Particules décoratives (réduites à 10)
+                for (let i = 0; i < 10; i++) {
+                    const x = (i * C.W / 10) + (Math.sin(time + i) * 50);
+                    const y = (i * C.H / 10) + (Math.cos(time + i) * 30);
                     ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + Math.sin(time + i) * 0.1})`;
                     ctx.beginPath();
                     ctx.arc(x, y, 4, 0, Math.PI * 2);
