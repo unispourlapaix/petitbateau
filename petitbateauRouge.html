@@ -3040,7 +3040,28 @@
             cachedTabWidths: null,
             cachedMenuDimensions: null,
             lastCalculationTime: 0,
-            needsRecalculation: true
+            needsRecalculation: true,
+            
+            // ⚡ OPTIMISATION: Cache word wrapping carte expanded
+            expandedCardCache: {
+                cardId: null,
+                mystereLines: [],
+                revelationLines: [],
+                sagesseLines: [],
+                calculatedHeight: 0
+            },
+            
+            // ⚡ OPTIMISATION: Cache textes énigmes traduits
+            enigmeTextesCache: {},
+            enigmeTextesInitialized: false,
+            
+            // ⚡ OPTIMISATION: Cache gradients menu
+            gradientsCache: {
+                classement: [],
+                languesInactif: null,
+                languesActif: null,
+                initialized: false
+            }
         };
 
         // Initialiser le module InfoAuteur
@@ -3190,6 +3211,57 @@
 
             ctx.restore();
         */
+
+        // ⚡ OPTIMISATION: Initialiser cache textes énigmes traduits
+        function initEnigmeTextesCache() {
+            if (!menuEnigmesCanvas.enigmeTextesInitialized || !menuEnigmesCanvas.enigmeTextesCache) {
+                menuEnigmesCanvas.enigmeTextesCache = {};
+            }
+            
+            Object.keys(ENIGMES_DATABASE).forEach(id => {
+                const enigme = ENIGMES_DATABASE[id];
+                menuEnigmesCanvas.enigmeTextesCache[id] = {
+                    nom: typeof enigme.nom === 'function' ? enigme.nom() : enigme.nom,
+                    description: typeof enigme.description === 'function' ? enigme.description() : enigme.description,
+                    mystere: typeof enigme.mystere === 'function' ? enigme.mystere() : enigme.mystere,
+                    revelation: typeof enigme.revelation === 'function' ? enigme.revelation() : enigme.revelation,
+                    sagesse: typeof enigme.sagesse === 'function' ? enigme.sagesse() : enigme.sagesse,
+                    icone: enigme.icone
+                };
+            });
+            
+            menuEnigmesCanvas.enigmeTextesInitialized = true;
+        }
+        
+        // ⚡ OPTIMISATION: Initialiser cache gradients menu
+        function initMenuGradientsCache() {
+            if (menuEnigmesCanvas.gradientsCache.initialized) return;
+            
+            // Gradients classement (10 entrées)
+            menuEnigmesCanvas.gradientsCache.classement = [];
+            for (let i = 0; i < 10; i++) {
+                const gradient = ctx.createLinearGradient(0, 0, 0, 60);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.08)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+                menuEnigmesCanvas.gradientsCache.classement.push(gradient);
+            }
+            
+            // Gradient langue inactif (réutilisable)
+            const gradientInactif = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+            gradientInactif.addColorStop(0, '#f9fafb');
+            gradientInactif.addColorStop(0.7, '#f3f4f6');
+            gradientInactif.addColorStop(1, '#e5e7eb');
+            menuEnigmesCanvas.gradientsCache.languesInactif = gradientInactif;
+            
+            // Gradient langue actif
+            const gradientActif = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+            gradientActif.addColorStop(0, '#ffffff');
+            gradientActif.addColorStop(0.7, '#f8fafc');
+            gradientActif.addColorStop(1, '#e2e8f0');
+            menuEnigmesCanvas.gradientsCache.languesActif = gradientActif;
+            
+            menuEnigmesCanvas.gradientsCache.initialized = true;
+        }
 
         // Dessiner le bouton menu énigmes dans le canvas
         function dessinerBoutonMenuEnigmes() {
@@ -3403,6 +3475,14 @@
 
             // Marquer que les calculs doivent être refaits
             menuEnigmesCanvas.needsRecalculation = true;
+            
+            // ⚡ OPTIMISATION: Initialiser les caches au premier appel
+            if (!menuEnigmesCanvas.enigmeTextesInitialized) {
+                initEnigmeTextesCache();
+            }
+            if (!menuEnigmesCanvas.gradientsCache.initialized) {
+                initMenuGradientsCache();
+            }
 
             // Générer les positions des cartes
             genererPositionsCartesEnigmes();
@@ -4283,17 +4363,10 @@
                     const centerY = btn.y + btn.height / 2;
                     const radius = 20; // Rayon légèrement augmenté pour les drapeaux plus grands
                     
-                    // Gradient moderne blanc/gris pour le bouton
-                    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                    if (btn.isActive) {
-                        gradient.addColorStop(0, '#ffffff'); // Blanc pur
-                        gradient.addColorStop(0.7, '#f8fafc'); // Blanc très légèrement teinté
-                        gradient.addColorStop(1, '#e2e8f0'); // Gris très clair
-                    } else {
-                        gradient.addColorStop(0, '#f9fafb'); // Blanc cassé
-                        gradient.addColorStop(0.7, '#f3f4f6'); // Gris très clair
-                        gradient.addColorStop(1, '#e5e7eb'); // Gris clair
-                    }
+                    // ⚡ OPTIMISATION: Utiliser gradient pré-calculé au lieu de createRadialGradient() chaque frame
+                    const gradient = btn.isActive 
+                        ? menuEnigmesCanvas.gradientsCache.languesActif 
+                        : menuEnigmesCanvas.gradientsCache.languesInactif;
                     
                     ctx.fillStyle = gradient;
                     ctx.strokeStyle = btn.isActive ? '#3b82f6' : '#d1d5db'; // Bleu moderne ou gris
@@ -4465,19 +4538,23 @@
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = isCollected ? '#333' : '#aaa';
-                ctx.fillText(card.enigme.icone, card.x + 15, y + card.height/2);
+                // ⚡ OPTIMISATION: Utiliser cache icône
+                const cachedEnigme = menuEnigmesCanvas.enigmeTextesCache[card.id] || card.enigme;
+                ctx.fillText(cachedEnigme.icone, card.x + 15, y + card.height/2);
 
                 // Nom au centre - PLUS GROS ET GRAS
                 ctx.font = 'bold 26px Arial';
                 ctx.fillStyle = isCollected ? '#222' : '#999';
-                ctx.fillText(typeof card.enigme.nom === 'function' ? card.enigme.nom() : card.enigme.nom, card.x + 90, y + card.height/2 - 10);
+                // ⚡ OPTIMISATION: Utiliser cache nom (évite appel function)
+                ctx.fillText(cachedEnigme.nom, card.x + 90, y + card.height/2 - 10);
 
                 // Description en dessous (si collectée) - PLUS GROSSE
                 if (isCollected) {
                     ctx.font = '18px Arial';
                     ctx.fillStyle = '#666';
                     const maxWidth = card.width - 140; // Réduit pour laisser place à la flèche
-                    const description = typeof card.enigme.description === 'function' ? card.enigme.description() : card.enigme.description;
+                    // ⚡ OPTIMISATION: Utiliser cache description (évite appel function)
+                    const description = cachedEnigme.description;
 
                     // Limiter la longueur
                     if (ctx.measureText(description).width > maxWidth) {
@@ -4513,26 +4590,42 @@
                     const padding = 18;
                     const maxWidth = expandedCard.width - padding * 2;
                     
-                    // Préparer les textes - AJUSTÉ POUR MEILLEURE LISIBILITÉ
-                    ctx.font = 'italic 17px Arial';
-                    const mystereText = `💭 ${typeof enigme.mystere === 'function' ? enigme.mystere() : enigme.mystere}`;
-                    const mystereLines = wrapText(ctx, mystereText, maxWidth);
+                    // ⚡ OPTIMISATION: Cache word wrapping (recalculer SEULEMENT si carte change)
+                    if (menuEnigmesCanvas.expandedCardCache.cardId !== menuEnigmesCanvas.expandedCard) {
+                        // Utiliser cache textes traduits
+                        const cachedTexts = menuEnigmesCanvas.enigmeTextesCache[expandedCard.id] || enigme;
+                        
+                        // Préparer les textes - AJUSTÉ POUR MEILLEURE LISIBILITÉ
+                        ctx.font = 'italic 17px Arial';
+                        const mystereText = `💭 ${cachedTexts.mystere}`;
+                        menuEnigmesCanvas.expandedCardCache.mystereLines = wrapText(ctx, mystereText, maxWidth);
+                        
+                        ctx.font = '17px Arial';
+                        const revelationText = `✨ ${cachedTexts.revelation}`;
+                        menuEnigmesCanvas.expandedCardCache.revelationLines = wrapText(ctx, revelationText, maxWidth);
+                        
+                        ctx.font = 'italic 15px Arial';
+                        const sagesseText = `📖 ${cachedTexts.sagesse}`;
+                        menuEnigmesCanvas.expandedCardCache.sagesseLines = wrapText(ctx, sagesseText, maxWidth);
+                        
+                        // CALCULER LA HAUTEUR DYNAMIQUE en fonction du contenu
+                        const lineHeight = 24;
+                        const sectionSpacing = 14;
+                        menuEnigmesCanvas.expandedCardCache.calculatedHeight = padding * 2 + 20 + // padding + marge haut
+                            menuEnigmesCanvas.expandedCardCache.mystereLines.length * lineHeight + sectionSpacing +
+                            menuEnigmesCanvas.expandedCardCache.revelationLines.length * lineHeight + sectionSpacing +
+                            menuEnigmesCanvas.expandedCardCache.sagesseLines.length * lineHeight;
+                        
+                        menuEnigmesCanvas.expandedCardCache.cardId = menuEnigmesCanvas.expandedCard;
+                    }
                     
-                    ctx.font = '17px Arial';
-                    const revelationText = `✨ ${typeof enigme.revelation === 'function' ? enigme.revelation() : enigme.revelation}`;
-                    const revelationLines = wrapText(ctx, revelationText, maxWidth);
-                    
-                    ctx.font = 'italic 15px Arial';
-                    const sagesseText = `📖 ${typeof enigme.sagesse === 'function' ? enigme.sagesse() : enigme.sagesse}`;
-                    const sagesseLines = wrapText(ctx, sagesseText, maxWidth);
-                    
-                    // CALCULER LA HAUTEUR DYNAMIQUE en fonction du contenu
+                    // Utiliser les valeurs en cache
+                    const mystereLines = menuEnigmesCanvas.expandedCardCache.mystereLines;
+                    const revelationLines = menuEnigmesCanvas.expandedCardCache.revelationLines;
+                    const sagesseLines = menuEnigmesCanvas.expandedCardCache.sagesseLines;
+                    const calculatedHeight = menuEnigmesCanvas.expandedCardCache.calculatedHeight;
                     const lineHeight = 24;
                     const sectionSpacing = 14;
-                    const calculatedHeight = padding * 2 + 20 + // padding + marge haut
-                        mystereLines.length * lineHeight + sectionSpacing +
-                        revelationLines.length * lineHeight + sectionSpacing +
-                        sagesseLines.length * lineHeight;
                     
                     // Dessiner le fond du panneau déroulant avec HAUTEUR DYNAMIQUE
                     ctx.save();
@@ -18099,6 +18192,13 @@ Elle a besoin de ponts.`
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
                                         
+                                        // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
+                                        if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
+                                            menuEnigmesCanvas.enigmeTextesInitialized = false;
+                                            initEnigmeTextesCache();
+                                            console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
+                                        }
+                                        
                                         // Vérifier s'il y a une sauvegarde en cours
                                         const savedData = localStorage.getItem('petit_bateau_save');
                                         if (savedData) {
@@ -18796,6 +18896,13 @@ Elle a besoin de ponts.`
                                         // Synchroniser currentLang et sauvegarder
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
+                                        
+                                        // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
+                                        if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
+                                            menuEnigmesCanvas.enigmeTextesInitialized = false;
+                                            initEnigmeTextesCache();
+                                            console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
+                                        }
                                         
                                         // Vérifier s'il y a une sauvegarde en cours
                                         const savedData = localStorage.getItem('petit_bateau_save');
