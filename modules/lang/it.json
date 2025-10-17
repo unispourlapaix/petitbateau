@@ -86,7 +86,13 @@
     }
   },
   "language_selector": {
-    "confirm_change": "🌍 Cambiare lingua in {language}?\n\nLa pagina verrà ricaricata per applicare le traduzioni."
+    "confirm_change": "🌍 Cambiare lingua in {language}?\n\nLa pagina verrà ricaricata per applicare le traduzioni.",
+    "restart_confirm": "🌍 Cambio Lingua\n\nVuoi ricominciare la storia dall'inizio nella nuova lingua?\n\n✅ SÌ = Riavviare dall'intro (esperienza narrativa coerente)\n❌ NO = Continuare da dove eri (testi già visti nella vecchia lingua)"
+  },
+  "update": {
+    "new_version_available": "🎨 Nuova versione disponibile!",
+    "update_now_question": "Vuoi aggiornare ora?",
+    "and_more_improvements": "e altre {count} migliorie"
   },
   "hard_reset": {
     "confirm_1": "🔥 ATTENZIONE: Questo CANCELLERÀ TUTTO (progressi, punteggi, enigmi raccolti).\n\nSei SICURO di voler continuare?",

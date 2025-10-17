@@ -86,7 +86,13 @@
     }
   },
   "language_selector": {
-    "confirm_change": "🌍 Badilisha lugha kwenda {language}?\n\nUkurasa utapakiwa tena ili kutumia tafsiri."
+    "confirm_change": "🌍 Badilisha lugha kwenda {language}?\n\nUkurasa utapakiwa tena ili kutumia tafsiri.",
+    "restart_confirm": "🌍 Mabadiliko ya Lugha\n\nUnataka kuanza hadithi kutoka mwanzo kwa lugha mpya?\n\n✅ NDIYO = Anza upya kwenye utangulizi (uzoefu thabiti wa hadithi)\n❌ HAPANA = Endelea kutoka ulipokuwa (maandishi uliyoyaona tayari kwa lugha ya zamani)"
+  },
+  "update": {
+    "new_version_available": "🎨 Toleo jipya linapatikana!",
+    "update_now_question": "Unataka kusasisha sasa?",
+    "and_more_improvements": "na maboresho {count} zaidi"
   },
   "hard_reset": {
     "confirm_1": "🔥 ONYO: Hii itafuta KILA KITU (maendeleo, alama, fumbo zilizokusanywa).\n\nUna hakika unataka kuendelea?",

@@ -90,7 +90,13 @@
     "game_reset": "Game reset!"
   },
   "language_selector": {
-    "confirm_change": "🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations."
+    "confirm_change": "🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations.",
+    "restart_confirm": "🌍 Language Change\n\nDo you want to restart the story from the beginning in the new language?\n\n✅ YES = Restart at intro (coherent narrative experience)\n❌ NO = Continue where you were (texts already seen in old language)"
+  },
+  "update": {
+    "new_version_available": "🎨 New version available!",
+    "update_now_question": "Do you want to update now?",
+    "and_more_improvements": "and {count} more improvements"
   },
   "hard_reset": {
     "confirm_1": "🔥 WARNING: This will DELETE EVERYTHING (progress, scores, collected enigmas).\n\nAre you SURE you want to continue?",

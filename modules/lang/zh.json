@@ -86,7 +86,13 @@
     }
   },
   "language_selector": {
-    "confirm_change": "🌍 更改语言为{language}？\n\n页面将重新加载以应用翻译。"
+    "confirm_change": "🌍 更改语言为{language}？\n\n页面将重新加载以应用翻译。",
+    "restart_confirm": "🌍 语言更改\n\n您想用新语言从头开始重新讲述故事吗？\n\n✅ 是 = 从介绍重新开始（连贯的叙事体验）\n❌ 否 = 从您所在的位置继续（已查看的文本使用旧语言）"
+  },
+  "update": {
+    "new_version_available": "🎨 新版本可用！",
+    "update_now_question": "您想现在更新吗？",
+    "and_more_improvements": "以及其他{count}项改进"
   },
   "hard_reset": {
     "confirm_1": "🔥 警告：这将删除所有内容（进度、分数、收集的谜题）。\n\n您确定要继续吗？",

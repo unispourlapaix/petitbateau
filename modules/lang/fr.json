@@ -91,7 +91,13 @@
     "game_reset": "Jeu réinitialisé !"
   },
   "language_selector": {
-    "confirm_change": "🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions."
+    "confirm_change": "🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.",
+    "restart_confirm": "🌍 Changement de langue\n\nVoulez-vous recommencer l'histoire depuis le début dans la nouvelle langue ?\n\n✅ OUI = Recommencer à l'intro (expérience narrative cohérente)\n❌ NON = Continuer où vous étiez (textes déjà vus dans l'ancienne langue)"
+  },
+  "update": {
+    "new_version_available": "🎨 Nouvelle version disponible !",
+    "update_now_question": "Voulez-vous mettre à jour maintenant ?",
+    "and_more_improvements": "et {count} autres améliorations"
   },
   "hard_reset": {
     "confirm_1": "🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?",

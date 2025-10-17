@@ -86,7 +86,13 @@
     }
   },
   "language_selector": {
-    "confirm_change": "🌍 Sprache zu {language} wechseln?\n\nDie Seite wird neu geladen, um die Übersetzungen anzuwenden."
+    "confirm_change": "🌍 Sprache zu {language} wechseln?\n\nDie Seite wird neu geladen, um die Übersetzungen anzuwenden.",
+    "restart_confirm": "🌍 Sprachwechsel\n\nMöchten Sie die Geschichte von Anfang an in der neuen Sprache neu starten?\n\n✅ JA = Neu starten am Intro (kohärente narrative Erfahrung)\n❌ NEIN = Dort fortfahren, wo Sie waren (bereits gesehene Texte in alter Sprache)"
+  },
+  "update": {
+    "new_version_available": "🎨 Neue Version verfügbar!",
+    "update_now_question": "Möchten Sie jetzt aktualisieren?",
+    "and_more_improvements": "und {count} weitere Verbesserungen"
   },
   "hard_reset": {
     "confirm_1": "🔥 ACHTUNG: Dies wird ALLES löschen (Fortschritt, Punkte, gesammelte Rätsel).\n\nSind Sie SICHER, dass Sie fortfahren möchten?",

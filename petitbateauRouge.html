@@ -4117,12 +4117,52 @@
                     });
                 }
 
-                // Message de motivation
-                yPos = menuY + menuHeight - 60;
+                // Message de motivation avec fond rose pour meilleure lisibilité
+                yPos = menuY + menuHeight - 50; // Encore plus bas
                 ctx.textAlign = 'center';
                 ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+                
+                // Mesurer le texte pour dimensionner le fond
+                const motivationText = getTranslatedText('ui.complete_game_save_score');
+                const textMetrics = ctx.measureText(motivationText);
+                const textWidth = textMetrics.width;
+                const padding = 10; // Plus petit padding
+                const boxHeight = 24; // Hauteur réduite
+                const borderRadius = 12; // Coins arrondis
+                
+                // Calculer position du fond centré sur le texte
+                const boxX = C.W / 2 - textWidth / 2 - padding;
+                const boxY = yPos - boxHeight / 2; // Centré verticalement sur yPos
+                const boxW = textWidth + padding * 2;
+                const boxH = boxHeight;
+                
+                // Dessiner fond rose arrondi semi-transparent
+                ctx.fillStyle = 'rgba(255, 182, 193, 0.3)'; // Rose clair transparent
+                ctx.beginPath();
+                
+                // Rectangle arrondi
+                ctx.moveTo(boxX + borderRadius, boxY);
+                ctx.lineTo(boxX + boxW - borderRadius, boxY);
+                ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + borderRadius, borderRadius);
+                ctx.lineTo(boxX + boxW, boxY + boxH - borderRadius);
+                ctx.arcTo(boxX + boxW, boxY + boxH, boxX + boxW - borderRadius, boxY + boxH, borderRadius);
+                ctx.lineTo(boxX + borderRadius, boxY + boxH);
+                ctx.arcTo(boxX, boxY + boxH, boxX, boxY + boxH - borderRadius, borderRadius);
+                ctx.lineTo(boxX, boxY + borderRadius);
+                ctx.arcTo(boxX, boxY, boxX + borderRadius, boxY, borderRadius);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Bordure rose plus foncée
+                ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)'; // Rose hot pink transparent
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Texte centré verticalement dans le fond
                 ctx.fillStyle = '#94a3b8';
-                ctx.fillText(getTranslatedText('ui.complete_game_save_score'), C.W / 2, yPos);
+                ctx.textBaseline = 'middle'; // Centrage vertical
+                ctx.fillText(motivationText, C.W / 2, yPos);
+                ctx.textBaseline = 'alphabetic'; // Reset
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'langues') {
@@ -18045,15 +18085,10 @@ Elle a besoin de ponts.`
                                 };
                                 const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
                                 
-                                const confirmMessages = {
-                                    'fr': `🌍 Changer vers ${newLangName} ?\n\nLa page sera rechargée.`,
-                                    'en': `🌍 Change to ${newLangName}?\n\nPage will reload.`,
-                                    'es': `🌍 ¿Cambiar a ${newLangName}?\n\nLa página se recargará.`,
-                                    'jp': `🌍 ${newLangName}に変更?\n\nページ再読み込み。`,
-                                    'uk': `🌍 Змінити на ${newLangName}?\n\nПерезавантаження.`
-                                };
-                                const currentLangCode = window.i18n.getCurrentLanguage() || 'fr';
-                                const confirmMessage = confirmMessages[currentLangCode] || confirmMessages['en'];
+                                // ⚡ Utiliser getTranslatedText pour le message de confirmation
+                                const confirmMessage = getTranslatedText('language_selector.confirm_change', 
+                                    '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.')
+                                    .replace('{language}', newLangName);
                                 
                                 if (confirm(confirmMessage)) {
                                     // ✅ Bloquer la sauvegarde pendant le changement de langue
@@ -18064,13 +18099,26 @@ Elle a besoin de ponts.`
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
                                         
-                                        // ✅ Mettre à jour la langue dans la sauvegarde existante
+                                        // Vérifier s'il y a une sauvegarde en cours
                                         const savedData = localStorage.getItem('petit_bateau_save');
                                         if (savedData) {
-                                            const save = JSON.parse(savedData);
-                                            save.language = btn.code;
-                                            localStorage.setItem('petit_bateau_save', JSON.stringify(save));
-                                            console.log('🌍 Langue mise à jour dans la sauvegarde:', btn.code);
+                                            // Demander le choix à l'utilisateur (texte traduit)
+                                            const restartMessage = window.i18n.t('language_selector.restart_confirm');
+                                            const restart = confirm(restartMessage);
+                                            
+                                            if (restart) {
+                                                // Effacer la sauvegarde pour recommencer l'intro
+                                                GameSaveSystem.clear();
+                                                console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
+                                            } else {
+                                                // Mettre à jour la langue dans la sauvegarde existante
+                                                const save = JSON.parse(savedData);
+                                                save.language = btn.code;
+                                                localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                                console.log('🌍 Langue changée → Progression conservée');
+                                            }
+                                        } else {
+                                            console.log('🌍 Langue changée → Pas de sauvegarde');
                                         }
                                         
                                         setTimeout(() => location.reload(), 500);
@@ -18749,17 +18797,30 @@ Elle a besoin de ponts.`
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
                                         
-                                        // ✅ Mettre à jour la langue dans la sauvegarde existante
+                                        // Vérifier s'il y a une sauvegarde en cours
                                         const savedData = localStorage.getItem('petit_bateau_save');
                                         if (savedData) {
-                                            try {
-                                                const save = JSON.parse(savedData);
-                                                save.language = btn.code;
-                                                localStorage.setItem('petit_bateau_save', JSON.stringify(save));
-                                                console.log('🌍 Langue mise à jour dans la sauvegarde:', btn.code);
-                                            } catch(e) {
-                                                console.error('❌ Erreur mise à jour langue sauvegarde:', e);
+                                            // Demander le choix à l'utilisateur (texte traduit)
+                                            const restartMessage = window.i18n.t('language_selector.restart_confirm');
+                                            const restart = confirm(restartMessage);
+                                            
+                                            if (restart) {
+                                                // Effacer la sauvegarde pour recommencer l'intro
+                                                GameSaveSystem.clear();
+                                                console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
+                                            } else {
+                                                // Mettre à jour la langue dans la sauvegarde existante
+                                                try {
+                                                    const save = JSON.parse(savedData);
+                                                    save.language = btn.code;
+                                                    localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                                    console.log('🌍 Langue changée → Progression conservée');
+                                                } catch(e) {
+                                                    console.error('❌ Erreur mise à jour langue sauvegarde:', e);
+                                                }
                                             }
+                                        } else {
+                                            console.log('🌍 Langue changée → Pas de sauvegarde');
                                         }
                                         
                                         console.log('🔄 Rafraîchissement de la page pour appliquer les traductions...');
@@ -20727,15 +20788,18 @@ Elle a besoin de ponts.`
                                         const version = versionData.version;
                                         const changelog = versionData.changelog[version];
                                         
-                                        // Message avec notes de version
+                                        // Message avec notes de version (traduit)
                                         let updateMessage = `🎮 ${changelog.title}\n\n`;
                                         updateMessage += `📦 Version ${version}\n`;
                                         updateMessage += `📅 ${changelog.date}\n\n`;
                                         updateMessage += changelog.changes.slice(0, 5).join('\n');
                                         if (changelog.changes.length > 5) {
-                                            updateMessage += `\n... et ${changelog.changes.length - 5} autres améliorations`;
+                                            const moreText = getTranslatedText('update.and_more_improvements', 'et {count} autres améliorations')
+                                                .replace('{count}', changelog.changes.length - 5);
+                                            updateMessage += `\n... ${moreText}`;
                                         }
-                                        updateMessage += '\n\nVoulez-vous mettre à jour maintenant ?';
+                                        const questionText = getTranslatedText('update.update_now_question', 'Voulez-vous mettre à jour maintenant ?');
+                                        updateMessage += `\n\n${questionText}`;
                                         
                                         if (confirm(updateMessage)) {
                                             newWorker.postMessage({type: 'SKIP_WAITING'});
@@ -20746,9 +20810,10 @@ Elle a besoin de ponts.`
                                         }
                                     })
                                     .catch(() => {
-                                        // Fallback si VERSION.json non disponible
-                                        const updateMessage = '🎨 Nouvelle version disponible !\n\n' +
-                                                             'Voulez-vous mettre à jour maintenant ?';
+                                        // Fallback si VERSION.json non disponible (traduit)
+                                        const newVersionText = getTranslatedText('update.new_version_available', '🎨 Nouvelle version disponible !');
+                                        const questionText = getTranslatedText('update.update_now_question', 'Voulez-vous mettre à jour maintenant ?');
+                                        const updateMessage = `${newVersionText}\n\n${questionText}`;
                                         
                                         if (confirm(updateMessage)) {
                                             newWorker.postMessage({type: 'SKIP_WAITING'});
