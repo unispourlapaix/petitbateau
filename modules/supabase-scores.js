@@ -6,9 +6,18 @@
 
 class SupabaseScores {
     constructor() {
+        // 🔧 MODE DEBUG ACTIVÉ
+        this.debugMode = true;
+        
         // Configuration Supabase
         this.supabaseUrl = 'https://dmszyxowetilvsanqsxm.supabase.co';
         this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
+
+        if (this.debugMode) {
+            console.log('🔧 MODE DEBUG ACTIVÉ');
+            console.log('📡 Supabase URL:', this.supabaseUrl);
+            console.log('🔑 API Key (20 premiers chars):', this.supabaseKey.substring(0, 20) + '...');
+        }
 
         // Charger la librairie Supabase
         this.loadSupabaseLibrary();
@@ -22,6 +31,18 @@ class SupabaseScores {
         console.log('🎮 SupabaseScores initialisé');
     }
 
+    log(...args) {
+        if (this.debugMode) {
+            console.log('🔧 [DEBUG]', ...args);
+        }
+    }
+
+    error(...args) {
+        if (this.debugMode) {
+            console.error('❌ [DEBUG]', ...args);
+        }
+    }
+
     // Charger la librairie Supabase depuis CDN
     loadSupabaseLibrary() {
         if (window.supabase) {
@@ -30,21 +51,47 @@ class SupabaseScores {
         }
 
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js';
         script.onload = () => {
             console.log('✅ Librairie Supabase chargée');
             this.initSupabase();
         };
         script.onerror = () => {
-            console.error('❌ Erreur chargement Supabase');
+            console.error('❌ Erreur chargement Supabase - Mode hors ligne activé');
+            this.isOffline = true;
         };
         document.head.appendChild(script);
     }
 
     // Initialiser le client Supabase
     initSupabase() {
+        console.log('🔧 [DEBUG] Création du client Supabase...');
         this.client = window.supabase.createClient(this.supabaseUrl, this.supabaseKey);
+        console.log('🔧 [DEBUG] Client créé:', !!this.client);
         console.log('✅ Client Supabase initialisé');
+        
+        // Test de connexion immédiat
+        if (this.debugMode) {
+            this.testConnection();
+        }
+    }
+
+    // Test de connexion (mode debug)
+    async testConnection() {
+        console.log('🔧 [DEBUG] 🧪 Test de connexion à la base de données...');
+        try {
+            const { data, error } = await this.client
+                .from('games')
+                .select('count');
+            
+            if (error) {
+                console.error('❌ [DEBUG] Erreur connexion:', error);
+            } else {
+                console.log('🔧 [DEBUG] ✅ Connexion OK - Nombre de jeux:', data);
+            }
+        } catch (e) {
+            console.error('❌ [DEBUG] Exception connexion:', e);
+        }
     }
 
     // Créer ou récupérer un utilisateur (stocke localement pour saveScore Edge Function)
@@ -72,6 +119,7 @@ class SupabaseScores {
 
     // Définir le jeu actuel
     async setCurrentGame(gameName) {
+        console.log('🔧 [DEBUG] setCurrentGame appelé avec:', gameName);
         try {
             const { data, error } = await this.client
                 .from('games')
@@ -79,13 +127,18 @@ class SupabaseScores {
                 .eq('nom', gameName)
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ [DEBUG] Erreur setCurrentGame:', error);
+                throw error;
+            }
 
             this.currentGameId = data.id;
+            console.log('🔧 [DEBUG] ✅ Game ID défini:', this.currentGameId);
             console.log('🎮 Jeu actuel:', data.nom, data.icone);
             return data;
 
         } catch (error) {
+            console.error('❌ [DEBUG] Exception setCurrentGame:', error);
             console.error('❌ Erreur setCurrentGame:', error);
             return null;
         }
@@ -122,12 +175,125 @@ class SupabaseScores {
                 throw new Error(result.error || 'Erreur lors de la sauvegarde');
             }
 
+            // Stocker le user_id retourné par la fonction Edge
+            if (result.user_id && this.currentUser) {
+                this.currentUser.id = result.user_id;
+                console.log('✅ user_id stocké:', result.user_id);
+            }
+
             console.log('✅ Score enregistré via Edge Function:', result);
             return result;
 
         } catch (error) {
             console.error('❌ Erreur saveScore:', error);
             return null;
+        }
+    }
+
+    // Méthode directe (sans Edge Function) - Fonctionne immédiatement
+    async saveScoreDirect(score, options = {}) {
+        this.log('=== saveScoreDirect DÉBUT ===');
+        this.log('Score:', score);
+        this.log('Options:', options);
+        this.log('currentUser:', this.currentUser);
+        this.log('currentGameId:', this.currentGameId);
+        
+        if (!this.currentUser) {
+            this.error('Aucun utilisateur connecté');
+            console.error('❌ Aucun utilisateur connecté');
+            return { success: false, error: 'Aucun utilisateur' };
+        }
+
+        if (!this.currentGameId) {
+            this.error('Aucun jeu sélectionné');
+            console.error('❌ Aucun jeu sélectionné');
+            return { success: false, error: 'Aucun jeu sélectionné' };
+        }
+
+        try {
+            // 1. Créer ou récupérer l'utilisateur
+            let userId = this.currentUser.id;
+            
+            if (!userId) {
+                this.log('🔍 Recherche utilisateur par email:', this.currentUser.email);
+                console.log('🔍 Recherche utilisateur par email:', this.currentUser.email);
+                // Chercher par email
+                const { data: existingUser, error: searchError } = await this.client
+                    .from('users')
+                    .select('id')
+                    .eq('email', this.currentUser.email)
+                    .maybeSingle();
+
+                if (existingUser) {
+                    userId = existingUser.id;
+                    this.currentUser.id = userId;
+                    this.log('✅ Utilisateur existant trouvé:', userId);
+                    console.log('✅ Utilisateur existant trouvé:', userId);
+                } else {
+                    // Créer le user
+                    this.log('➕ Création nouvel utilisateur...');
+                    console.log('➕ Création nouvel utilisateur...');
+                    const { data: newUser, error: createError } = await this.client
+                        .from('users')
+                        .insert({
+                            email: this.currentUser.email,
+                            pseudo: this.currentUser.pseudo,
+                            ville: this.currentUser.ville,
+                            pays: this.currentUser.pays,
+                            age: this.currentUser.age,
+                            genre: this.currentUser.genre,
+                            avatar: this.currentUser.avatar
+                        })
+                        .select()
+                        .single();
+
+                    if (createError) {
+                        this.error('Erreur création user:', createError);
+                        throw createError;
+                    }
+                    userId = newUser.id;
+                    this.currentUser.id = userId;
+                    this.log('✅ Nouvel utilisateur créé:', userId);
+                    console.log('✅ Nouvel utilisateur créé:', userId);
+                }
+            }
+
+            // 2. Insérer le score
+            this.log('💾 Insertion score pour user_id:', userId);
+            console.log('💾 Insertion score pour user_id:', userId);
+            const { data, error } = await this.client
+                .from('scores')
+                .insert({
+                    user_id: userId,
+                    game_id: this.currentGameId,
+                    score: score,
+                    niveau_atteint: options.niveau_atteint || null,
+                    temps_jeu: options.temps_jeu || null,
+                    donnees_extra: options.donnees_extra || null
+                })
+                .select()
+                .single();
+
+            if (error) {
+                this.error('Erreur insertion score:', error);
+                throw error;
+            }
+
+            this.log('✅ Score enregistré:', data);
+            console.log('✅ Score enregistré directement:', data);
+            return {
+                success: true,
+                user_id: userId,
+                score_id: data.id
+            };
+
+        } catch (error) {
+            this.error('Exception saveScoreDirect:', error);
+            console.error('❌ Erreur saveScoreDirect:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
@@ -207,6 +373,11 @@ class SupabaseScores {
     // Récupérer le meilleur score de l'utilisateur pour le jeu actuel
     async getBestScore() {
         if (!this.currentUser || !this.currentGameId) return null;
+        
+        // Si on n'a pas de user_id, essayer de chercher via l'email (fallback)
+        if (!this.currentUser.id) {
+            return await this.getBestScoreByEmail();
+        }
 
         try {
             const { data, error } = await this.client
@@ -224,6 +395,35 @@ class SupabaseScores {
 
         } catch (error) {
             console.error('❌ Erreur getBestScore:', error);
+            return null;
+        }
+    }
+
+    // Récupérer le meilleur score via email (quand user_id n'est pas encore connu)
+    async getBestScoreByEmail() {
+        if (!this.currentUser?.email || !this.currentGameId) return null;
+
+        try {
+            // Joindre avec users pour trouver via email
+            const { data, error } = await this.client
+                .from('scores')
+                .select(`
+                    *,
+                    users!inner(email)
+                `)
+                .eq('users.email', this.currentUser.email)
+                .eq('game_id', this.currentGameId)
+                .order('score', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+
+            console.log('✅ Meilleur score trouvé via email:', data?.score);
+            return data;
+
+        } catch (error) {
+            console.error('❌ Erreur getBestScoreByEmail:', error);
             return null;
         }
     }
