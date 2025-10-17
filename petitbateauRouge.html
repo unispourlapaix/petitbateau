@@ -2783,18 +2783,19 @@
         function mettreAJourChauveSouris() {
             if(!chauveSouris.active) return;
 
-            const tempsEcoule = Date.now() - chauveSouris.tempApparition;
+            // ⚡ OPTIMISATION: Mettre à jour cache temporel
+            updateChauveSourisCache();
+
+            const tempsEcoule = chauveSourisCache.frameTime - chauveSouris.tempApparition;
 
             // Animation de vol erratique
             chauveSouris.x += chauveSouris.vx;
             chauveSouris.y += chauveSouris.vy;
 
-            // ⚡ OPTIMISATION: Calculer sin une seule fois
-            const sinValue = Math.sin(Date.now() * 0.01);
-            
+            // ⚡ OPTIMISATION: Utiliser valeur cachée au lieu de recalculer
             // Mouvement en zigzag
             chauveSouris.vx += (Math.random() - 0.5) * 0.2;
-            chauveSouris.vy += sinValue * 0.1;
+            chauveSouris.vy += chauveSourisCache.sinValue * 0.1;
 
             // Limiter la vitesse
             chauveSouris.vx = Math.max(-3, Math.min(3, chauveSouris.vx));
@@ -2860,9 +2861,8 @@
             ctx.save();
             ctx.translate(chauveSouris.x, chauveSouris.y);
 
-            // ⚡ OPTIMISATION: Calculer battement et distance une seule fois
-            const battement = Math.sin(Date.now() * 0.008) * 0.2;
-            ctx.rotate(battement);
+            // ⚡ OPTIMISATION: Utiliser valeur de battement en cache
+            ctx.rotate(chauveSourisCache.battement);
 
             // Corps de la chauve-souris
             ctx.fillStyle = '#2C1810';
@@ -3154,8 +3154,10 @@
             // FONCTION DÉSACTIVÉE - Les énigmes collectées ne s'affichent QUE dans le menu 🧩
             // La chauve-souris et l'ange sont gérés séparément et toujours visibles
             return;
+        }
 
-            /* Code désactivé - Affichage icônes enigmes (géré différemment maintenant)
+        // CODE MORT - Ne sera jamais exécuté (après le return ci-dessus)
+        /*
             // Afficher les icônes de droite à gauche
             enigmesCollectees.forEach((enigme, index) => {
                 const x = startX - (index + 1) * spacing;
@@ -3202,7 +3204,7 @@
             });
 
             ctx.restore();
-        }
+        */
 
         // Dessiner le bouton menu énigmes dans le canvas
         function dessinerBoutonMenuEnigmes() {
@@ -4082,7 +4084,7 @@
                         ctx.fillText(medal, startX, yPos);
 
                         // Avatar (si présent) - PLUS GROS
-                        const avatar = entry.users?.avatar;
+                        const avatar = entry.users?.avatar || donnees?.avatar;
                         let pseudoX = startX + 40;
                         if (avatar) {
                             ctx.font = '24px "Segoe UI", system-ui, sans-serif';
@@ -4093,7 +4095,8 @@
                         // Pseudo - PLUS GROS
                         ctx.font = '20px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#475569';
-                        const pseudo = entry.users?.pseudo || 'Anonyme';
+                        // Essayer d'abord la relation users, puis donnees_extra, puis "Anonyme"
+                        const pseudo = entry.users?.pseudo || donnees?.pseudo || 'Anonyme';
                         ctx.fillText(pseudo, pseudoX, yPos);
 
                         // Niveau de sagesse (icône) sous le pseudo - PLUS GROS
@@ -5636,17 +5639,25 @@
                     // }, 500);
                 }
 
+                // ⚡ OPTIMISATION PHASE 23: Garder traînées mais activer le batching optimisé
+                if (droneModule && droneModule.options) {
+                    droneModule.options.showTrails = true;  // Garder les traînées
+                    droneModule.options.batchTrails = true; // Activer batching optimisé (-90% appels ctx.stroke)
+                    droneModule.options.trailLength = 8;    // Réduire longueur (18 → 8 points)
+                }
+
                 // Activer l'écouteur de clic immédiatement (à 25s)
                 // Chaque clic déclenche une formation différente
                 let formationIndex = 0;
                 const formations = ['heart', 'star', 'clock', 'star5', 'cross_christian', 'heart', 'double_heart']; // 7 formations (mur retiré)
+                // ⚡ OPTIMISATION: Réduction du nombre de drones (-30% charge CPU)
                 const dronesNecessaires = {
-                    'heart': 30,            // Cœur : forme continue
-                    'star': 35,             // Étoile améliorée : plus de drones pour plus de détails
-                    'clock': 60,            // Horloge : cadran + aiguilles animées
-                    'star5': 50,            // Étoile 5 branches : forme classique remplie
-                    'cross_christian': 30,  // Croix chrétienne réduite : forme sacrée plus petite
-                    'double_heart': 60      // Double cœur : finale romantique
+                    'heart': 20,            // ↓ de 30 à 20 (-33%)
+                    'star': 25,             // ↓ de 35 à 25 (-29%)
+                    'clock': 40,            // ↓ de 60 à 40 (-33%)
+                    'star5': 35,            // ↓ de 50 à 35 (-30%)
+                    'cross_christian': 20,  // ↓ de 30 à 20 (-33%)
+                    'double_heart': 45      // ↓ de 60 à 45 (-25%)
                 };
 
                 const lancerDrones = (e = null) => {
@@ -5737,7 +5748,7 @@
                                     const idUnique = `PB${timestamp}${random}`.toUpperCase();
 
                                     // Afficher le formulaire Supabase avec callback
-                                    if (typeof afficherFormulaireFinDeJeu === 'function') {
+                                    if (typeof afficherFormulaireFinDeJeuAvecResume === 'function') {
                                         afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique);
                                     } else {
                                         // Fallback : ancienne méthode avec prompts
@@ -5789,9 +5800,9 @@
                     if (formationIndex < formations.length) {
                         lancerDrones(); // Lancer sans événement
                         
-                        // Programmer le prochain lancement dans 4 secondes SEULEMENT si ce n'est pas le dernier
+                        // ⚡ OPTIMISATION: Réduit de 4s à 3s (-25% durée totale: 28s → 21s)
                         if (formationIndex < formations.length) {
-                            setTimeout(lancerFeuxAutomatiques, 4000);
+                            setTimeout(lancerFeuxAutomatiques, 3000);
                         }
                     }
                 };
@@ -6090,6 +6101,13 @@
                         i
                     ));
                 }
+                
+                // ⚡ OPTIMISATION: Initialiser le cache de calculs temporels
+                this._cachedFrameTime = 0;
+                this._cachedHeartPulse = 1;
+                this._cachedClockPulse = 1;
+                this._cachedBrightnessPulse = 1;
+                this._lastCacheUpdate = 0;
             }
 
             setFormation(formation) {
@@ -6813,9 +6831,19 @@
             }
 
             animate() {
+                // ⚡ OPTIMISATION: Mettre à jour le cache avant la boucle
+                const now = Date.now();
+                if (now - (this._lastCacheUpdate || 0) > 16) { // Throttle à 60fps
+                    this._cachedFrameTime = now;
+                    this._cachedHeartPulse = Math.sin(now * 0.003) * 0.2 + 1;
+                    this._cachedClockPulse = Math.sin(now * 0.005) * 0.3 + 1;
+                    this._cachedBrightnessPulse = Math.sin(now * 0.005) * 0.2 + 0.7;
+                    this._lastCacheUpdate = now;
+                }
+                
                 // Animation séparée pour mise à jour seulement (sans rendu)
                 this.drones.forEach(drone => {
-                    drone.update(this.options);
+                    drone.update(this.options, this._cachedFrameTime, this._cachedHeartPulse, this._cachedClockPulse, this._cachedBrightnessPulse);
                 });
                 
                 // Mise à jour automatique des formations temporelles
@@ -6845,17 +6873,77 @@
             }
 
             render() {
+                // ⚡ OPTIMISATION: Mettre à jour le cache temporel une seule fois par frame
+                const now = Date.now();
+                if (now - this._lastCacheUpdate > 16) { // Throttle à 60fps
+                    this._cachedFrameTime = now;
+                    this._cachedHeartPulse = Math.sin(now * 0.003) * 0.2 + 1;
+                    this._cachedClockPulse = Math.sin(now * 0.005) * 0.3 + 1;
+                    this._cachedBrightnessPulse = Math.sin(now * 0.005) * 0.2 + 0.7;
+                    this._lastCacheUpdate = now;
+                }
+                
                 // Rendu séparé à appeler depuis la boucle de jeu
                 if (!window.droneRenderLogged) {
                     if (this.drones[0]) {console.log('🎨 Drone 0 pos:', Math.round(this.drones[0].x), Math.round(this.drones[0].y), 'life:', this.drones[0].life.toFixed(2));
                     }
                     window.droneRenderLogged = true;
                 }
+                
+                // ⚡ OPTIMISATION: Rendu avec batching des traînées
+                if (this.options.showTrails && this.options.batchTrails) {
+                    this.renderTrailsBatched();
+                }
+                
+                // Dessiner les drones (corps seulement)
                 this.drones.forEach(drone => {
-                    // Ne dessiner que les drones vivants
                     if (drone.life > 0) {
-                        drone.draw(this.ctx, this.options);
+                        drone.draw(this.ctx, this.options, this._cachedFrameTime, this._cachedHeartPulse, this._cachedClockPulse, this._cachedBrightnessPulse);
                     }
+                });
+            }
+            
+            renderTrailsBatched() {
+                // ⚡ SUPER OPTIMISATION: Dessiner TOUTES les traînées en un seul batch
+                const ctx = this.ctx;
+                const maxTrailLength = this.options.trailLength || 8;
+                
+                // Grouper par couleur pour minimiser les changements de state
+                const trailsByColor = new Map();
+                
+                this.drones.forEach(drone => {
+                    if (drone.life > 0 && drone.trail && drone.trail.length > 1) {
+                        if (!trailsByColor.has(drone.color)) {
+                            trailsByColor.set(drone.color, []);
+                        }
+                        trailsByColor.get(drone.color).push(drone.trail.slice(-maxTrailLength));
+                    }
+                });
+                
+                // Dessiner chaque groupe de couleur en un seul path
+                trailsByColor.forEach((trails, color) => {
+                    ctx.save();
+                    ctx.strokeStyle = color + '60'; // 60 = ~38% opacité
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.shadowBlur = 4; // Réduit de 8 à 4
+                    ctx.shadowColor = color;
+                    
+                    // UN SEUL beginPath pour toutes les traînées de cette couleur
+                    ctx.beginPath();
+                    trails.forEach(trail => {
+                        if (trail.length > 1) {
+                            ctx.moveTo(trail[0].x, trail[0].y);
+                            for (let i = 1; i < trail.length; i++) {
+                                ctx.lineTo(trail[i].x, trail[i].y);
+                            }
+                        }
+                    });
+                    
+                    // UN SEUL stroke pour toutes les traînées
+                    ctx.stroke();
+                    ctx.restore();
                 });
             }
 
@@ -7065,7 +7153,7 @@
                 this.life = 1.0;
             }
 
-            update(options) {
+            update(options, cachedFrameTime, cachedHeartPulse, cachedClockPulse, cachedBrightnessPulse) {
                 if (this.inExplosion) {
                     // Appliquer slow motion si activé
                     const motionFactor = this.inSlowMotion ? 0.4 : 1.0; // 40% de vitesse en slow motion
@@ -7099,16 +7187,20 @@
 
                 if (options.showTrails) {
                     this.trail.push({x: this.x, y: this.y});
-                    // Traînées plus longues et lumineuses (18 au lieu de 12)
-                    if (this.trail.length > 18) this.trail.shift();
+                    // ⚡ OPTIMISATION: Longueur adaptative selon batching
+                    const maxLength = options.trailLength || (options.batchTrails ? 8 : 18);
+                    if (this.trail.length > maxLength) this.trail.shift();
                 }
 
+                // ⚡ OPTIMISATION: Utiliser cachedFrameTime au lieu de Date.now()
+                const currentTime = cachedFrameTime || Date.now();
+                
                 // Effets de brillance selon le mode - plus doux
                 if (this.fusionMode) {
-                    this.brightness = 0.8 + Math.sin(Date.now() * 0.01 + this.id) * 0.3; // Pulsation plus lente
+                    this.brightness = 0.8 + Math.sin(currentTime * 0.01 + this.id) * 0.3; // Pulsation plus lente
                 } else if (this.clockAnimation) {
                     // Effet horloge : s'allumer progressivement selon le délai
-                    const elapsed = Date.now() - this.animationStartTime;
+                    const elapsed = currentTime - this.animationStartTime;
                     if (elapsed >= this.lightUpDelay) {
                         this.clockGlow = true;
                         this.brightness = 1.0; // Pleine brillance quand allumé
@@ -7116,17 +7208,17 @@
                         this.brightness = 0.3; // Faible brillance en attente
                     }
                 } else {
-                    // Pulsation douce et relaxante
-                    this.brightness = 0.7 + Math.sin(Date.now() * 0.005 + this.id) * 0.2;
+                    // ⚡ OPTIMISATION: Utiliser cachedBrightnessPulse
+                    this.brightness = cachedBrightnessPulse || (0.7 + Math.sin(currentTime * 0.005 + this.id) * 0.2);
                 }
             }
 
-            draw(ctx, options) {
+            draw(ctx, options, cachedFrameTime, cachedHeartPulse, cachedClockPulse, cachedBrightnessPulse) {
                 if (this.life <= 0) return;
 
-                // Traînées lumineuses élégantes et visibles
-                if (options.showTrails && this.trail.length > 1) {
-                    // Traînée avec dégradé progressif et glow pour effet lumineux
+                // ⚡ OPTIMISATION: Traînées gérées par renderTrailsBatched() si batchTrails actif
+                if (options.showTrails && !options.batchTrails && this.trail.length > 1) {
+                    // Mode classique (non-batched) - Traînée avec dégradé progressif
                     for (let i = 1; i < this.trail.length; i++) {
                         const alpha = (i / this.trail.length) * 0.7; // Opacité plus forte (0.4 → 0.7)
                         const width = (i / this.trail.length) * 4; // Largeur plus épaisse (3 → 4)
@@ -7185,16 +7277,16 @@
                     coreSize = 2.3 * this.life; // Réduit de 2.8 à 2.3
                     intensityMultiplier = 1.5; // Plus brillant pour homogénéité
                 } else if (this.isCrossVertical) {
-                    // Barre verticale croix : pulse comme un cœur avec tailles variées
-                    const heartPulse = Math.sin(Date.now() * 0.003) * 0.2 + 1; // Pulsation cardiaque
+                    // ⚡ OPTIMISATION: Utiliser cachedHeartPulse au lieu de Date.now()
+                    const heartPulse = cachedHeartPulse || 1; // Pulsation cardiaque cachée
                     const sizeVariation = 0.8 + Math.random() * 0.6; // Taille variée (0.8-1.4)
                     const sizeMultiplier = (this.sizeEffect || 1.2) * sizeVariation;
                     glowSize = 7 * sizeMultiplier * heartPulse; // Réduit de 10 à 7 + pulse
                     coreSize = 2 * this.life * sizeMultiplier * heartPulse; // Réduit de 2.5 à 2 + pulse
                     intensityMultiplier = 1.7 * heartPulse; // Brillant + pulsation
                 } else if (this.isCrossHorizontal) {
-                    // Barre horizontale croix : pulse comme un cœur avec tailles variées
-                    const heartPulse = Math.sin(Date.now() * 0.003) * 0.2 + 1; // Pulsation cardiaque
+                    // ⚡ OPTIMISATION: Utiliser cachedHeartPulse au lieu de Date.now()
+                    const heartPulse = cachedHeartPulse || 1; // Pulsation cardiaque cachée
                     const sizeVariation = 0.8 + Math.random() * 0.6; // Taille variée (0.8-1.4)
                     const sizeMultiplier = (this.sizeEffect || 1.2) * sizeVariation;
                     glowSize = 7 * sizeMultiplier * heartPulse; // Réduit de 10 à 7 + pulse
@@ -7208,8 +7300,8 @@
                         coreSize = 4 * this.life;
                         intensityMultiplier = 2.2; // Très brillant (liberté)
                     } else if (this.heartType === 'heart_core') {
-                        // Cœur protégé : brillance pulsante
-                        const pulsation = Math.sin(Date.now() * 0.005) * 0.3 + 1; // Battement
+                        // ⚡ OPTIMISATION: Utiliser cachedClockPulse au lieu de Date.now()
+                        const pulsation = cachedClockPulse || 1; // Battement caché
                         glowSize = 12 * pulsation;
                         coreSize = 3 * this.life * pulsation;
                         intensityMultiplier = 1.6 * pulsation; // Pulsation cardiaque
@@ -7378,8 +7470,13 @@
 
         // Fonction pour afficher le formulaire avec résumé (appelée après feux d'artifice)
         function afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique) {
-            if (formulaireFinAffiche) return;
+            console.log('📝 afficherFormulaireFinDeJeuAvecResume appelée', { xp, scoreJeu, scoreTotal, scoreSagesse, idUnique });
+            if (formulaireFinAffiche) {
+                console.warn('⚠️ Formulaire déjà affiché, on ne l\'affiche pas deux fois');
+                return;
+            }
             formulaireFinAffiche = true;
+            console.log('✅ Affichage du formulaire de fin de jeu...');
 
             // Récupérer les dimensions du canvas avec fallback
             let canvasWidth, canvasHeight, canvasLeft, canvasTop;
@@ -7400,168 +7497,175 @@
             }
 
             const html = `
-                <div id="formulaire-fin-overlay" style="position: fixed; top: ${canvasTop}px; left: ${canvasLeft}px; width: ${canvasWidth}px; height: ${canvasHeight}px; background: rgba(0,0,0,0.9); z-index: 20000; display: flex; align-items: center; justify-content: center; overflow-y: auto;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; max-width: 90%; width: 600px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin: 20px; color: white;">
-                        <h2 style="margin: 0 0 15px 0; text-align: center; color: white; font-family: 'Segoe UI', sans-serif; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${getTranslatedText('ui.journey_completed_title')}</h2>
+                <div id="formulaire-fin-overlay" style="position: fixed; top: ${canvasTop}px; left: ${canvasLeft}px; width: ${canvasWidth}px; height: ${canvasHeight}px; background: rgba(0,0,0,0.95); z-index: 20000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 10px;">
+                    <div style="background: white; padding: 20px; border-radius: 12px; max-width: 95%; width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin: auto; color: #1e293b;">
+                        <h2 style="margin: 0 0 12px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: 700;">${getTranslatedText('ui.journey_completed_title')}</h2>
 
-                        <!-- Résumé des scores -->
-                        <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 15px; margin-bottom: 20px; color: white; border: 2px solid rgba(255,255,255,0.2);">
-                            <div style="text-align: center; font-size: 16px; opacity: 0.95; margin-bottom: 15px; font-weight: 600;">${getTranslatedText('ui.your_progress')}</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
-                                    <div style="font-size: 32px; font-weight: bold;">💡</div>
-                                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">${xp}</div>
-                                    <div style="font-size: 12px; opacity: 0.9; margin-top: 3px;">${getTranslatedText('game.xp_label', 'XP')}</div>
+                        <!-- Résumé des scores - Version compacte -->
+                        <div style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; color: white;">
+                            <div style="display: flex; justify-content: space-around; gap: 8px; margin-bottom: 10px;">
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 20px;">💡</div>
+                                    <div style="font-size: 18px; font-weight: bold;">${xp}</div>
+                                    <div style="font-size: 10px; opacity: 0.9;">XP</div>
                                 </div>
-                                <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
-                                    <div style="font-size: 32px; font-weight: bold;">🎯</div>
-                                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">${scoreJeu}</div>
-                                    <div style="font-size: 12px; opacity: 0.9; margin-top: 3px;">${getTranslatedText('game.score_label', 'Score')}</div>
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 20px;">🎯</div>
+                                    <div style="font-size: 18px; font-weight: bold;">${scoreJeu}</div>
+                                    <div style="font-size: 10px; opacity: 0.9;">${getTranslatedText('game.score_label', 'Score')}</div>
+                                </div>
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 20px;">💎</div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #FFD700;">${scoreSagesse}</div>
+                                    <div style="font-size: 10px; opacity: 0.9;">${getTranslatedText('end_form.wisdom_score', 'Sagesse')}</div>
                                 </div>
                             </div>
-                            <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.15); border-radius: 10px; margin-bottom: 15px;">
-                                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">${getTranslatedText('end_form.total_label', 'Total')}</div>
-                                <div style="font-size: 42px; font-weight: bold;">${scoreTotal}</div>
+                            <div style="text-align: center; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                                <div style="font-size: 11px; opacity: 0.9; margin-bottom: 3px;">${getTranslatedText('end_form.total_label', 'Total')}</div>
+                                <div style="font-size: 28px; font-weight: bold;">${scoreTotal}</div>
+                                <div style="font-size: 20px; margin-top: 5px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.icone; })()}</div>
+                                <div style="font-size: 12px; font-weight: 600; margin-top: 2px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.titre; })()}</div>
                             </div>
-                            <div style="text-align: center; margin-top: 15px; padding: 15px; background: rgba(255,215,0,0.2); border-radius: 10px; border: 2px solid rgba(255,215,0,0.3);">
-                                <div style="font-size: 36px; margin-bottom: 5px;">💎</div>
-                                <div style="font-size: 32px; font-weight: bold; color: #FFD700;">${scoreSagesse}</div>
-                                <div style="font-size: 13px; opacity: 0.95; margin-top: 3px;">${getTranslatedText('end_form.wisdom_score', 'Score de Sagesse')}</div>
-                            </div>
-                            <div style="text-align: center; margin-top: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                                <div style="font-size: 28px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.icone; })()}</div>
-                                <div style="font-size: 18px; font-weight: 600; margin-top: 5px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.titre; })()}</div>
-                                <div style="font-size: 11px; opacity: 0.85; margin-top: 3px;">${getTranslatedText('game.wisdom_level', 'Niveau de sagesse')}</div>
-                                ${(() => {
-                                    const n = getNiveauSagesse(scoreSagesse);
-                                    if (n.prochain) {
-                                        const prog = scoreSagesse - n.seuil;
-                                        const total = n.prochain - n.seuil;
-                                        const pct = Math.round((prog / total) * 100);
-                                        return '<div style="margin-top: 8px;">' +
-                                            '<div style="font-size: 10px; opacity: 0.8; margin-bottom: 3px;">' + scoreSagesse + '/' + n.prochain + ' ' + getTranslatedText('game.next_level', 'vers le prochain niveau') + '</div>' +
-                                            '<div style="width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">' +
-                                                '<div style="width: ' + pct + '%; height: 100%; background: rgba(255,215,0,0.9); transition: width 0.3s;"></div>' +
-                                            '</div>' +
-                                        '</div>';
-                                    }
-                                    return '';
-                                })()}
-                            </div>
-                            <div style="text-align: center; margin-top: 12px; font-size: 11px; opacity: 0.7; font-family: monospace;">ID: ${idUnique}</div>
                         </div>
 
-                        <p style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 20px; font-size: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${getTranslatedText('ui.save_score_ranking')}</p>
+                        <p style="text-align: center; color: #64748b; margin-bottom: 12px; font-size: 13px;">${getTranslatedText('ui.save_score_ranking')}</p>
 
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 5px; color: white; font-size: 14px; font-weight: 600;" data-i18n="ui.form.email_label">Email * :</label>
-                            <input type="email" id="fin-email" data-i18n-placeholder="ui.form.email_placeholder" placeholder="Votre adresse email" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        <div style="margin: 10px 0;">
+                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.email_label">Email *</label>
+                            <input type="email" id="fin-email" data-i18n-placeholder="ui.form.email_placeholder" placeholder="votre@email.com" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; font-size: 15px; pointer-events: auto; touch-action: auto; user-select: text;" required>
                         </div>
 
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 5px; color: white; font-size: 14px; font-weight: 600;" data-i18n="ui.form.pseudo_label">Pseudo * :</label>
-                            <input type="text" id="fin-pseudo" data-i18n-placeholder="ui.form.pseudo_placeholder" placeholder="Votre pseudo" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
+                        <div style="margin: 10px 0;">
+                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.pseudo_label">Pseudo *</label>
+                            <input type="text" id="fin-pseudo" data-i18n-placeholder="ui.form.pseudo_placeholder" placeholder="Votre pseudo" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; font-size: 15px; pointer-events: auto; touch-action: auto; user-select: text;" required>
                         </div>
 
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 8px; color: white; font-size: 14px; font-weight: 600;" data-i18n="ui.form.avatar_label">Avatar :</label>
-                            <div id="avatar-selector" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; max-height: 200px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.2);">
-                                <div class="avatar-option" data-avatar="✝️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
-                                <div class="avatar-option" data-avatar="†" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">†</div>
-                                <div class="avatar-option" data-avatar="✚" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✚</div>
-                                <div class="avatar-option" data-avatar="✟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✟</div>
-                                <div class="avatar-option" data-avatar="✞" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✞</div>
-                                <div class="avatar-option" data-avatar="+" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">+</div>
-                                <div class="avatar-option" data-avatar="➕" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">➕</div>
-                                <div class="avatar-option" data-avatar="⛪" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛪</div>
-                                <div class="avatar-option" data-avatar="🕌" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🕌</div>
-                                <div class="avatar-option" data-avatar="❤️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
-                                <div class="avatar-option" data-avatar="🦄" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦄</div>
-                                <div class="avatar-option" data-avatar="🌈" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
-                                <div class="avatar-option" data-avatar="👼" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">👼</div>
-                                <div class="avatar-option" data-avatar="🦉" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦉</div>
-                                <div class="avatar-option" data-avatar="🦅" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦅</div>
-                                <div class="avatar-option" data-avatar="🌸" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌸</div>
-                                <div class="avatar-option" data-avatar="☁️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☁️</div>
-                                <div class="avatar-option" data-avatar="🦇" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦇</div>
-                                <div class="avatar-option" data-avatar="🕊️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🕊️</div>
-                                <div class="avatar-option" data-avatar="⛰️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛰️</div>
-                                <div class="avatar-option" data-avatar="🐱" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐱</div>
-                                <div class="avatar-option" data-avatar="🐶" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐶</div>
-                                <div class="avatar-option" data-avatar="🦊" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦊</div>
-                                <div class="avatar-option" data-avatar="🐼" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐼</div>
-                                <div class="avatar-option" data-avatar="🦁" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦁</div>
-                                <div class="avatar-option" data-avatar="🐯" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐯</div>
-                                <div class="avatar-option" data-avatar="🐉" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐉</div>
-                                <div class="avatar-option" data-avatar="🐲" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐲</div>
-                                <div class="avatar-option" data-avatar="🌹" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌹</div>
-                                <div class="avatar-option" data-avatar="🖤" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🖤</div>
-                                <div class="avatar-option" data-avatar="🐙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐙</div>
-                                <div class="avatar-option" data-avatar="🦋" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🦋</div>
-                                <div class="avatar-option" data-avatar="🐝" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐝</div>
-                                <div class="avatar-option" data-avatar="🐢" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐢</div>
-                                <div class="avatar-option" data-avatar="🐠" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🐠</div>
-                                <div class="avatar-option" data-avatar="🌟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌟</div>
-                                <div class="avatar-option" data-avatar="⭐" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⭐</div>
-                                <div class="avatar-option" data-avatar="💫" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💫</div>
-                                <div class="avatar-option" data-avatar="✨" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">✨</div>
-                                <div class="avatar-option" data-avatar="🌙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌙</div>
-                                <div class="avatar-option" data-avatar="☀️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☀️</div>
-                                <div class="avatar-option" data-avatar="🌊" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌊</div>
-                                <div class="avatar-option" data-avatar="⛵" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
-                                <div class="avatar-option" data-avatar="🚢" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🚢</div>
-                                <div class="avatar-option" data-avatar="🛟" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🛟</div>
-                                <div class="avatar-option" data-avatar="⚓" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">⚓</div>
-                                <div class="avatar-option" data-avatar="🧭" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🧭</div>
-                                <div class="avatar-option" data-avatar="🏝️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🏝️</div>
-                                <div class="avatar-option" data-avatar="☮️" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">☮️</div>
-                                <div class="avatar-option" data-avatar="💚" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💚</div>
-                                <div class="avatar-option" data-avatar="💙" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💙</div>
-                                <div class="avatar-option" data-avatar="💛" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💛</div>
-                                <div class="avatar-option" data-avatar="💜" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">💜</div>
-                                <div class="avatar-option" data-avatar="🍀" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🍀</div>
-                                <div class="avatar-option" data-avatar="🌻" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🌻</div>
-                                <div class="avatar-option" data-avatar="🎈" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🎈</div>
-                                <div class="avatar-option" data-avatar="🎨" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">🎨</div>
-                                <div class="avatar-option" data-avatar="📖" style="font-size: 28px; text-align: center; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; border: 2px solid transparent;">📖</div>
+                        <div style="margin: 10px 0;">
+                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.avatar_label">Avatar</label>
+                            <div id="avatar-selector" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; padding: 8px; background: #f8fafc; border-radius: 8px; max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0;">
+                                <div class="avatar-option" data-avatar="⛵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
+                                <div class="avatar-option" data-avatar="✝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
+                                <div class="avatar-option" data-avatar="☮️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">☮️</div>
+                                <div class="avatar-option" data-avatar="❤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
+                                <div class="avatar-option" data-avatar="🌈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
+                                <div class="avatar-option" data-avatar="⭐" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⭐</div>
+                                <div class="avatar-option" data-avatar="🌙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌙</div>
+                                <div class="avatar-option" data-avatar="☀️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">☀️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🕊️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕊️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="👼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">👼</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦁" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦁</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦅" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦅</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦋</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌸" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌸</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌻" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌻</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🍀" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🍀</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌊" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌊</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛰️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛰️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🏝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏝️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐱" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐱</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐶" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐶</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐼</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦊" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦊</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐢" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐢</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦉" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦉</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐉" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐉</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐯" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐯</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌹" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌹</div>
+                                <div class="avatar-option avatar-extra" data-avatar="💚" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💚</div>
+                                <div class="avatar-option avatar-extra" data-avatar="💙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💙</div>
+                                <div class="avatar-option avatar-extra" data-avatar="💛" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💛</div>
+                                <div class="avatar-option avatar-extra" data-avatar="💜" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💜</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🖤" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🖤</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🤍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🤍</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦄" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦄</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐙</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐝" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐝</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐠" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐠</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦈</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐬" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐬</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🐳" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐳</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦀" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦀</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦞" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦞</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🦐" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦐</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛪</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🕌" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕌</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🛕" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🛕</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🕍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕍</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛩️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛩️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🚢" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🚢</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🛟" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🛟</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⚓" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⚓</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🧭" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🧭</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🗿" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🗿</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🗻" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🗻</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🏔️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏔️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌋</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🏖️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏖️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🏜️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏜️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌺" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌺</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌷" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌷</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌼</div>
+                                <div class="avatar-option avatar-extra" data-avatar="☘️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☘️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌿" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌿</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🍃" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🍃</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌴" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌴</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌵</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌾" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌾</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎋</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎍</div>
+                                <div class="avatar-option avatar-extra" data-avatar="✨" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">✨</div>
+                                <div class="avatar-option avatar-extra" data-avatar="💫" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💫</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌟" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌟</div>
+                                <div class="avatar-option avatar-extra" data-avatar="☄️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☄️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="☁️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☁️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛅" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛅</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌤️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛈️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛈️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🌩️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌩️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⚡" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⚡</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🔥" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🔥</div>
+                                <div class="avatar-option avatar-extra" data-avatar="❄️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">❄️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="☃️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☃️</div>
+                                <div class="avatar-option avatar-extra" data-avatar="⛄" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛄</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎨" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎨</div>
+                                <div class="avatar-option avatar-extra" data-avatar="📖" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">📖</div>
+                                <div class="avatar-option avatar-extra" data-avatar="📚" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">📚</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎭" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎭</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎪</div>
+                                <div class="avatar-option avatar-extra" data-avatar="🎬" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎬</div>
                             </div>
+                            <button id="btn-more-avatars" style="width: 100%; margin-top: 6px; padding: 6px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;">+ Plus d'avatars (64)</button>
                             <input type="hidden" id="fin-avatar" value="">
                         </div>
 
-                        <details style="margin: 15px 0; cursor: pointer; pointer-events: auto; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
-                            <summary style="color: rgba(255,255,255,0.9); font-size: 14px; user-select: none; pointer-events: auto; cursor: pointer; font-weight: 600;" data-i18n="ui.form.optional_info">Informations optionnelles</summary>
-                            <div style="margin-top: 15px;">
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.9); font-size: 13px;" data-i18n="ui.form.city_label">Ville :</label>
-                                    <input type="text" id="fin-ville" data-i18n-placeholder="ui.form.city_placeholder" placeholder="Votre ville" style="width: 100%; padding: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.9); font-size: 13px;" data-i18n="ui.form.country_label">Pays :</label>
-                                    <input type="text" id="fin-pays" data-i18n-placeholder="ui.form.country_placeholder" placeholder="Votre pays" style="width: 100%; padding: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.9); font-size: 13px;" data-i18n="ui.form.age_label">Âge :</label>
-                                    <input type="number" id="fin-age" data-i18n-placeholder="ui.form.age_placeholder" placeholder="Votre âge" style="width: 100%; padding: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;" min="1" max="150">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.9); font-size: 13px;" data-i18n="ui.form.gender_label">Genre :</label>
-                                    <select id="fin-genre" style="width: 100%; padding: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto;">
-                                        <option value="" data-i18n="ui.form.gender_not_specified">Non spécifié</option>
-                                        <option value="Homme">Homme</option>
-                                        <option value="Femme">Femme</option>
-                                        <option value="Autre">Autre</option>
-                                    </select>
-                                </div>
+                        <details style="margin: 10px 0; cursor: pointer; pointer-events: auto; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <summary style="color: #64748b; font-size: 12px; user-select: none; pointer-events: auto; cursor: pointer; font-weight: 600;" data-i18n="ui.form.optional_info">+ Infos optionnelles</summary>
+                            <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <input type="text" id="fin-ville" data-i18n-placeholder="ui.form.city_placeholder" placeholder="Ville" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
+                                <input type="text" id="fin-pays" data-i18n-placeholder="ui.form.country_placeholder" placeholder="Pays" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
+                                <input type="number" id="fin-age" data-i18n-placeholder="ui.form.age_placeholder" placeholder="Âge" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;" min="1" max="150">
+                                <select id="fin-genre" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
+                                    <option value="">Genre</option>
+                                    <option value="Homme">Homme</option>
+                                    <option value="Femme">Femme</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
                             </div>
                         </details>
 
-                        <div style="margin-top: 25px;">
-                            <button id="fin-enregistrer" data-i18n="ui.buttons.save_and_discover" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: all 0.2s;">
-                                💾 Enregistrer & Découvrir 🎨
+                        <div style="margin-top: 15px;">
+                            <button id="fin-enregistrer" data-i18n="ui.buttons.save_and_discover" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
+                                💾 Enregistrer & Découvrir
                             </button>
                         </div>
 
-                        <div id="fin-message" style="margin-top: 15px; text-align: center; font-size: 14px; color: white; font-weight: 600;"></div>
+                        <div style="margin-top: 10px;">
+                            <button id="fin-passer" data-i18n="ui.buttons.skip_and_continue" style="width: 100%; padding: 12px; background: transparent; color: #94a3b8; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+                                ⏭️ Passer
+                            </button>
+                        </div>
+
+                        <div id="fin-message" style="margin-top: 10px; text-align: center; font-size: 13px; font-weight: 600;"></div>
                     </div>
                 </div>
             `;
@@ -7588,9 +7692,9 @@
                         opt.style.transform = 'scale(1)';
                     });
 
-                    // Sélectionner celui-ci
-                    option.style.background = '#3b82f6';
-                    option.style.borderColor = '#2563eb';
+                    // Sélectionner celui-ci (rose)
+                    option.style.background = '#ec4899';
+                    option.style.borderColor = '#ec4899';
                     option.style.transform = 'scale(1.1)';
 
                     // Enregistrer la valeur
@@ -7600,16 +7704,34 @@
                 // Effet hover
                 option.addEventListener('mouseenter', () => {
                     if (!option.style.background || option.style.background === 'transparent') {
-                        option.style.background = '#e2e8f0';
+                        option.style.background = '#fce7f3';
                     }
                 });
 
                 option.addEventListener('mouseleave', () => {
-                    if (option.style.borderColor !== 'rgb(37, 99, 235)') { // Pas sélectionné
+                    if (option.style.borderColor !== 'rgb(236, 72, 153)') { // Pas sélectionné (rose)
                         option.style.background = 'transparent';
                     }
                 });
             });
+
+            // Bouton "Plus d'avatars"
+            const btnMoreAvatars = document.getElementById('btn-more-avatars');
+            let avatarsExpanded = false;
+            if (btnMoreAvatars) {
+                btnMoreAvatars.addEventListener('click', () => {
+                    const extraAvatars = document.querySelectorAll('.avatar-extra');
+                    avatarsExpanded = !avatarsExpanded;
+
+                    extraAvatars.forEach(avatar => {
+                        avatar.style.display = avatarsExpanded ? 'block' : 'none';
+                    });
+
+                    btnMoreAvatars.textContent = avatarsExpanded ? '- Moins d\'avatars' : '+ Plus d\'avatars';
+                    btnMoreAvatars.style.background = avatarsExpanded ? '#fce7f3' : '#f8fafc';
+                    btnMoreAvatars.style.color = avatarsExpanded ? '#ec4899' : '#64748b';
+                });
+            }
 
             // Fonction pour afficher le message final (closure pour accéder aux variables du parent)
             function afficherMessageFinal(nom, ville, pays) {
@@ -7650,14 +7772,28 @@
                 const email = emailInput ? emailInput.value.trim() : '';
                 const pseudo = pseudoInput ? pseudoInput.value.trim() : '';
 
+                // Vérifier que les champs obligatoires sont remplis
+                if (!email || !pseudo) {
+                    console.log('❌ Champs obligatoires manquants');
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.required_fields', 'Email et pseudo sont obligatoires') + '</span>';
+                    
+                    // Mettre en évidence les champs vides
+                    if (!email) emailInput.style.border = '2px solid #ef4444';
+                    if (!pseudo) pseudoInput.style.border = '2px solid #ef4444';
+                    
+                    return;
+                }
+
+                // Valider le format de l'email
+                if (!email.includes('@')) {
+                    console.log('❌ Email invalide');
+                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
+                    emailInput.style.border = '2px solid #ef4444';
+                    return;
+                }
+
                 // Si email et pseudo remplis, enregistrer le score
                 if (email && pseudo) {
-                    if (!email.includes('@')) {
-                        console.log('❌ Email invalide');
-                        document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
-                        return;
-                    }
-
                     document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
 
                     try {
@@ -7674,10 +7810,13 @@
                         // Calculer le niveau de sagesse
                         const niveauSagesse = getNiveauSagesse(scoreSagesse);
 
-                        await supabaseScores.saveScore(scoreTotal, {
+                        console.log('💾 Envoi du score à Supabase (méthode directe)...', { scoreTotal, xp, scoreJeu, scoreSagesse });
+                        const resultat = await supabaseScores.saveScoreDirect(scoreTotal, {
                             niveau_atteint: 23,
                             temps_jeu: Math.floor(Date.now() / 1000),
                             donnees_extra: {
+                                pseudo: pseudo,  // 👈 Ajouter le pseudo dans donnees_extra
+                                avatar: avatar,  // 👈 Ajouter l'avatar dans donnees_extra
                                 xp,
                                 score: scoreJeu,
                                 sagesse: scoreSagesse,
@@ -7688,6 +7827,11 @@
                             }
                         });
 
+                        if (!resultat || !resultat.success) {
+                            throw new Error(resultat?.error || 'Échec de la sauvegarde du score');
+                        }
+
+                        console.log('✅ Score sauvegardé avec succès:', resultat);
                         document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !') + '</span>';
 
                         // Récupérer le meilleur score de l'utilisateur
@@ -7697,228 +7841,78 @@
                     } catch (error) {
                         console.error('❌ Erreur sauvegarde:', error);
                         document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ ' + getTranslatedText('interface.system.error', 'Erreur') + ' : ' + error.message + '</span>';
+                        return; // Ne pas continuer si erreur
                     }
                 }
 
-                // Dans tous les cas, ouvrir emmanuel-artist-module.html après 1 seconde
+                // Fermer le formulaire
+                const overlay = document.getElementById('formulaire-fin-overlay');
+                if (overlay) overlay.remove();
+                
+                // Ouvrir la page artiste
+                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                
+                // 🔄 Vérifier s'il y a une sauvegarde disponible (après un court délai)
                 setTimeout(() => {
-                    // Fermer le formulaire
-                    const overlay = document.getElementById('formulaire-fin-overlay');
-                    if (overlay) overlay.remove();
-                    
-                    // Ouvrir la page artiste
-                    const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                    window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
-                    
-                    // 🔄 Vérifier s'il y a une sauvegarde disponible
-                    setTimeout(() => {
-                        const saveInfo = GameSaveSystem.getSaveInfo();
-                        if (saveInfo && saveInfo.hasSave) {
-                            // Proposer de reprendre depuis la sauvegarde
-                            const message = getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + 
-                                '\n\n' + 
-                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + 
-                                '\n' + 
-                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2');
-                            
-                            const reprendre = confirm(message);
-                            
-                            if (reprendre) {
-                                // Charger la sauvegarde
-                                window.loadGame();
-                            } else {
-                                // Recommencer à la phase 2
-                                recommencerDepuisPhase2();
-                            }
+                    const saveInfo = GameSaveSystem.getSaveInfo();
+                    if (saveInfo && saveInfo.hasSave) {
+                        // Proposer de reprendre depuis la sauvegarde
+                        const reprendre = confirm(
+                            getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
+                            getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
+                            getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
+                        );
+
+                        if (reprendre) {
+                            // Charger la sauvegarde
+                            window.loadGame();
                         } else {
-                            // Pas de sauvegarde, recommencer à la phase 2
+                            // Recommencer à la phase 2
                             recommencerDepuisPhase2();
                         }
-                    }, 500);
-                }, email && pseudo ? 1500 : 0); // Attendre 1.5s si enregistré, sinon immédiat
+                    } else {
+                        // Pas de sauvegarde, recommencer à la phase 2
+                        recommencerDepuisPhase2();
+                    }
+                }, 500);
             };
-        }
 
-        // Fonction pour afficher le formulaire de fin de jeu (phase 23 - version simple)
-        function afficherFormulaireFinDeJeu() {
-            if (formulaireFinAffiche) return; // Ne pas afficher plusieurs fois
-            formulaireFinAffiche = true;
+            // Gestionnaire du bouton "Passer & Continuer"
+            document.getElementById('fin-passer').onclick = () => {
+                console.log('⏭️ Bouton Passer & Continuer cliqué - on saute l\'enregistrement');
+                
+                // Fermer le formulaire immédiatement
+                const overlay = document.getElementById('formulaire-fin-overlay');
+                if (overlay) overlay.remove();
+                
+                // Ouvrir la page artiste
+                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                
+                // 🔄 Vérifier s'il y a une sauvegarde disponible
+                setTimeout(() => {
+                    const saveInfo = GameSaveSystem.getSaveInfo();
+                    if (saveInfo && saveInfo.hasSave) {
+                        // Proposer de reprendre depuis la sauvegarde
+                        const reprendre = confirm(
+                            getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
+                            getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
+                            getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
+                        );
 
-            const html = `
-                <div id="formulaire-fin-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; display: flex; align-items: center; justify-content: center;">
-                    <div style="background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                        <h2 style="margin: 0 0 20px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif;">🎉 ${getTranslatedText('ui.congratulations')}</h2>
-                        <p style="text-align: center; color: #64748b; margin-bottom: 30px;">${getTranslatedText('ui.journey_completed')}</p>
-
-                        <div style="text-align: center; margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
-                            <div style="font-size: 36px; font-weight: bold; color: white;">${score || 0}</div>
-                            <div style="font-size: 14px; color: rgba(255,255,255,0.9);">points</div>
-                        </div>
-
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.email_label">Email * :</label>
-                            <input type="email" id="fin-simple-email" data-i18n-placeholder="ui.form.email_placeholder" placeholder="Votre adresse email" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
-                        </div>
-
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.pseudo_label">Pseudo * :</label>
-                            <input type="text" id="fin-simple-pseudo" data-i18n-placeholder="ui.form.pseudo_placeholder" placeholder="Votre pseudo" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; pointer-events: auto; touch-action: auto; user-select: text;" required>
-                        </div>
-
-                        <div style="margin: 15px 0;">
-                            <label style="display: block; margin-bottom: 8px; color: #475569; font-size: 14px;" data-i18n="ui.form.avatar_label">Avatar :</label>
-                            <div id="avatar-selector-simple" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 8px; background: #f8fafc; border-radius: 8px; max-height: 200px; overflow-y: auto;">
-                                <div class="avatar-option-simple" data-avatar="✝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
-                                <div class="avatar-option-simple" data-avatar="❤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
-                                <div class="avatar-option-simple" data-avatar="🌈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
-                                <div class="avatar-option-simple" data-avatar="⛵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
-                                <div class="avatar-option-simple" data-avatar="🕊️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🕊️</div>
-                                <div class="avatar-option-simple" data-avatar="⛪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛪</div>
-                            </div>
-                            <input type="hidden" id="fin-simple-avatar" value="">
-                        </div>
-
-                        <details style="margin: 15px 0; cursor: pointer; pointer-events: auto;">
-                            <summary style="color: #64748b; font-size: 14px; user-select: none; pointer-events: auto; cursor: pointer;" data-i18n="ui.form.optional_info">Informations optionnelles</summary>
-                            <div style="margin-top: 15px;">
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.city_label">Ville :</label>
-                                    <input type="text" id="fin-simple-ville" data-i18n-placeholder="ui.form.city_placeholder" placeholder="Votre ville" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.country_label">Pays :</label>
-                                    <input type="text" id="fin-simple-pays" data-i18n-placeholder="ui.form.country_placeholder" placeholder="Votre pays" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.age_label">Âge :</label>
-                                    <input type="number" id="fin-simple-age" data-i18n-placeholder="ui.form.age_placeholder" placeholder="Votre âge" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto; user-select: text;" min="1" max="150">
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <label style="display: block; margin-bottom: 5px; color: #475569; font-size: 14px;" data-i18n="ui.form.gender_label">Genre :</label>
-                                    <select id="fin-simple-genre" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; pointer-events: auto; touch-action: auto;">
-                                        <option value="" data-i18n="ui.form.gender_not_specified">Non spécifié</option>
-                                        <option value="Homme">Homme</option>
-                                        <option value="Femme">Femme</option>
-                                        <option value="Autre">Autre</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </details>
-
-                        <div style="margin-top: 25px; display: flex; gap: 10px;">
-                            <button id="fin-simple-enregistrer" data-i18n="ui.buttons.save" style="flex: 1; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
-                                💾 Enregistrer
-                            </button>
-                            <button id="fin-simple-passer" data-i18n="ui.buttons.skip" style="flex: 1; padding: 14px; background: #94a3b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                                Passer
-                            </button>
-                        </div>
-
-                        <div id="fin-simple-message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', html);
-
-            // 🌍 Appliquer les traductions aux nouveaux éléments DOM
-            if (window.i18n && typeof window.i18n.updateDOM === 'function') {
-                window.i18n.updateDOM();
-            }
-
-            // ❌ DÉSACTIVÉ : Ne pas permettre de fermer en cliquant sur le fond
-            // L'utilisateur doit cliquer sur "Enregistrer" ou "Passer" pour continuer
-
-            // Gestion de la sélection d'avatar
-            const avatarOptionsSimple = document.querySelectorAll('.avatar-option-simple');
-            avatarOptionsSimple.forEach(option => {
-                option.addEventListener('click', () => {
-                    // Retirer la sélection des autres
-                    avatarOptionsSimple.forEach(opt => {
-                        opt.style.background = 'transparent';
-                        opt.style.borderColor = 'transparent';
-                        opt.style.transform = 'scale(1)';
-                    });
-
-                    // Sélectionner celui-ci
-                    option.style.background = '#3b82f6';
-                    option.style.borderColor = '#2563eb';
-                    option.style.transform = 'scale(1.1)';
-
-                    // Enregistrer la valeur
-                    document.getElementById('fin-simple-avatar').value = option.getAttribute('data-avatar');
-                });
-            });
-
-            // Gestionnaire d'enregistrement
-            document.getElementById('fin-simple-enregistrer').onclick = async () => {
-                const email = document.getElementById('fin-simple-email').value.trim();
-                const pseudo = document.getElementById('fin-simple-pseudo').value.trim();
-
-                if (!email || !pseudo) {
-                    document.getElementById('fin-simple-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.email_pseudo_required', 'Email et pseudo requis') + '</span>';
-                    return;
-                }
-
-                // Validation email
-                if (!email.includes('@')) {
-                    document.getElementById('fin-simple-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
-                    return;
-                }
-
-                document.getElementById('fin-simple-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
-
-                try {
-                    // Créer ou récupérer l'utilisateur
-                    const ville = document.getElementById('fin-simple-ville').value.trim() || null;
-                    const pays = document.getElementById('fin-simple-pays').value.trim() || null;
-                    const age = parseInt(document.getElementById('fin-simple-age').value) || null;
-                    const genre = document.getElementById('fin-simple-genre').value || null;
-                    const avatar = document.getElementById('fin-simple-avatar').value || null;
-
-                    await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
-
-                    // Sauvegarder le score
-                    const phaseAtteinte = narrationManager ? narrationManager.currentPhase : 23;
-                    const tempsJeu = Math.floor(Date.now() / 1000); // Timestamp simple
-
-                    // Calculer le score de sagesse (score / 100)
-                    const scoreSagesse = Math.round((score || 0) / 100);
-                    const niveauSagesse = getNiveauSagesse(scoreSagesse);
-
-                    await supabaseScores.saveScore(score || 0, {
-                        niveau_atteint: phaseAtteinte,
-                        temps_jeu: tempsJeu,
-                        donnees_extra: {
-                            sagesse: scoreSagesse,
-                            niveau: niveauSagesse.titre,
-                            niveau_icone: niveauSagesse.icone,
-                            enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0
+                        if (reprendre) {
+                            // Charger la sauvegarde
+                            window.loadGame();
+                        } else {
+                            // Recommencer à la phase 2
+                            recommencerDepuisPhase2();
                         }
-                    });
-
-                    document.getElementById('fin-simple-message').innerHTML = '<span style="color: #10b981;">✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !') + '</span>';
-
-                    // Récupérer le meilleur score de l'utilisateur
-                    userBestScore = await supabaseScores.getBestScore();
-
-                    // Recharger le classement
-                    await chargerClassement();
-
-                    // Fermer après 2 secondes
-                    setTimeout(() => {
-                        document.getElementById('formulaire-fin-overlay').remove();
-                    }, 2000);
-
-                } catch (error) {
-                    console.error('❌ Erreur sauvegarde:', error);
-                    document.getElementById('fin-simple-message').innerHTML = '<span style="color: #ef4444;">❌ ' + getTranslatedText('interface.system.error', 'Erreur') + ' : ' + error.message + '</span>';
-                }
-            };
-
-            // Gestionnaire passer
-            document.getElementById('fin-simple-passer').onclick = () => {
-                document.getElementById('formulaire-fin-overlay').remove();
+                    } else {
+                        // Pas de sauvegarde, recommencer à la phase 2
+                        recommencerDepuisPhase2();
+                    }
+                }, 500);
             };
         }
 
@@ -8071,7 +8065,7 @@
 
                     // Ajoute un caractère aléatoire si on n'est pas à la fin
                     if (this.currentIndex < textOnly.length) {
-                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/' + String.fromCharCode(92) + '|~' + String.fromCharCode(94) + '&%$#@!?';
+                        const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\\\|~^&%$#@!?';
                         displayText += digitalChars.charAt(Math.floor(Math.random() * digitalChars.length));
                     }
 
@@ -8262,7 +8256,7 @@
                 }
 
                 let displayText = this._buildHtmlText(this.currentIndex);
-                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/' + String.fromCharCode(92) + '|~' + String.fromCharCode(94) + '&%$#@!?';
+                const digitalChars = '01230456789ABCDEF<>{}[]()+-=*/\\\\|~^&%$#@!?';
                 displayText += digitalChars[Math.floor(Math.random() * digitalChars.length)];
 
                 this.element.innerHTML = displayText;
@@ -9821,6 +9815,26 @@
             collectee: false
         };
 
+        // ⚡ OPTIMISATION: Cache temporel pour chauve-souris (même pattern que drones)
+        let chauveSourisCache = {
+            frameTime: 0,
+            sinValue: 0,
+            battement: 0,
+            lastUpdate: 0
+        };
+
+        // ⚡ OPTIMISATION: Fonction pour mettre à jour le cache chauve-souris
+        function updateChauveSourisCache() {
+            const now = Date.now();
+            // Throttle à 60 FPS (16ms)
+            if (now - chauveSourisCache.lastUpdate < 16) return;
+            
+            chauveSourisCache.frameTime = now;
+            chauveSourisCache.sinValue = Math.sin(now * 0.01);
+            chauveSourisCache.battement = Math.sin(now * 0.008) * 0.2;
+            chauveSourisCache.lastUpdate = now;
+        }
+
         // Animation de l'icône vers le menu énigmes
         let animationIconeMenu = {
             active: false,
@@ -9850,7 +9864,11 @@
                 soleilCouchant: null,
                 haloSoleilCouchant: null,
                 refletSoleil: null,
-                languageSelector: null // Gradient sélecteur langue
+                languageSelector: null, // Gradient sélecteur langue
+                // ⚡ NOUVEAUX: Gradients fond principal
+                fondFinale: null,
+                fondJour: null,
+                fondNuit: null
             },
             // Throttling des vagues
             lastWaveFrame: 0,
@@ -9915,6 +9933,29 @@
             fondAniméCache.gradients.refletSoleil.addColorStop(0.5, 'rgba(255, 150, 50, 0.2)');
             fondAniméCache.gradients.refletSoleil.addColorStop(1, 'rgba(255, 100, 0, 0)');
         }
+
+        // ⚡ OPTIMISATION: Initialiser gradients fond principal
+        function initGradientsFond() {
+            // Gradient finale (coucher de soleil)
+            fondAniméCache.gradients.fondFinale = ctx.createLinearGradient(0, 0, 0, C.H);
+            fondAniméCache.gradients.fondFinale.addColorStop(0, '#FFB347'); // Orange doux en haut
+            fondAniméCache.gradients.fondFinale.addColorStop(0.3, '#FF8C69'); // Orange saumon
+            fondAniméCache.gradients.fondFinale.addColorStop(0.6, '#FF6B9D'); // Rose-corail
+            fondAniméCache.gradients.fondFinale.addColorStop(1, '#4A90E2'); // Bleu ciel en bas
+            
+            // Gradient jour (ciel diurne)
+            fondAniméCache.gradients.fondJour = ctx.createLinearGradient(0, 0, 0, C.H);
+            fondAniméCache.gradients.fondJour.addColorStop(0, 'rgba(135, 206, 250, 0.98)');
+            fondAniméCache.gradients.fondJour.addColorStop(0.7, 'rgba(176, 224, 230, 0.98)');
+            fondAniméCache.gradients.fondJour.addColorStop(1, 'rgba(240,248,255,0.98)');
+            
+            // Gradient nuit (ciel nocturne orageux)
+            fondAniméCache.gradients.fondNuit = ctx.createLinearGradient(0, 0, 0, C.H);
+            fondAniméCache.gradients.fondNuit.addColorStop(0, 'rgba(25, 25, 112, 0.98)'); // Bleu nuit
+            fondAniméCache.gradients.fondNuit.addColorStop(0.5, 'rgba(47, 79, 79, 0.98)'); // Gris sombre
+            fondAniméCache.gradients.fondNuit.addColorStop(1, 'rgba(105, 105, 105, 0.98)'); // Gris
+        }
+
         let messageCorbeauBas = { actif: false, texte: '', tempsFin: 0 }; // Message discret en bas pour corbeau
         let secretModeModule = null; // Module mode secret
         let musicManager = null; // Gestionnaire de musique gospel
@@ -15659,23 +15700,30 @@
         }
 
         function finDuVoyage() {
+            console.log('🏁 FIN DU VOYAGE - Game Over');
             jeu = false;
             
+            // Réinitialiser le flag pour permettre l'affichage du formulaire
+            formulaireFinAffiche = false;
+
             // Afficher le formulaire de sauvegarde du score
             if (typeof afficherFormulaireFinDeJeuAvecResume === 'function') {
+                console.log('✅ Fonction afficherFormulaireFinDeJeuAvecResume trouvée');
                 // Calculer les scores
                 const xp = pointsConnaissance || 0;
                 const scoreJeu = window.score || score || 0;
                 const scoreTotal = xp + scoreJeu;
                 const scoreSagesse = Math.round(scoreTotal / 100);
-                
+
                 // Générer un ID unique
                 const timestamp = Date.now().toString(16);
                 const random = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
                 const idUnique = `PB${timestamp}${random}`.toUpperCase();
-                
+
+                console.log('📊 Scores calculés:', { xp, scoreJeu, scoreTotal, scoreSagesse, idUnique });
                 afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique);
             } else {
+                console.error('❌ Fonction afficherFormulaireFinDeJeuAvecResume introuvable');
                 // Fallback si la fonction n'existe pas
                 afficherMessage(`
                     <div style="font-weight: bold; font-size: 17px; text-align: center;">
@@ -15863,10 +15911,10 @@
 
         // Fonction pour passer au chapitre suivant (pour les tests)
         function passerChapitreTest() {
-            // Mode passe phase désactivé - Code commenté car non utilisé
+            // Mode passe phase désactivé - fonction entièrement désactivée
             return;
             
-            /* Code désactivé pour les tests
+            /* CODE MORT - Ne sera jamais exécuté
             if(periode === 'jour') {
                 periode = 'nuit';
                 VOYAGE = NUIT;
@@ -15903,6 +15951,7 @@
 
                 cacherMessage();
             }
+            */
         }
 
 
@@ -16429,16 +16478,16 @@ Elle a besoin de ponts.`
             // Réinitialiser les variables de jeu
             chapitre = 1;
             VOYAGE = JOUR;
-            phaseJeu = 'tir_coeurs_haut';
+            phaseJeu = 'briques'; // ✅ Phase 2 = mode briques
             score = 0;
             vies = 3;
             brises = 0;
-            jeu = false;
+            jeu = false; // ✅ Sera mis à true après l'init
             formulaireFinAffiche = false;
             
             // Réinitialiser les systèmes
             animationBateau.active = false;
-            phaseIntro = { active: false, etape: 'terminee', tempsDebut: 0 }; // Pas d'intro
+            phaseIntro = { active: false, etape: 'complete', tempsDebut: 0 }; // ✅ Pas d'intro
             
             // Nettoyer les éléments de jeu
             briques = [];
@@ -16449,11 +16498,9 @@ Elle a besoin de ponts.`
             coeurs = [];
             petitsCoeurs = [];
             
-            // Réinitialiser le narration manager à la phase 2
+            // Réinitialiser le narration manager
             if (narrationManager) {
-                narrationManager.currentPhase = 1; // On va à la phase 2 ensuite
-                narrationManager.phaseHistory = [];
-                narrationManager.isTransitioning = false;
+                narrationManager.reset(); // ✅ Reset complet
             }
             
             // Fermer tous les menus/overlays
@@ -16475,6 +16522,15 @@ Elle a besoin de ponts.`
             
             // Relancer l'initialisation
             initJeu();
+            dedoublerCoeursEnBriques(); // ✅ Créer les briques pour la phase 2
+            
+            // ✅ Démarrer directement à la phase 2
+            setTimeout(() => {
+                narrationManager.currentPhase = 2; // Positionner sur phase 2
+                narrationManager.executeCurrentPhase(true); // Exécuter avec texte narratif
+                jeu = true; // ✅ IMPORTANT: Démarrer le jeu
+                console.log('🎮 Jeu redémarré à la phase 2, jeu =', jeu);
+            }, 500);
             
             // Démarrer directement à la phase 2 (sauter l'intro)
             setTimeout(() => {
@@ -16594,43 +16650,6 @@ Elle a besoin de ponts.`
                 console.log('🔄 Rechargement de la page pour reset total...');
                 window.location.reload(true); // force=true pour ignorer le cache
             }, 2000);
-        }
-
-        // 🔄 Recommencer directement à la phase 2 (sauter la phase 1)
-        function recommencerDepuisPhase2() {
-            // Réinitialiser complètement le jeu comme recommencerJeu()
-            chapitre = 1;
-            VOYAGE = JOUR;
-            phaseJeu = 'briques'; // Phase 2 = mode briques
-            score = 0;
-            vies = 3;
-            brises = 0;
-            jeu = false;
-
-            // Réinitialiser les systèmes
-            animationBateau.active = false;
-            phaseIntro = { active: false, etape: 'complete', tempsDebut: 0 }; // Pas d'intro
-            narrationManager.reset();
-
-            // Nettoyer les éléments de jeu
-            briques = [];
-            projectiles = [];
-            starsProjectiles = [];
-            particules = [];
-            powerUps = [];
-
-            // Relancer l'initialisation
-            initJeu();
-            dedoublerCoeursEnBriques(); // Créer les briques pour la phase 2
-
-            // Cacher le message
-            cacherMessage();
-
-            // ✅ Démarrer directement à la phase 2
-            setTimeout(() => {
-                narrationManager.currentPhase = 2; // Positionner sur phase 2
-                narrationManager.executeCurrentPhase(true); // Exécuter avec texte narratif
-            }, 500);
         }
 
         // 🎭 MESSAGES AVEC ANIMATIONS TYPEWRITER - Pour mode secret et effets spéciaux
@@ -17211,32 +17230,26 @@ Elle a besoin de ponts.`
             // 📱 Appliquer l'inertie du bateau (après touch)
             appliquerInertieBateau();
 
-            // Fond dégradé selon le chapitre
+            // ⚡ OPTIMISATION: Initialiser les gradients fond si nécessaire
+            if (!fondAniméCache.gradients.fondFinale || !fondAniméCache.gradients.fondJour || !fondAniméCache.gradients.fondNuit) {
+                initGradientsFond();
+            }
+
+            // Fond dégradé selon le chapitre (utiliser gradients en cache)
             // Protection contre les valeurs non finies
             if (!isFinite(C.H) || C.H <= 0) {
                 console.error('Erreur: C.H non valide:', C.H);
                 return;
             }
 
-            const grad = ctx.createLinearGradient(0, 0, 0, C.H);
+            // ⚡ OPTIMISATION: Utiliser gradients en cache au lieu de les recréer
             if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
-                // Dégradé crépusculaire pour phase finale (coucher de soleil)
-                grad.addColorStop(0, '#FFB347'); // Orange doux en haut
-                grad.addColorStop(0.3, '#FF8C69'); // Orange saumon
-                grad.addColorStop(0.6, '#FF6B9D'); // Rose-corail
-                grad.addColorStop(1, '#4A90E2'); // Bleu ciel en bas
+                ctx.fillStyle = fondAniméCache.gradients.fondFinale;
             } else if(periode === 'jour') {
-                // Ciel diurne
-                grad.addColorStop(0, 'rgba(135, 206, 250, 0.98)');
-                grad.addColorStop(0.7, 'rgba(176, 224, 230, 0.98)');
-                grad.addColorStop(1, 'rgba(240,248,255,0.98)');
+                ctx.fillStyle = fondAniméCache.gradients.fondJour;
             } else {
-                // Ciel nocturne orageux
-                grad.addColorStop(0, 'rgba(25, 25, 112, 0.98)'); // Bleu nuit
-                grad.addColorStop(0.5, 'rgba(47, 79, 79, 0.98)'); // Gris sombre
-                grad.addColorStop(1, 'rgba(105, 105, 105, 0.98)'); // Gris
+                ctx.fillStyle = fondAniméCache.gradients.fondNuit;
             }
-            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, C.W, C.H);
 
             // Phase finale : soleil couchant derrière la mer
@@ -17918,7 +17931,7 @@ Elle a besoin de ponts.`
                 const maintenant = Date.now();
                 const deltaTemps = maintenant - dernierTemps;
                 if (deltaTemps > 0) {
-                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7; // Inertie réduite pour plus de réactivité
+                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7; // Inertie réduite pour meilleur contrôle
                 }
                 dernierePositionX = raquette.x;
                 dernierTemps = maintenant;
@@ -19048,6 +19061,17 @@ Elle a besoin de ponts.`
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
                 C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
+                
+                // ⚡ OPTIMISATION: Invalider cache gradients pour recréer avec nouvelles dimensions
+                fondAniméCache.gradients.fondFinale = null;
+                fondAniméCache.gradients.fondJour = null;
+                fondAniméCache.gradients.fondNuit = null;
+                fondAniméCache.gradients.soleilCouchant = null;
+                fondAniméCache.gradients.haloSoleilCouchant = null;
+                fondAniméCache.gradients.refletSoleil = null;
+                fondAniméCache.gradients.merJour = null;
+                fondAniméCache.gradients.merNuit = null;
+                
                 if(!jeu) initJeu();
             }, 100);
         });
@@ -19844,27 +19868,37 @@ Elle a besoin de ponts.`
                         game.ball.y = game.paddle.y - 20;
                     }
 
+                    // ⚡ OPTIMISATION: Définir styles UNE FOIS avant la boucle
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 5;
+                    ctx.lineWidth = 3;
+
                     // Dessiner briques
                     game.bricks.forEach(brick => {
                         if (!brick.alive) return;
 
+                        // Fond brique
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
                         ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                        
+                        // Bordure brique
                         ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-                        ctx.lineWidth = 3;
                         ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
 
+                        // ⚡ Font drapeaux (shadow déjà configuré)
                         ctx.font = '36px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
                         ctx.fillStyle = '#ffffff';
-                        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                        ctx.shadowBlur = 5;
                         ctx.fillText(brick.flag, brick.x + brick.width/2, brick.y + brick.height/2 - 5);
 
+                        // ⚡ Font noms (shadow toujours actif)
                         ctx.font = 'bold 12px Arial';
                         ctx.fillText(brick.nom, brick.x + brick.width/2, brick.y + brick.height/2 + 15);
                     });
+
+                    // ⚡ OPTIMISATION: Désactiver shadowBlur après briques
+                    ctx.shadowBlur = 0;
 
                     // Dessiner raquette
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
