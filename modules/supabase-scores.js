@@ -258,33 +258,42 @@ class SupabaseScores {
                 }
             }
 
-            // 2. Insérer le score
-            this.log('💾 Insertion score pour user_id:', userId);
-            console.log('💾 Insertion score pour user_id:', userId);
+            // 2. Appeler la fonction PostgreSQL qui garde le meilleur score
+            this.log('💾 Sauvegarde meilleur score pour user_id:', userId);
+            console.log('💾 Sauvegarde meilleur score pour user_id:', userId);
+
             const { data, error } = await this.client
-                .from('scores')
-                .insert({
-                    user_id: userId,
-                    game_id: this.currentGameId,
-                    score: score,
-                    niveau_atteint: options.niveau_atteint || null,
-                    temps_jeu: options.temps_jeu || null,
-                    donnees_extra: options.donnees_extra || null
-                })
-                .select()
-                .single();
+                .rpc('save_best_score', {
+                    p_user_id: userId,
+                    p_game_id: this.currentGameId,
+                    p_score: score,
+                    p_niveau_atteint: options.niveau_atteint || null,
+                    p_temps_jeu: options.temps_jeu || null,
+                    p_donnees_extra: options.donnees_extra || null
+                });
 
             if (error) {
-                this.error('Erreur insertion score:', error);
+                this.error('Erreur save_best_score:', error);
                 throw error;
             }
 
-            this.log('✅ Score enregistré:', data);
-            console.log('✅ Score enregistré directement:', data);
+            // La fonction retourne un objet JSONB
+            const result = data;
+
+            if (result.is_best) {
+                this.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
+                console.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
+            } else {
+                this.log('ℹ️ Score existant meilleur:', result.old_score, '(nouveau:', score, ')');
+                console.log('ℹ️ Score existant meilleur:', result.old_score, '(nouveau:', score, ')');
+            }
+
             return {
-                success: true,
-                user_id: userId,
-                score_id: data.id
+                success: result.success,
+                is_best: result.is_best,
+                old_score: result.old_score,
+                new_score: result.new_score,
+                user_id: userId
             };
 
         } catch (error) {
