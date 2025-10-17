@@ -7849,25 +7849,15 @@
                         console.log('✅ Phase 23 complétée - Recommencer à Phase 2');
                         recommencerDepuisPhase2();
                     } else {
-                        // ❌ Game Over → Vérifier s'il y a une sauvegarde
+                        // ❌ Game Over → Charger sauvegarde automatiquement si existe
                         const saveInfo = GameSaveSystem.getSaveInfo();
                         if (saveInfo && saveInfo.hasSave) {
-                            // Proposer de reprendre depuis la sauvegarde
-                            const reprendre = confirm(
-                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
-                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
-                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
-                            );
-
-                            if (reprendre) {
-                                // Charger la sauvegarde
-                                window.loadGame();
-                            } else {
-                                // Recommencer à la phase 2
-                                recommencerDepuisPhase2();
-                            }
+                            // ✅ Charger automatiquement (pas de popup)
+                            console.log('💾 Sauvegarde détectée - Chargement automatique');
+                            window.loadGame();
                         } else {
                             // Pas de sauvegarde, recommencer à la phase 2
+                            console.log('ℹ️ Pas de sauvegarde - Recommencer Phase 2');
                             recommencerDepuisPhase2();
                         }
                     }
@@ -7893,25 +7883,15 @@
                         console.log('✅ Phase 23 complétée - Recommencer à Phase 2 (sans vérifier sauvegarde)');
                         recommencerDepuisPhase2();
                     } else {
-                        // ❌ Game Over → Vérifier s'il y a une sauvegarde
+                        // ❌ Game Over → Charger sauvegarde automatiquement si existe
                         const saveInfo = GameSaveSystem.getSaveInfo();
                         if (saveInfo && saveInfo.hasSave) {
-                            // Proposer de reprendre depuis la sauvegarde
-                            const reprendre = confirm(
-                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
-                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
-                                getTranslatedText('save.no_load', '❌ NON = Recommencer à la phase 2')
-                            );
-
-                            if (reprendre) {
-                                // Charger la sauvegarde
-                                window.loadGame();
-                            } else {
-                                // Recommencer à la phase 2
-                                recommencerDepuisPhase2();
-                            }
+                            // ✅ Charger automatiquement (pas de popup)
+                            console.log('💾 Sauvegarde détectée - Chargement automatique');
+                            window.loadGame();
                         } else {
                             // Pas de sauvegarde, recommencer à la phase 2
+                            console.log('ℹ️ Pas de sauvegarde - Recommencer Phase 2');
                             recommencerDepuisPhase2();
                         }
                     }
