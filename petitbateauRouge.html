@@ -1596,55 +1596,41 @@
         // 💾 === SYSTÈME DE SAUVEGARDE/REPRISE DE JEU ===
         const GameSaveSystem = {
             SAVE_KEY: 'petit_bateau_save',
-            VERSION: '1.1', // Fix vitesse balle + corbeau adaptatif
+            VERSION: '1.2', // ✅ Fix langue + optimisations
 
             // Sauvegarder l'état du jeu
             save() {
                 try {
+                    // 🚫 Ne pas sauvegarder si changement de langue en cours
+                    if (window.isChangingLanguage) {
+                        console.log('🌍 Changement de langue en cours - sauvegarde annulée');
+                        return false;
+                    }
+                    
+                    // ✅ SIMPLIFICATION: Sauvegarder SEULEMENT à partir de Phase 2
+                    const currentPhase = narrationManager ? narrationManager.currentPhase : 1;
+                    if (currentPhase < 2) {
+                        console.log('ℹ️ Phase 1 (intro) - pas de sauvegarde nécessaire');
+                        return false;
+                    }
+                    
+                    // ✅ DONNÉES MINIMALES: Phase + Playlist uniquement
                     const saveData = {
                         version: this.VERSION,
                         timestamp: Date.now(),
+                        language: window.i18n ? window.i18n.getCurrentLanguage() : (localStorage.getItem('petit_bateau_lang') || 'fr'),
                         gameState: {
-                            // Variables essentielles
-                            chapitre: typeof chapitre !== 'undefined' ? chapitre : 1,
-                            periode: periode || 'jour',
-                            phaseJeu: phaseJeu || 'tir_coeurs_haut',
-                            score: score || 0,
-                            vies: vies || 3,
-                            brises: brises || 0,
+                            // 🎯 Phase actuelle (essentiel)
+                            currentPhase: currentPhase,
                             
-                            // Narration - juste la phase, pas les timings
-                            currentPhase: narrationManager ? narrationManager.currentPhase : 1,
-                            phaseHistory: narrationManager ? narrationManager.phaseHistory : [],
-                            
-                            // Animation bateau
-                            animationBateau: animationBateau ? {
-                                active: animationBateau.active,
-                                phase: animationBateau.phase,
-                                tempsEcoule: animationBateau.tempsDebut ? Date.now() - animationBateau.tempsDebut : 0
-                            } : null,
-                            
-                            // Progression
-                            pointsConnaissance: pointsConnaissance || 0,
-                            
-                            // Mode tir (phases 17-22)
-                            munitions: typeof munitions !== 'undefined' ? munitions : 0,
-                            
-                            // État musical
-                            musique: musicManager ? {
-                                isPlaying: musicManager.isPlaying || false,
-                                isMuted: musicManager.isMuted || false,
-                                currentTrackIndex: musicManager.currentTrackIndex || 0
-                            } : null,
-                            
-                            // État du jeu
-                            jeu: jeu || false,
-                            modeSecret: modeSecret || false
+                            // 🎵 Progression playlist (essentiel)
+                            musicTrackIndex: musicManager ? (musicManager.currentTrackIndex || 0) : 0,
+                            musicMuted: musicManager ? (musicManager.isMuted || false) : false
                         }
                     };
 
                     localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
-                    console.log('💾 Jeu sauvegardé:', saveData);
+                    console.log('💾 Jeu sauvegardé (simplifié):', saveData);
                     return true;
                 } catch (e) {
                     console.error('❌ Erreur sauvegarde:', e);
@@ -1663,10 +1649,21 @@
 
                     const save = JSON.parse(savedData);
                     
-                    // Vérifier la version
-                    if (save.version !== this.VERSION) {
-                        console.warn('⚠️ Version de sauvegarde incompatible');
+                    // ✅ Vérifier compatibilité de version (accepter versions mineures)
+                    const savedVersion = parseFloat(save.version || '1.0');
+                    const currentVersion = parseFloat(this.VERSION);
+                    
+                    if (Math.floor(savedVersion) !== Math.floor(currentVersion)) {
+                        console.warn(`⚠️ Version incompatible: ${save.version} vs ${this.VERSION}`);
+                        // ❌ Version majeure différente → Invalider
                         return null;
+                    }
+                    
+                    // ✅ Vérifier que la langue correspond (optionnel - warning seulement)
+                    const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : (localStorage.getItem('petit_bateau_lang') || 'fr');
+                    if (save.language && save.language !== currentLang) {
+                        console.warn(`⚠️ Langue différente: sauvegarde=${save.language}, actuelle=${currentLang}`);
+                        // ✅ On charge quand même, mais on log le warning
                     }
 
                     console.log('💾 Sauvegarde chargée:', save);
@@ -1682,116 +1679,64 @@
                 if (!gameState) return false;
 
                 try {
-                    // 🚨 FLAG DE RESTAURATION - Éviter les réinitialisations de narration
-                    window.isRestoringGame = true;
+                    console.log('� Restauration simplifiée depuis sauvegarde:', gameState);
                     
-                    // Restaurer les variables globales
-                    if (typeof chapitre !== 'undefined') chapitre = gameState.chapitre || 1;
-                    periode = gameState.periode || 'jour';
-                    phaseJeu = gameState.phaseJeu || 'tir_coeurs_haut';
-                    score = gameState.score || 0;
-                    vies = gameState.vies || 3;
-                    brises = gameState.brises || 0;
-                    pointsConnaissance = gameState.pointsConnaissance || 0;
-                    jeu = gameState.jeu || false;
-                    modeSecret = gameState.modeSecret || false;
+                    // ✅ SIMPLIFICATION: On restaure UNIQUEMENT la phase + musique
+                    // Le reste se réinitialise normalement via narrationManager
                     
-                    // 🔫 Restaurer les munitions (important pour phases 17-22)
-                    munitions = gameState.munitions !== undefined ? gameState.munitions : 0;
-                    console.log('🔫 Munitions restaurées:', munitions);
-                    
-                    // 🎵 Restaurer l'état musical
-                    if (gameState.musique && musicManager) {
-                        musicManager.isMuted = gameState.musique.isMuted;
-                        musicManager.currentTrackIndex = gameState.musique.currentTrackIndex;
-                        
-                        // Reprendre la lecture si elle était active
-                        if (gameState.musique.isPlaying && !musicManager.isMuted) {
-                            setTimeout(() => {
-                                if (musicManager && !musicManager.isPlaying) {
-                                    // Charger et jouer la piste sauvegardée
-                                    const savedIndex = gameState.musique.currentTrackIndex || 0;
-                                    if (musicManager.playlist && musicManager.playlist[savedIndex]) {
-                                        musicManager.currentTrackIndex = savedIndex;
-                                        musicManager.currentTrack = musicManager.playlist[savedIndex];
-                                        musicManager.play();
-                                        console.log(`🎵 Piste ${savedIndex} relancée après restauration`);
-                                    } else {
-                                        musicManager.play();
-                                    }
-                                }
-                            }, 1000); // Attendre 1s que tout soit chargé
+                    // 🎵 Restaurer la playlist
+                    if (musicManager) {
+                        if (gameState.musicMuted !== undefined) {
+                            musicManager.isMuted = gameState.musicMuted;
                         }
                         
-                        console.log('🎵 État musical restauré:', {
-                            isPlaying: gameState.musique.isPlaying,
-                            isMuted: gameState.musique.isMuted,
-                            trackIndex: gameState.musique.currentTrackIndex
+                        if (gameState.musicTrackIndex !== undefined) {
+                            musicManager.currentTrackIndex = gameState.musicTrackIndex;
+                            
+                            // Reprendre la piste sauvegardée si pas en mute
+                            if (!musicManager.isMuted) {
+                                setTimeout(() => {
+                                    if (musicManager && musicManager.playlist && musicManager.playlist[gameState.musicTrackIndex]) {
+                                        musicManager.currentTrackIndex = gameState.musicTrackIndex;
+                                        musicManager.currentTrack = musicManager.playlist[gameState.musicTrackIndex];
+                                        musicManager.play();
+                                        console.log(`🎵 Piste ${gameState.musicTrackIndex} restaurée`);
+                                    }
+                                }, 1000);
+                            }
+                        }
+                        
+                        console.log('🎵 Playlist restaurée:', {
+                            trackIndex: gameState.musicTrackIndex,
+                            muted: gameState.musicMuted
                         });
                     }
 
-                    // Restaurer le voyage
-                    VOYAGE = (periode === 'nuit') ? NUIT : JOUR;
-
-                    // Restaurer la narration - juste la phase, sans exécuter
+                    // 📖 Restaurer la phase - le narrationManager gère le reste
                     if (narrationManager && gameState.currentPhase) {
                         narrationManager.currentPhase = gameState.currentPhase;
-                        narrationManager.phaseHistory = gameState.phaseHistory || [];
                         
-                        // 🔥 Dire au narrationManager de ne PAS exécuter l'intro
-                        window.narrationStarted = true; // Marquer comme déjà démarré
-                        window.skipNarrationIntro = true; // Flag pour skipper l'intro
+                        // 🔥 Bloquer l'intro
+                        window.narrationStarted = true;
+                        window.skipNarrationIntro = true;
                         
-                        console.log('📖 Narration restaurée:', {
-                            currentPhase: narrationManager.currentPhase,
-                            phaseHistory: narrationManager.phaseHistory,
-                            message: 'Le narrationManager reste sur cette phase - aucun start() ne sera appelé'
-                        });
+                        console.log(`📖 Phase ${gameState.currentPhase} restaurée`);
                     }
 
-                    // � Ne pas restaurer les messages narratifs - le narrationManager s'en charge
-                    messageNarratifActif = null;
-                    messagePowerupActif = null;
-
-                    // Restaurer l'animation du bateau
-                    if (gameState.animationBateau) {
-                        const anim = gameState.animationBateau;
-                        animationBateau.active = anim.active;
-                        animationBateau.phase = anim.phase;
-                        animationBateau.tempsDebut = Date.now() - anim.tempsEcoule;
-                        console.log('🚢 Animation bateau restaurée:', anim.phase);
-                    }
-
-                    // 🔥 Désactiver la phase intro et activer le jeu directement
+                    // 🎬 Désactiver intro et démarrer
                     phaseIntro.active = false;
                     phaseIntro.etape = 'terminee';
                     jeu = true;
-                    console.log('🎬 Phase intro désactivée - Jeu actif');
                     
-                    // Réinitialiser le jeu avec les nouvelles valeurs
-                    initJeu();
-                    
-                    // 🚨 NE JAMAIS DÉSACTIVER window.narrationStarted (protection permanente)
-                    // Les autres flags peuvent être nettoyés après un délai plus long
-                    setTimeout(() => {
-                        window.isRestoringGame = false;
-                        window.skipNarrationIntro = false;
-                        // window.narrationStarted RESTE à true pour toujours bloquer l'intro
-                        console.log('🔄 Flags restauration nettoyés (narrationStarted conservé)');
-                    }, 2000); // 2 secondes au lieu de 100ms
-
-                    // Recréer les éléments selon la phase
-                    if (phaseJeu === 'tir_coeurs_haut' || phaseJeu === 'tir_coeurs_bas') {
-                        creerPetitsCoeurs();
-                    } else if (phaseJeu === 'mur') {
-                        creerMurDansLaMer();
-                    } else if (phaseJeu === 'lanterne' || phaseJeu === 'stars') {
-                        // Phase lanterne/stars : créer les briques en forme de cœur
-                        dedoublerCoeursEnBriques();
-                        console.log(`🧱 Briques créées pour phase ${phaseJeu}`);
+                    // Lancer la phase restaurée
+                    if (narrationManager && gameState.currentPhase) {
+                        setTimeout(() => {
+                            narrationManager.executeCurrentPhase(true);
+                            console.log('✅ Phase restaurée et exécutée');
+                        }, 500);
                     }
 
-                    console.log('✅ État du jeu restauré avec succès');
+                    console.log('✅ Restauration simplifiée terminée');
                     return true;
                 } catch (e) {
                     console.error('❌ Erreur restauration:', e);
@@ -1817,17 +1762,31 @@
             getSaveInfo() {
                 try {
                     const savedData = localStorage.getItem(this.SAVE_KEY);
-                    if (!savedData) return null;
+                    if (!savedData) return { hasSave: false };
 
                     const save = JSON.parse(savedData);
+                    
+                    // ✅ Vérifier compatibilité
+                    const savedVersion = parseFloat(save.version || '1.0');
+                    const currentVersion = parseFloat(this.VERSION);
+                    
+                    if (Math.floor(savedVersion) !== Math.floor(currentVersion)) {
+                        console.warn(`⚠️ Sauvegarde incompatible: v${save.version}`);
+                        return { hasSave: false, incompatible: true };
+                    }
+                    
+                    // ✅ SIMPLIFICATION: Retourner infos minimales
                     return {
+                        hasSave: true,
                         date: new Date(save.timestamp),
-                        phase: save.gameState.currentPhase,
-                        score: save.gameState.score,
-                        vies: save.gameState.vies
+                        phase: save.gameState.currentPhase || 2,
+                        language: save.language || 'fr',
+                        version: save.version,
+                        musicTrack: save.gameState.musicTrackIndex || 0
                     };
                 } catch (e) {
-                    return null;
+                    console.error('❌ Erreur getSaveInfo:', e);
+                    return { hasSave: false, error: true };
                 }
             }
         };
@@ -1841,7 +1800,13 @@
 
         // 💾 Sauvegarder avant fermeture de la page
         window.addEventListener('beforeunload', () => {
-            // 🔥 Ne pas sauvegarder si on a demandé un reset
+            // � Ne pas sauvegarder si changement de langue en cours
+            if (window.isChangingLanguage) {
+                console.log('🌍 Changement de langue - sauvegarde beforeunload annulée');
+                return;
+            }
+            
+            // �🔥 Ne pas sauvegarder si on a demandé un reset
             const resetFlag = localStorage.getItem('gameResetInProgress');
             if (resetFlag === 'true') {
                 console.log('🔄 Reset en cours détecté - AUCUNE sauvegarde');
@@ -1863,6 +1828,26 @@
             }
         };
         window.getSaveInfo = () => GameSaveSystem.getSaveInfo();
+        
+        // ✅ Fonction pour nettoyer les sauvegardes invalides
+        window.clearInvalidSaves = () => {
+            const saveInfo = GameSaveSystem.getSaveInfo();
+            if (saveInfo && (saveInfo.incompatible || saveInfo.error)) {
+                console.log('🗑️ Suppression sauvegarde invalide');
+                GameSaveSystem.clear();
+                return true;
+            }
+            return false;
+        };
+        
+        // 🔍 Vérifier au chargement si la sauvegarde est valide
+        window.addEventListener('load', () => {
+            const saveInfo = GameSaveSystem.getSaveInfo();
+            if (saveInfo && saveInfo.incompatible) {
+                console.warn('⚠️ Sauvegarde incompatible détectée - suppression automatique');
+                GameSaveSystem.clear();
+            }
+        });
     </script>
 
     <script>
@@ -18091,9 +18076,23 @@ Elle a besoin de ponts.`
                                 const confirmMessage = confirmMessages[currentLangCode] || confirmMessages['en'];
                                 
                                 if (confirm(confirmMessage)) {
+                                    // ✅ Bloquer la sauvegarde pendant le changement de langue
+                                    window.isChangingLanguage = true;
+                                    console.log('🌍 Changement de langue - sauvegarde bloquée');
+                                    
                                     window.i18n.setLanguage(btn.code).then(() => {
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
+                                        
+                                        // ✅ Mettre à jour la langue dans la sauvegarde existante
+                                        const savedData = localStorage.getItem('petit_bateau_save');
+                                        if (savedData) {
+                                            const save = JSON.parse(savedData);
+                                            save.language = btn.code;
+                                            localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                            console.log('🌍 Langue mise à jour dans la sauvegarde:', btn.code);
+                                        }
+                                        
                                         setTimeout(() => location.reload(), 500);
                                     });
                                 }
@@ -18759,12 +18758,29 @@ Elle a besoin de ponts.`
                                 const confirmChange = confirm(confirmMessage);
                                 
                                 if (confirmChange) {
+                                    // ✅ Bloquer la sauvegarde pendant le changement de langue
+                                    window.isChangingLanguage = true;
+                                    console.log('🌍 Changement de langue - sauvegarde bloquée');
+                                    
                                     window.i18n.setLanguage(btn.code).then(() => {
                                         console.log('🌍 Langue changée vers:', btn.code);
                                         
                                         // Synchroniser currentLang et sauvegarder
                                         currentLang = btn.code;
                                         localStorage.setItem('petit_bateau_lang', btn.code);
+                                        
+                                        // ✅ Mettre à jour la langue dans la sauvegarde existante
+                                        const savedData = localStorage.getItem('petit_bateau_save');
+                                        if (savedData) {
+                                            try {
+                                                const save = JSON.parse(savedData);
+                                                save.language = btn.code;
+                                                localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                                console.log('🌍 Langue mise à jour dans la sauvegarde:', btn.code);
+                                            } catch(e) {
+                                                console.error('❌ Erreur mise à jour langue sauvegarde:', e);
+                                            }
+                                        }
                                         
                                         console.log('🔄 Rafraîchissement de la page pour appliquer les traductions...');
                                         
@@ -20670,73 +20686,36 @@ Elle a besoin de ponts.`
                 initializeBrickArrays();
             }
 
-            // 💾 Vérifier s'il existe une sauvegarde et proposer de la charger
-            // 🔥 Les flags sont déjà activés au début si hasSavedGame
+            // 💾 Chargement automatique de la sauvegarde (si existe)
+            // ✅ SIMPLIFICATION: Pas de confirmation - charge directement
             if (hasSavedGame) {
                 const saveInfo = GameSaveSystem.getSaveInfo();
-                if (saveInfo) {
-                    const dateStr = saveInfo.date.toLocaleString();
-                    const msg = getTranslatedText('save.found_title', '💾 Partie sauvegardée trouvée !') + '\n\n' +
-                                getTranslatedText('save.date', '📅 Date: {date}').replace('{date}', dateStr) + '\n' +
-                                getTranslatedText('save.phase', '🎯 Phase: {phase}').replace('{phase}', saveInfo.phase) + '\n' +
-                                getTranslatedText('save.score', '⭐ Score: {score}').replace('{score}', saveInfo.score) + '\n' +
-                                getTranslatedText('save.lives', '❤️ Vies: {lives}').replace('{lives}', saveInfo.vies) + '\n\n' +
-                                getTranslatedText('save.confirm_load', 'Voulez-vous reprendre cette partie ?') + '\n\n' +
-                                getTranslatedText('save.yes_load', '✅ OUI = Reprendre la partie') + '\n' +
-                                getTranslatedText('save.no_reset', '❌ NON = Recommencer à zéro (efface la sauvegarde)');
+                if (saveInfo && saveInfo.hasSave) {
+                    console.log('💾 Sauvegarde détectée - Chargement automatique...', saveInfo);
                     
-                    if (confirm(msg)) {
-                        // Charger la partie sauvegardée (flags déjà actifs)
-                        const gameState = GameSaveSystem.load();
-                        if (gameState) {
-                            GameSaveSystem.restore(gameState);
-                            console.log('✅ Partie chargée avec succès !');
-                        }
+                    // Charger automatiquement
+                    const gameState = GameSaveSystem.load();
+                    if (gameState) {
+                        GameSaveSystem.restore(gameState);
+                        console.log(`✅ Partie restaurée automatiquement (Phase ${saveInfo.phase})`);
                     } else {
-                        // L'utilisateur veut recommencer à zéro
-                        // 🔥 Désactiver les flags de restauration
+                        // Sauvegarde corrompue → Démarrage normal
+                        console.warn('⚠️ Sauvegarde invalide - Démarrage normal');
                         window.isRestoringGame = false;
                         window.narrationStarted = false;
                         window.skipNarrationIntro = false;
-                        console.log('🔓 Flags de protection désactivés (refus sauvegarde)');
-                        
-                        const confirmReset = confirm(
-                            getTranslatedText('save.confirm_reset_title', '🔄 Recommencer à zéro ?') + '\n\n' +
-                            getTranslatedText('save.confirm_reset_warning', '⚠️ Cela va :') + '\n' +
-                            getTranslatedText('save.reset_action1', '- Effacer votre progression') + '\n' +
-                            getTranslatedText('save.reset_action2', '- Supprimer votre sauvegarde') + '\n' +
-                            getTranslatedText('save.reset_action3', '- Redémarrer à la phase 1') + '\n\n' +
-                            getTranslatedText('save.confirm_reset_question', 'Êtes-vous sûr ?')
-                        );
-                        
-                        if (confirmReset) {
-                            // 🔥 IMPORTANT: Flag AVANT clear
-                            localStorage.setItem('gameResetInProgress', 'true');
-                            console.log('✅ Flag reset mis en place');
-                            
-                            // 🔥 Effacer la sauvegarde
-                            GameSaveSystem.clear();
-                            console.log('✅ Sauvegarde effacée');
-                            
-                            console.log('🔄 Sauvegarde effacée - Rechargement...');
-                            setTimeout(() => window.location.reload(), 100);
-                        } else {
-                            // Annulé - Charger la sauvegarde finalement
-                            // 🔥 Remettre les flags
-                            window.isRestoringGame = true;
-                            window.narrationStarted = true;
-                            window.skipNarrationIntro = true;
-                            console.log('🔒 Flags réactivés (annulation reset)');
-                            
-                            const gameState = GameSaveSystem.load();
-                            if (gameState) {
-                                GameSaveSystem.restore(gameState);
-                                console.log('✅ Partie chargée avec succès !');
-                            }
-                        }
                     }
+                } else {
+                    // Pas de sauvegarde valide → Démarrage normal
+                    console.log('ℹ️ Pas de sauvegarde valide - Démarrage normal');
+                    window.isRestoringGame = false;
+                    window.narrationStarted = false;
+                    window.skipNarrationIntro = false;
                 }
             }
+
+            // ✅ NOTE: Pour effacer la sauvegarde, l'utilisateur peut vider le cache du navigateur
+            // Ou utiliser la console: GameSaveSystem.clear()
 
             // Attente pour s'assurer que tout est initialisé
             setTimeout(() => {
