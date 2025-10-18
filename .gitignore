@@ -29,6 +29,7 @@ test-*.html
 debug-*.html
 *-debug.html
 test-livre.html
+test-supabase-rls.html
 
 # Outils de génération
 generate-icons*.html
@@ -74,6 +75,7 @@ CORRECTION-PHASES-17-22.md
 DEBUG-PROJECTILES.md
 DESACTIVATION-CONFLITS.md
 FIX-FINAL-TIR.md
+FIX_SAVE_SCORE.md
 HTML_MODIFICATIONS_GUIDE.md
 MODE-TIR-SEPARATION.md
 MODTIRMUR-DOCUMENTATION.md
@@ -90,6 +92,24 @@ TRANSLATION_IDS_REFERENCE.txt
 TRANSLATION_SYSTEM.md
 ICONES-FINAL-README.md
 ICONS-README.md
+INTEGRATION.md
+GUIDE_ACTIVATION_RLS.md
+SUPABASE_RLS_FIX.md
+CONSOLE_DEBUG_COMMANDS.md
+MOBILE_OPTIMIZATIONS.md
+PWA-README.md
+SAVE_SYSTEM.md
+VERSIONING.md
+
+# Fichiers d'analyse et optimisation
+ANALYSE_*.md
+OPTIMISATION_*.md
+PERFORMANCE_*.md
+RAPPORT_*.txt
+RESUME_*.md
+SYNTHESE_*.md
+TEST_FINAL.md
+TEST_FORMULAIRE.md
 
 # Scripts Python de développement
 *.py
@@ -107,6 +127,11 @@ temp_function.txt
 verify_all_content.py
 verify_ar_content.py
 
+# Scripts de test JavaScript
+TEST_*.js
+COMMANDES_*.js
+GOTO_*.js
+
 # Fichiers dupliqués/anciens
 voir-la-verite*.html
 👁️*.htm
@@ -114,3 +139,9 @@ kawaii_objects_moduleS.js
 petitbateauRouge.html.backup
 _ul
 modules/language-selector.js.bak
+modules/language-selector.js.new
+
+# Dossiers de développement
+webjeux/
+.continue/
+node_modules/

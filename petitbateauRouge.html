@@ -3498,7 +3498,8 @@
                 { nom: '📜 Poème 1', action: () =>console.log('Poème 1 ouvert') },
                 { nom: '📖 Poème 2', action: () =>console.log('Poème 2 ouvert') },
                 { nom: '🎨 Info Artiste', action: () => ouvrirInfoArtiste() },
-                { nom: '🎬 Générique', action: () =>console.log('Générique ouvert') },
+                { nom: '� Top 10000', action: () => ouvrirTop10000() },
+                { nom: '�🎬 Générique', action: () =>console.log('Générique ouvert') },
                 { nom: '🦇👼 Icônes', action: () =>console.log('Menu icônes ouvert') }
             ];
 
@@ -3515,6 +3516,17 @@
             // Fallback si le popup est bloqué
             if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
                 alert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.'));
+            }
+        }
+
+        // Fonction pour ouvrir le Top 10000
+        function ouvrirTop10000() {
+            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+            const newWindow = window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+            
+            // Fallback si le popup est bloqué
+            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                alert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir le classement.'));
             }
         }
 
@@ -4126,12 +4138,12 @@
 
                 let yPos = menuY + 100;
 
-                // Afficher le meilleur score de l'utilisateur s'il existe - PLUS GROS
+                // Afficher le meilleur score de l'utilisateur s'il existe
                 if (userBestScore) {
-                    ctx.font = 'bold 20px "Segoe UI", system-ui, sans-serif';
+                    ctx.font = 'bold 15px "Segoe UI", system-ui, sans-serif';
                     ctx.fillStyle = '#3b82f6';
                     ctx.fillText(getTranslatedText('game.your_best', '✨ Votre meilleur'), C.W / 2, yPos);
-                    yPos += 25;
+                    yPos += 22;
 
                     // Fond
                     const donnees = userBestScore.donnees_extra;
@@ -4145,31 +4157,31 @@
                         bgColor = `rgba(${r}, ${g}, ${b}, 0.12)`;
                     }
                     ctx.fillStyle = bgColor;
-                    ctx.fillRect(menuX + 30, yPos - 20, menuWidth - 60, 45);
+                    ctx.fillRect(menuX + 30, yPos - 18, menuWidth - 60, 40);
 
-                    // Score - PLUS GROS
-                    ctx.font = 'bold 28px "Segoe UI", system-ui, sans-serif';
+                    // Score
+                    ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
                     ctx.fillStyle = '#3b82f6';
                     ctx.textAlign = 'center';
                     ctx.fillText(userBestScore.score.toLocaleString(), C.W / 2, yPos);
 
-                    // Niveau de sagesse et énigmes (compact) - PLUS GROS
+                    // Niveau de sagesse et énigmes (compact)
                     if (donnees && donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
-                        ctx.font = '17px "Segoe UI", system-ui, sans-serif';
+                        ctx.font = '13px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#64748b';
                         const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 18);
+                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 15);
                     }
 
-                    yPos += 55;
+                    yPos += 48;
                 }
 
                 // Titre
-                ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
+                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
                 ctx.fillStyle = '#1e293b';
                 ctx.fillText(getTranslatedText('ui.leaderboard_title', '🏆 Top 10 - Petit Bateau'), C.W / 2, yPos);
-                yPos += 35;
+                yPos += 30;
 
                 // Vérifier si les données sont chargées
                 if (loadingLeaderboard) {
@@ -4188,7 +4200,7 @@
                     // Afficher les scores
                     ctx.textAlign = 'left';
                     const startX = menuX + 40;
-                    const lineHeight = 55; // Plus haut pour niveau de sagesse
+                    const lineHeight = 44; // Réduit pour éviter chevauchement
 
                     leaderboardData.forEach((entry, index) => {
                         // Position et rang
@@ -4211,53 +4223,53 @@
                             bgColor = `rgba(${r}, ${g}, ${b}, 0.08)`;
                         }
                         ctx.fillStyle = bgColor;
-                        ctx.fillRect(menuX + 30, yPos - 25, menuWidth - 60, lineHeight);
+                        ctx.fillRect(menuX + 30, yPos - 20, menuWidth - 60, lineHeight);
 
-                        // Médaille/Rang - PLUS GROS
-                        ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
+                        // Médaille/Rang
+                        ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#1e293b';
                         ctx.fillText(medal, startX, yPos);
 
-                        // Avatar (si présent) - PLUS GROS
+                        // Avatar (si présent)
                         const avatar = entry.users?.avatar || donnees?.avatar;
-                        let pseudoX = startX + 40;
+                        let pseudoX = startX + 35;
                         if (avatar) {
-                            ctx.font = '24px "Segoe UI", system-ui, sans-serif';
-                            ctx.fillText(avatar, startX + 40, yPos);
-                            pseudoX = startX + 68;
+                            ctx.font = '18px "Segoe UI", system-ui, sans-serif';
+                            ctx.fillText(avatar, startX + 35, yPos);
+                            pseudoX = startX + 58;
                         }
 
-                        // Pseudo - PLUS GROS
-                        ctx.font = '20px "Segoe UI", system-ui, sans-serif';
+                        // Pseudo
+                        ctx.font = '15px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#475569';
                         // Essayer d'abord la relation users, puis donnees_extra, puis "Anonyme"
                         const pseudo = entry.users?.pseudo || donnees?.pseudo || 'Anonyme';
                         ctx.fillText(pseudo, pseudoX, yPos);
 
-                        // Niveau de sagesse (icône) sous le pseudo - PLUS GROS
+                        // Niveau de sagesse (icône) sous le pseudo
                         if (donnees && donnees.sagesse) {
                             const niveau = getNiveauSagesse(donnees.sagesse);
-                            ctx.font = '17px "Segoe UI", system-ui, sans-serif';
+                            ctx.font = '12px "Segoe UI", system-ui, sans-serif';
                             ctx.fillStyle = '#94a3b8';
 
                             // Afficher niveau + énigmes collectées (plus compact)
                             const enigmesInfo = donnees.enigmes ? `${donnees.enigmes}/18🧩` : '';
                             const infoText = enigmesInfo ? `${niveau.icone} ${niveau.titre} • ${enigmesInfo}` : `${niveau.icone} ${niveau.titre}`;
-                            ctx.fillText(infoText, pseudoX, yPos + 16);
+                            ctx.fillText(infoText, pseudoX, yPos + 13);
 
-                            // Badges spéciaux à droite - PLUS GROS
+                            // Badges spéciaux à droite
                             const badges = getBadges(donnees, index === 0, donnees.enigmes);
-                            let badgeX = menuX + menuWidth - 140;
+                            let badgeX = menuX + menuWidth - 120;
                             badges.forEach(badge => {
-                                ctx.font = '16px "Segoe UI", system-ui, sans-serif';
+                                ctx.font = '13px "Segoe UI", system-ui, sans-serif';
                                 ctx.fillStyle = '#f39c12';
-                                ctx.fillText(badge.icone, badgeX, yPos + 16);
-                                badgeX += 20;
+                                ctx.fillText(badge.icone, badgeX, yPos + 13);
+                                badgeX += 18;
                             });
                         }
 
-                        // Score - PLUS GROS
-                        ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
+                        // Score
+                        ctx.font = 'bold 17px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#3b82f6';
                         ctx.textAlign = 'right';
                         ctx.fillText(entry.score.toLocaleString(), menuX + menuWidth - 40, yPos);
