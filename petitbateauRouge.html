@@ -2043,8 +2043,37 @@
 
             // Sur mobile, utiliser les dimensions réelles de l'écran
             if (isMobile) {
-                // Utiliser window.screen pour une meilleure résolution sur mobile
-                const pixelRatio = window.devicePixelRatio || 1;
+                // 📱 SYSTÈME DE QUALITÉ ADAPTATIVE - 3 NIVEAUX
+                const basePixelRatio = window.devicePixelRatio || 1;
+                
+                // Détecter les performances du device
+                const detectQualityLevel = () => {
+                    const memory = navigator.deviceMemory || 4; // GB de RAM
+                    const cores = navigator.hardwareConcurrency || 4;
+                    const screenPixels = window.screen.width * window.screen.height;
+                    
+                    // 🟢 HAUTE QUALITÉ : Desktop-like, Flagship (iPhone 14+, Galaxy S22+)
+                    // - 8GB+ RAM OU 8+ cores OU < 2M pixels
+                    if (memory >= 8 || cores >= 8 || screenPixels < 2000000) {
+                        return { level: 'high', ratio: 1.0, name: '🟢 Haute' };
+                    }
+                    
+                    // 🟡 QUALITÉ MOYENNE : Milieu de gamme (iPhone 11-13, Galaxy A52)
+                    // - 4-6GB RAM, 4-6 cores, écrans FHD+
+                    if (memory >= 4 || cores >= 4) {
+                        return { level: 'medium', ratio: 0.75, name: '🟡 Moyenne' };
+                    }
+                    
+                    // 🔴 QUALITÉ BASSE : Entrée de gamme
+                    // - < 4GB RAM, < 4 cores
+                    return { level: 'low', ratio: 0.5, name: '🔴 Économie' };
+                };
+                
+                const quality = detectQualityLevel();
+                const pixelRatio = basePixelRatio * quality.ratio;
+                
+                console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
+                console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
                 
                 // Dimensions physiques de l'écran
                 width = window.innerWidth || 449;
@@ -2059,7 +2088,7 @@
                 width = Math.max(width, 320);
                 height = Math.max(height, 480);
                 
-                // Optimiser le canvas pour le pixel ratio
+                // Optimiser le canvas pour le pixel ratio adaptatif
                 canvas.width = width * pixelRatio;
                 canvas.height = height * pixelRatio;
                 canvas.style.width = width + 'px';
@@ -2067,6 +2096,10 @@
                 
                 // Scaler le contexte pour compenser le pixel ratio
                 ctx.scale(pixelRatio, pixelRatio);
+                
+                // Stocker le niveau de qualité pour autres optimisations
+                window.PERF_QUALITY_LEVEL = quality.level;
+                window.PERF_PIXEL_RATIO = pixelRatio;
                 
                 return { width, height };
             }
@@ -2079,9 +2112,36 @@
             canvas.height = height;
             canvas.style.width = width + 'px';
             canvas.style.height = height + 'px';
+            
+            // Pas de réduction de qualité sur desktop
+            window.PERF_QUALITY_LEVEL = 'high';
+            window.PERF_PIXEL_RATIO = 1.0;
 
             return { width, height };
         }
+        
+        // 🎨 Helper: Adapter les effets visuels selon le niveau de qualité
+        window.getAdaptiveEffectSettings = () => {
+            const level = window.PERF_QUALITY_LEVEL || 'high';
+            
+            return {
+                // Ombres (shadowBlur coûteux sur mobile)
+                shadows: level === 'high',
+                shadowBlurMax: level === 'high' ? 20 : (level === 'medium' ? 10 : 0),
+                
+                // Particules
+                particleMultiplier: level === 'high' ? 1.0 : (level === 'medium' ? 0.5 : 0.25),
+                
+                // Blur et filtres CSS (très coûteux)
+                useBlur: level === 'high',
+                
+                // Gradients complexes
+                complexGradients: level !== 'low',
+                
+                // Anti-aliasing
+                imageSmoothingEnabled: level !== 'low'
+            };
+        };
 
         let size = setupCanvas();
         
@@ -2878,8 +2938,12 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if(distance < 80) {
-                    ctx.shadowColor = '#FFD700';
-                    ctx.shadowBlur = 20;
+                    // 📱 Adapter shadowBlur selon qualité
+                    const effects = window.getAdaptiveEffectSettings();
+                    if (effects.shadows) {
+                        ctx.shadowColor = '#FFD700';
+                        ctx.shadowBlur = effects.shadowBlurMax;
+                    }
                     ctx.strokeStyle = '#FFD700';
                     ctx.lineWidth = 2;
                     ctx.stroke();
@@ -3578,8 +3642,14 @@
             ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-            ctx.shadowBlur = 20;
+            
+            // 📱 Adapter shadowBlur selon qualité
+            const effects = window.getAdaptiveEffectSettings();
+            if (effects.shadows) {
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                ctx.shadowBlur = effects.shadowBlurMax;
+            }
+            
             ctx.beginPath();
             ctx.roundRect(menuX, menuY, menuWidth, menuHeight, 15);
             ctx.fill();
@@ -15112,7 +15182,10 @@
                             
                             // Créer des particules pour les phases 20, 22-23
                             if (proj.config && proj.config.particles) {
-                                const particleCount = proj.config.particleCount || 8;
+                                // 📱 Adapter nombre de particules selon qualité
+                                const effects = window.getAdaptiveEffectSettings();
+                                const baseParticleCount = proj.config.particleCount || 8;
+                                const particleCount = Math.max(1, Math.floor(baseParticleCount * effects.particleMultiplier));
                                 const colors = proj.config.color;
                                 
                                 // Phase 20 : particules emoji 💰
