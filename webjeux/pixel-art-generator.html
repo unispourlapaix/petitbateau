@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Generator - Le Petit Bateau Rouge</title>
+    <meta name="description" content="Générateur de visuels Pixel Art rétro pour Le Petit Bateau Rouge">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #0f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 0;
+            border: 4px solid #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        h1 {
+            color: #0f0;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 0 #000;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .visual-card {
+            border: 3px solid #0f0;
+            padding: 20px;
+            background: #0f0f1e;
+        }
+
+        .visual-card h3 {
+            color: #87ceeb;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        canvas {
+            width: 100%;
+            border: 2px solid #0f0;
+            image-rendering: pixelated;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        canvas:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #0f0;
+            color: #000;
+            border: 2px solid #0a0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        button:hover {
+            background: #0a0;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .warning-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ff6b6b;
+            font-size: 0.85em;
+        }
+
+        .warning-box a {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        .warning-box a:hover {
+            color: #ffaa00;
+        }
+
+        .status {
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0f0;
+            margin: 10px 0;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #000;
+            border: 1px solid #0f0;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .code-section {
+            margin-top: 15px;
+            border-top: 2px solid #0f0;
+            padding-top: 10px;
+        }
+
+        .code-section h4 {
+            color: #87ceeb;
+            margin: 10px 0 5px 0;
+            font-size: 0.9em;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 60px;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75em;
+            resize: vertical;
+            margin-bottom: 5px;
+        }
+
+        .copy-btn {
+            background: #ffd700;
+            border-color: #ffaa00;
+        }
+
+        .copy-btn:hover {
+            background: #ffaa00;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .video-btn {
+            background: #ff6b6b;
+            border-color: #e74c3c;
+        }
+
+        .video-btn:hover {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+        }
+
+        .format-label {
+            background: #ff6b6b;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #1e3a5f;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #87ceeb;
+        }
+
+        .animation-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff4444;
+            color: #fff;
+            padding: 15px 30px;
+            border: 3px solid #000;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            z-index: 1000;
+        }
+
+        .animation-toggle:hover {
+            background: #ff6b6b;
+        }
+
+        .audio-controls {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            border: 3px solid #0f0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .audio-controls h4 {
+            color: #ffd700;
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+        }
+
+        .audio-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: #0f0;
+            color: #000;
+            border: 2px solid #0a0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .audio-btn:hover {
+            background: #0a0;
+        }
+
+        .audio-btn.active {
+            background: #ffd700;
+            border-color: #ffaa00;
+        }
+
+        .volume-control {
+            width: 100%;
+            margin: 10px 0 5px 0;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(0, 255, 0, 0.03) 50%,
+                transparent 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <div class="container">
+        <h1>🎮 PIXEL ART GENERATOR</h1>
+        <p class="subtitle">LE PETIT BATEAU ROUGE - 33 MILLIONS DE RAISONS D'AIMER</p>
+
+        <div class="info">
+            <strong>� LE PETIT BATEAU ROUGE</strong><br>
+            Guidez un petit bateau rouge à travers la découverte d'énigmes philosophiques sur la vie, l'espoir et l'amour. Les voyages sont notre liberté, notre humanité.
+            <br><br>
+            <strong>📱 POUR VOS RÉSEAUX SOCIAUX :</strong><br>
+            "🚣 <b>33 MILLIONS DE RAISONS D'AIMER</b> - Découvrez Le Petit Bateau Rouge : Des énigmes poétiques, 14 langues, 100% gratuit. Un voyage qui touche le cœur et ouvre l'esprit. 
+            Jouez maintenant : https://unispourlapaix.github.io/petitbateau/ 
+            #LePetitBateauRouge #33MillionsDRaisonsDAimer #PartagerLaPaix #Love 🌍💖"
+            <br><br>
+            <strong>🏷️ HASHTAGS :</strong> 
+            #LePetitBateauRouge #33MillionsDRaisonsDAimer #PartagerLaPaix #Love #GameWithPurpose #IndieGame #ArtGame #PoetryInMotion #GospelGame
+            <br><br>
+            <strong>�🕹️ MODE RÉTRO ACTIVÉ :</strong> Style pixel art 8-bit pour un look nostalgique !
+            <br>
+            <strong>🎬 NOUVELLES FONCTIONS :</strong> Enregistrez des vidéos MP4 (5 sec) + Images JPG + Codes d'intégration HTML/iframe !
+            <br><br>
+            <strong>🎨 100% PIXEL ART :</strong> Aucune icône - tout est dessiné pixel par pixel !
+            <button onclick="downloadAll()" style="margin-top: 10px;">
+                💾 TÉLÉCHARGER TOUT (PNG)
+            </button>
+        </div>
+
+        <div class="visual-grid">
+            <!-- Visual 1: Hero Banner -->
+            <div class="visual-card">
+                <h3>🌊 HERO BANNER WEB</h3>
+                <span class="format-label">1200 x 630 px</span>
+                <canvas id="heroBanner" width="1200" height="630"></canvas>
+                <div class="status" id="status1">Prêt</div>
+                <div class="progress-bar" id="progressBar1">
+                    <div class="progress-fill" id="progressFill1"></div>
+                </div>
+                <div class="controls">
+                    <button onclick="downloadCanvas('heroBanner', 'pixel-hero-banner.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('heroBanner', 1)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('heroBanner', 1)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode1" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode1')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode1" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode1')">📋 Copier</button>
+                </div>
+            </div>
+
+            <!-- Visual 2: Instagram Post -->
+            <div class="visual-card">
+                <h3>📱 INSTAGRAM POST</h3>
+                <span class="format-label">1080 x 1080 px</span>
+                <canvas id="instagramPost" width="1080" height="1080"></canvas>
+                <div class="status" id="status2">Prêt</div>
+                <div class="progress-bar" id="progressBar2">
+                    <div class="progress-fill" id="progressFill2"></div>
+                </div>
+                <div class="controls">
+                    <button onclick="downloadCanvas('instagramPost', 'pixel-instagram.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('instagramPost', 2)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('instagramPost', 2)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode2" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode2')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode2" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode2')">📋 Copier</button>
+                </div>
+            </div>
+
+            <!-- Visual 3: Twitter Header -->
+            <div class="visual-card">
+                <h3>🐦 TWITTER HEADER</h3>
+                <span class="format-label">1500 x 500 px</span>
+                <canvas id="twitterHeader" width="1500" height="500"></canvas>
+                <div class="status" id="status3">Prêt</div>
+                <div class="progress-bar" id="progressBar3">
+                    <div class="progress-fill" id="progressFill3"></div>
+                </div>
+                <div class="controls">
+                    <button onclick="downloadCanvas('twitterHeader', 'pixel-twitter.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('twitterHeader', 3)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('twitterHeader', 3)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode3" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode3')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode3" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode3')">📋 Copier</button>
+                </div>
+            </div>
+
+            <!-- Visual 4: Instagram Story -->
+            <div class="visual-card">
+                <h3>📲 INSTAGRAM STORY</h3>
+                <span class="format-label">1080 x 1920 px</span>
+                <canvas id="instagramStory" width="1080" height="1920"></canvas>
+                <div class="status" id="status4">Prêt</div>
+                <div class="progress-bar" id="progressBar4">
+                    <div class="progress-fill" id="progressFill4"></div>
+                </div>
+                <div class="controls">
+                    <button onclick="downloadCanvas('instagramStory', 'pixel-story.png')">💾 PNG</button>
+                    <button onclick="downloadJPG('instagramStory', 4)" class="copy-btn">📸 JPG</button>
+                    <button onclick="recordVideo('instagramStory', 4)" class="video-btn">🎬 VIDÉO</button>
+                </div>
+                <div class="code-section">
+                    <h4>🔗 Code HTML</h4>
+                    <textarea id="htmlCode4" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('htmlCode4')">📋 Copier</button>
+                    <h4>🔗 Code iframe</h4>
+                    <textarea id="iframeCode4" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode('iframeCode4')">📋 Copier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="animation-toggle" onclick="toggleAnimation()">
+        ⏸️ PAUSE
+    </div>
+
+    <div class="audio-controls">
+        <h4>🎵 AMBIANCE</h4>
+        <button class="audio-btn" id="waveBtn" onclick="toggleWaves()">🌊 Vagues OFF</button>
+        <button class="audio-btn" id="musicBtn" onclick="toggleMusic()">🎵 Musique OFF</button>
+        <label style="color: #0f0; font-size: 0.8em;">Volume:</label>
+        <input type="range" class="volume-control" id="volumeSlider" min="0" max="100" value="30" onchange="updateVolume()">
+    </div>
+
+    <script>
+        let animationRunning = true;
+        let animationFrames = {};
+
+        // === SYSTÈME AUDIO ===
+        let waveAudio = null;
+        let musicAudio = null;
+        let wavesPlaying = false;
+        let musicPlaying = false;
+
+        // Créer l'audio des vagues (son généré)
+        function createWaveSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            return { audioContext, oscillator, gainNode };
+        }
+
+        // Toggle vagues
+        function toggleWaves() {
+            const btn = document.getElementById('waveBtn');
+            if (!wavesPlaying) {
+                // Charger et jouer le son de vagues (bruit blanc filtré)
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = 4096;
+                const whiteNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+                const gainNode = audioCtx.createGain();
+                const biquadFilter = audioCtx.createBiquadFilter();
+                
+                biquadFilter.type = 'lowpass';
+                biquadFilter.frequency.value = 300;
+                
+                whiteNoise.onaudioprocess = function(e) {
+                    const output = e.outputBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                };
+                
+                gainNode.gain.value = document.getElementById('volumeSlider').value / 300;
+                
+                whiteNoise.connect(biquadFilter);
+                biquadFilter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                waveAudio = { audioCtx, whiteNoise, gainNode };
+                wavesPlaying = true;
+                btn.textContent = '🌊 Vagues ON';
+                btn.classList.add('active');
+            } else {
+                if (waveAudio) {
+                    waveAudio.whiteNoise.disconnect();
+                    waveAudio.audioCtx.close();
+                    waveAudio = null;
+                }
+                wavesPlaying = false;
+                btn.textContent = '🌊 Vagues OFF';
+                btn.classList.remove('active');
+            }
+        }
+
+        // Toggle musique
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            if (!musicPlaying) {
+                if (!musicAudio) {
+                    musicAudio = new Audio('../modules/gospel/Un vent Espoir.mp3');
+                    musicAudio.loop = true;
+                    musicAudio.volume = document.getElementById('volumeSlider').value / 100;
+                }
+                musicAudio.play().catch(e => console.log('Audio play error:', e));
+                musicPlaying = true;
+                btn.textContent = '🎵 Musique ON';
+                btn.classList.add('active');
+            } else {
+                if (musicAudio) {
+                    musicAudio.pause();
+                }
+                musicPlaying = false;
+                btn.textContent = '🎵 Musique OFF';
+                btn.classList.remove('active');
+            }
+        }
+
+        // Mettre à jour le volume
+        function updateVolume() {
+            const volume = document.getElementById('volumeSlider').value / 100;
+            if (waveAudio && waveAudio.gainNode) {
+                waveAudio.gainNode.gain.value = volume / 3;
+            }
+            if (musicAudio) {
+                musicAudio.volume = volume;
+            }
+        }
+
+        // Fonction pour dessiner le bateau (identique au jeu)
+        function drawPixelBoat(ctx, x, y, size, color) {
+            ctx.save();
+
+            // Couleurs selon le type
+            let coqueColors, borderColor;
+            if (color === 'red') {
+                coqueColors = ['#ff6b6b', '#e74c3c', '#c0392b'];
+                borderColor = '#a93226';
+            } else if (color === 'blue') {
+                coqueColors = ['#74b9ff', '#0984e3', '#2d3436'];
+                borderColor = '#2d3436';
+            } else {
+                coqueColors = ['#ffffff', '#e5e7eb', '#d1d5db'];
+                borderColor = '#8b4513';
+            }
+
+            // Coque simplifiée
+            const coqueW = size * 1.5;
+            const coqueH = size * 0.8;
+
+            const coqueGrad = ctx.createLinearGradient(x, y, x, y + coqueH);
+            coqueGrad.addColorStop(0, coqueColors[0]);
+            coqueGrad.addColorStop(0.5, coqueColors[1]);
+            coqueGrad.addColorStop(1, coqueColors[2]);
+
+            ctx.fillStyle = coqueGrad;
+            ctx.beginPath();
+            ctx.ellipse(x, y + coqueH/2, coqueW/2, coqueH/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bordure
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Mât
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y + coqueH/2);
+            ctx.lineTo(x, y - size);
+            ctx.stroke();
+
+            // Voile triangulaire
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x - size/2, y);
+            ctx.lineTo(x + size/3, y - size/3);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#ced4da';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Fonction pour dessiner des vagues pixel art
+        function drawPixelWaves(ctx, width, height, time, offset = 0) {
+            ctx.imageSmoothingEnabled = true;
+            const waveHeight = 20;
+            const pixelSize = 2; // Réduit de 4 à 2 pour plus de fluidité
+            
+            for (let x = 0; x < width; x += pixelSize) {
+                const wave = Math.sin((x + time * 50 + offset) / 30) * waveHeight;
+                const y = height - 60 + wave;
+                
+                // Dégradé de bleu
+                const blueShade = Math.floor((Math.sin((x + time * 50) / 50) + 1) * 128);
+                ctx.fillStyle = `rgb(59, 130, ${200 + blueShade / 8})`;
+                ctx.fillRect(x, y, pixelSize, height - y);
+            }
+        }
+
+        // Fonction pour dessiner du texte pixel art
+        function drawPixelText(ctx, text, x, y, size, color) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.font = `bold ${size}px Arial, sans-serif`; // Plus moderne
+            ctx.fillStyle = '#000';
+            ctx.fillText(text, x + 2, y + 2);
+            ctx.fillStyle = color;
+            ctx.fillText(text, x, y);
+        }
+
+        // Fonction pour dessiner des étoiles pixel
+        function drawPixelStars(ctx, width, height, count, time) {
+            ctx.imageSmoothingEnabled = true;
+            for (let i = 0; i < count; i++) {
+                const x = (i * 137 + time * 10) % width;
+                const y = (i * 211) % height;
+                const brightness = (Math.sin(time + i) + 1) / 2;
+                const size = 3 + Math.floor(brightness * 3); // Étoiles plus grandes et lisses
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + brightness * 0.5})`;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+
+        // Fonction pour télécharger
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Toggle animations
+        function toggleAnimation() {
+            animationRunning = !animationRunning;
+            document.querySelector('.animation-toggle').textContent = 
+                animationRunning ? '⏸️ PAUSE' : '▶️ PLAY';
+        }
+
+        // Télécharger tout
+        function downloadAll() {
+            const visuals = [
+                { id: 'heroBanner', name: 'pixel-hero-banner.png' },
+                { id: 'instagramPost', name: 'pixel-instagram.png' },
+                { id: 'twitterHeader', name: 'pixel-twitter.png' },
+                { id: 'instagramStory', name: 'pixel-story.png' }
+            ];
+
+            visuals.forEach((visual, index) => {
+                setTimeout(() => {
+                    downloadCanvas(visual.id, visual.name);
+                }, index * 300);
+            });
+
+            alert('💾 TÉLÉCHARGEMENT EN COURS... (4 FICHIERS)');
+        }
+
+        // === VISUAL 1: Hero Banner ===
+        function drawHeroBanner() {
+            const canvas = document.getElementById('heroBanner');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background dégradé
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a1929');
+            gradient.addColorStop(0.5, '#1e3a5f');
+            gradient.addColorStop(1, '#2d5a7b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Étoiles
+            drawPixelStars(ctx, canvas.width, canvas.height * 0.6, 50, time);
+
+            // Bateaux multiples en arrière-plan
+            for (let i = 0; i < 3; i++) {
+                const x = 150 + i * 350;
+                const offset = Math.sin(time * 0.8 + i) * 8;
+                drawPixelBoat(ctx, x, 150 + offset, 50, i % 2 === 0 ? 'blue' : 'red');
+            }
+
+            // Vagues
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 0);
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 200);
+
+            // Bateau flottant principal
+            const boatY = canvas.height / 2 + Math.sin(time) * 15;
+            drawPixelBoat(ctx, 200, boatY - 40, 100, 'red');
+
+            // Titre
+            drawPixelText(ctx, '33 MILLIONS DE RAISONS', 480, 180, 55, '#ffd700');
+            drawPixelText(ctx, 'D\'AIMER', 480, 245, 55, '#ffd700');
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 480, 340, 40, '#ffffff');
+            drawPixelText(ctx, 'Un voyage poétique', 480, 390, 28, '#87ceeb');
+            drawPixelText(ctx, 'qui touche le cœur', 480, 425, 28, '#87ceeb');
+
+            // Message et CTA
+            drawPixelText(ctx, 'ÉNIGMES * 14 LANGUES * 100% GRATUIT', 480, 480, 26, '#0f0');
+
+            // CTA button
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(480, 520, 400, 70);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(482, 522, 396, 66);
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(484, 524, 392, 62);
+            
+            drawPixelText(ctx, '>>> JOUER MAINTENANT <<<', 510, 570, 32, '#ffffff');
+
+            if (animationRunning) {
+                animationFrames.heroBanner = requestAnimationFrame(drawHeroBanner);
+            }
+        }
+
+        // === VISUAL 2: Instagram Post ===
+        function drawInstagramPost() {
+            const canvas = document.getElementById('instagramPost');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createRadialGradient(540, 540, 100, 540, 540, 700);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grille pixel
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Étoiles
+            drawPixelStars(ctx, canvas.width, canvas.height, 100, time);
+
+            // Bateau central
+            const pulsate = 10 + Math.sin(time * 2) * 5;
+            drawPixelBoat(ctx, 490, 350 + pulsate, 100, 'red');
+
+            // Texte
+            ctx.textAlign = 'center';
+            drawPixelText(ctx, '33 MILLIONS DE RAISONS', 540, 580, 60, '#ffd700');
+            drawPixelText(ctx, 'D\'AIMER', 540, 650, 60, '#ffd700');
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 540, 750, 45, '#ffffff');
+            drawPixelText(ctx, 'Un voyage qui touche le cœur', 540, 820, 30, '#87ceeb');
+            drawPixelText(ctx, 'et ouvre l\'esprit', 540, 860, 30, '#87ceeb');
+            drawPixelText(ctx, 'DES ÉNIGMES * 14 LANGUES', 540, 930, 28, '#ffffff');
+            drawPixelText(ctx, '#33MillionsDRaisonsDAimer', 540, 990, 24, '#0f0');
+
+            ctx.textAlign = 'left';
+
+            if (animationRunning) {
+                animationFrames.instagramPost = requestAnimationFrame(drawInstagramPost);
+            }
+        }
+
+        // === VISUAL 3: Twitter Header ===
+        function drawTwitterHeader() {
+            const canvas = document.getElementById('twitterHeader');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#1e3a5f');
+            gradient.addColorStop(1, '#667eea');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Vagues
+            drawPixelWaves(ctx, canvas.width, canvas.height, time, 0);
+
+            // Bateaux multiples
+            for (let i = 0; i < 5; i++) {
+                const x = 100 + i * 250;
+                const offset = Math.sin(time + i) * 10;
+                drawPixelBoat(ctx, x, 280 + offset, 60, i % 2 === 0 ? 'red' : 'blue');
+            }
+
+            // Texte
+            drawPixelText(ctx, 'LE PETIT BATEAU ROUGE', 280, 160, 55, '#ffffff');
+            drawPixelText(ctx, '33 Millions de Raisons de Partager la Paix', 280, 220, 32, '#ffd700');
+            drawPixelText(ctx, 'JEU POÉTIQUE * 14 LANGUES * DES ÉNIGMES', 280, 310, 28, '#87ceeb');
+
+            if (animationRunning) {
+                animationFrames.twitterHeader = requestAnimationFrame(drawTwitterHeader);
+            }
+        }
+
+        // === VISUAL 4: Instagram Story ===
+        function drawInstagramStory() {
+            const canvas = document.getElementById('instagramStory');
+            const ctx = canvas.getContext('2d');
+            const time = Date.now() / 1000;
+
+            ctx.imageSmoothingEnabled = false;
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#1e3a5f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Étoiles filantes
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 100 + time * 100) % canvas.width;
+                const y = (i * 150) % canvas.height;
+                const length = 30 + Math.sin(time + i) * 10;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(time + i) * 0.2})`;
+                ctx.fillRect(x, y, length, 2);
+                ctx.fillRect(x, y + 1, length - 10, 2);
+            }
+
+            // Bateau géant
+            const centerBoatY = 700 + Math.sin(time * 1.5) * 30;
+            drawPixelBoat(ctx, 440, centerBoatY, 200, 'red');
+
+            // Texte
+            ctx.textAlign = 'center';
+            drawPixelText(ctx, 'LE PETIT', 540, 1100, 60, '#87ceeb');
+            drawPixelText(ctx, 'BATEAU ROUGE', 540, 1180, 60, '#ff6b6b');
+            
+            drawPixelText(ctx, '33 MILLIONS DE RAISONS', 540, 1280, 65, '#ffd700');
+            drawPixelText(ctx, 'D\'AIMER', 540, 1360, 65, '#ffd700');
+            
+            drawPixelText(ctx, 'Un voyage poétique', 540, 1460, 38, '#ffffff');
+            drawPixelText(ctx, 'qui touche le cœur', 540, 1510, 38, '#ffffff');
+
+            drawPixelText(ctx, 'JEU GRATUIT - DES ÉNIGMES', 540, 1600, 35, '#0f0');
+
+            // CTA
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(240, 1700, 600, 80);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(245, 1705, 590, 70);
+            drawPixelText(ctx, 'SWIPE UP >>>', 540, 1755, 40, '#ffffff');
+
+            ctx.textAlign = 'left';
+
+            if (animationRunning) {
+                animationFrames.instagramStory = requestAnimationFrame(drawInstagramStory);
+            }
+        }
+
+        // Start all animations
+        drawHeroBanner();
+        drawInstagramPost();
+        drawTwitterHeader();
+        drawInstagramStory();
+
+        // === NOUVELLES FONCTIONS VIDÉO ===
+        const FPS = 30;
+        const DURATION = 5;
+        const recorders = {};
+        const chunks = {};
+
+        // Enregistrer une vidéo
+        async function recordVideo(canvasId, index) {
+            const canvas = document.getElementById(canvasId);
+            const status = document.getElementById(`status${index}`);
+            const progressBar = document.getElementById(`progressBar${index}`);
+            const progressFill = document.getElementById(`progressFill${index}`);
+            
+            try {
+                status.textContent = '🔴 Enregistrement...';
+                progressBar.style.display = 'block';
+                
+                const stream = canvas.captureStream(FPS);
+                
+                // Détection automatique du meilleur codec disponible
+                let options = { videoBitsPerSecond: 8000000 };
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                    options.mimeType = 'video/webm;codecs=vp9';
+                } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                    options.mimeType = 'video/webm;codecs=vp8';
+                } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                    options.mimeType = 'video/webm';
+                } else {
+                    options.mimeType = ''; // Let browser choose
+                }
+                
+                const recorder = new MediaRecorder(stream, options);
+
+                chunks[index] = [];
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks[index].push(e.data);
+                };
+
+                recorder.onstop = async () => {
+                    const blob = new Blob(chunks[index], { type: 'video/webm' });
+                    
+                    // Télécharger le WebM
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pixel-bateau-rouge-video-${index}.webm`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    status.innerHTML = '✅ Vidéo WebM téléchargée!<br><span style="font-size:0.8em">⚠️ Utilisez un convertisseur en ligne pour MP4 TikTok/Instagram</span>';
+                    progressBar.style.display = 'none';
+                    
+                    // Afficher les options de conversion
+                    showConversionOptions(index);
+                    
+                    generateIntegrationCodes(index, `pixel-bateau-rouge-video-${index}.webm`);
+                };
+
+                recorder.start();
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += (100 / DURATION) / 10;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                    }
+                    progressFill.style.width = `${progress}%`;
+                }, 100);
+
+                setTimeout(() => {
+                    recorder.stop();
+                    clearInterval(interval);
+                }, DURATION * 1000);
+
+            } catch (error) {
+                status.textContent = '❌ Erreur: ' + error.message;
+            }
+        }
+
+        // Télécharger une image JPG
+        function downloadJPG(canvasId, index) {
+            const canvas = document.getElementById(canvasId);
+            const status = document.getElementById(`status${index}`);
+            
+            try {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pixel-bateau-rouge-${index}.jpg`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    status.textContent = '✅ JPG téléchargé!';
+                }, 'image/jpeg', 0.95);
+            } catch (error) {
+                status.textContent = '❌ Erreur: ' + error.message;
+            }
+        }
+
+        // Générer les codes d'intégration
+        function generateIntegrationCodes(index, filename) {
+            const formats = [
+                { w: 1200, h: 630, name: 'hero-banner' },
+                { w: 1080, h: 1080, name: 'instagram-post' },
+                { w: 1500, h: 500, name: 'twitter-header' },
+                { w: 1080, h: 1920, name: 'instagram-story' }
+            ];
+            
+            const format = formats[index - 1];
+            const videoUrl = `https://unispourlapaix.github.io/petitbateau/videos/${filename}`;
+            const posterUrl = `https://unispourlapaix.github.io/petitbateau/videos/pixel-poster-${index}.jpg`;
+            
+            const htmlCode = `<!-- Le Petit Bateau Rouge - Pixel Art ${format.name} -->
+<video width="${format.w}" height="${format.h}" controls autoplay loop muted playsinline
+       poster="${posterUrl}" style="image-rendering: pixelated;">
+    <source src="${videoUrl}" type="video/webm">
+    <source src="${videoUrl.replace('.webm', '.mp4')}" type="video/mp4">
+    Votre navigateur ne supporte pas la vidéo HTML5.
+</video>`;
+            
+            document.getElementById(`htmlCode${index}`).value = htmlCode;
+            
+            const iframeCode = `<!-- Le Petit Bateau Rouge - Pixel Art ${format.name} iframe -->
+<iframe 
+    src="${videoUrl}" 
+    width="${format.w}" 
+    height="${format.h}" 
+    frameborder="0" 
+    allowfullscreen
+    style="image-rendering: pixelated;"
+    allow="autoplay; fullscreen">
+</iframe>`;
+            
+            document.getElementById(`iframeCode${index}`).value = iframeCode;
+        }
+
+        // Copier le code
+        function copyCode(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.select();
+            document.execCommand('copy');
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✅ Copié!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+
+        // Afficher les options de conversion MP4
+        function showConversionOptions(index) {
+            const status = document.getElementById(`status${index}`);
+            const warningHtml = `
+                <div class="warning-box" style="margin-top: 10px;">
+                    <strong>🎬 CONVERTIR EN MP4 POUR TIKTOK/INSTAGRAM :</strong><br><br>
+                    <strong>Option 1 - CloudConvert (Gratuit) :</strong><br>
+                    1. Allez sur <a href="https://cloudconvert.com/webm-to-mp4" target="_blank" style="color: #ffd700;">cloudconvert.com/webm-to-mp4</a><br>
+                    2. Uploadez votre fichier WebM<br>
+                    3. Cliquez "Convert" → Téléchargez le MP4<br><br>
+                    
+                    <strong>Option 2 - FreeConvert (Gratuit) :</strong><br>
+                    <a href="https://www.freeconvert.com/webm-to-mp4" target="_blank" style="color: #ffd700;">freeconvert.com/webm-to-mp4</a><br><br>
+                    
+                    <strong>Option 3 - Convertio (Gratuit) :</strong><br>
+                    <a href="https://convertio.co/webm-mp4/" target="_blank" style="color: #ffd700;">convertio.co/webm-mp4</a><br><br>
+                    
+                    <strong>⚙️ Paramètres recommandés :</strong><br>
+                    • Codec : H.264<br>
+                    • Qualité : Haute (High)<br>
+                    • FPS : 30<br>
+                    • Audio : Aucun (None)
+                </div>
+            `;
+            
+            const codeSection = document.getElementById(`htmlCode${index}`).parentElement;
+            if (!codeSection.querySelector('.warning-box')) {
+                codeSection.insertAdjacentHTML('beforebegin', warningHtml);
+            }
+        }
+
+        // Initialiser les codes au chargement
+        window.addEventListener('load', () => {
+            for (let i = 1; i <= 4; i++) {
+                generateIntegrationCodes(i, `pixel-bateau-rouge-video-${i}.webm`);
+            }
+        });
+    </script>
+</body>
+</html>

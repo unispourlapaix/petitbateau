@@ -3534,7 +3534,7 @@
         function ouvrirEnigmesCompletes() {
             // Ouvrir le fichier existant directement avec la langue actuelle
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            const newWindow = window.open(`emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+            const newWindow = window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
         }
 
         // Ouvrir le menu énigmes dans le canvas
@@ -16653,7 +16653,7 @@ Elle a besoin de ponts.`
 
                     <!-- Boutons de navigation améliorés -->
                     <div style="margin-top: 25px;">
-                        <button onclick="const lang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr'; window.open('emmanuel-artist-module.html?lang=' + lang, '_blank')"
+                        <button onclick="const lang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr'; window.open('modules/emmanuel-artist-module.html?lang=' + lang, '_blank')"
                                 style="background: linear-gradient(145deg, #4169E1, #1E90FF); border: none; border-radius: 25px; padding: 12px 25px; margin: 8px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                             📜 Voir Collection Complète
                         </button>
@@ -17099,36 +17099,40 @@ Elle a besoin de ponts.`
             ctx.fillStyle = periode === 'jour' ? fondAniméCache.gradients.merJour : fondAniméCache.gradients.merNuit;
             ctx.fillRect(0, merY, C.W, C.H - merY);
 
-            // ⚡ OPTIMISATION: Calculer les vagues seulement tous les N frames
-            if (fondAniméCache.frameCount - fondAniméCache.lastWaveFrame >= fondAniméCache.waveThrottle) {
-                fondAniméCache.lastWaveFrame = fondAniméCache.frameCount;
+            // ✨ VAGUES FLUIDES: Calculer chaque frame avec interpolation optimisée
+            // Vagues selon le chapitre
+            if(periode === 'jour') {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 2;
+            } else {
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+                ctx.lineWidth = 3;
+            }
+
+            // Lignes de vagues - rendu fluide avec interpolation quadratique
+            for(let ligne = 0; ligne < 3; ligne++) {
+                const y = merY + ligne * 15;
+                const amplitude = periode === 'jour' ? (8 - ligne * 2) : (12 - ligne * 3);
+                const fréquence = 0.01 + ligne * 0.005;
+                const vitesse = periode === 'jour' ? 1 : 1.5;
+                const offset = temps * vitesse * (1 + ligne * 0.3);
+
+                ctx.beginPath();
+                // ⚡ Pas de 15 (compromis fluidité/performance) avec courbes de Bézier
+                let prevX = 0;
+                let prevY = y + Math.sin(0 * fréquence + offset) * amplitude;
+                ctx.moveTo(prevX, prevY);
                 
-                // Vagues selon le chapitre
-                if(periode === 'jour') {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-                    ctx.lineWidth = 2;
-                } else {
-                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-                    ctx.lineWidth = 3;
+                for(let x = 15; x <= C.W; x += 15) {
+                    const currentY = y + Math.sin(x * fréquence + offset) * amplitude;
+                    // Interpolation quadratique pour courbes lisses
+                    const cpX = prevX + 7.5; // Point de contrôle au milieu
+                    const cpY = (prevY + currentY) / 2;
+                    ctx.quadraticCurveTo(cpX, cpY, x, currentY);
+                    prevX = x;
+                    prevY = currentY;
                 }
-
-                // Lignes de vagues - throttled
-                for(let ligne = 0; ligne < 3; ligne++) {
-                    const y = merY + ligne * 15;
-                    const amplitude = periode === 'jour' ? (8 - ligne * 2) : (12 - ligne * 3);
-                    const fréquence = 0.01 + ligne * 0.005;
-                    const vitesse = periode === 'jour' ? 1 : 1.5;
-                    const offset = temps * vitesse * (1 + ligne * 0.3);
-
-                    ctx.beginPath();
-                    // ⚡ OPTIMISATION: Pas de 20 au lieu de 10 (50% moins de points)
-                    for(let x = 0; x <= C.W; x += 20) {
-                        const vague = Math.sin(x * fréquence + offset) * amplitude;
-                        if(x === 0) ctx.moveTo(x, y + vague);
-                        else ctx.lineTo(x, y + vague);
-                    }
-                    ctx.stroke();
-                }
+                ctx.stroke();
             }
 
             // ⚡ OPTIMISATION: Mettre à jour les requins tous les N frames
@@ -19705,7 +19709,8 @@ Elle a besoin de ponts.`
             // Animer le corbeau s'il est actif
             if(corbeau.actif) {
                 corbeau.x += corbeau.vx;
-                corbeau.y += Math.sin(Date.now() * 0.0005) * 0.25; // Mouvement ondulant très doux et petit
+                // ⚡ OPTIMISATION: Mouvement ondulant supprimé (trop gênant)
+                // Le corbeau traverse directement sans mouvements parasites
 
                 // Vérifier collision avec la lanterne allumée
                 if(lanterne.active && balle.visible && !chauveSouris.revelee) {
