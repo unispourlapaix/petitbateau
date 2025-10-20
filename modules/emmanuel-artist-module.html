@@ -655,12 +655,19 @@
             const avatars = ['👨‍🎨', '👩‍🎨', '🧙', '🎭', '🎪', '🎨', '🎬', '🎸', '🎹', '🎺'];
             const niveaux = [2100, 1800, 1500, 1200, 900, 600, 300, 100, 50, 25];
             
+            // 🎯 IMPORTANT: Scores de test PLUS BAS que Marie (~160000)
+            // Commencer à 150000 et descendre progressivement
+            const maxTestScore = 150000;
+            
             const testScores = [];
             for (let i = 0; i < 50; i++) {
                 const pseudoIdx = i % pseudos.length;
+                // Score décroissant: 150000, 149500, 149000, etc.
+                const score = maxTestScore - (i * 500);
+                
                 testScores.push({
                     id: `test-${i}`,
-                    score: 50000 - (i * 800),
+                    score: score,
                     donnees_extra: {
                         pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
                         avatar: avatars[pseudoIdx],
@@ -675,7 +682,8 @@
                     created_at: new Date(Date.now() - i * 86400000).toISOString()
                 });
             }
-            console.log('🧪 Données de test créées:', testScores.length, 'scores');
+            console.log('🧪 Données de test créées:', testScores.length, 'scores (max:', maxTestScore, ')');
+            console.log('📝 Les scores de test sont en secours si Supabase est vide');
             return testScores;
         }
 
