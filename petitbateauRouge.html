@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
@@ -1728,11 +1728,12 @@
                     phaseIntro.etape = 'terminee';
                     jeu = true;
                     
-                    // Lancer la phase restaurée
+                    // 🔄 Recréer la phase restaurée (SANS narration)
                     if (narrationManager && gameState.currentPhase) {
                         setTimeout(() => {
-                            narrationManager.executeCurrentPhase(true);
-                            console.log('✅ Phase restaurée et exécutée');
+                            console.log('🔄 Recréation de la phase depuis sauvegarde');
+                            recreerPhaseActuelle();
+                            console.log('✅ Phase restaurée et recréée sans narration');
                         }, 500);
                     }
 
@@ -2735,9 +2736,9 @@
                 // Créer une notification simple et discrète
                 const notification = document.createElement('div');
 
-                // Position spéciale en phase 16 : en bas du bouton Continuer
+                // Position centrée verticalement pour bonne visibilité
                 const isPhase16 = narrationManager && narrationManager.currentPhase === 16;
-                const topPosition = isPhase16 ? '70%' : '80px'; // 70% pour phase 16, 80px sinon
+                const topPosition = isPhase16 ? '70%' : '35%'; // 70% pour phase 16, 35% pour centré
 
                 notification.style.cssText = `
                     position: fixed;
@@ -7859,13 +7860,13 @@
 
                         <div style="margin-top: 15px;">
                             <button id="fin-enregistrer" data-i18n="ui.buttons.save_and_discover" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
-                                💾 Enregistrer & Découvrir
+                                Enregistrer
                             </button>
                         </div>
 
                         <div style="margin-top: 10px;">
                             <button id="fin-passer" data-i18n="ui.buttons.skip_and_continue" style="width: 100%; padding: 12px; background: transparent; color: #94a3b8; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
-                                ⏭️ Passer
+                                Passer
                             </button>
                         </div>
 
@@ -8062,21 +8063,13 @@
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
                     if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Recommencer directement à Phase 2
+                        // ✅ Phase 23 terminée → Recommencer à Phase 2
                         console.log('✅ Phase 23 complétée - Recommencer à Phase 2');
                         recommencerDepuisPhase2();
                     } else {
-                        // ❌ Game Over → Charger sauvegarde automatiquement si existe
-                        const saveInfo = GameSaveSystem.getSaveInfo();
-                        if (saveInfo && saveInfo.hasSave) {
-                            // ✅ Charger automatiquement (pas de popup)
-                            console.log('💾 Sauvegarde détectée - Chargement automatique');
-                            window.loadGame();
-                        } else {
-                            // Pas de sauvegarde, recommencer à la phase 2
-                            console.log('ℹ️ Pas de sauvegarde - Recommencer Phase 2');
-                            recommencerDepuisPhase2();
-                        }
+                        // ❌ Game Over → Recréer la phase actuelle
+                        console.log('� Game Over - Recréer la phase actuelle');
+                        recreerPhaseActuelle(true);
                     }
                 }, 500);
             };
@@ -8096,21 +8089,13 @@
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
                     if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Recommencer directement à Phase 2
-                        console.log('✅ Phase 23 complétée - Recommencer à Phase 2 (sans vérifier sauvegarde)');
+                        // ✅ Phase 23 terminée → Recommencer à Phase 2
+                        console.log('✅ Phase 23 complétée - Passer sans enregistrer → Recommencer à Phase 2');
                         recommencerDepuisPhase2();
                     } else {
-                        // ❌ Game Over → Charger sauvegarde automatiquement si existe
-                        const saveInfo = GameSaveSystem.getSaveInfo();
-                        if (saveInfo && saveInfo.hasSave) {
-                            // ✅ Charger automatiquement (pas de popup)
-                            console.log('💾 Sauvegarde détectée - Chargement automatique');
-                            window.loadGame();
-                        } else {
-                            // Pas de sauvegarde, recommencer à la phase 2
-                            console.log('ℹ️ Pas de sauvegarde - Recommencer Phase 2');
-                            recommencerDepuisPhase2();
-                        }
+                        // ❌ Game Over → Recréer la phase actuelle (sans enregistrer)
+                        console.log('� Game Over - Passer sans enregistrer → Recréer phase actuelle');
+                        recreerPhaseActuelle(true);
                     }
                 }, 500);
             };
@@ -12025,8 +12010,8 @@
             ctx.save();
             ctx.globalAlpha = messagePowerupActif.alpha;
 
-            // Position plus haute pour meilleure visibilité
-            const posY = C.H * 0.25; // 25% de la hauteur (plus haut que le centre)
+            // Position centrée verticalement pour bonne visibilité
+            const posY = C.H * 0.40; // 40% de la hauteur (juste au-dessus du centre)
 
             // Mesurer le texte pour dimensionner le fond
             ctx.font = '14px Arial';
@@ -16747,13 +16732,19 @@ Elle a besoin de ponts.`
         }
 
         // 🔄 RECRÉER PHASE ACTUELLE - Sans intro ni narration
-        function recreerPhaseActuelle() {
+        function recreerPhaseActuelle(redonnerVies = false) {
             console.log('🔄 Recréation de la phase actuelle sans intro...');
             
             // Récupérer la phase en cours
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 2;
             
-            // Nettoyer SANS toucher au score/vies/progression
+            // Redonner 3 vies si demandé (pour "Passer & Continuer" et "Enregistrer")
+            if (redonnerVies) {
+                vies = 3;
+                console.log('💝 3 vies redonnées');
+            }
+            
+            // Nettoyer SANS toucher au score/progression
             briques = [];
             projectiles = [];
             particules = [];
@@ -19169,9 +19160,9 @@ Elle a besoin de ponts.`
                 const zone = messageNarratifActif.restartZone;
                 if (x >= zone.x && x <= zone.x + zone.w &&
                     y >= zone.y && y <= zone.y + zone.h) {
-                    console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle');
-                    // ✅ NOUVEAU: Recréer la phase sans refaire l'intro
-                    recreerPhaseActuelle();
+                    console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle avec 3 vies');
+                    // ✅ Recréer la phase sans refaire l'intro, avec 3 vies
+                    recreerPhaseActuelle(true);
                     return;
                 }
             }
@@ -20939,13 +20930,17 @@ Elle a besoin de ponts.`
             }
             
             // 🎬 INITIALISER phaseIntro MAINTENANT (après activation des flags)
+            // ✅ Désactiver intro si sauvegarde OU si restauration en cours
+            const skipIntro = window.isRestoringGame || hasSavedGame;
             phaseIntro = { 
-                active: window.isRestoringGame ? false : langueDejaChoisie, 
-                etape: window.isRestoringGame ? 'terminee' : 'arrivee_bateau', 
-                tempsDebut: (window.isRestoringGame || !langueDejaChoisie) ? 0 : Date.now() 
+                active: skipIntro ? false : langueDejaChoisie, 
+                etape: skipIntro ? 'terminee' : 'arrivee_bateau', 
+                tempsDebut: skipIntro ? 0 : (langueDejaChoisie ? Date.now() : 0)
             };
             console.log('🎬 Phase intro initialisée:', {
                 active: phaseIntro.active,
+                skipIntro: skipIntro,
+                hasSavedGame: hasSavedGame,
                 isRestoring: window.isRestoringGame
             });
 

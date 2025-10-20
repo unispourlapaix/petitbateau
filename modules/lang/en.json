@@ -37,7 +37,10 @@
       "save": "💾 Save",
       "skip": "Skip",
       "update": "Update",
-      "later": "Later"
+      "later": "Later",
+      "save_and_discover": "💾 Save & Discover",
+      "skip_and_continue": "⏭️ Skip & Continue",
+      "restart_phase": "🔄 Restart Phase"
     },
     "form": {
       "email_label": "Email * :",

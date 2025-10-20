@@ -37,7 +37,10 @@
       "save": "💾 Enregistrer",
       "skip": "Passer",
       "update": "Mettre à jour",
-      "later": "Plus tard"
+      "later": "Plus tard",
+      "save_and_discover": "💾 Enregistrer & Découvrir",
+      "skip_and_continue": "⏭️ Passer & Continuer",
+      "restart_phase": "🔄 Recommencer la phase"
     },
     "form": {
       "email_label": "Email * :",
