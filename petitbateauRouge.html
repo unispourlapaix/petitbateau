@@ -17556,8 +17556,10 @@ Elle a besoin de ponts.`
             dessinerMessageNarratifSimple(); // Messages narratifs centrés
             dessinerBoutonPasser(); // Bouton passer simple en haut
 
-            // Menu énigmes
-            dessinerMenuEnigmesCanvas();
+            // ⚡ OPTIMISATION: Menu énigmes - N'appeler que si visible
+            if (menuEnigmesCanvas.visible) {
+                dessinerMenuEnigmesCanvas();
+            }
 
             // Bouton plein écran retiré - Plein écran automatique sur mobile
 
@@ -20259,7 +20261,10 @@ Elle a besoin de ponts.`
                 if (corbeau.actif) mettreAJourMessageCorbeauBas();
                 if (chauveSouris.active) mettreAJourChauveSouris();
 
-                mettreAJourMenuEnigmesCanvas();
+                // ⚡ OPTIMISATION: Animation menu - N'appeler que si visible
+                if (menuEnigmesCanvas.visible) {
+                    mettreAJourMenuEnigmesCanvas();
+                }
 
                 // Vérification automatique des énigmes (réduite à 0.5%)
                 if (enigmaCollector && Math.random() < 0.005) {
