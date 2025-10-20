@@ -7701,7 +7701,9 @@
             const html = `
                 <div id="formulaire-fin-overlay" style="position: fixed; top: ${canvasTop}px; left: ${canvasLeft}px; width: ${canvasWidth}px; height: ${canvasHeight}px; background: rgba(0,0,0,0.95); z-index: 20000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 10px;">
                     <div style="background: white; padding: 20px; border-radius: 12px; max-width: 95%; width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin: auto; color: #1e293b;">
-                        <h2 style="margin: 0 0 12px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: 700;">${getTranslatedText('ui.journey_completed_title')}</h2>
+                        <h2 style="margin: 0 0 12px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: 700;">
+                            ${isPhase23Complete ? getTranslatedText('ui.journey_completed_title', '🎉 Voyage terminé !') : getTranslatedText('ui.game_over_title', '⚓ Fin du voyage')}
+                        </h2>
 
                         <!-- Résumé des scores - Version compacte -->
                         <div style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; color: white;">
@@ -16744,6 +16746,50 @@ Elle a besoin de ponts.`
             }, 500);
         }
 
+        // 🔄 RECRÉER PHASE ACTUELLE - Sans intro ni narration
+        function recreerPhaseActuelle() {
+            console.log('🔄 Recréation de la phase actuelle sans intro...');
+            
+            // Récupérer la phase en cours
+            const phaseActuelle = narrationManager ? narrationManager.currentPhase : 2;
+            
+            // Nettoyer SANS toucher au score/vies/progression
+            briques = [];
+            projectiles = [];
+            particules = [];
+            powerUps = [];
+            
+            // Cacher les messages narratifs
+            cacherMessage();
+            messageNarratifActif = null;
+            
+            // Fermer tous les overlays (formulaires, etc.)
+            const overlay = document.getElementById('formulaire-fin-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            
+            // Recréer les briques selon la phase actuelle
+            if (phaseActuelle >= 2) {
+                dedoublerCoeursEnBriques();
+            }
+            
+            // Réactiver le jeu
+            jeu = true;
+            
+            // Ré-exécuter l'action de la phase SANS afficher la narration
+            if (narrationManager && phaseActuelle > 0 && phaseActuelle < narrationManager.phases.length) {
+                setTimeout(() => {
+                    const phase = narrationManager.phases[phaseActuelle];
+                    if (phase && phase.action && typeof phase.action === 'function') {
+                        // Exécuter uniquement l'action de gameplay, pas le texte narratif
+                        phase.action();
+                    }
+                    console.log(`✅ Phase ${phaseActuelle} recréée (score: ${score}, vies: ${vies})`);
+                }, 100);
+            }
+        }
+
         // �🔥 HARD RESET COMPLET - Efface TOUT
         function hardResetGame() {
             console.log('🔥 HARD RESET - Effacement complet du jeu...');
@@ -19123,10 +19169,9 @@ Elle a besoin de ponts.`
                 const zone = messageNarratifActif.restartZone;
                 if (x >= zone.x && x <= zone.x + zone.w &&
                     y >= zone.y && y <= zone.y + zone.h) {
-                    console.log('🔄 Bouton [Recommencer] cliqué - Réinitialisation complète');
-                    if (narrationManager) {
-                        narrationManager.restart(); // Redémarrer le jeu sans recharger la page
-                    }
+                    console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle');
+                    // ✅ NOUVEAU: Recréer la phase sans refaire l'intro
+                    recreerPhaseActuelle();
                     return;
                 }
             }
