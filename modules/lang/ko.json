@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "작은 빨간 배 ⛵ - Emmanuel Payet의 철학적 퍼즐 게임",
     "description": "Emmanuel Payet이 만든 철학적이고 시적인 퍼즐 게임, 작은 빨간 배를 만나보세요. 각 수수께끼가 인류에 대한 진실을 드러내는 14개 언어의 세계를 항해하세요. 목표: 3천3백만 플레이어!",
@@ -14,6 +14,7 @@
     "save_score_ranking": "세계 랭킹에 등록하려면 점수를 저장하세요!",
     "complete_game_save_score": "🎉 점수를 저장하려면 게임을 완료하세요!",
     "journey_completed_title_alt": "여행 완료",
+    "game_over_title": " 여행의 끝",
     "thank_you_truth": "진실을 찾아주셔서 감사합니다.",
     "epilogue_button": "📖 에필로그",
     "replay_button": "🔄 다시 하기",

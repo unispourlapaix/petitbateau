@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Piccola Barca Rossa ⛵ - Gioco di Enigmi Poetico di Emmanuel Payet",
     "description": "Scopri Piccola Barca Rossa, un gioco di enigmi filosofico e poetico creato da Emmanuel Payet. Naviga attraverso 14 lingue in un universo dove ogni enigma rivela una verità sull'umanità. Obiettivo: 33 milioni di giocatori!",
@@ -14,6 +14,7 @@
     "save_score_ranking": "Salva il tuo punteggio per apparire nella classifica mondiale!",
     "complete_game_save_score": "🎉 Completa il gioco per salvare il tuo punteggio!",
     "journey_completed_title_alt": "Viaggio Completato",
+    "game_over_title": " Fine del Viaggio",
     "thank_you_truth": "Grazie per aver cercato la verità.",
     "epilogue_button": "📖 Epilogo",
     "replay_button": "🔄 Rigioca",

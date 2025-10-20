@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Kleines Rotes Boot ⛵ - Philosophisches Rätselspiel von Emmanuel Payet",
     "description": "Entdecke Kleines Rotes Boot, ein philosophisches und poetisches Rätselspiel von Emmanuel Payet. Navigiere durch 14 Sprachen in einem Universum, wo jedes Rätsel eine Wahrheit über die Menschheit offenbart. Ziel: 33 Millionen Spieler!",
@@ -14,6 +14,7 @@
     "save_score_ranking": "Speichere deinen Punktestand, um in der weltweiten Rangliste zu erscheinen!",
     "complete_game_save_score": "🎉 Beende das Spiel, um deinen Punktestand zu speichern!",
     "journey_completed_title_alt": "Reise Beendet",
+    "game_over_title": " Ende der Reise",
     "thank_you_truth": "Danke, dass du die Wahrheit gesucht hast.",
     "epilogue_button": "📖 Epilog",
     "replay_button": "🔄 Nochmal spielen",

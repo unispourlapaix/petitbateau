@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Ti Bato Rouz ⛵ - Zé d'Énigm Poétik pa Emmanuel Payet",
     "description": "Découvèr Ti Bato Rouz, ène zé d'énigm filozofik é poétik kréyé pa Emmanuel Payet. Navige atravèr 14 lang dann ènn univèr kote shak énigm révelé ènn véritab sir lhumanité. Obyéktif : 33 milion zouèr !",
@@ -14,6 +14,7 @@
     "save_score_ranking": "Anrézistre out skore pou aparèt dann klasemin mondial !",
     "complete_game_save_score": "🎉 Finalizé zé pou anrézistre out skore !",
     "journey_completed_title_alt": "Voyaz Finalizé",
+    "game_over_title": " Fin Voyaz",
     "thank_you_truth": "Mersi lé sèrshe la vérité.",
     "epilogue_button": "📖 Épilog",
     "replay_button": "🔄 Rzoué ankor",

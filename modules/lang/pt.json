@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Pequeno Barco Vermelho ⛵ - Jogo de Enigmas Poético por Emmanuel Payet",
     "description": "Descubra Pequeno Barco Vermelho, um jogo de enigmas filosófico e poético criado por Emmanuel Payet. Navegue através de 14 idiomas num universo onde cada enigma revela uma verdade sobre a humanidade. Objetivo: 33 milhões de jogadores!",
@@ -14,6 +14,7 @@
     "save_score_ranking": "Registre sua pontuação para aparecer no ranking mundial!",
     "complete_game_save_score": "🎉 Complete o jogo para registrar sua pontuação!",
     "journey_completed_title_alt": "Viagem Concluída",
+    "game_over_title": " Fim da Viagem",
     "thank_you_truth": "Obrigado por ter buscado a verdade.",
     "epilogue_button": "📖 Epílogo",
     "replay_button": "🔄 Jogar Novamente",

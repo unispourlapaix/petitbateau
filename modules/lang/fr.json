@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Petit Bateau Rouge ⛵ - Jeu d'Énigmes Poétique par Emmanuel Payet",
     "description": "Découvrez Petit Bateau Rouge, un jeu d'énigmes philosophique et poétique créé par Emmanuel Payet. Naviguez à travers 14 langues dans un univers où chaque énigme révèle une vérité sur l'humanité. Objectif : 33 millions de joueurs !",
@@ -38,8 +38,8 @@
       "skip": "Passer",
       "update": "Mettre à jour",
       "later": "Plus tard",
-      "save_and_discover": "💾 Enregistrer & Découvrir",
-      "skip_and_continue": "⏭️ Passer & Continuer",
+      "save_and_discover": "Enregistrer",
+      "skip_and_continue": "Passer",
       "restart_phase": "🔄 Recommencer la phase"
     },
     "form": {

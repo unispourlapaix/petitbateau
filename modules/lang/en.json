@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "document_title": "Little Red Boat ⛵ - Poetic Puzzle Game by Emmanuel Payet",
     "description": "Discover Little Red Boat, a philosophical and poetic puzzle game created by Emmanuel Payet. Navigate through 14 languages in a universe where each enigma reveals a truth about humanity. Goal: 33 million players!",
@@ -38,8 +38,8 @@
       "skip": "Skip",
       "update": "Update",
       "later": "Later",
-      "save_and_discover": "💾 Save & Discover",
-      "skip_and_continue": "⏭️ Skip & Continue",
+      "save_and_discover": "Save",
+      "skip_and_continue": "Skip",
       "restart_phase": "🔄 Restart Phase"
     },
     "form": {
