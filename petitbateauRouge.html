@@ -10121,6 +10121,9 @@
 
         // ⚡ OPTIMISATION: Initialiser gradients fond principal
         function initGradientsFond() {
+            // ⚡ OPTIMISATION #2 : Cache global pour tous les gradients principaux
+            // Évite de recréer les gradients à chaque frame (très coûteux)
+            
             // Gradient finale (coucher de soleil)
             fondAniméCache.gradients.fondFinale = ctx.createLinearGradient(0, 0, 0, C.H);
             fondAniméCache.gradients.fondFinale.addColorStop(0, '#FFB347'); // Orange doux en haut
@@ -17468,6 +17471,10 @@ Elle a besoin de ponts.`
 
         // Rendu principal
         function dessiner() {
+            // ⚡ OPTIMISATION #6 : Clear canvas au début du rendu principal
+            // Évite accumulation et ghosting des éléments dessinés
+            // (Note: boucleJeu() fait aussi un clear, mais dessiner() peut être appelé seul)
+            ctx.clearRect(0, 0, C.W, C.H);
 
             // 📱 Appliquer l'inertie du bateau (après touch)
             appliquerInertieBateau();
@@ -19912,6 +19919,10 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
+            // ⚡ OPTIMISATION #1 : CLEAR CANVAS AU DÉBUT DE CHAQUE FRAME
+            // Évite l'accumulation de dessins et surcharge GPU mobile
+            ctx.clearRect(0, 0, C.W, C.H);
+            
             // Animation du survol du drapeau (simple)
             if (flagHover && flagHoverAnimation < 1) {
                 flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
@@ -19921,8 +19932,7 @@ Elle a besoin de ponts.`
             
             // 🌍 SI LANGUE NON CHOISIE : dessiner seulement le sélecteur
             if (languageSelector.active && !languageSelector.languageChosen) {
-                // Clear canvas
-                ctx.clearRect(0, 0, C.W, C.H);
+                // Canvas déjà clear en haut
 
                 // ⚡ OPTIMISATION: Créer gradient une seule fois
                 if (!fondAniméCache.gradients.languageSelector) {
@@ -19986,10 +19996,13 @@ Elle a besoin de ponts.`
                 ctx.globalAlpha = 1;
                 ctx.restore();
 
-                // Particules décoratives (réduites à 10)
-                for (let i = 0; i < 10; i++) {
-                    const x = (i * C.W / 10) + (Math.sin(time + i) * 50);
-                    const y = (i * C.H / 10) + (Math.cos(time + i) * 30);
+                // ⚡ OPTIMISATION #4 : Particules réduites selon qualité mobile
+                const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0 };
+                const particleCount = Math.floor(10 * effects.particleMultiplier); // 10 → 5 → 2.5 selon device
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const x = (i * C.W / particleCount) + (Math.sin(time + i) * 50);
+                    const y = (i * C.H / particleCount) + (Math.cos(time + i) * 30);
                     ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + Math.sin(time + i) * 0.1})`;
                     ctx.beginPath();
                     ctx.arc(x, y, 4, 0, Math.PI * 2);
@@ -19999,8 +20012,11 @@ Elle a besoin de ponts.`
                 // NUAGE DE TRADUCTIONS "PETIT BATEAU"
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+                
+                // ⚡ OPTIMISATION #3 : Réduire shadowBlur de 50% sur mobile
+                const shadowBlur = effects.shadowBlurMax || 15;
                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = effects.shadows ? shadowBlur : 0;
 
                 // Traductions de "Petit Bateau" dans différentes langues avec positions et tailles variées
                 // Positions ajustées pour éviter les bords
