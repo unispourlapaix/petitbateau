@@ -91,9 +91,8 @@ class AudioManager {
         this.masterGain.connect(this.ctx.destination);
         this.masterGain.gain.value = this.volume.master * this.volume.sfx;
 
-        if (!window.PRODUCTION_MODE) {
-            console.log('🎵 AudioManager unifié initialisé');
-        }
+        // ✅ Toujours logger l'initialisation audio (même en production)
+        console.log('🎵 AudioManager unifié initialisé');
     }
 
     // === CONTRÔLES GÉNÉRAUX ===
@@ -179,6 +178,9 @@ class AudioManager {
     // === MUSIQUE ===
 
     play(phase = 'normal') {
+        // ✅ Logger le démarrage musique même en production
+        console.log('🎵 Démarrage musique phase:', phase);
+        
         if (this.isMuted) return;
         
         // Si on change de phase, on remet à zéro la liste des morceaux joués

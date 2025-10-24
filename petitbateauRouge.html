@@ -651,9 +651,24 @@
 <!-- 🚀 MODE PRODUCTION ALPHA 1 -->
 <script>
 window.PRODUCTION_MODE = true;
-console.log = function() {}; // Désactiver les logs en production
-console.warn = function() {}; // Désactiver les warnings en production
-console.info = function() {}; // Désactiver les infos en production
+// ✅ Désactiver seulement les logs non-critiques
+const originalLog = console.log;
+const originalWarn = console.warn;
+const originalInfo = console.info;
+
+console.log = function(...args) {
+    // ✅ Autoriser les logs audio critiques
+    if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager'))) {
+        originalLog.apply(console, args);
+    }
+};
+console.warn = function(...args) {
+    // ✅ Autoriser les warnings audio critiques
+    if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager') || String(arg).includes('audio'))) {
+        originalWarn.apply(console, args);
+    }
+};
+console.info = function() {}; // Désactiver les infos
 // Garder console.error pour le debug critique
 </script>
 
@@ -10546,7 +10561,12 @@ console.info = function() {}; // Désactiver les infos en production
 
                     // 🎵 Préparer le démarrage de la musique au prochain clic
                     if (musicManager && !musicManager.isPlaying) {
+                        console.log('🎵 Musique prête à démarrer (musicManager.isPlaying =', musicManager.isPlaying, ')');
                         window.musicReadyToStart = true;
+                    } else if (musicManager) {
+                        console.log('🎵 Musique déjà active (musicManager.isPlaying =', musicManager.isPlaying, ')');
+                    } else {
+                        console.log('🎵 MusicManager non trouvé');
                     }
 
                     // Ne pas forcer le mode - conserver le mode déjà configuré par narrationManager
@@ -18917,9 +18937,16 @@ Elle a besoin de ponts.`
 
             // 🎵 Démarrer la musique au premier clic (autoplay policy)
             if (window.musicReadyToStart && musicManager && !window.musicStartedOnce) {
+                console.log('🎵 Premier clic détecté - Démarrage musique...');
                 musicManager.play('normal');
                 window.musicReadyToStart = false;
                 window.musicStartedOnce = true; // Marquer comme lancée une fois
+            } else if (!window.musicReadyToStart || !musicManager) {
+                console.log('🎵 Conditions musique:', {
+                    musicReadyToStart: window.musicReadyToStart,
+                    musicManager: !!musicManager,
+                    musicStartedOnce: window.musicStartedOnce
+                });
             }
 
             // 🔊 Vérifier les clics sur les boutons audio
@@ -19558,10 +19585,11 @@ Elle a besoin de ponts.`
         // ========== GESTIONNAIRE AUDIO - INITIALISATION ==========
         function initMusicManager() {
             if (typeof AudioManager === 'undefined') {
-                console.warn('⚠️ AudioManager non trouvé - Pas de son');
+                console.error('❌ AudioManager non trouvé - Pas de son'); // ✅ Garder en erreur même en production
                 return;
             }
 
+            console.log('✅ Initialisation AudioManager...'); // ✅ Logger l'init audio
             try {
                 musicManager = new AudioManager();
                 console.log('🎵 Gestionnaire audio initialisé (démarrera après intro)');
