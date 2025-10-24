@@ -1565,7 +1565,7 @@ console.info = function() {}; // Désactiver les infos
     <script>
         // 🚫 MODE PRODUCTION - Désactiver tous les console.log
         // Mettre PRODUCTION_MODE = false pour réactiver les logs en développement
-        const PRODUCTION_MODE = true; // ✅ MODE PRODUCTION
+        const PRODUCTION_MODE = false; // ✅ LOGS RÉACTIVÉS POUR DÉBOGAGE MUSIQUE
         window.PRODUCTION_MODE = PRODUCTION_MODE; // Variable globale pour les modules
         
         if (PRODUCTION_MODE) {
@@ -1720,14 +1720,19 @@ console.info = function() {}; // Désactiver les infos
                             
                             // Reprendre la piste sauvegardée si pas en mute
                             if (!musicManager.isMuted) {
+                                // ✅ Délai plus long pour laisser l'AudioContext s'initialiser + forcer le démarrage
                                 setTimeout(() => {
                                     if (musicManager && musicManager.playlist && musicManager.playlist[gameState.musicTrackIndex]) {
                                         musicManager.currentTrackIndex = gameState.musicTrackIndex;
                                         musicManager.currentTrack = musicManager.playlist[gameState.musicTrackIndex];
-                                        musicManager.play();
-                                        console.log(`🎵 Piste ${gameState.musicTrackIndex} restaurée`);
+                                        
+                                        // ✅ Forcer l'initialisation de l'AudioContext et démarrer
+                                        console.log(`🎵 Restauration et démarrage piste ${gameState.musicTrackIndex}...`);
+                                        musicManager.play('normal');
+                                        window.musicStartedOnce = true; // Marquer comme démarrée
+                                        console.log(`🎵 Piste ${gameState.musicTrackIndex} restaurée et démarrée`);
                                     }
-                                }, 1000);
+                                }, 2500); // Délai plus long: 2.5s au lieu de 1s
                             }
                         }
                         
@@ -10470,15 +10475,17 @@ console.info = function() {}; // Désactiver les infos
                 return;
             }
             
-            // Logs désactivés - fonction appelée 60 fois/seconde
-            // console.warn('📍 gererPhaseIntro() appelé', {
-            //     'phaseIntro': phaseIntro,
-            //     'phaseIntro.active': phaseIntro.active,
-            //     'phaseIntro.etape': phaseIntro.etape,
-            //     'isRestoringGame': window.isRestoringGame,
-            //     'skipNarrationIntro': window.skipNarrationIntro,
-            //     'narrationStarted': window.narrationStarted
-            // });
+            // 🔍 DEBUG: Log de l'état de l'intro (une fois seulement)
+            if (!window.introStateLogged && phaseIntro.active) {
+                window.introStateLogged = true;
+                console.log('🎬 État de l\'intro:', {
+                    active: phaseIntro.active,
+                    etape: phaseIntro.etape,
+                    isRestoringGame: window.isRestoringGame,
+                    skipNarrationIntro: window.skipNarrationIntro,
+                    narrationStarted: window.narrationStarted
+                });
+            }
             
             if (!phaseIntro.active) {
                 // Intro terminée - comportement normal
@@ -10546,7 +10553,9 @@ console.info = function() {}; // Désactiver les infos
                 }
             } else if (phaseIntro.etape === 'apparition_balle') {
                 // Phase 3: Apparition de la balle
+                console.log('🎬 Phase apparition_balle - temps écoulé:', tempsEcoule);
                 if (tempsEcoule >= 1000) {
+                    console.log('🎬 Fin intro - démarrage jeu et préparation musique');
                     phaseIntro.active = false;
                     jeu = true; // Démarrer le jeu
 
@@ -10563,11 +10572,24 @@ console.info = function() {}; // Désactiver les infos
                     }
 
                     // 🎵 Préparer le démarrage de la musique au prochain clic
-                    if (musicManager && !musicManager.isPlaying) {
-                        console.log('🎵 Musique prête à démarrer (musicManager.isPlaying =', musicManager.isPlaying, ')');
-                        window.musicReadyToStart = true;
-                    } else if (musicManager) {
-                        console.log('🎵 Musique déjà active (musicManager.isPlaying =', musicManager.isPlaying, ')');
+                    console.log('🎵 Début section préparation musique - musicManager existe:', !!musicManager);
+                    if (musicManager) {
+                        console.log('🎵 État musicManager:', {
+                            isPlaying: musicManager.isPlaying,
+                            isMuted: musicManager.isMuted,
+                            audioContextInitialized: musicManager.audioContextInitialized
+                        });
+                        
+                        if (!musicManager.isPlaying) {
+                            console.log('🎵 Musique prête à démarrer');
+                            window.musicReadyToStart = true;
+                            
+                            // Timer automatique supprimé - Musique démarrera au premier clic
+                            console.log('🎵 Musique prête - démarrera au premier clic utilisateur');
+                            window.musicReadyToStart = true;
+                        } else {
+                            console.log('🎵 Musique déjà active');
+                        }
                     } else {
                         console.log('🎵 MusicManager non trouvé');
                     }
@@ -18940,12 +18962,14 @@ Elle a besoin de ponts.`
 
             // 🎵 Démarrer la musique au premier clic (autoplay policy)
             if (window.musicReadyToStart && musicManager && !window.musicStartedOnce) {
-                console.log('🎵 Premier clic détecté - Démarrage musique...');
+                console.log('✅ Premier clic détecté - Démarrage musique...');
                 musicManager.play('normal');
                 window.musicReadyToStart = false;
                 window.musicStartedOnce = true; // Marquer comme lancée une fois
-            } else if (!window.musicReadyToStart || !musicManager) {
-                console.log('🎵 Conditions musique:', {
+                console.log('🎵 Musique démarrée avec succès au clic utilisateur');
+            } else if (!window.musicStartedOnce) {
+                // Seulement logger si la musique n'a pas encore démarré
+                console.log('🎵 En attente du premier clic - Conditions:', {
                     musicReadyToStart: window.musicReadyToStart,
                     musicManager: !!musicManager,
                     musicStartedOnce: window.musicStartedOnce
@@ -19595,7 +19619,11 @@ Elle a besoin de ponts.`
             console.log('✅ Initialisation AudioManager...'); // ✅ Logger l'init audio
             try {
                 musicManager = new AudioManager();
-                console.log('🎵 Gestionnaire audio initialisé (démarrera après intro)');
+                console.log('🎵 Gestionnaire audio initialisé');
+                
+                // ✅ Activer immédiatement la musique au clic (pas besoin d'attendre l'intro)
+                window.musicReadyToStart = true;
+                console.log('🎵 Musique prête - démarrera au premier clic utilisateur');
             } catch (error) {
                 console.error('❌ Erreur initialisation gestionnaire audio:', error);
                 musicManager = null;
@@ -20022,6 +20050,24 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
+            // 🔍 DEBUG SIMPLE: Une seule fois pour vérifier que la boucle démarre
+            if (!window.boucleStarted) {
+                window.boucleStarted = true;
+                console.log('🎮 BoucleJeu DÉMARRÉE');
+            }
+            
+            // 🔍 DEBUG: État du jeu et de l'intro (une fois seulement)
+            if (!window.debugStateLogged) {
+                window.debugStateLogged = true;
+                console.log('🎮 État du jeu:', {
+                    jeu: jeu,
+                    phaseIntroActive: phaseIntro?.active,
+                    phaseIntroEtape: phaseIntro?.etape,
+                    languageSelectorActive: languageSelector?.active,
+                    languageChosen: languageSelector?.languageChosen
+                });
+            }
+            
             // ⚡ OPTIMISATION #1 : CLEAR CANVAS AU DÉBUT DE CHAQUE FRAME
             // Évite l'accumulation de dessins et surcharge GPU mobile
             ctx.clearRect(0, 0, C.W, C.H);
@@ -21111,6 +21157,9 @@ Elle a besoin de ponts.`
                         window.narrationStarted = false;
                         window.skipNarrationIntro = false;
                         window.skipIntroAnimation = false; // ✅ Reset du flag
+                        
+                        // Timer automatique supprimé - Musique démarrera au premier clic
+                        console.log('🎵 Mode manuel activé - La musique démarrera au premier clic utilisateur');
                     }
                 } else {
                     // Pas de sauvegarde valide → Démarrage normal
@@ -21119,6 +21168,9 @@ Elle a besoin de ponts.`
                     window.narrationStarted = false;
                     window.skipNarrationIntro = false;
                     window.skipIntroAnimation = false; // ✅ Reset du flag
+                    
+                    // Timer automatique supprimé - Musique démarrera au premier clic
+                    console.log('🎵 Mode manuel activé - La musique démarrera au premier clic utilisateur');
                 }
             }
 

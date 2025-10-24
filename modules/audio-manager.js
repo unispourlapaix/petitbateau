@@ -38,7 +38,7 @@ class AudioManager {
         this.effectsCache = new Map();
 
         // Configuration
-        this.basePath = 'modules/gospel/';
+        this.basePath = './modules/gospel/'; // ✅ Chemin relatif explicite
         this.playlist = [
             // Playlist complète avec phases
             { file: 'Pouring Light.mp3', phases: ['normal'] },
@@ -99,11 +99,20 @@ class AudioManager {
         if (this.audioContextInitialized) return true;
 
         try {
+            console.log('🎵 Création AudioContext...');
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('🎵 AudioContext créé, état:', this.ctx.state);
             
             // Reprendre le contexte s'il est suspendu
             if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
+                console.log('🎵 AudioContext suspendu, tentative de reprise...');
+                this.ctx.resume()
+                    .then(() => {
+                        console.log('✅ AudioContext repris avec succès');
+                    })
+                    .catch(err => {
+                        console.error('❌ Erreur reprise AudioContext:', err);
+                    });
             }
             
             // Créer le nœud principal pour les effets sonores
@@ -112,7 +121,7 @@ class AudioManager {
             this.masterGain.gain.value = this.volume.master * this.volume.sfx;
             
             this.audioContextInitialized = true;
-            console.log('🎵 AudioContext initialisé avec succès');
+            console.log('✅ AudioContext initialisé avec succès');
             return true;
         } catch (error) {
             console.error('❌ Erreur initialisation AudioContext:', error);
@@ -140,6 +149,36 @@ class AudioManager {
         if (!window.PRODUCTION_MODE) {
             console.log(`🎚️ Volume master: ${Math.round(this.volume.master * 100)}% (musicPlayer: ${Math.round(this.musicPlayer.volume * 100)}%, muté: ${this.isMuted})`);
         }
+    }
+
+    // ✅ Programmer un démarrage après interaction utilisateur
+    schedulePlayAfterUserInteraction(phase = 'normal') {
+        if (this.userInteractionScheduled) return;
+        
+        this.userInteractionScheduled = true;
+        this.pendingPhase = phase;
+        
+        console.log('🎵 Programmation démarrage musique après interaction utilisateur...');
+        
+        // Écouter le premier clic/touche/mouvement
+        const startMusic = () => {
+            console.log('🎵 Interaction utilisateur détectée - Démarrage musique');
+            
+            // Réessayer l'initialisation
+            if (this.initAudioContext()) {
+                this.play(this.pendingPhase);
+                
+                // Nettoyer les listeners
+                document.removeEventListener('click', startMusic);
+                document.removeEventListener('keydown', startMusic);
+                document.removeEventListener('touchstart', startMusic);
+                this.userInteractionScheduled = false;
+            }
+        };
+        
+        document.addEventListener('click', startMusic, { once: true });
+        document.addEventListener('keydown', startMusic, { once: true });
+        document.addEventListener('touchstart', startMusic, { once: true });
     }
 
     toggleMute() {
@@ -222,17 +261,44 @@ class AudioManager {
 
     // === MUSIQUE ===
 
+    // ✅ Nouvelle méthode pour vérifier les fichiers gospel
+    async debugGospelFiles() {
+        console.log('🔍 Vérification fichiers gospel...');
+        const testFiles = ['Pouring Light.mp3', 'Un vent Espoir.mp3', 'Naie pas peur.mp3'];
+        
+        for (const file of testFiles) {
+            try {
+                const response = await fetch(`./modules/gospel/${file}`, { method: 'HEAD' });
+                console.log(`${response.ok ? '✅' : '❌'} ${file}: ${response.status}`);
+            } catch (error) {
+                console.log(`❌ ${file}: Erreur réseau -`, error.message);
+            }
+        }
+    }
+
     play(phase = 'normal') {
         // ✅ Logger le démarrage musique même en production
         console.log('🎵 Démarrage musique phase:', phase);
         
+        // ✅ DEBUG: Vérifier l'existence des fichiers gospel
+        this.debugGospelFiles();
+        
         // ✅ Initialiser l'AudioContext au premier démarrage
         if (!this.audioContextInitialized) {
             console.log('🎵 Initialisation AudioContext...');
-            this.initAudioContext();
+            const success = this.initAudioContext();
+            if (!success) {
+                console.warn('⚠️ AudioContext non initialisé - La musique nécessite une interaction utilisateur');
+                // ✅ Programmer un retry après interaction utilisateur
+                this.schedulePlayAfterUserInteraction(phase);
+                return;
+            }
         }
         
-        if (this.isMuted) return;
+        if (this.isMuted) {
+            console.log('🎵 Musique mutée - pas de démarrage');
+            return;
+        }
         
         // Si on change de phase, on remet à zéro la liste des morceaux joués
         if (phase !== this.currentPhase) {
@@ -296,18 +362,40 @@ class AudioManager {
         this.playedTracks.push(this.currentTrackIndex);
 
         // Jouer le morceau
-        this.musicPlayer.src = this.basePath + this.currentTrack.file;
-        this.musicPlayer.volume = 0; // Démarrer silencieux pour le fade in
-        this.musicPlayer.play()
-            .then(() => {
-                if (!window.PRODUCTION_MODE) {
-                    console.log('🎵 Lecture séquentielle:', this.currentTrack.file);
+        const filePath = this.basePath + this.currentTrack.file;
+        console.log('🎵 Tentative chargement fichier:', filePath);
+        
+        // ✅ Vérifier si le fichier existe avant de le charger
+        fetch(filePath, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Fichier audio trouvé:', filePath);
+                    this.musicPlayer.src = filePath;
+                    this.musicPlayer.volume = 0; // Démarrer silencieux pour le fade in
+                    
+                    return this.musicPlayer.play();
+                } else {
+                    throw new Error(`Fichier non trouvé (${response.status}): ${filePath}`);
                 }
+            })
+            .then(() => {
+                console.log('✅ Musique démarrée avec succès:', this.currentTrack.file);
                 this.isPlaying = true;
                 this.fadeIn(); // Fade in progressif
             })
             .catch(error => {
-                console.error('❌ Erreur lecture audio:', error);
+                console.error('❌ Erreur lecture musique:', error);
+                console.error('❌ Fichier problématique:', filePath);
+                console.error('❌ État musicPlayer:', {
+                    src: this.musicPlayer.src,
+                    readyState: this.musicPlayer.readyState,
+                    networkState: this.musicPlayer.networkState,
+                    error: this.musicPlayer.error
+                });
+                
+                // ✅ Essayer le fichier suivant en cas d'erreur
+                console.log('🎵 Tentative avec le fichier suivant...');
+                setTimeout(() => this.playNext(), 1000);
             });
     }
 
