@@ -3529,7 +3529,7 @@ console.info = function() {}; // Désactiver les infos
                 { nom: '📜 Poème 1', action: () =>console.log('Poème 1 ouvert') },
                 { nom: '📖 Poème 2', action: () =>console.log('Poème 2 ouvert') },
                 { nom: '🎨 Info Artiste', action: () => ouvrirInfoArtiste() },
-                { nom: '🌍 Scores Mondiaux', action: () => ouvrirScoresMondiaux() },
+                { nom: '� Top 10000', action: () => ouvrirTop10000() },
                 { nom: '�🎬 Générique', action: () =>console.log('Générique ouvert') },
                 { nom: '🦇👼 Icônes', action: () =>console.log('Menu icônes ouvert') }
             ];
@@ -3550,8 +3550,8 @@ console.info = function() {}; // Désactiver les infos
             }
         }
 
-        // Fonction pour ouvrir les Scores Mondiaux
-        function ouvrirScoresMondiaux() {
+        // Fonction pour ouvrir le Top 10000
+        function ouvrirTop10000() {
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
             const newWindow = window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
             
@@ -4169,16 +4169,16 @@ console.info = function() {}; // Désactiver les infos
 
                 let yPos = menuY + 100;
 
-                // Afficher le meilleur score de l'utilisateur s'il existe
+                // ✅ Affichage amélioré du meilleur score utilisateur
                 if (userBestScore) {
-                    ctx.font = 'bold 15px "Segoe UI", system-ui, sans-serif';
+                    ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
                     ctx.fillStyle = '#3b82f6';
-                    ctx.fillText(getTranslatedText('game.your_best', '✨ Votre meilleur'), C.W / 2, yPos);
-                    yPos += 22;
+                    ctx.fillText(getTranslatedText('game.your_best', '✨ Votre meilleur score'), C.W / 2, yPos);
+                    yPos += 25;
 
-                    // Fond
+                    // ✅ Fond amélioré avec coins arrondis
                     const donnees = userBestScore.donnees_extra;
-                    let bgColor = 'rgba(59, 130, 246, 0.05)';
+                    let bgColor = 'rgba(59, 130, 246, 0.08)';
                     if (donnees && donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
                         const hex = niveau.couleur.replace('#', '');
@@ -4187,66 +4187,38 @@ console.info = function() {}; // Désactiver les infos
                         const b = parseInt(hex.substr(4, 2), 16);
                         bgColor = `rgba(${r}, ${g}, ${b}, 0.12)`;
                     }
+                    
+                    const userBoxWidth = 320;
+                    const userBoxHeight = 50;
+                    const userBoxX = C.W / 2 - userBoxWidth / 2;
+                    
                     ctx.fillStyle = bgColor;
-                    ctx.fillRect(menuX + 30, yPos - 18, menuWidth - 60, 40);
+                    ctx.beginPath();
+                    ctx.roundRect(userBoxX, yPos - 25, userBoxWidth, userBoxHeight, 8);
+                    ctx.fill();
 
-                    // Score
-                    ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
-                    ctx.fillStyle = '#3b82f6';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(userBestScore.score.toLocaleString(), C.W / 2, yPos);
+                    // Score utilisateur
+                    ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillText(userBestScore.score.toLocaleString() + ' pts', C.W / 2, yPos - 5);
 
-                    // Niveau de sagesse et énigmes (compact)
+                    // ✅ Niveau et énigmes avec meilleur espacement
                     if (donnees && donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
                         ctx.font = '13px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#64748b';
                         const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 15);
+                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 12);
                     }
 
-                    yPos += 48;
+                    yPos += 55; // ✅ Plus d'espace après le score utilisateur
                 }
 
-                // Titre cliquable remplace l'ancien bouton
-                const titleText = '🌍 Scores Mondiaux - Petit Bateau';
-                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
-                
-                // Créer zone cliquable pour le titre
-                if (!menuEnigmesCanvas.scoresButton) {
-                    const titleMetrics = ctx.measureText(titleText);
-                    menuEnigmesCanvas.scoresButton = {
-                        x: C.W / 2 - titleMetrics.width / 2 - 10,
-                        y: yPos - 25,
-                        width: titleMetrics.width + 20,
-                        height: 30
-                    };
-                } else {
-                    // Mettre à jour position
-                    const titleMetrics = ctx.measureText(titleText);
-                    menuEnigmesCanvas.scoresButton.x = C.W / 2 - titleMetrics.width / 2 - 10;
-                    menuEnigmesCanvas.scoresButton.y = yPos - 25;
-                    menuEnigmesCanvas.scoresButton.width = titleMetrics.width + 20;
-                }
-                
-                // Fond cliquable subtil
-                ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
-                ctx.beginPath();
-                ctx.roundRect(menuEnigmesCanvas.scoresButton.x, menuEnigmesCanvas.scoresButton.y, 
-                             menuEnigmesCanvas.scoresButton.width, menuEnigmesCanvas.scoresButton.height, 8);
-                ctx.fill();
-                
-                // Bordure
-                ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // Texte du titre (bleu pour indiquer cliquable)
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillText(titleText, C.W / 2, yPos);
-                yPos += 30;
-                ctx.fillText(getTranslatedText('ui.leaderboard_title', '� Scores Mondiaux - Petit Bateau'), C.W / 2, yPos);
-                yPos += 30;
+                // ✅ Titre du classement amélioré
+                ctx.font = 'bold 20px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#1e293b';
+                ctx.fillText(getTranslatedText('ui.leaderboard_title', '🏆 Top 10 Mondial'), C.W / 2, yPos);
+                yPos += 35;
 
                 // Vérifier si les données sont chargées
                 if (loadingLeaderboard) {
@@ -4262,10 +4234,10 @@ console.info = function() {}; // Désactiver les infos
                     ctx.fillStyle = '#94a3b8';
                     ctx.fillText(getTranslatedText('game.quotes.be_first', 'Soyez le premier à terminer le jeu !'), C.W / 2, yPos);
                 } else {
-                    // Afficher les scores avec un meilleur agencement
+                    // ✅ AFFICHAGE AMÉLIORÉ DES SCORES - Meilleur espacement
                     ctx.textAlign = 'left';
-                    const startX = menuX + 20; // Plus près du bord
-                    const lineHeight = 55; // Plus d'espace entre les lignes
+                    const startX = menuX + 40;
+                    const lineHeight = 55; // ✅ Augmenté pour éviter le chevauchement des traductions
 
                     leaderboardData.forEach((entry, index) => {
                         // Position et rang
@@ -4275,12 +4247,11 @@ console.info = function() {}; // Désactiver les infos
                         else if (index === 2) medal = '🥉';
                         else medal = `${index + 1}.`;
 
-                        // Fond coloré selon le niveau de sagesse
+                        // ✅ Fond coloré amélioré selon le niveau de sagesse
                         const donnees = entry.donnees_extra;
-                        let bgColor = 'rgba(0, 0, 0, 0.02)';
+                        let bgColor = index % 2 === 0 ? 'rgba(0, 0, 0, 0.03)' : 'rgba(0, 0, 0, 0.01)';
                         if (donnees && donnees.sagesse) {
                             const niveau = getNiveauSagesse(donnees.sagesse);
-                            // Convertir couleur hex en rgba avec opacité
                             const hex = niveau.couleur.replace('#', '');
                             const r = parseInt(hex.substr(0, 2), 16);
                             const g = parseInt(hex.substr(2, 2), 16);
@@ -4288,127 +4259,143 @@ console.info = function() {}; // Désactiver les infos
                             bgColor = `rgba(${r}, ${g}, ${b}, 0.08)`;
                         }
                         ctx.fillStyle = bgColor;
-                        ctx.fillRect(menuX + 15, yPos - 25, menuWidth - 30, lineHeight - 5);
+                        
+                        // ✅ Rectangle arrondi pour chaque entrée
+                        const entryX = menuX + 25;
+                        const entryWidth = menuWidth - 50;
+                        const entryHeight = lineHeight - 5;
+                        const entryY = yPos - 28;
+                        
+                        ctx.beginPath();
+                        ctx.roundRect(entryX, entryY, entryWidth, entryHeight, 6);
+                        ctx.fill();
 
-                        // Médaille/Rang - Position fixe
+                        // Médaille/Rang
                         ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
                         ctx.fillStyle = '#1e293b';
                         ctx.fillText(medal, startX, yPos);
 
-                        // Avatar et Pseudo sur la même ligne
+                        // Avatar (si présent)
                         const avatar = entry.users?.avatar || donnees?.avatar;
-                        let pseudoX = startX + 45; // Décalage fixe après le rang
+                        let pseudoX = startX + 35;
                         if (avatar) {
-                            ctx.font = '16px "Segoe UI", system-ui, sans-serif';
+                            ctx.font = '18px "Segoe UI", system-ui, sans-serif';
                             ctx.fillText(avatar, startX + 35, yPos);
-                            pseudoX = startX + 55; // Plus d'espace après l'avatar
+                            pseudoX = startX + 58;
                         }
 
-                        // Pseudo - taille adaptée
-                        ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-                        ctx.fillStyle = '#1e293b';
+                        // Pseudo (tronqué si trop long)
+                        ctx.font = '15px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#475569';
                         const pseudo = entry.users?.pseudo || donnees?.pseudo || 'Anonyme';
-                        
-                        // Limiter la longueur du pseudo pour éviter les débordements
-                        const maxPseudoWidth = 120;
-                        let displayPseudo = pseudo;
-                        if (ctx.measureText(pseudo).width > maxPseudoWidth) {
-                            while (ctx.measureText(displayPseudo + '...').width > maxPseudoWidth && displayPseudo.length > 1) {
-                                displayPseudo = displayPseudo.slice(0, -1);
-                            }
-                            displayPseudo += '...';
-                        }
+                        const maxPseudoLength = 15; // ✅ Limiter la longueur pour éviter débordement
+                        const displayPseudo = pseudo.length > maxPseudoLength ? pseudo.substring(0, maxPseudoLength) + '...' : pseudo;
                         ctx.fillText(displayPseudo, pseudoX, yPos);
 
-                        // Score - aligné à droite avec marge fixe
-                        ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
-                        ctx.fillStyle = '#3b82f6';
-                        ctx.textAlign = 'right';
-                        ctx.fillText(entry.score.toLocaleString(), menuX + menuWidth - 25, yPos);
-                        ctx.textAlign = 'left';
-
-                        // Niveau et énigmes sur la ligne suivante (plus bas)
+                        // ✅ Niveau de sagesse et infos sur ligne séparée avec plus d'espace
                         if (donnees && donnees.sagesse) {
                             const niveau = getNiveauSagesse(donnees.sagesse);
                             ctx.font = '11px "Segoe UI", system-ui, sans-serif';
-                            ctx.fillStyle = '#64748b';
+                            ctx.fillStyle = '#94a3b8';
 
-                            // Afficher niveau + énigmes sur la deuxième ligne
+                            // Afficher niveau + énigmes collectées (plus compact et lisible)
                             const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                            const sagesseBadge = ` • ${donnees.sagesse}💎`;
-                            const infoText = `${niveau.icone} ${niveau.titre}${sagesseBadge}${enigmesInfo}`;
-                            ctx.fillText(infoText, pseudoX, yPos + 15);
+                            const infoText = `${niveau.icone} ${niveau.titre}${enigmesInfo}`;
+                            ctx.fillText(infoText, pseudoX, yPos + 18); // ✅ Plus d'espace vertical
 
-                            // Badges spéciaux à droite de la deuxième ligne
+                            // ✅ Badges spéciaux repositionnés pour éviter conflit
                             const badges = getBadges(donnees, index === 0, donnees.enigmes);
-                            if (badges && badges.length > 0) {
-                                let badgeX = menuX + menuWidth - 80;
-                                ctx.font = '12px "Segoe UI", system-ui, sans-serif';
-                                ctx.fillStyle = '#f39c12';
-                                badges.forEach(badge => {
-                                    ctx.fillText(badge.icone, badgeX, yPos + 15);
-                                    badgeX += 15;
+                            if (badges.length > 0) {
+                                let badgeX = menuX + menuWidth - 140; // ✅ Plus à gauche pour éviter score
+                                badges.forEach((badge, badgeIndex) => {
+                                    if (badgeIndex < 3) { // ✅ Limiter à 3 badges max
+                                        ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+                                        ctx.fillStyle = '#f39c12';
+                                        ctx.fillText(badge.icone, badgeX, yPos + 18);
+                                        badgeX += 16;
+                                    }
                                 });
                             }
                         }
+
+                        // ✅ Score positionné pour éviter conflit avec badges
+                        ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(entry.score.toLocaleString() + ' pts', menuX + menuWidth - 30, yPos - 5); // ✅ Décalé vers le haut
+                        ctx.textAlign = 'left';
 
                         yPos += lineHeight;
                     });
                 }
 
-                // Message de motivation avec fond rose pour meilleure lisibilité
-                yPos = menuY + menuHeight - 50; // Encore plus bas
+                // ✅ Message de motivation avec design moderne amélioré
+                yPos = menuY + menuHeight - 50;
                 ctx.textAlign = 'center';
                 ctx.font = '13px "Segoe UI", system-ui, sans-serif';
                 
-                // Mesurer le texte pour dimensionner le fond
-                const motivationText = getTranslatedText('ui.complete_game_save_score');
+                const motivationText = getTranslatedText('ui.complete_game_save_score', 
+                    'Terminez le jeu pour enregistrer votre score !');
                 const textMetrics = ctx.measureText(motivationText);
                 const textWidth = textMetrics.width;
-                const padding = 10; // Plus petit padding
-                const boxHeight = 24; // Hauteur réduite
-                const borderRadius = 12; // Coins arrondis
+                const padding = 12;
+                const boxHeight = 28;
                 
-                // Calculer position du fond centré sur le texte
                 const boxX = C.W / 2 - textWidth / 2 - padding;
-                const boxY = yPos - boxHeight / 2; // Centré verticalement sur yPos
+                const boxY = yPos - boxHeight / 2;
                 const boxW = textWidth + padding * 2;
-                const boxH = boxHeight;
                 
-                // Dessiner fond rose arrondi semi-transparent
-                ctx.fillStyle = 'rgba(255, 182, 193, 0.3)'; // Rose clair transparent
+                // ✅ Fond rose moderne avec roundRect
+                ctx.fillStyle = 'rgba(255, 182, 193, 0.25)';
                 ctx.beginPath();
-                
-                // Rectangle arrondi
-                ctx.moveTo(boxX + borderRadius, boxY);
-                ctx.lineTo(boxX + boxW - borderRadius, boxY);
-                ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + borderRadius, borderRadius);
-                ctx.lineTo(boxX + boxW, boxY + boxH - borderRadius);
-                ctx.arcTo(boxX + boxW, boxY + boxH, boxX + boxW - borderRadius, boxY + boxH, borderRadius);
-                ctx.lineTo(boxX + borderRadius, boxY + boxH);
-                ctx.arcTo(boxX, boxY + boxH, boxX, boxY + boxH - borderRadius, borderRadius);
-                ctx.lineTo(boxX, boxY + borderRadius);
-                ctx.arcTo(boxX, boxY, boxX + borderRadius, boxY, borderRadius);
-                ctx.closePath();
+                ctx.roundRect(boxX, boxY, boxW, boxHeight, 14);
                 ctx.fill();
                 
-                // Bordure rose plus foncée
-                ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)'; // Rose hot pink transparent
+                // Bordure
+                ctx.strokeStyle = 'rgba(255, 105, 180, 0.4)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
                 
-                // Texte centré verticalement dans le fond
-                ctx.fillStyle = '#94a3b8';
-                ctx.textBaseline = 'middle'; // Centrage vertical
-                ctx.fillText(motivationText, C.W / 2, yPos);
-                ctx.textBaseline = 'alphabetic'; // Reset
+                // Texte
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText(motivationText, C.W / 2, yPos + 4);
 
-                // Le titre "Scores Mondiaux" en haut fait maintenant office de bouton cliquable
-
-                ctx.restore();
-                ctx.restore();
-            } else if (menuEnigmesCanvas.ongletActif === 'langues') {
-                ctx.fillText('� Voir Scores Mondiaux', btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
+                // ✅ Bouton "Voir Top 10000" en bas
+                yPos += 40;
+                
+                // Créer le bouton Top 10000 s'il n'existe pas
+                if (!menuEnigmesCanvas.top10000Button) {
+                    const buttonWidth = 180;
+                    const buttonHeight = 35;
+                    const buttonX = C.W / 2 - buttonWidth / 2;
+                    
+                    menuEnigmesCanvas.top10000Button = {
+                        x: buttonX,
+                        y: yPos,
+                        width: buttonWidth,
+                        height: buttonHeight
+                    };
+                }
+                
+                // Mettre à jour la position Y du bouton
+                menuEnigmesCanvas.top10000Button.y = yPos;
+                
+                // Dessiner le bouton Top 10000
+                const btn = menuEnigmesCanvas.top10000Button;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 8);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Texte du bouton
+                ctx.font = 'bold 15px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#3b82f6';
+                ctx.textAlign = 'center';
+                ctx.fillText('🏆 Voir Top 10000', btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'langues') {
@@ -18441,7 +18428,7 @@ Elle a besoin de ponts.`
                         menuEnigmesCanvas.ongletActif = 'classement';
                         menuEnigmesCanvas.scrollY = 0;
                         menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
-                        menuEnigmesCanvas.scoresButton = null; // ✅ Réinitialiser le bouton pour recréation
+                        menuEnigmesCanvas.top10000Button = null; // ✅ Réinitialiser le bouton pour recréation
                         return;
                     }
                     
@@ -18561,15 +18548,15 @@ Elle a besoin de ponts.`
                     }
                 }
                 
-                // ✅ Bouton Scores Mondiaux (onglet classement)
-                if (menuEnigmesCanvas.ongletActif === 'classement' && menuEnigmesCanvas.scoresButton) {
-                    const btn = menuEnigmesCanvas.scoresButton;
+                // ✅ Bouton Top 10000 (onglet classement)
+                if (menuEnigmesCanvas.ongletActif === 'classement' && menuEnigmesCanvas.top10000Button) {
+                    const btn = menuEnigmesCanvas.top10000Button;
                     if (x >= btn.x && x <= btn.x + btn.width &&
                         y >= btn.y && y <= btn.y + btn.height) {
                         if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                         
-                        // Ouvrir la popup Scores Mondiaux
-                        ouvrirScoresMondiaux();
+                        // Ouvrir la popup Top 10000
+                        ouvrirTop10000();
                         return;
                     }
                 }
