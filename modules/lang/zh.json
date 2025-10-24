@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "小红船 ⛵ - Emmanuel Payet的诗意谜题游戏",
     "description": "探索小红船，一款由Emmanuel Payet创作的哲学诗意谜题游戏。在14种语言中航行，在一个每个谜题都揭示人性真理的世界里。目标：3300万玩家！",
@@ -84,7 +84,8 @@
       "es": "小船",
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
-    }
+    },
+    "scores_title": " 全球积分"
   },
   "language_selector": {
     "confirm_change": "🌍 更改语言为{language}？\n\n页面将重新加载以应用翻译。",

@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "Ti Bato Rouz ⛵ - Zé d'Énigm Poétik pa Emmanuel Payet",
     "description": "Découvèr Ti Bato Rouz, ène zé d'énigm filozofik é poétik kréyé pa Emmanuel Payet. Navige atravèr 14 lang dann ènn univèr kote shak énigm révelé ènn véritab sir lhumanité. Obyéktif : 33 milion zouèr !",
@@ -84,7 +84,8 @@
       "es": "PEQUEÑO BARCO",
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
-    }
+    },
+    "scores_title": " Skор Mondyal"
   },
   "language_selector": {
     "confirm_change": "🌍 Badilisha lugha kwenda {language}?\n\nUkurasa utapakiwa tena ili kutumia tafsiri.",
@@ -388,49 +389,172 @@
   },
   "bricks": {
     "day": {
-      "told": { "name": "DOMOUN LA DI AMOIN...", "msg": "🗣️ Bann manipilasion i éfas douvan la vérité !" },
-      "monsters": { "name": "BANN MOUNSTR", "msg": "👨‍👩‍👧‍👦 Non... bann moun kom nou !" },
-      "prejudice": { "name": "PRÉZIZÉ", "msg": "🎭 Bann mask i tonm yènn pa yènn..." },
-      "fears": { "name": "BANN PÈR", "msg": "👁️ Mi la shwazi vwar pa mon prop zyé !" },
-      "distrust": { "name": "MÈFIANS", "msg": "🤝 La mèfians i lès plas a la konpasion..." },
-      "who_are_they": { "name": "KISANI ZOT ?", "msg": "❓ Sa késtion la i ant dann mon tèt..." },
-      "i_saw": { "name": "MI LA WAR...", "msg": "👁️ É mon bann zyé la rouvèr..." },
-      "father": { "name": "ÈNN PAPA", "msg": "👨 Ènn nom i èm son bann zanfan..." },
-      "mother": { "name": "ÈNN MAMAN", "msg": "👩 Ènn fanm kourazèz..." },
-      "children": { "name": "BANN ZANFAN", "msg": "👶 Bann ri pir é inossan..." },
-      "humanity": { "name": "LIMANITÉ", "msg": "💫 Lèsans mèm sa nou lé..." },
-      "love": { "name": "LAMOUR", "msg": "❤️ Pli for ke tou bann baryèr..." },
-      "compassion": { "name": "LA KONPASION", "msg": "🤗 I uni odéla différans..." },
-      "hope": { "name": "LÈSPWAR", "msg": "🌅 Ènn limiér dann lobskurité..." },
-      "peace": { "name": "LA PÉ", "msg": "🕊️ Posib kan nou shwazi èmé..." },
-      "like_me": { "name": "KOM MWIN", "msg": "🌍 Nou lé tou bann imigré..." },
-      "truth": { "name": "VÉRITÉ RÉVÉLÉ", "msg": "👁️ Mon bann zyé la anfen rouvèr..." },
-      "courage": { "name": "KOURAZ LO KÈR", "msg": "💪 Mi la shwazi vwar pa mon prop zyé..." },
-      "precious": { "name": "PRÉSYÉ", "msg": "💎 Shak moun lé présyé..." }
+      "told": {
+        "name": "DOMOUN LA DI AMOIN...",
+        "msg": "🗣️ Bann manipilasion i éfas douvan la vérité !"
+      },
+      "monsters": {
+        "name": "BANN MOUNSTR",
+        "msg": "👨‍👩‍👧‍👦 Non... bann moun kom nou !"
+      },
+      "prejudice": {
+        "name": "PRÉZIZÉ",
+        "msg": "🎭 Bann mask i tonm yènn pa yènn..."
+      },
+      "fears": {
+        "name": "BANN PÈR",
+        "msg": "👁️ Mi la shwazi vwar pa mon prop zyé !"
+      },
+      "distrust": {
+        "name": "MÈFIANS",
+        "msg": "🤝 La mèfians i lès plas a la konpasion..."
+      },
+      "who_are_they": {
+        "name": "KISANI ZOT ?",
+        "msg": "❓ Sa késtion la i ant dann mon tèt..."
+      },
+      "i_saw": {
+        "name": "MI LA WAR...",
+        "msg": "👁️ É mon bann zyé la rouvèr..."
+      },
+      "father": {
+        "name": "ÈNN PAPA",
+        "msg": "👨 Ènn nom i èm son bann zanfan..."
+      },
+      "mother": {
+        "name": "ÈNN MAMAN",
+        "msg": "👩 Ènn fanm kourazèz..."
+      },
+      "children": {
+        "name": "BANN ZANFAN",
+        "msg": "👶 Bann ri pir é inossan..."
+      },
+      "humanity": {
+        "name": "LIMANITÉ",
+        "msg": "💫 Lèsans mèm sa nou lé..."
+      },
+      "love": {
+        "name": "LAMOUR",
+        "msg": "❤️ Pli for ke tou bann baryèr..."
+      },
+      "compassion": {
+        "name": "LA KONPASION",
+        "msg": "🤗 I uni odéla différans..."
+      },
+      "hope": {
+        "name": "LÈSPWAR",
+        "msg": "🌅 Ènn limiér dann lobskurité..."
+      },
+      "peace": {
+        "name": "LA PÉ",
+        "msg": "🕊️ Posib kan nou shwazi èmé..."
+      },
+      "like_me": {
+        "name": "KOM MWIN",
+        "msg": "🌍 Nou lé tou bann imigré..."
+      },
+      "truth": {
+        "name": "VÉRITÉ RÉVÉLÉ",
+        "msg": "👁️ Mon bann zyé la anfen rouvèr..."
+      },
+      "courage": {
+        "name": "KOURAZ LO KÈR",
+        "msg": "💪 Mi la shwazi vwar pa mon prop zyé..."
+      },
+      "precious": {
+        "name": "PRÉSYÉ",
+        "msg": "💎 Shak moun lé présyé..."
+      }
     },
     "night": {
-      "discord": { "name": "DIZKORD", "msg": "⚡ Bann dizkord... bann hènn... bann déstriksion..." },
-      "hatred": { "name": "BANN HÈNN", "msg": "💔 Vin èk bann malèr lonm..." },
-      "destruction": { "name": "DÉSTRIKSION", "msg": "🌪️ Lo vol, lo mantèr, la manipilasion..." },
-      "theft": { "name": "VOL", "msg": "🦹 I pran sa i lé pa azot..." },
-      "lies": { "name": "MANTÈR", "msg": "🎭 Bann mask la trompri..." },
-      "manipulation": { "name": "MANIPILASION", "msg": "🕷️ Bann fil invizib i tir bann kèr..." },
-      "greed": { "name": "KIPIDITÉ", "msg": "💰 La kipidité é lavidité..." },
-      "avarice": { "name": "LAVIDITÉ", "msg": "⛓️ Kom bann shènn invizib..." },
-      "chains": { "name": "SHÈNN", "msg": "🔗 I sèré kèr bann moun..." },
-      "iron_walls": { "name": "MIR DIFÈR", "msg": "🧱 Anfèrmé dèryèr bann mir difèr é la pèr..." },
-      "jealousy": { "name": "ZALOUZI", "msg": "💚 Lo pwézon vèr lanvi..." },
-      "pride": { "name": "ORGUÈY", "msg": "👑 La kouronn i évèg..." },
-      "anger": { "name": "KOLÈR", "msg": "🔥 Bann flam i konsim la rézon..." },
-      "revenge": { "name": "VANZANS", "msg": "⚔️ La spiral san fin la soufranas..." },
-      "indifference": { "name": "ANDIFÉRANS", "msg": "🧊 Lo frwa i zlas bann lam..." },
-      "selfishness": { "name": "LÉGWISM", "msg": "🪞 War zis son prop réflé..." },
-      "ignorance": { "name": "LINORNAS", "msg": "🙈 Shwazi pou fèrm bann zyé..." },
-      "resistance": { "name": "RÉZISTANS", "msg": "🛡️ Mé mi gard mon kèr pir dann la tanpèt..." },
-      "light": { "name": "LIMIÉR", "msg": "✨ Parski odéla bann nuaz, ali i ègzist touzour..." },
-      "hope_reborn": { "name": "LÈSPWAR RÉNÈT", "msg": "🌅 La limiér i pèrs anfen bann ténèbr..." },
-      "inner_strength": { "name": "FORS LANTÉRYÈR", "msg": "🌟 Mon kèr i rézist a lobskurité..." },
-      "wisdom": { "name": "SAZÈS AKIZ", "msg": "🧠 Dann la nwi, mi la apran vwar..." }
+      "discord": {
+        "name": "DIZKORD",
+        "msg": "⚡ Bann dizkord... bann hènn... bann déstriksion..."
+      },
+      "hatred": {
+        "name": "BANN HÈNN",
+        "msg": "💔 Vin èk bann malèr lonm..."
+      },
+      "destruction": {
+        "name": "DÉSTRIKSION",
+        "msg": "🌪️ Lo vol, lo mantèr, la manipilasion..."
+      },
+      "theft": {
+        "name": "VOL",
+        "msg": "🦹 I pran sa i lé pa azot..."
+      },
+      "lies": {
+        "name": "MANTÈR",
+        "msg": "🎭 Bann mask la trompri..."
+      },
+      "manipulation": {
+        "name": "MANIPILASION",
+        "msg": "🕷️ Bann fil invizib i tir bann kèr..."
+      },
+      "greed": {
+        "name": "KIPIDITÉ",
+        "msg": "💰 La kipidité é lavidité..."
+      },
+      "avarice": {
+        "name": "LAVIDITÉ",
+        "msg": "⛓️ Kom bann shènn invizib..."
+      },
+      "chains": {
+        "name": "SHÈNN",
+        "msg": "🔗 I sèré kèr bann moun..."
+      },
+      "iron_walls": {
+        "name": "MIR DIFÈR",
+        "msg": "🧱 Anfèrmé dèryèr bann mir difèr é la pèr..."
+      },
+      "jealousy": {
+        "name": "ZALOUZI",
+        "msg": "💚 Lo pwézon vèr lanvi..."
+      },
+      "pride": {
+        "name": "ORGUÈY",
+        "msg": "👑 La kouronn i évèg..."
+      },
+      "anger": {
+        "name": "KOLÈR",
+        "msg": "🔥 Bann flam i konsim la rézon..."
+      },
+      "revenge": {
+        "name": "VANZANS",
+        "msg": "⚔️ La spiral san fin la soufranas..."
+      },
+      "indifference": {
+        "name": "ANDIFÉRANS",
+        "msg": "🧊 Lo frwa i zlas bann lam..."
+      },
+      "selfishness": {
+        "name": "LÉGWISM",
+        "msg": "🪞 War zis son prop réflé..."
+      },
+      "ignorance": {
+        "name": "LINORNAS",
+        "msg": "🙈 Shwazi pou fèrm bann zyé..."
+      },
+      "resistance": {
+        "name": "RÉZISTANS",
+        "msg": "🛡️ Mé mi gard mon kèr pir dann la tanpèt..."
+      },
+      "light": {
+        "name": "LIMIÉR",
+        "msg": "✨ Parski odéla bann nuaz, ali i ègzist touzour..."
+      },
+      "hope_reborn": {
+        "name": "LÈSPWAR RÉNÈT",
+        "msg": "🌅 La limiér i pèrs anfen bann ténèbr..."
+      },
+      "inner_strength": {
+        "name": "FORS LANTÉRYÈR",
+        "msg": "🌟 Mon kèr i rézist a lobskurité..."
+      },
+      "wisdom": {
+        "name": "SAZÈS AKIZ",
+        "msg": "🧠 Dann la nwi, mi la apran vwar..."
+      }
     }
   },
   "enigmes": {
@@ -597,26 +721,80 @@
     }
   },
   "levels": {
-    "robe_blanche": { "name": "Rob Blans", "points": 300 },
-    "saint_navigator": { "name": "Sèn Navigatèr", "points": 250 },
-    "prophet": { "name": "Profèt Bann Mèr", "points": 200 },
-    "illuminated": { "name": "Iliminé", "points": 175 },
-    "disciple": { "name": "Disipl la Limiér", "points": 150 },
-    "contemplative": { "name": "Kontonplatif", "points": 125 },
-    "guardian": { "name": "Gardyin la Limiér", "points": 100 },
-    "meditating": { "name": "Méditant", "points": 80 },
-    "captain": { "name": "Kapitèn", "points": 60 },
-    "navigator": { "name": "Navigatèr", "points": 45 },
-    "enlightened_sailor": { "name": "Marin Éklèré", "points": 30 },
-    "initiate": { "name": "Inisyé", "points": 20 },
-    "apprentice": { "name": "Apanti", "points": 10 },
-    "cabin_boy": { "name": "Mouss", "points": 5 },
-    "pilgrim": { "name": "Pélrin", "points": 0 }
+    "robe_blanche": {
+      "name": "Rob Blans",
+      "points": 300
+    },
+    "saint_navigator": {
+      "name": "Sèn Navigatèr",
+      "points": 250
+    },
+    "prophet": {
+      "name": "Profèt Bann Mèr",
+      "points": 200
+    },
+    "illuminated": {
+      "name": "Iliminé",
+      "points": 175
+    },
+    "disciple": {
+      "name": "Disipl la Limiér",
+      "points": 150
+    },
+    "contemplative": {
+      "name": "Kontonplatif",
+      "points": 125
+    },
+    "guardian": {
+      "name": "Gardyin la Limiér",
+      "points": 100
+    },
+    "meditating": {
+      "name": "Méditant",
+      "points": 80
+    },
+    "captain": {
+      "name": "Kapitèn",
+      "points": 60
+    },
+    "navigator": {
+      "name": "Navigatèr",
+      "points": 45
+    },
+    "enlightened_sailor": {
+      "name": "Marin Éklèré",
+      "points": 30
+    },
+    "initiate": {
+      "name": "Inisyé",
+      "points": 20
+    },
+    "apprentice": {
+      "name": "Apanti",
+      "points": 10
+    },
+    "cabin_boy": {
+      "name": "Mouss",
+      "points": 5
+    },
+    "pilgrim": {
+      "name": "Pélrin",
+      "points": 0
+    }
   },
   "badges": {
-    "champion": { "name": "Baz Champion", "desc": "Top 1" },
-    "perfectionist": { "name": "Baz Pèrfèksionist", "desc": "tou énigm koléksioné" },
-    "contemplative": { "name": "Baz Kontonplatif", "desc": "tan zé > 1h" }
+    "champion": {
+      "name": "Baz Champion",
+      "desc": "Top 1"
+    },
+    "perfectionist": {
+      "name": "Baz Pèrfèksionist",
+      "desc": "tou énigm koléksioné"
+    },
+    "contemplative": {
+      "name": "Baz Kontonplatif",
+      "desc": "tan zé > 1h"
+    }
   },
   "social": {
     "share_1": "🌟 Mi la voyazé atravèr bann frontiér la lhumanité !\n\n\"Dépi lobskurité ziska la limiér, mi la apran ke lamour i uni odéla différans.\"\n\n{name} - {city}, {country}\n💎 Sazès : {wisdom}\n🎯 Skore : {score}\n\n#UnisPourLaPaix #TIBATO #Emmanuel.gallery\n\nZoué a ⛵ TI BATO 👁️",

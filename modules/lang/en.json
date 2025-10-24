@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "Little Red Boat ⛵ - Poetic Puzzle Game by Emmanuel Payet",
     "description": "Discover Little Red Boat, a philosophical and poetic puzzle game created by Emmanuel Payet. Navigate through 14 languages in a universe where each enigma reveals a truth about humanity. Goal: 33 million players!",
@@ -92,7 +92,8 @@
     "reset_button": "🔄 Reset to Zero",
     "confirm_reset_1": "🔄 WARNING: Reset the game to zero?\n\n⚠️ This will:\n- Erase your progress\n- Delete your save\n- Restart at phase 1\n\nDo you want to continue?",
     "confirm_reset_2": "⚠️ LAST CONFIRMATION\n\nAre you REALLY sure?\nThis action is irreversible.",
-    "game_reset": "Game reset!"
+    "game_reset": "Game reset!",
+    "scores_title": " Global Scores"
   },
   "language_selector": {
     "confirm_change": "🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations.",
@@ -396,49 +397,172 @@
   },
   "bricks": {
     "day": {
-      "told": { "name": "THEY TOLD ME...", "msg": "🗣️ Manipulations fade before truth!" },
-      "monsters": { "name": "MONSTERS", "msg": "👨‍👩‍👧‍👦 No... humans like us!" },
-      "prejudice": { "name": "PREJUDICE", "msg": "🎭 The masks fall one by one..." },
-      "fears": { "name": "FEARS", "msg": "👁️ I chose to see for myself!" },
-      "distrust": { "name": "DISTRUST", "msg": "🤝 Distrust gives way to compassion..." },
-      "who_are_they": { "name": "WHO ARE THEY?", "msg": "❓ This question haunts my nights..." },
-      "i_saw": { "name": "I SAW...", "msg": "👁️ And my eyes were opened..." },
-      "father": { "name": "A FATHER", "msg": "👨 A man who loves his children..." },
-      "mother": { "name": "A MOTHER", "msg": "👩 A brave woman..." },
-      "children": { "name": "CHILDREN", "msg": "👶 Pure and innocent laughter..." },
-      "humanity": { "name": "HUMANITY", "msg": "💫 The very essence of what we are..." },
-      "love": { "name": "LOVE", "msg": "❤️ Stronger than all barriers..." },
-      "compassion": { "name": "COMPASSION", "msg": "🤗 That unites beyond differences..." },
-      "hope": { "name": "HOPE", "msg": "🌅 A light in the darkness..." },
-      "peace": { "name": "PEACE", "msg": "🕊️ Possible when we choose to love..." },
-      "like_me": { "name": "LIKE ME", "msg": "🌍 We are all immigrants..." },
-      "truth": { "name": "REVEALED TRUTH", "msg": "👁️ My eyes finally opened..." },
-      "courage": { "name": "COURAGE OF HEART", "msg": "💪 I chose to see for myself..." },
-      "precious": { "name": "PRECIOUS", "msg": "💎 Every human being is precious..." }
+      "told": {
+        "name": "THEY TOLD ME...",
+        "msg": "🗣️ Manipulations fade before truth!"
+      },
+      "monsters": {
+        "name": "MONSTERS",
+        "msg": "👨‍👩‍👧‍👦 No... humans like us!"
+      },
+      "prejudice": {
+        "name": "PREJUDICE",
+        "msg": "🎭 The masks fall one by one..."
+      },
+      "fears": {
+        "name": "FEARS",
+        "msg": "👁️ I chose to see for myself!"
+      },
+      "distrust": {
+        "name": "DISTRUST",
+        "msg": "🤝 Distrust gives way to compassion..."
+      },
+      "who_are_they": {
+        "name": "WHO ARE THEY?",
+        "msg": "❓ This question haunts my nights..."
+      },
+      "i_saw": {
+        "name": "I SAW...",
+        "msg": "👁️ And my eyes were opened..."
+      },
+      "father": {
+        "name": "A FATHER",
+        "msg": "👨 A man who loves his children..."
+      },
+      "mother": {
+        "name": "A MOTHER",
+        "msg": "👩 A brave woman..."
+      },
+      "children": {
+        "name": "CHILDREN",
+        "msg": "👶 Pure and innocent laughter..."
+      },
+      "humanity": {
+        "name": "HUMANITY",
+        "msg": "💫 The very essence of what we are..."
+      },
+      "love": {
+        "name": "LOVE",
+        "msg": "❤️ Stronger than all barriers..."
+      },
+      "compassion": {
+        "name": "COMPASSION",
+        "msg": "🤗 That unites beyond differences..."
+      },
+      "hope": {
+        "name": "HOPE",
+        "msg": "🌅 A light in the darkness..."
+      },
+      "peace": {
+        "name": "PEACE",
+        "msg": "🕊️ Possible when we choose to love..."
+      },
+      "like_me": {
+        "name": "LIKE ME",
+        "msg": "🌍 We are all immigrants..."
+      },
+      "truth": {
+        "name": "REVEALED TRUTH",
+        "msg": "👁️ My eyes finally opened..."
+      },
+      "courage": {
+        "name": "COURAGE OF HEART",
+        "msg": "💪 I chose to see for myself..."
+      },
+      "precious": {
+        "name": "PRECIOUS",
+        "msg": "💎 Every human being is precious..."
+      }
     },
     "night": {
-      "discord": { "name": "DISCORD", "msg": "⚡ Discord... hatred... destruction..." },
-      "hatred": { "name": "HATRED", "msg": "💔 Coming with the evils of shadow..." },
-      "destruction": { "name": "DESTRUCTION", "msg": "🌪️ Theft, lies, manipulation..." },
-      "theft": { "name": "THEFT", "msg": "🦹 That takes what doesn't belong..." },
-      "lies": { "name": "LIES", "msg": "🎭 The masks of deception..." },
-      "manipulation": { "name": "MANIPULATION", "msg": "🕷️ Invisible strings pull hearts..." },
-      "greed": { "name": "GREED", "msg": "💰 Greed and avarice..." },
-      "avarice": { "name": "AVARICE", "msg": "⛓️ Like invisible chains..." },
-      "chains": { "name": "CHAINS", "msg": "🔗 Tightening men's hearts..." },
-      "iron_walls": { "name": "IRON WALLS", "msg": "🧱 Locked behind walls of iron and fear..." },
-      "jealousy": { "name": "JEALOUSY", "msg": "💚 The green poison of envy..." },
-      "pride": { "name": "PRIDE", "msg": "👑 The crown that blinds..." },
-      "anger": { "name": "ANGER", "msg": "🔥 Flames that consume reason..." },
-      "revenge": { "name": "REVENGE", "msg": "⚔️ The endless spiral of suffering..." },
-      "indifference": { "name": "INDIFFERENCE", "msg": "🧊 The cold that freezes souls..." },
-      "selfishness": { "name": "SELFISHNESS", "msg": "🪞 Seeing only one's own reflection..." },
-      "ignorance": { "name": "IGNORANCE", "msg": "🙈 Choosing to close one's eyes..." },
-      "resistance": { "name": "RESISTANCE", "msg": "🛡️ But I keep my heart pure in the storm..." },
-      "light": { "name": "LIGHT", "msg": "✨ For beyond the clouds, it always exists..." },
-      "hope_reborn": { "name": "HOPE REBORN", "msg": "🌅 Light finally pierces the darkness..." },
-      "inner_strength": { "name": "INNER STRENGTH", "msg": "🌟 My heart resists the darkness..." },
-      "wisdom": { "name": "ACQUIRED WISDOM", "msg": "🧠 In the night, I learned to see..." }
+      "discord": {
+        "name": "DISCORD",
+        "msg": "⚡ Discord... hatred... destruction..."
+      },
+      "hatred": {
+        "name": "HATRED",
+        "msg": "💔 Coming with the evils of shadow..."
+      },
+      "destruction": {
+        "name": "DESTRUCTION",
+        "msg": "🌪️ Theft, lies, manipulation..."
+      },
+      "theft": {
+        "name": "THEFT",
+        "msg": "🦹 That takes what doesn't belong..."
+      },
+      "lies": {
+        "name": "LIES",
+        "msg": "🎭 The masks of deception..."
+      },
+      "manipulation": {
+        "name": "MANIPULATION",
+        "msg": "🕷️ Invisible strings pull hearts..."
+      },
+      "greed": {
+        "name": "GREED",
+        "msg": "💰 Greed and avarice..."
+      },
+      "avarice": {
+        "name": "AVARICE",
+        "msg": "⛓️ Like invisible chains..."
+      },
+      "chains": {
+        "name": "CHAINS",
+        "msg": "🔗 Tightening men's hearts..."
+      },
+      "iron_walls": {
+        "name": "IRON WALLS",
+        "msg": "🧱 Locked behind walls of iron and fear..."
+      },
+      "jealousy": {
+        "name": "JEALOUSY",
+        "msg": "💚 The green poison of envy..."
+      },
+      "pride": {
+        "name": "PRIDE",
+        "msg": "👑 The crown that blinds..."
+      },
+      "anger": {
+        "name": "ANGER",
+        "msg": "🔥 Flames that consume reason..."
+      },
+      "revenge": {
+        "name": "REVENGE",
+        "msg": "⚔️ The endless spiral of suffering..."
+      },
+      "indifference": {
+        "name": "INDIFFERENCE",
+        "msg": "🧊 The cold that freezes souls..."
+      },
+      "selfishness": {
+        "name": "SELFISHNESS",
+        "msg": "🪞 Seeing only one's own reflection..."
+      },
+      "ignorance": {
+        "name": "IGNORANCE",
+        "msg": "🙈 Choosing to close one's eyes..."
+      },
+      "resistance": {
+        "name": "RESISTANCE",
+        "msg": "🛡️ But I keep my heart pure in the storm..."
+      },
+      "light": {
+        "name": "LIGHT",
+        "msg": "✨ For beyond the clouds, it always exists..."
+      },
+      "hope_reborn": {
+        "name": "HOPE REBORN",
+        "msg": "🌅 Light finally pierces the darkness..."
+      },
+      "inner_strength": {
+        "name": "INNER STRENGTH",
+        "msg": "🌟 My heart resists the darkness..."
+      },
+      "wisdom": {
+        "name": "ACQUIRED WISDOM",
+        "msg": "🧠 In the night, I learned to see..."
+      }
     }
   },
   "enigmes": {
@@ -605,26 +729,80 @@
     }
   },
   "levels": {
-    "robe_blanche": { "name": "White Robe", "points": 300 },
-    "saint_navigator": { "name": "Saint Navigator", "points": 250 },
-    "prophet": { "name": "Prophet of the Seas", "points": 200 },
-    "illuminated": { "name": "Enlightened", "points": 175 },
-    "disciple": { "name": "Disciple of Light", "points": 150 },
-    "contemplative": { "name": "Contemplative", "points": 125 },
-    "guardian": { "name": "Guardian of Light", "points": 100 },
-    "meditating": { "name": "Meditating", "points": 80 },
-    "captain": { "name": "Captain", "points": 60 },
-    "navigator": { "name": "Navigator", "points": 45 },
-    "enlightened_sailor": { "name": "Enlightened Sailor", "points": 30 },
-    "initiate": { "name": "Initiate", "points": 20 },
-    "apprentice": { "name": "Apprentice", "points": 10 },
-    "cabin_boy": { "name": "Cabin Boy", "points": 5 },
-    "pilgrim": { "name": "Pilgrim", "points": 0 }
+    "robe_blanche": {
+      "name": "White Robe",
+      "points": 300
+    },
+    "saint_navigator": {
+      "name": "Saint Navigator",
+      "points": 250
+    },
+    "prophet": {
+      "name": "Prophet of the Seas",
+      "points": 200
+    },
+    "illuminated": {
+      "name": "Enlightened",
+      "points": 175
+    },
+    "disciple": {
+      "name": "Disciple of Light",
+      "points": 150
+    },
+    "contemplative": {
+      "name": "Contemplative",
+      "points": 125
+    },
+    "guardian": {
+      "name": "Guardian of Light",
+      "points": 100
+    },
+    "meditating": {
+      "name": "Meditating",
+      "points": 80
+    },
+    "captain": {
+      "name": "Captain",
+      "points": 60
+    },
+    "navigator": {
+      "name": "Navigator",
+      "points": 45
+    },
+    "enlightened_sailor": {
+      "name": "Enlightened Sailor",
+      "points": 30
+    },
+    "initiate": {
+      "name": "Initiate",
+      "points": 20
+    },
+    "apprentice": {
+      "name": "Apprentice",
+      "points": 10
+    },
+    "cabin_boy": {
+      "name": "Cabin Boy",
+      "points": 5
+    },
+    "pilgrim": {
+      "name": "Pilgrim",
+      "points": 0
+    }
   },
   "badges": {
-    "champion": { "name": "Champion Badge", "desc": "Top 1" },
-    "perfectionist": { "name": "Perfectionist Badge", "desc": "all enigmas collected" },
-    "contemplative": { "name": "Contemplative Badge", "desc": "playtime > 1h" }
+    "champion": {
+      "name": "Champion Badge",
+      "desc": "Top 1"
+    },
+    "perfectionist": {
+      "name": "Perfectionist Badge",
+      "desc": "all enigmas collected"
+    },
+    "contemplative": {
+      "name": "Contemplative Badge",
+      "desc": "playtime > 1h"
+    }
   },
   "social": {
     "share_1": "🌟 I traveled through the frontiers of humanity!\n\n\"From darkness to light, I learned that love unites beyond differences.\"\n\n{name} - {city}, {country}\n💎 Wisdom: {wisdom}\n🎯 Score: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\nPlay ⛵ PETIT BATEAU 👁️",

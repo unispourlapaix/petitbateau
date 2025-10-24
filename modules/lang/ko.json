@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "작은 빨간 배 ⛵ - Emmanuel Payet의 철학적 퍼즐 게임",
     "description": "Emmanuel Payet이 만든 철학적이고 시적인 퍼즐 게임, 작은 빨간 배를 만나보세요. 각 수수께끼가 인류에 대한 진실을 드러내는 14개 언어의 세계를 항해하세요. 목표: 3천3백만 플레이어!",
@@ -84,7 +84,8 @@
       "es": "PEQUEÑO BARCO",
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
-    }
+    },
+    "scores_title": " 글로벌 점수"
   },
   "language_selector": {
     "confirm_change": "🌍 언어를 {language}(으)로 변경하시겠습니까?\n\n번역을 적용하기 위해 페이지가 다시 로드됩니다.",
@@ -388,49 +389,172 @@
   },
   "bricks": {
     "day": {
-      "told": { "name": "사람들이 말했습니다...", "msg": "🗣️ 조작은 진실 앞에서 사라집니다!" },
-      "monsters": { "name": "괴물들", "msg": "👨‍👩‍👧‍👦 아니요... 우리와 같은 인간입니다!" },
-      "prejudice": { "name": "편견", "msg": "🎭 가면이 하나씩 벗겨집니다..." },
-      "fears": { "name": "두려움", "msg": "👁️ 나는 직접 보기로 선택했습니다!" },
-      "distrust": { "name": "불신", "msg": "🤝 불신이 연민에 자리를 내줍니다..." },
-      "who_are_they": { "name": "그들은 누구인가?", "msg": "❓ 이 질문이 밤마다 나를 괴롭힙니다..." },
-      "i_saw": { "name": "나는 보았습니다...", "msg": "👁️ 그리고 내 눈이 열렸습니다..." },
-      "father": { "name": "아버지", "msg": "👨 자신의 아이들을 사랑하는 남자..." },
-      "mother": { "name": "어머니", "msg": "👩 용감한 여인..." },
-      "children": { "name": "아이들", "msg": "👶 순수하고 순진한 웃음..." },
-      "humanity": { "name": "인류애", "msg": "💫 우리 존재의 본질..." },
-      "love": { "name": "사랑", "msg": "❤️ 모든 장벽보다 강합니다..." },
-      "compassion": { "name": "연민", "msg": "🤗 차이를 넘어 하나가 됩니다..." },
-      "hope": { "name": "희망", "msg": "🌅 어둠 속의 빛..." },
-      "peace": { "name": "평화", "msg": "🕊️ 사랑을 선택할 때 가능합니다..." },
-      "like_me": { "name": "나처럼", "msg": "🌍 우리는 모두 이민자입니다..." },
-      "truth": { "name": "드러난 진실", "msg": "👁️ 내 눈이 마침내 열렸습니다..." },
-      "courage": { "name": "마음의 용기", "msg": "💪 나는 직접 보기로 선택했습니다..." },
-      "precious": { "name": "소중한", "msg": "💎 모든 인간은 소중합니다..." }
+      "told": {
+        "name": "사람들이 말했습니다...",
+        "msg": "🗣️ 조작은 진실 앞에서 사라집니다!"
+      },
+      "monsters": {
+        "name": "괴물들",
+        "msg": "👨‍👩‍👧‍👦 아니요... 우리와 같은 인간입니다!"
+      },
+      "prejudice": {
+        "name": "편견",
+        "msg": "🎭 가면이 하나씩 벗겨집니다..."
+      },
+      "fears": {
+        "name": "두려움",
+        "msg": "👁️ 나는 직접 보기로 선택했습니다!"
+      },
+      "distrust": {
+        "name": "불신",
+        "msg": "🤝 불신이 연민에 자리를 내줍니다..."
+      },
+      "who_are_they": {
+        "name": "그들은 누구인가?",
+        "msg": "❓ 이 질문이 밤마다 나를 괴롭힙니다..."
+      },
+      "i_saw": {
+        "name": "나는 보았습니다...",
+        "msg": "👁️ 그리고 내 눈이 열렸습니다..."
+      },
+      "father": {
+        "name": "아버지",
+        "msg": "👨 자신의 아이들을 사랑하는 남자..."
+      },
+      "mother": {
+        "name": "어머니",
+        "msg": "👩 용감한 여인..."
+      },
+      "children": {
+        "name": "아이들",
+        "msg": "👶 순수하고 순진한 웃음..."
+      },
+      "humanity": {
+        "name": "인류애",
+        "msg": "💫 우리 존재의 본질..."
+      },
+      "love": {
+        "name": "사랑",
+        "msg": "❤️ 모든 장벽보다 강합니다..."
+      },
+      "compassion": {
+        "name": "연민",
+        "msg": "🤗 차이를 넘어 하나가 됩니다..."
+      },
+      "hope": {
+        "name": "희망",
+        "msg": "🌅 어둠 속의 빛..."
+      },
+      "peace": {
+        "name": "평화",
+        "msg": "🕊️ 사랑을 선택할 때 가능합니다..."
+      },
+      "like_me": {
+        "name": "나처럼",
+        "msg": "🌍 우리는 모두 이민자입니다..."
+      },
+      "truth": {
+        "name": "드러난 진실",
+        "msg": "👁️ 내 눈이 마침내 열렸습니다..."
+      },
+      "courage": {
+        "name": "마음의 용기",
+        "msg": "💪 나는 직접 보기로 선택했습니다..."
+      },
+      "precious": {
+        "name": "소중한",
+        "msg": "💎 모든 인간은 소중합니다..."
+      }
     },
     "night": {
-      "discord": { "name": "불화", "msg": "⚡ 불화... 증오... 파괴..." },
-      "hatred": { "name": "증오", "msg": "💔 어둠의 악과 함께 왔습니다..." },
-      "destruction": { "name": "파괴", "msg": "🌪️ 도둑질, 거짓말, 조작..." },
-      "theft": { "name": "도둑질", "msg": "🦹 속하지 않은 것을 가져가는 것..." },
-      "lies": { "name": "거짓말", "msg": "🎭 속임수의 가면..." },
-      "manipulation": { "name": "조작", "msg": "🕷️ 보이지 않는 실이 마음을 잡아당깁니다..." },
-      "greed": { "name": "탐욕", "msg": "💰 탐욕과 욕심..." },
-      "avarice": { "name": "욕심", "msg": "⛓️ 보이지 않는 사슬처럼..." },
-      "chains": { "name": "사슬", "msg": "🔗 인간의 마음을 조이고 있습니다..." },
-      "iron_walls": { "name": "철벽", "msg": "🧱 철과 두려움의 벽 뒤에 갇혀 있습니다..." },
-      "jealousy": { "name": "질투", "msg": "💚 부러움의 녹색 독..." },
-      "pride": { "name": "교만", "msg": "👑 눈을 멀게 하는 왕관..." },
-      "anger": { "name": "분노", "msg": "🔥 이성을 태우는 불꽃..." },
-      "revenge": { "name": "복수", "msg": "⚔️ 고통의 끝없는 나선..." },
-      "indifference": { "name": "무관심", "msg": "🧊 영혼을 얼리는 추위..." },
-      "selfishness": { "name": "이기심", "msg": "🪞 자신의 반영만 보는 것..." },
-      "ignorance": { "name": "무지", "msg": "🙈 눈을 감기로 선택하는 것..." },
-      "resistance": { "name": "저항", "msg": "🛡️ 하지만 나는 폭풍 속에서도 순수한 마음을 지킵니다..." },
-      "light": { "name": "빛", "msg": "✨ 구름 너머에는 항상 존재합니다..." },
-      "hope_reborn": { "name": "희망 재탄생", "msg": "🌅 빛이 마침내 어둠을 뚫고 나옵니다..." },
-      "inner_strength": { "name": "내면의 힘", "msg": "🌟 내 마음은 어둠에 저항합니다..." },
-      "wisdom": { "name": "얻어진 지혜", "msg": "🧠 밤 속에서 나는 보는 법을 배웠습니다..." }
+      "discord": {
+        "name": "불화",
+        "msg": "⚡ 불화... 증오... 파괴..."
+      },
+      "hatred": {
+        "name": "증오",
+        "msg": "💔 어둠의 악과 함께 왔습니다..."
+      },
+      "destruction": {
+        "name": "파괴",
+        "msg": "🌪️ 도둑질, 거짓말, 조작..."
+      },
+      "theft": {
+        "name": "도둑질",
+        "msg": "🦹 속하지 않은 것을 가져가는 것..."
+      },
+      "lies": {
+        "name": "거짓말",
+        "msg": "🎭 속임수의 가면..."
+      },
+      "manipulation": {
+        "name": "조작",
+        "msg": "🕷️ 보이지 않는 실이 마음을 잡아당깁니다..."
+      },
+      "greed": {
+        "name": "탐욕",
+        "msg": "💰 탐욕과 욕심..."
+      },
+      "avarice": {
+        "name": "욕심",
+        "msg": "⛓️ 보이지 않는 사슬처럼..."
+      },
+      "chains": {
+        "name": "사슬",
+        "msg": "🔗 인간의 마음을 조이고 있습니다..."
+      },
+      "iron_walls": {
+        "name": "철벽",
+        "msg": "🧱 철과 두려움의 벽 뒤에 갇혀 있습니다..."
+      },
+      "jealousy": {
+        "name": "질투",
+        "msg": "💚 부러움의 녹색 독..."
+      },
+      "pride": {
+        "name": "교만",
+        "msg": "👑 눈을 멀게 하는 왕관..."
+      },
+      "anger": {
+        "name": "분노",
+        "msg": "🔥 이성을 태우는 불꽃..."
+      },
+      "revenge": {
+        "name": "복수",
+        "msg": "⚔️ 고통의 끝없는 나선..."
+      },
+      "indifference": {
+        "name": "무관심",
+        "msg": "🧊 영혼을 얼리는 추위..."
+      },
+      "selfishness": {
+        "name": "이기심",
+        "msg": "🪞 자신의 반영만 보는 것..."
+      },
+      "ignorance": {
+        "name": "무지",
+        "msg": "🙈 눈을 감기로 선택하는 것..."
+      },
+      "resistance": {
+        "name": "저항",
+        "msg": "🛡️ 하지만 나는 폭풍 속에서도 순수한 마음을 지킵니다..."
+      },
+      "light": {
+        "name": "빛",
+        "msg": "✨ 구름 너머에는 항상 존재합니다..."
+      },
+      "hope_reborn": {
+        "name": "희망 재탄생",
+        "msg": "🌅 빛이 마침내 어둠을 뚫고 나옵니다..."
+      },
+      "inner_strength": {
+        "name": "내면의 힘",
+        "msg": "🌟 내 마음은 어둠에 저항합니다..."
+      },
+      "wisdom": {
+        "name": "얻어진 지혜",
+        "msg": "🧠 밤 속에서 나는 보는 법을 배웠습니다..."
+      }
     }
   },
   "enigmes": {
@@ -597,26 +721,80 @@
     }
   },
   "levels": {
-    "robe_blanche": { "name": "흰 로브", "points": 300 },
-    "saint_navigator": { "name": "성스러운 항해사", "points": 250 },
-    "prophet": { "name": "바다의 예언자", "points": 200 },
-    "illuminated": { "name": "깨달은 자", "points": 175 },
-    "disciple": { "name": "빛의 제자", "points": 150 },
-    "contemplative": { "name": "명상자", "points": 125 },
-    "guardian": { "name": "빛의 수호자", "points": 100 },
-    "meditating": { "name": "명상하는 자", "points": 80 },
-    "captain": { "name": "선장", "points": 60 },
-    "navigator": { "name": "항해사", "points": 45 },
-    "enlightened_sailor": { "name": "깨달은 선원", "points": 30 },
-    "initiate": { "name": "입문자", "points": 20 },
-    "apprentice": { "name": "견습생", "points": 10 },
-    "cabin_boy": { "name": "선실 소년", "points": 5 },
-    "pilgrim": { "name": "순례자", "points": 0 }
+    "robe_blanche": {
+      "name": "흰 로브",
+      "points": 300
+    },
+    "saint_navigator": {
+      "name": "성스러운 항해사",
+      "points": 250
+    },
+    "prophet": {
+      "name": "바다의 예언자",
+      "points": 200
+    },
+    "illuminated": {
+      "name": "깨달은 자",
+      "points": 175
+    },
+    "disciple": {
+      "name": "빛의 제자",
+      "points": 150
+    },
+    "contemplative": {
+      "name": "명상자",
+      "points": 125
+    },
+    "guardian": {
+      "name": "빛의 수호자",
+      "points": 100
+    },
+    "meditating": {
+      "name": "명상하는 자",
+      "points": 80
+    },
+    "captain": {
+      "name": "선장",
+      "points": 60
+    },
+    "navigator": {
+      "name": "항해사",
+      "points": 45
+    },
+    "enlightened_sailor": {
+      "name": "깨달은 선원",
+      "points": 30
+    },
+    "initiate": {
+      "name": "입문자",
+      "points": 20
+    },
+    "apprentice": {
+      "name": "견습생",
+      "points": 10
+    },
+    "cabin_boy": {
+      "name": "선실 소년",
+      "points": 5
+    },
+    "pilgrim": {
+      "name": "순례자",
+      "points": 0
+    }
   },
   "badges": {
-    "champion": { "name": "챔피언 배지", "desc": "1등" },
-    "perfectionist": { "name": "완벽주의자 배지", "desc": "모든 수수께끼 수집" },
-    "contemplative": { "name": "명상자 배지", "desc": "플레이 시간 > 1시간" }
+    "champion": {
+      "name": "챔피언 배지",
+      "desc": "1등"
+    },
+    "perfectionist": {
+      "name": "완벽주의자 배지",
+      "desc": "모든 수수께끼 수집"
+    },
+    "contemplative": {
+      "name": "명상자 배지",
+      "desc": "플레이 시간 > 1시간"
+    }
   },
   "social": {
     "share_1": "🌟 저는 인류의 국경을 넘어 여행했습니다!\n\n\"어둠에서 빛으로, 사랑이 차이를 넘어 하나가 된다는 것을 배웠습니다.\"\n\n{name} - {city}, {country}\n💎 지혜: {wisdom}\n🎯 점수: {score}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n⛵ 작은 배 게임하기 👁️",

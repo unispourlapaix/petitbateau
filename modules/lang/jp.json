@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "小さな赤い船 ⛵ - エマニュエル・パイエによる詩的な謎解きゲーム",
     "description": "エマニュエル・パイエが創作した哲学的で詩的な謎解きゲーム「小さな赤い船」を発見してください。14の言語を巡りながら、それぞれの謎が人類の真実を明らかにする世界を航海しましょう。目標:3300万人のプレイヤー!",
@@ -92,7 +92,8 @@
     "reset_button": "🔄 最初からやり直す",
     "confirm_reset_1": "🔄 警告：ゲームをゼロからリセットしますか？\n\n⚠️ これにより：\n- 進行状況が消去されます\n- セーブデータが削除されます\n- フェーズ1から再開します\n\n続けますか？",
     "confirm_reset_2": "⚠️ 最終確認\n\n本当によろしいですか？\nこの操作は元に戻せません。",
-    "game_reset": "ゲームをリセットしました！"
+    "game_reset": "ゲームをリセットしました！",
+    "scores_title": " グローバルスコア"
   },
   "language_selector": {
     "confirm_change": "🌍 言語を{language}に変更しますか？\n\n翻訳を適用するためページが再読み込みされます。",
@@ -396,49 +397,172 @@
   },
   "bricks": {
     "day": {
-      "told": { "name": "言われた...", "msg": "🗣️ 操作は真実の前に消える!" },
-      "monsters": { "name": "怪物", "msg": "👨‍👩‍👧‍👦 いや...私たちと同じ人間だ!" },
-      "prejudice": { "name": "偏見", "msg": "🎭 仮面が一つずつ落ちる..." },
-      "fears": { "name": "恐怖", "msg": "👁️ 私は自分の目で見ることを選んだ!" },
-      "distrust": { "name": "不信", "msg": "🤝 不信が思いやりに変わる..." },
-      "who_are_they": { "name": "彼らは誰?", "msg": "❓ この問いが私の夜を悩ませる..." },
-      "i_saw": { "name": "私は見た...", "msg": "👁️ そして私の目が開いた..." },
-      "father": { "name": "父", "msg": "👨 子供たちを愛する男..." },
-      "mother": { "name": "母", "msg": "👩 勇敢な女性..." },
-      "children": { "name": "子供たち", "msg": "👶 純粋で無邪気な笑い声..." },
-      "humanity": { "name": "人間性", "msg": "💫 私たちが何であるかの本質..." },
-      "love": { "name": "愛", "msg": "❤️ すべての障壁より強い..." },
-      "compassion": { "name": "思いやり", "msg": "🤗 違いを超えて結びつける..." },
-      "hope": { "name": "希望", "msg": "🌅 闇の中の光..." },
-      "peace": { "name": "平和", "msg": "🕊️ 愛することを選ぶとき可能..." },
-      "like_me": { "name": "私のように", "msg": "🌍 私たちは皆移民だ..." },
-      "truth": { "name": "明らかにされた真実", "msg": "👁️ 私の目がついに開いた..." },
-      "courage": { "name": "心の勇気", "msg": "💪 私は自分の目で見ることを選んだ..." },
-      "precious": { "name": "貴重", "msg": "💎 すべての人間は貴重だ..." }
+      "told": {
+        "name": "言われた...",
+        "msg": "🗣️ 操作は真実の前に消える!"
+      },
+      "monsters": {
+        "name": "怪物",
+        "msg": "👨‍👩‍👧‍👦 いや...私たちと同じ人間だ!"
+      },
+      "prejudice": {
+        "name": "偏見",
+        "msg": "🎭 仮面が一つずつ落ちる..."
+      },
+      "fears": {
+        "name": "恐怖",
+        "msg": "👁️ 私は自分の目で見ることを選んだ!"
+      },
+      "distrust": {
+        "name": "不信",
+        "msg": "🤝 不信が思いやりに変わる..."
+      },
+      "who_are_they": {
+        "name": "彼らは誰?",
+        "msg": "❓ この問いが私の夜を悩ませる..."
+      },
+      "i_saw": {
+        "name": "私は見た...",
+        "msg": "👁️ そして私の目が開いた..."
+      },
+      "father": {
+        "name": "父",
+        "msg": "👨 子供たちを愛する男..."
+      },
+      "mother": {
+        "name": "母",
+        "msg": "👩 勇敢な女性..."
+      },
+      "children": {
+        "name": "子供たち",
+        "msg": "👶 純粋で無邪気な笑い声..."
+      },
+      "humanity": {
+        "name": "人間性",
+        "msg": "💫 私たちが何であるかの本質..."
+      },
+      "love": {
+        "name": "愛",
+        "msg": "❤️ すべての障壁より強い..."
+      },
+      "compassion": {
+        "name": "思いやり",
+        "msg": "🤗 違いを超えて結びつける..."
+      },
+      "hope": {
+        "name": "希望",
+        "msg": "🌅 闇の中の光..."
+      },
+      "peace": {
+        "name": "平和",
+        "msg": "🕊️ 愛することを選ぶとき可能..."
+      },
+      "like_me": {
+        "name": "私のように",
+        "msg": "🌍 私たちは皆移民だ..."
+      },
+      "truth": {
+        "name": "明らかにされた真実",
+        "msg": "👁️ 私の目がついに開いた..."
+      },
+      "courage": {
+        "name": "心の勇気",
+        "msg": "💪 私は自分の目で見ることを選んだ..."
+      },
+      "precious": {
+        "name": "貴重",
+        "msg": "💎 すべての人間は貴重だ..."
+      }
     },
     "night": {
-      "discord": { "name": "不和", "msg": "⚡ 不和...憎しみ...破壊..." },
-      "hatred": { "name": "憎しみ", "msg": "💔 影の悪とともに来た..." },
-      "destruction": { "name": "破壊", "msg": "🌪️ 盗み、嘘、操作..." },
-      "theft": { "name": "盗み", "msg": "🦹 属さないものを奪う..." },
-      "lies": { "name": "嘘", "msg": "🎭 欺瞞の仮面..." },
-      "manipulation": { "name": "操作", "msg": "🕷️ 見えない糸が心を引く..." },
-      "greed": { "name": "貪欲", "msg": "💰 貪欲と強欲..." },
-      "avarice": { "name": "強欲", "msg": "⛓️ 見えない鎖のように..." },
-      "chains": { "name": "鎖", "msg": "🔗 人々の心を締め付ける..." },
-      "iron_walls": { "name": "鉄の壁", "msg": "🧱 鉄と恐怖の壁の後ろに閉じ込められた..." },
-      "jealousy": { "name": "嫉妬", "msg": "💚 羨望の緑の毒..." },
-      "pride": { "name": "誇り", "msg": "👑 盲目にする王冠..." },
-      "anger": { "name": "怒り", "msg": "🔥 理性を焼き尽くす炎..." },
-      "revenge": { "name": "復讐", "msg": "⚔️ 苦しみの終わりなき螺旋..." },
-      "indifference": { "name": "無関心", "msg": "🧊 魂を凍らせる冷たさ..." },
-      "selfishness": { "name": "利己主義", "msg": "🪞 自分の反射だけを見る..." },
-      "ignorance": { "name": "無知", "msg": "🙈 目を閉じることを選ぶ..." },
-      "resistance": { "name": "抵抗", "msg": "🛡️ でも私は嵐の中で心を清く保つ..." },
-      "light": { "name": "光", "msg": "✨ 雲の向こうに、それは常に存在する..." },
-      "hope_reborn": { "name": "蘇る希望", "msg": "🌅 光がついに闇を貫く..." },
-      "inner_strength": { "name": "内なる力", "msg": "🌟 私の心は闇に抵抗する..." },
-      "wisdom": { "name": "獲得された智慧", "msg": "🧠 夜の中で、私は見ることを学んだ..." }
+      "discord": {
+        "name": "不和",
+        "msg": "⚡ 不和...憎しみ...破壊..."
+      },
+      "hatred": {
+        "name": "憎しみ",
+        "msg": "💔 影の悪とともに来た..."
+      },
+      "destruction": {
+        "name": "破壊",
+        "msg": "🌪️ 盗み、嘘、操作..."
+      },
+      "theft": {
+        "name": "盗み",
+        "msg": "🦹 属さないものを奪う..."
+      },
+      "lies": {
+        "name": "嘘",
+        "msg": "🎭 欺瞞の仮面..."
+      },
+      "manipulation": {
+        "name": "操作",
+        "msg": "🕷️ 見えない糸が心を引く..."
+      },
+      "greed": {
+        "name": "貪欲",
+        "msg": "💰 貪欲と強欲..."
+      },
+      "avarice": {
+        "name": "強欲",
+        "msg": "⛓️ 見えない鎖のように..."
+      },
+      "chains": {
+        "name": "鎖",
+        "msg": "🔗 人々の心を締め付ける..."
+      },
+      "iron_walls": {
+        "name": "鉄の壁",
+        "msg": "🧱 鉄と恐怖の壁の後ろに閉じ込められた..."
+      },
+      "jealousy": {
+        "name": "嫉妬",
+        "msg": "💚 羨望の緑の毒..."
+      },
+      "pride": {
+        "name": "誇り",
+        "msg": "👑 盲目にする王冠..."
+      },
+      "anger": {
+        "name": "怒り",
+        "msg": "🔥 理性を焼き尽くす炎..."
+      },
+      "revenge": {
+        "name": "復讐",
+        "msg": "⚔️ 苦しみの終わりなき螺旋..."
+      },
+      "indifference": {
+        "name": "無関心",
+        "msg": "🧊 魂を凍らせる冷たさ..."
+      },
+      "selfishness": {
+        "name": "利己主義",
+        "msg": "🪞 自分の反射だけを見る..."
+      },
+      "ignorance": {
+        "name": "無知",
+        "msg": "🙈 目を閉じることを選ぶ..."
+      },
+      "resistance": {
+        "name": "抵抗",
+        "msg": "🛡️ でも私は嵐の中で心を清く保つ..."
+      },
+      "light": {
+        "name": "光",
+        "msg": "✨ 雲の向こうに、それは常に存在する..."
+      },
+      "hope_reborn": {
+        "name": "蘇る希望",
+        "msg": "🌅 光がついに闇を貫く..."
+      },
+      "inner_strength": {
+        "name": "内なる力",
+        "msg": "🌟 私の心は闇に抵抗する..."
+      },
+      "wisdom": {
+        "name": "獲得された智慧",
+        "msg": "🧠 夜の中で、私は見ることを学んだ..."
+      }
     }
   },
   "enigmes": {
@@ -605,26 +729,80 @@
     }
   },
   "levels": {
-    "robe_blanche": { "name": "白いローブ", "points": 300 },
-    "saint_navigator": { "name": "聖なる航海士", "points": 250 },
-    "prophet": { "name": "海の預言者", "points": 200 },
-    "illuminated": { "name": "啓明者", "points": 175 },
-    "disciple": { "name": "光の弟子", "points": 150 },
-    "contemplative": { "name": "瞑想者", "points": 125 },
-    "guardian": { "name": "光の守護者", "points": 100 },
-    "meditating": { "name": "瞑想する者", "points": 80 },
-    "captain": { "name": "船長", "points": 60 },
-    "navigator": { "name": "航海士", "points": 45 },
-    "enlightened_sailor": { "name": "悟りの水夫", "points": 30 },
-    "initiate": { "name": "入門者", "points": 20 },
-    "apprentice": { "name": "見習い", "points": 10 },
-    "cabin_boy": { "name": "船員見習い", "points": 5 },
-    "pilgrim": { "name": "巡礼者", "points": 0 }
+    "robe_blanche": {
+      "name": "白いローブ",
+      "points": 300
+    },
+    "saint_navigator": {
+      "name": "聖なる航海士",
+      "points": 250
+    },
+    "prophet": {
+      "name": "海の預言者",
+      "points": 200
+    },
+    "illuminated": {
+      "name": "啓明者",
+      "points": 175
+    },
+    "disciple": {
+      "name": "光の弟子",
+      "points": 150
+    },
+    "contemplative": {
+      "name": "瞑想者",
+      "points": 125
+    },
+    "guardian": {
+      "name": "光の守護者",
+      "points": 100
+    },
+    "meditating": {
+      "name": "瞑想する者",
+      "points": 80
+    },
+    "captain": {
+      "name": "船長",
+      "points": 60
+    },
+    "navigator": {
+      "name": "航海士",
+      "points": 45
+    },
+    "enlightened_sailor": {
+      "name": "悟りの水夫",
+      "points": 30
+    },
+    "initiate": {
+      "name": "入門者",
+      "points": 20
+    },
+    "apprentice": {
+      "name": "見習い",
+      "points": 10
+    },
+    "cabin_boy": {
+      "name": "船員見習い",
+      "points": 5
+    },
+    "pilgrim": {
+      "name": "巡礼者",
+      "points": 0
+    }
   },
   "badges": {
-    "champion": { "name": "チャンピオンバッジ", "desc": "トップ1" },
-    "perfectionist": { "name": "完璧主義者バッジ", "desc": "すべての謎を収集" },
-    "contemplative": { "name": "瞑想者バッジ", "desc": "プレイ時間 > 1時間" }
+    "champion": {
+      "name": "チャンピオンバッジ",
+      "desc": "トップ1"
+    },
+    "perfectionist": {
+      "name": "完璧主義者バッジ",
+      "desc": "すべての謎を収集"
+    },
+    "contemplative": {
+      "name": "瞑想者バッジ",
+      "desc": "プレイ時間 > 1時間"
+    }
   },
   "social": {
     "share_1": "🌟 私は人類の境界を超えて旅をした!\n\n「闇から光へ、私は愛が違いを超えて結びつけることを学んだ。」\n\n{name} - {city}, {country}\n💎 智慧:{wisdom}\n🎯 スコア:{score}\n\n#平和のために団結 #小さな船 #Emmanuel.gallery\n\n⛵ 小さな船 👁️ をプレイ",

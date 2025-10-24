@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "document_title": "Pequeño Barco Rojo ⛵ - Juego de Enigmas Poético por Emmanuel Payet",
     "description": "Descubre Pequeño Barco Rojo, un juego de enigmas filosófico y poético creado por Emmanuel Payet. Navega a través de 14 idiomas en un universo donde cada enigma revela una verdad sobre la humanidad. ¡Objetivo: 33 millones de jugadores!",
@@ -84,7 +84,8 @@
       "es": "PEQUEÑO BARCO",
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
-    }
+    },
+    "scores_title": " Puntuaciones Mundiales"
   },
   "language_selector": {
     "confirm_change": "🌍 ¿Cambiar idioma a {language}?\n\nLa página se recargará para aplicar las traducciones.",
