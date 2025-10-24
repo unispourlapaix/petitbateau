@@ -4214,11 +4214,53 @@ console.info = function() {}; // Désactiver les infos
                     yPos += 55; // ✅ Plus d'espace après le score utilisateur
                 }
 
-                // ✅ Titre du classement amélioré
-                ctx.font = 'bold 20px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#1e293b';
-                ctx.fillText(getTranslatedText('ui.leaderboard_title', '🏆 Top 10 Mondial'), C.W / 2, yPos);
-                yPos += 35;
+                // ✅ Texte cliquable surligné "🏆 Scores Mondial" (lien vers emmanuel-artist-module.html)
+                const titreText = getTranslatedText('ui.scores_title', '🏆 Scores Mondial');
+                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                const titreMetrics = ctx.measureText(titreText);
+                const titreWidth = titreMetrics.width;
+                
+                // Position du texte
+                const textX = C.W / 2;
+                const textY = yPos;
+                
+                // ✅ Fond surligné derrière le texte (comme un surlignage)
+                const highlightPadding = 8;
+                const highlightWidth = titreWidth + (highlightPadding * 2);
+                const highlightHeight = 24;
+                const highlightX = textX - highlightWidth / 2;
+                const highlightY = textY - 18;
+                
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; // Surlignage bleu léger
+                ctx.beginPath();
+                ctx.roundRect(highlightX, highlightY, highlightWidth, highlightHeight, 4);
+                ctx.fill();
+                
+                // ✅ Texte bleu
+                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#3b82f6';
+                ctx.textAlign = 'center';
+                ctx.fillText(titreText, textX, textY);
+                
+                // ✅ Stocker les coordonnées pour la détection de clic (coordonnées absolues canvas)
+                if (!menuEnigmesCanvas.titleLeaderboard) menuEnigmesCanvas.titleLeaderboard = {};
+                menuEnigmesCanvas.titleLeaderboard = {
+                    x: highlightX,
+                    y: highlightY, 
+                    width: highlightWidth,
+                    height: highlightHeight,
+                    centerY: yPos
+                };
+                
+                // 🔧 LOG DE DEBUG PERMANENT
+                console.log('📝 Titre créé:', {
+                    titre: titreText,
+                    zone: menuEnigmesCanvas.titleLeaderboard,
+                    canvas: { menuX, menuY, C_W: C.W, C_H: C.H }
+                });
+                
+                // Ajuster yPos après le texte surligné
+                yPos += 30;
 
                 // Vérifier si les données sont chargées
                 if (loadingLeaderboard) {
@@ -4359,43 +4401,6 @@ console.info = function() {}; // Désactiver les infos
                 // Texte
                 ctx.fillStyle = '#6b7280';
                 ctx.fillText(motivationText, C.W / 2, yPos + 4);
-
-                // ✅ Bouton "Voir Top 10000" en bas
-                yPos += 40;
-                
-                // Créer le bouton Top 10000 s'il n'existe pas
-                if (!menuEnigmesCanvas.top10000Button) {
-                    const buttonWidth = 180;
-                    const buttonHeight = 35;
-                    const buttonX = C.W / 2 - buttonWidth / 2;
-                    
-                    menuEnigmesCanvas.top10000Button = {
-                        x: buttonX,
-                        y: yPos,
-                        width: buttonWidth,
-                        height: buttonHeight
-                    };
-                }
-                
-                // Mettre à jour la position Y du bouton
-                menuEnigmesCanvas.top10000Button.y = yPos;
-                
-                // Dessiner le bouton Top 10000
-                const btn = menuEnigmesCanvas.top10000Button;
-                ctx.fillStyle = '#ffffff';
-                ctx.strokeStyle = '#3b82f6';
-                ctx.lineWidth = 2;
-                
-                ctx.beginPath();
-                ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 8);
-                ctx.fill();
-                ctx.stroke();
-                
-                // Texte du bouton
-                ctx.font = 'bold 15px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#3b82f6';
-                ctx.textAlign = 'center';
-                ctx.fillText('🏆 Voir Top 10000', btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'langues') {
@@ -10066,6 +10071,89 @@ console.info = function() {}; // Désactiver les infos
         });
         let titreVoyage = { active: false, texte: '', fin: 0 }; // Affichage titre voyage
         let raquette = {}, balle = {}, briques = [], particules = [];
+        
+        // 🚀 SYSTÈME DE GRILLE SPATIALE POUR OPTIMISATION DES COLLISIONS
+        let grilleCollision = {
+            tailleCellule: 100, // Taille d'une cellule en pixels
+            grille: new Map(), // Map des cellules (key: "x,y", value: Set de briques)
+            
+            // Obtenir la clé de cellule pour une position
+            obtenirCle(x, y) {
+                const cellX = Math.floor(x / this.tailleCellule);
+                const cellY = Math.floor(y / this.tailleCellule);
+                return `${cellX},${cellY}`;
+            },
+            
+            // Ajouter une brique à la grille
+            ajouterBrique(brique) {
+                if (!brique.visible) return;
+                
+                // Calculer toutes les cellules que touche la brique
+                const minX = Math.floor(brique.x / this.tailleCellule);
+                const maxX = Math.floor((brique.x + brique.w) / this.tailleCellule);
+                const minY = Math.floor(brique.y / this.tailleCellule);
+                const maxY = Math.floor((brique.y + brique.h) / this.tailleCellule);
+                
+                for (let cellX = minX; cellX <= maxX; cellX++) {
+                    for (let cellY = minY; cellY <= maxY; cellY++) {
+                        const cle = `${cellX},${cellY}`;
+                        if (!this.grille.has(cle)) {
+                            this.grille.set(cle, new Set());
+                        }
+                        this.grille.get(cle).add(brique);
+                    }
+                }
+            },
+            
+            // Supprimer une brique de la grille
+            supprimerBrique(brique) {
+                for (const [cle, cellule] of this.grille) {
+                    cellule.delete(brique);
+                    if (cellule.size === 0) {
+                        this.grille.delete(cle);
+                    }
+                }
+            },
+            
+            // Obtenir les briques candidates pour collision avec la balle
+            obtenirCandidates(balleX, balleY, rayon) {
+                const candidates = new Set();
+                
+                // Calculer les cellules à vérifier (position balle ± rayon)
+                const minX = Math.floor((balleX - rayon) / this.tailleCellule);
+                const maxX = Math.floor((balleX + rayon) / this.tailleCellule);
+                const minY = Math.floor((balleY - rayon) / this.tailleCellule);
+                const maxY = Math.floor((balleY + rayon) / this.tailleCellule);
+                
+                for (let cellX = minX; cellX <= maxX; cellX++) {
+                    for (let cellY = minY; cellY <= maxY; cellY++) {
+                        const cle = `${cellX},${cellY}`;
+                        const cellule = this.grille.get(cle);
+                        if (cellule) {
+                            cellule.forEach(brique => {
+                                if (brique.visible) candidates.add(brique);
+                            });
+                        }
+                    }
+                }
+                
+                return Array.from(candidates);
+            },
+            
+            // Reconstruire complètement la grille (après changement de phase)
+            reconstruire() {
+                this.grille.clear();
+                briques.forEach(brique => this.ajouterBrique(brique));
+            }
+        };
+        
+        // 🔧 Fonction helper pour s'assurer que la grille est mise à jour
+        function mettreAJourGrilleSpatiale() {
+            if (typeof grilleCollision !== 'undefined') {
+                grilleCollision.reconstruire();
+            }
+        }
+        
         let starsProjectiles = []; // Projectiles étoiles du mode stars (tir simple)
         let projectiles = [], munitions = 0, rechargement = 0; // Projectiles étoiles (phase briques) - commence à 0
         let projectilesSecret = []; // Projectiles simples (mode secret)
@@ -10350,6 +10438,9 @@ console.info = function() {}; // Désactiver les infos
                 briques.forEach(brique => {
                     brique.visible = true;
                 });
+                
+                // 🚀 OPTIMISATION : Reconstruire la grille spatiale après création des briques
+                grilleCollision.reconstruire();
             }
 
             const startY = Math.max(C.H * 0.15, 80);
@@ -14071,6 +14162,9 @@ console.info = function() {}; // Désactiver les infos
                     }
                 });
             }
+            
+            // 🚀 OPTIMISATION : Reconstruire la grille spatiale après création des briques
+            mettreAJourGrilleSpatiale();
 
             // Placer automatiquement le power-up lanterne sur la première brique en bas
             // Mais seulement en phase lanterne et si la lanterne n'est pas déjà allumée
@@ -15793,9 +15887,18 @@ console.info = function() {}; // Désactiver les infos
                 // Pas de rebond, l'étoile continue sa trajectoire
             }
 
-            // Briser les préjugés - une seule brique par frame maximum
+            // 🚀 OPTIMISATION : Collision balle-briques avec grille spatiale
             let briqueTouchee = false;
-            briques.forEach(brique => {
+            
+            // Obtenir seulement les briques candidates (performance O(1) au lieu de O(n))
+            const briquesCandidates = grilleCollision.obtenirCandidates(balle.x, balle.y, C.BS);
+            
+            // Statistiques de performance (en mode debug temporaire)
+            if (briquesCandidates.length < briques.length) {
+                console.log(`🚀 Optimisation grille spatiale: ${briquesCandidates.length}/${briques.length} briques testées (${Math.round((1 - briquesCandidates.length/briques.length) * 100)}% économisé)`);
+            }
+            
+            briquesCandidates.forEach(brique => {
                 if(briqueTouchee) return; // Arrêter si on a déjà touché une brique
                 if(!brique.visible) return;
 
@@ -15846,6 +15949,9 @@ console.info = function() {}; // Désactiver les infos
                         if (brique.vie <= 0) {
                         brique.visible = false;
                         brises++;
+                        
+                        // 🚀 OPTIMISATION : Supprimer la brique de la grille spatiale
+                        grilleCollision.supprimerBrique(brique);
 
                         // 🔊 Son de casse brique (aléatoire entre 3 sons)
                         const sonAleatoire = Math.random();
@@ -18428,7 +18534,6 @@ Elle a besoin de ponts.`
                         menuEnigmesCanvas.ongletActif = 'classement';
                         menuEnigmesCanvas.scrollY = 0;
                         menuEnigmesCanvas.needsRecalculation = true; // Invalidate cache
-                        menuEnigmesCanvas.top10000Button = null; // ✅ Réinitialiser le bouton pour recréation
                         return;
                     }
                     
@@ -18548,16 +18653,28 @@ Elle a besoin de ponts.`
                     }
                 }
                 
-                // ✅ Bouton Top 10000 (onglet classement)
-                if (menuEnigmesCanvas.ongletActif === 'classement' && menuEnigmesCanvas.top10000Button) {
-                    const btn = menuEnigmesCanvas.top10000Button;
-                    if (x >= btn.x && x <= btn.x + btn.width &&
-                        y >= btn.y && y <= btn.y + btn.height) {
-                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                // ✅ Titre cliquable "Scores" (onglet classement) 
+                if (menuEnigmesCanvas.ongletActif === 'classement') {
+                    console.log('🔍 Clic sur onglet classement:', { x, y, onglet: menuEnigmesCanvas.ongletActif });
+                    
+                    if (menuEnigmesCanvas.titleLeaderboard) {
+                        const title = menuEnigmesCanvas.titleLeaderboard;
+                        console.log('🎯 Zone titre disponible:', title);
                         
-                        // Ouvrir la popup Top 10000
-                        ouvrirTop10000();
-                        return;
+                        const inZone = (x >= title.x && x <= title.x + title.width &&
+                                       y >= title.y && y <= title.y + title.height);
+                        console.log('🎯 Clic dans zone?', inZone);
+                        
+                        if (inZone) {
+                            console.log('✅ CLIC VALIDE - Ouverture module Emmanuel');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            
+                            // Ouvrir emmanuel-artist-module.html
+                            ouvrirInfoArtiste();
+                            return;
+                        }
+                    } else {
+                        console.log('⚠️ titleLeaderboard non défini');
                     }
                 }
                 
@@ -18784,6 +18901,29 @@ Elle a besoin de ponts.`
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
                 // Ne pas traiter comme swipe ou tir
                 return;
+            }
+
+            // ✅ DETECTION CLIC TITRE "SCORES MONDIAL" (dans mousedown)
+            if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement') {
+                console.log('🖱️ MOUSEDOWN - Clic sur onglet classement:', { x, y });
+                
+                if (menuEnigmesCanvas.titleLeaderboard) {
+                    const title = menuEnigmesCanvas.titleLeaderboard;
+                    console.log('🎯 Zone titre (mousedown):', title);
+                    
+                    const inZone = (x >= title.x && x <= title.x + title.width &&
+                                   y >= title.y && y <= title.y + title.height);
+                    console.log('🎯 Clic dans zone? (mousedown)', inZone);
+                    
+                    if (inZone) {
+                        console.log('✅ CLIC MOUSEDOWN VALIDE - Ouverture module Emmanuel');
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        
+                        // Ouvrir emmanuel-artist-module.html
+                        ouvrirInfoArtiste();
+                        return;
+                    }
+                }
             }
 
             if (menuEnigmesCanvas.visible) {
