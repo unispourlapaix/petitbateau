@@ -36,7 +36,10 @@
       "save": "💾 保存",
       "skip": "跳过",
       "update": "更新",
-      "later": "稍后"
+      "later": "稍后",
+      "restart_phase": "重启阶段",
+      "save_and_discover": "保存并发现",
+      "skip_and_continue": "跳过并继续"
     },
     "form": {
       "email_label": "电子邮件 * ：",
@@ -85,7 +88,12 @@
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
     },
-    "scores_title": " 全球积分"
+    "scores_title": " 全球积分",
+    "confirm_reset_1": "您确定要重新开始吗？",
+    "confirm_reset_2": "所有进度将丢失。",
+    "game_reset": "游戏重置",
+    "journey_completed_title": "旅程完成！",
+    "reset_button": "重置"
   },
   "language_selector": {
     "confirm_change": "🌍 更改语言为{language}？\n\n页面将重新加载以应用翻译。",

@@ -13,7 +13,7 @@
     "continue_button": "Continuer",
     "save_score_ranking": "Enregistrez votre score pour apparaître dans le classement mondial !",
     "complete_game_save_score": "🎉 Terminez le jeu pour enregistrer votre score !",
-    "journey_completed_title": "🎉 Félicitations !",
+    "journey_completed_title": "Voyage terminé !",
     "game_over_title": "⚓ Fin du voyage",
     "journey_completed_title_alt": "Voyage Terminé",
     "thank_you_truth": "Merci d'avoir cherché la vérité.",
@@ -38,9 +38,9 @@
       "skip": "Passer",
       "update": "Mettre à jour",
       "later": "Plus tard",
-      "save_and_discover": "Enregistrer",
-      "skip_and_continue": "Passer",
-      "restart_phase": "🔄 Recommencer la phase"
+      "save_and_discover": "Sauvegarder et découvrir",
+      "skip_and_continue": "Passer et continuer",
+      "restart_phase": "Recommencer la phase"
     },
     "form": {
       "email_label": "Email * :",
@@ -89,10 +89,10 @@
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
     },
-    "reset_button": "🔄 Recommencer à zéro",
-    "confirm_reset_1": "🔄 ATTENTION : Recommencer le jeu à zéro ?\n\n⚠️ Cela va :\n- Effacer votre progression\n- Supprimer votre sauvegarde\n- Redémarrer à la phase 1\n\nVoulez-vous continuer ?",
-    "confirm_reset_2": "⚠️ DERNIÈRE CONFIRMATION\n\nÊtes-vous VRAIMENT sûr ?\nCette action est irréversible.",
-    "game_reset": "Jeu réinitialisé !",
+    "reset_button": "Recommencer",
+    "confirm_reset_1": "Êtes-vous sûr de vouloir recommencer ?",
+    "confirm_reset_2": "Toute progression sera perdue.",
+    "game_reset": "Jeu remis à zéro",
     "scores_title": " Scores Mondial"
   },
   "language_selector": {

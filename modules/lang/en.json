@@ -13,7 +13,7 @@
     "continue_button": "Continue",
     "save_score_ranking": "Save your score to appear in the global ranking!",
     "complete_game_save_score": "🎉 Complete the game to save your score!",
-    "journey_completed_title": "🎉 Congratulations!",
+    "journey_completed_title": "Journey completed!",
     "game_over_title": "⚓ End of Journey",
     "journey_completed_title_alt": "Journey Completed",
     "thank_you_truth": "Thank you for seeking the truth.",
@@ -38,9 +38,9 @@
       "skip": "Skip",
       "update": "Update",
       "later": "Later",
-      "save_and_discover": "Save",
-      "skip_and_continue": "Skip",
-      "restart_phase": "🔄 Restart Phase"
+      "save_and_discover": "Save and discover",
+      "skip_and_continue": "Skip and continue",
+      "restart_phase": "Restart phase"
     },
     "form": {
       "email_label": "Email * :",
@@ -89,10 +89,10 @@
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
     },
-    "reset_button": "🔄 Reset to Zero",
-    "confirm_reset_1": "🔄 WARNING: Reset the game to zero?\n\n⚠️ This will:\n- Erase your progress\n- Delete your save\n- Restart at phase 1\n\nDo you want to continue?",
-    "confirm_reset_2": "⚠️ LAST CONFIRMATION\n\nAre you REALLY sure?\nThis action is irreversible.",
-    "game_reset": "Game reset!",
+    "reset_button": "Reset",
+    "confirm_reset_1": "Are you sure you want to restart?",
+    "confirm_reset_2": "All progress will be lost.",
+    "game_reset": "Game reset",
     "scores_title": " Global Scores"
   },
   "language_selector": {

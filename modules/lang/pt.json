@@ -36,7 +36,10 @@
       "save": "💾 Salvar",
       "skip": "Pular",
       "update": "Atualizar",
-      "later": "Mais tarde"
+      "later": "Mais tarde",
+      "restart_phase": "Reiniciar fase",
+      "save_and_discover": "Salvar e descobrir",
+      "skip_and_continue": "Pular e continuar"
     },
     "form": {
       "email_label": "Email * :",
@@ -85,7 +88,12 @@
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
     },
-    "scores_title": " Pontuações Mundiais"
+    "scores_title": " Pontuações Mundiais",
+    "confirm_reset_1": "Tem certeza de que deseja reiniciar?",
+    "confirm_reset_2": "Todo o progresso será perdido.",
+    "game_reset": "Jogo reiniciado",
+    "journey_completed_title": "Jornada concluída!",
+    "reset_button": "Reiniciar"
   },
   "language_selector": {
     "confirm_change": "🌍 Mudar idioma para {language}?\n\nA página será recarregada para aplicar as traduções.",

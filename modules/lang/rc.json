@@ -36,7 +36,10 @@
       "save": "💾 Anrézistre",
       "skip": "Passe",
       "update": "Mèt azour",
-      "later": "Pli tar"
+      "later": "Pli tar",
+      "restart_phase": "Recommansé la faz",
+      "save_and_discover": "Sové é dékouvèr",
+      "skip_and_continue": "Pasé é kontinié"
     },
     "form": {
       "email_label": "Email * :",
@@ -85,7 +88,12 @@
       "it": "PICCOLA BARCA",
       "ko": "작은 배"
     },
-    "scores_title": " Skор Mondyal"
+    "scores_title": " Skор Mondyal",
+    "confirm_reset_1": "Ou i sèr ou lé recommansé?",
+    "confirm_reset_2": "Tout progression i pèrd.",
+    "game_reset": "Jé rémé a zéro",
+    "journey_completed_title": "Voyage fini !",
+    "reset_button": "Recommansé"
   },
   "language_selector": {
     "confirm_change": "🌍 Badilisha lugha kwenda {language}?\n\nUkurasa utapakiwa tena ili kutumia tafsiri.",
