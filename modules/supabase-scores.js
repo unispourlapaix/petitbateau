@@ -1,22 +1,27 @@
 /**
  * Module Supabase Scores - Gestion des scores multi-jeux
  * @author Emmanuel Payet (Dreamer Unisona)
- * @version 1.0.0
+ * @version 1.1.0 - Ajout fallback localStorage
  */
 
 class SupabaseScores {
     constructor() {
-        // 🔧 MODE DEBUG ACTIVÉ
-        this.debugMode = true;
+        // � MODE PRODUCTION - Logs désactivés
+        this.debugMode = false;
         
         // Configuration Supabase
         this.supabaseUrl = 'https://dmszyxowetilvsanqsxm.supabase.co';
         this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
 
+        // 💾 Clés localStorage pour fallback
+        this.LOCAL_SCORES_KEY = 'petit_bateau_local_scores';
+        this.LOCAL_USER_KEY = 'petit_bateau_local_user';
+
         if (this.debugMode) {
             console.log('🔧 MODE DEBUG ACTIVÉ');
             console.log('📡 Supabase URL:', this.supabaseUrl);
             console.log('🔑 API Key (20 premiers chars):', this.supabaseKey.substring(0, 20) + '...');
+            console.log('💾 Fallback localStorage activé');
         }
 
         // Charger la librairie Supabase
@@ -28,17 +33,19 @@ class SupabaseScores {
         // ID du jeu actuel (sera défini par le jeu)
         this.currentGameId = null;
 
-        console.log('🎮 SupabaseScores initialisé');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🎮 SupabaseScores initialisé avec fallback localStorage');
+        }
     }
 
     log(...args) {
-        if (this.debugMode) {
+        if (this.debugMode && !window.PRODUCTION_MODE) {
             console.log('🔧 [DEBUG]', ...args);
         }
     }
 
     error(...args) {
-        if (this.debugMode) {
+        if (this.debugMode && !window.PRODUCTION_MODE) {
             console.error('❌ [DEBUG]', ...args);
         }
     }
@@ -53,11 +60,15 @@ class SupabaseScores {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js';
         script.onload = () => {
-            console.log('✅ Librairie Supabase chargée');
+            if (!window.PRODUCTION_MODE) {
+                console.log('✅ Librairie Supabase chargée');
+            }
             this.initSupabase();
         };
         script.onerror = () => {
-            console.error('❌ Erreur chargement Supabase - Mode hors ligne activé');
+            if (!window.PRODUCTION_MODE) {
+                console.error('❌ Erreur chargement Supabase - Mode hors ligne activé');
+            }
             this.isOffline = true;
         };
         document.head.appendChild(script);
@@ -65,32 +76,185 @@ class SupabaseScores {
 
     // Initialiser le client Supabase
     initSupabase() {
-        console.log('🔧 [DEBUG] Création du client Supabase...');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🔧 [DEBUG] Création du client Supabase...');
+        }
         this.client = window.supabase.createClient(this.supabaseUrl, this.supabaseKey);
-        console.log('🔧 [DEBUG] Client créé:', !!this.client);
-        console.log('✅ Client Supabase initialisé');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🔧 [DEBUG] Client créé:', !!this.client);
+            console.log('✅ Client Supabase initialisé');
+        }
         
         // Test de connexion immédiat
-        if (this.debugMode) {
+        if (this.debugMode && !window.PRODUCTION_MODE) {
             this.testConnection();
         }
+
+        // 🔄 Tenter de synchroniser les scores locaux en arrière-plan
+        this.attemptSync();
+    }
+
+    // Tenter une synchronisation en arrière-plan
+    async attemptSync() {
+        // Attendre 2 secondes pour laisser le jeu démarrer
+        setTimeout(async () => {
+            const localScores = this.getLocalScores().filter(s => !s.synced);
+            if (localScores.length > 0 && !window.PRODUCTION_MODE) {
+                console.log(`🔄 ${localScores.length} scores locaux non synchronisés détectés`);
+                console.log('💡 Utilisez supabaseScores.syncLocalScores() pour synchroniser');
+            }
+        }, 2000);
     }
 
     // Test de connexion (mode debug)
     async testConnection() {
-        console.log('🔧 [DEBUG] 🧪 Test de connexion à la base de données...');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🔧 [DEBUG] 🧪 Test de connexion à la base de données...');
+        }
         try {
             const { data, error } = await this.client
                 .from('games')
                 .select('count');
             
             if (error) {
-                console.error('❌ [DEBUG] Erreur connexion:', error);
+                if (!window.PRODUCTION_MODE) {
+                    console.error('❌ [DEBUG] Erreur connexion:', error);
+                }
             } else {
-                console.log('🔧 [DEBUG] ✅ Connexion OK - Nombre de jeux:', data);
+                if (!window.PRODUCTION_MODE) {
+                    console.log('✅ [DEBUG] Connexion à la base réussie');
+                }
             }
         } catch (e) {
-            console.error('❌ [DEBUG] Exception connexion:', e);
+            if (!window.PRODUCTION_MODE) {
+                console.error('❌ [DEBUG] Exception connexion:', e);
+            }
+        }
+    }
+
+    // === 💾 SYSTÈME DE FALLBACK LOCALSTORAGE ===
+
+    // Sauvegarder un score en localStorage
+    saveScoreLocal(score, options = {}) {
+        try {
+            const scores = this.getLocalScores();
+            const newScore = {
+                id: `local_${Date.now()}`,
+                score: score,
+                game_id: this.currentGameId || 'Petit Bateau',
+                user: this.currentUser || { pseudo: 'Anonyme', avatar: '👤' },
+                niveau_atteint: options.niveau_atteint || 1,
+                temps_jeu: options.temps_jeu || Math.floor(Date.now() / 1000),
+                donnees_extra: options.donnees_extra || {},
+                created_at: new Date().toISOString(),
+                synced: false // Marqueur pour synchronisation future
+            };
+
+            scores.push(newScore);
+            
+            // Garder seulement les 100 meilleurs scores locaux
+            scores.sort((a, b) => b.score - a.score);
+            const topScores = scores.slice(0, 100);
+            
+            localStorage.setItem(this.LOCAL_SCORES_KEY, JSON.stringify(topScores));
+            if (!window.PRODUCTION_MODE) {
+                console.log('💾 Score sauvegardé en localStorage:', score);
+            }
+            
+            return { success: true, local: true, score: newScore };
+        } catch (e) {
+            if (!window.PRODUCTION_MODE) {
+                console.error('❌ Erreur sauvegarde localStorage:', e);
+            }
+            return { success: false, error: e.message };
+        }
+    }
+
+    // Récupérer les scores locaux
+    getLocalScores() {
+        try {
+            const data = localStorage.getItem(this.LOCAL_SCORES_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error('❌ Erreur lecture localStorage:', e);
+            return [];
+        }
+    }
+
+    // Récupérer les scores locaux pour un jeu spécifique
+    getLocalLeaderboard(limit = 10) {
+        try {
+            const allScores = this.getLocalScores();
+            const gameScores = this.currentGameId 
+                ? allScores.filter(s => s.game_id === this.currentGameId)
+                : allScores;
+            
+            return gameScores
+                .sort((a, b) => b.score - a.score)
+                .slice(0, limit)
+                .map(s => ({
+                    score: s.score,
+                    niveau_atteint: s.niveau_atteint,
+                    temps_jeu: s.temps_jeu,
+                    created_at: s.created_at,
+                    donnees_extra: s.donnees_extra,
+                    users: {
+                        pseudo: s.user?.pseudo || 'Anonyme',
+                        avatar: s.user?.avatar || '👤',
+                        pays: s.user?.pays || null
+                    },
+                    _isLocal: true // Marqueur pour identifier les scores locaux
+                }));
+        } catch (e) {
+            console.error('❌ Erreur récupération leaderboard local:', e);
+            return [];
+        }
+    }
+
+    // Synchroniser les scores locaux avec Supabase
+    async syncLocalScores() {
+        try {
+            const localScores = this.getLocalScores().filter(s => !s.synced);
+            
+            if (localScores.length === 0) {
+                console.log('✅ Aucun score local à synchroniser');
+                return { success: true, synced: 0 };
+            }
+
+            console.log(`🔄 Synchronisation de ${localScores.length} scores locaux...`);
+            let syncedCount = 0;
+
+            for (const localScore of localScores) {
+                try {
+                    // Restaurer le contexte utilisateur
+                    this.currentUser = localScore.user;
+                    this.currentGameId = localScore.game_id;
+
+                    // Sauvegarder dans Supabase
+                    const result = await this.saveScoreDirect(localScore.score, {
+                        niveau_atteint: localScore.niveau_atteint,
+                        temps_jeu: localScore.temps_jeu,
+                        donnees_extra: localScore.donnees_extra
+                    });
+
+                    if (result.success) {
+                        // Marquer comme synchronisé
+                        localScore.synced = true;
+                        syncedCount++;
+                    }
+                } catch (e) {
+                    console.error('❌ Erreur sync score:', e);
+                }
+            }
+
+            // Sauvegarder les changements
+            localStorage.setItem(this.LOCAL_SCORES_KEY, JSON.stringify(this.getLocalScores()));
+            console.log(`✅ ${syncedCount}/${localScores.length} scores synchronisés`);
+            
+            return { success: true, synced: syncedCount };
+        } catch (e) {
+            console.error('❌ Erreur synchronisation:', e);
+            return { success: false, error: e.message };
         }
     }
 
@@ -198,6 +362,24 @@ class SupabaseScores {
         this.log('currentUser:', this.currentUser);
         this.log('currentGameId:', this.currentGameId);
         
+        // ✅ Vérifier que le client est initialisé
+        if (!this.client) {
+            this.error('Client Supabase non initialisé');
+            console.error('❌ Client Supabase non initialisé, sauvegarde locale...');
+            
+            // 💾 FALLBACK immédiat vers localStorage
+            const localResult = this.saveScoreLocal(score, options);
+            if (localResult.success) {
+                return {
+                    success: true,
+                    local: true,
+                    message: 'Score sauvegardé localement (client non initialisé)',
+                    score: localResult.score
+                };
+            }
+            return { success: false, error: 'Client non initialisé et localStorage échoué' };
+        }
+        
         if (!this.currentUser) {
             this.error('Aucun utilisateur connecté');
             console.error('❌ Aucun utilisateur connecté');
@@ -280,6 +462,12 @@ class SupabaseScores {
             // La fonction retourne un objet JSONB
             const result = data;
 
+            // ✅ Vérifier que result existe et est valide
+            if (!result) {
+                this.error('Résultat null de save_best_score');
+                throw new Error('La fonction save_best_score n\'a pas retourné de résultat');
+            }
+
             if (result.is_best) {
                 this.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
                 console.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
@@ -289,7 +477,7 @@ class SupabaseScores {
             }
 
             return {
-                success: result.success,
+                success: result.success !== false, // ✅ true si result.success n'est pas explicitement false
                 is_best: result.is_best,
                 old_score: result.old_score,
                 new_score: result.new_score,
@@ -299,6 +487,20 @@ class SupabaseScores {
         } catch (error) {
             this.error('Exception saveScoreDirect:', error);
             console.error('❌ Erreur saveScoreDirect:', error);
+            
+            // 💾 FALLBACK: Sauvegarder en localStorage
+            console.warn('⚠️ Supabase échoué, sauvegarde en localStorage...');
+            const localResult = this.saveScoreLocal(score, options);
+            
+            if (localResult.success) {
+                return {
+                    success: true,
+                    local: true,
+                    message: 'Score sauvegardé localement (sera synchronisé plus tard)',
+                    score: localResult.score
+                };
+            }
+            
             return {
                 success: false,
                 error: error.message
@@ -510,6 +712,7 @@ class SupabaseScores {
         if (!this.currentGameId) return [];
 
         try {
+            // Récupérer les scores Supabase
             const { data, error } = await this.client
                 .from('scores')
                 .select(`
@@ -526,12 +729,29 @@ class SupabaseScores {
 
             if (error) throw error;
 
-            console.log('🏆 Classement récupéré:', data.length, 'scores');
-            return data;
+            console.log('🏆 Classement Supabase récupéré:', data.length, 'scores');
+            
+            // 💾 Fusionner avec les scores locaux
+            const localScores = this.getLocalLeaderboard(limit);
+            console.log('💾 Scores locaux récupérés:', localScores.length, 'scores');
+            
+            // Combiner et trier
+            const allScores = [...data, ...localScores];
+            allScores.sort((a, b) => b.score - a.score);
+            
+            // Retourner les meilleurs
+            const topScores = allScores.slice(0, limit);
+            console.log('✅ Classement fusionné:', topScores.length, 'scores');
+            
+            return topScores;
 
         } catch (error) {
-            console.error('❌ Erreur getLeaderboard:', error);
-            return [];
+            console.error('❌ Erreur getLeaderboard Supabase, fallback localStorage...');
+            
+            // 💾 FALLBACK: Utiliser uniquement localStorage
+            const localScores = this.getLocalLeaderboard(limit);
+            console.log('💾 Classement local uniquement:', localScores.length, 'scores');
+            return localScores;
         }
     }
 

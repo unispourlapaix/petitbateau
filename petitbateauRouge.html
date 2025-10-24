@@ -647,6 +647,16 @@
         }
 
     </style>
+
+<!-- 🚀 MODE PRODUCTION ALPHA 1 -->
+<script>
+window.PRODUCTION_MODE = true;
+console.log = function() {}; // Désactiver les logs en production
+console.warn = function() {}; // Désactiver les warnings en production
+console.info = function() {}; // Désactiver les infos en production
+// Garder console.error pour le debug critique
+</script>
+
 <style id="kawaii-objects-styles">
 /* ===============================
    OBJETS KAWAII - STYLES DE BASE
@@ -2161,7 +2171,7 @@
             PW: Math.max(size.width * 0.3, 100),  // Plus large
             PH: Math.max(size.height * 0.025, 15), // Plus haut
             BS: Math.max(Math.min(size.width, size.height) * 0.025, 10),
-            SP: 5, // Vitesse fixe standard casse-briques (5 pixels/frame)
+            SP: 3.5, // Vitesse fixe standard casse-briques réduite (3.5 au lieu de 5 pixels/frame)
             CV: Math.max(Math.min(size.width, size.height) * 0.0015, 0.5) // Vitesse corbeau réduite (~0.5-3 px/frame)
         };
         
@@ -5810,13 +5820,13 @@
                 C.PW = Math.max(size.width * 0.3, 100);
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-                C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
-
                 // Effacer le message narratif de la phase 23
                 messageNarratifActif = null;
 
                 // Cacher l'indicateur d'étape
                 this.hideStepIndicator();
+
+                C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
 
                 // Vider les petits cœurs et briques pour éviter qu'ils réapparaissent
                 petitsCoeurs = [];
@@ -8002,12 +8012,23 @@
                     document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
 
                     try {
+                        // ✅ Vérifier que supabaseScores existe
+                        if (!supabaseScores) {
+                            throw new Error('Système de sauvegarde non disponible');
+                        }
+
                         console.log('💾 Début enregistrement...');
                         const ville = document.getElementById('fin-ville').value.trim() || 'Inconnue';
                         const pays = document.getElementById('fin-pays').value.trim() || 'Inconnu';
                         const age = parseInt(document.getElementById('fin-age').value) || null;
                         const genre = document.getElementById('fin-genre').value || null;
                         const avatar = document.getElementById('fin-avatar').value || null;
+
+                        // 🔧 S'assurer que le jeu est bien configuré avant de sauvegarder
+                        if (!supabaseScores.currentGameId) {
+                            console.log('⚠️ currentGameId non défini, configuration du jeu...');
+                            await supabaseScores.setCurrentGame('Petit Bateau');
+                        }
 
                         console.log('👤 Création/récupération utilisateur...', { email, pseudo, ville, pays, age, genre, avatar });
                         await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
@@ -8035,11 +8056,18 @@
                         });
 
                         if (!resultat || !resultat.success) {
-                            throw new Error(resultat?.error || 'Échec de la sauvegarde du score');
+                            const errorMsg = resultat?.error || 'Échec de la sauvegarde du score';
+                            console.error('❌ Échec sauvegarde:', errorMsg, resultat);
+                            throw new Error(errorMsg);
                         }
 
+                        // ✅ Afficher si sauvegarde locale ou en ligne
+                        const saveMsg = resultat.local 
+                            ? '💾 ' + (resultat.message || 'Score sauvegardé localement')
+                            : '✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !');
+                        
                         console.log('✅ Score sauvegardé avec succès:', resultat);
-                        document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !') + '</span>';
+                        document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">' + saveMsg + '</span>';
 
                         // Récupérer le meilleur score de l'utilisateur
                         userBestScore = await supabaseScores.getBestScore();
@@ -10335,11 +10363,11 @@
             // Plus besoin d'étoile principale - utiliser les projectiles stars
 
             // Réinitialiser la phase d'intro (activée après l'animation du bateau)
-            // 🔥 SAUF si on restaure une sauvegarde OU si la narration a déjà été démarrée
-            if (phaseIntro && (window.isRestoringGame || window.narrationStarted)) {
+            // 🔥 SAUF si on restaure une sauvegarde OU si la narration a déjà été démarrée OU si on skip l'intro
+            if (phaseIntro && (window.isRestoringGame || window.narrationStarted || window.skipIntroAnimation)) {
                 // Garder phaseIntro tel quel (déjà initialisé dans le load event)
-                console.log('🔄 Restauration ou narration active: conservation de phaseIntro', phaseIntro);
-            } else if (!phaseIntro || (!window.isRestoringGame && !window.narrationStarted)) {
+                console.log('🔄 Restauration/narration/skip active: conservation de phaseIntro', phaseIntro);
+            } else if (!phaseIntro || (!window.isRestoringGame && !window.narrationStarted && !window.skipIntroAnimation)) {
                 // Créer ou réinitialiser l'intro
                 phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
             }
@@ -11646,64 +11674,31 @@
                     ctx.fillRect(brique.x, brique.y, brique.w, brique.h);
                     ctx.strokeRect(brique.x, brique.y, brique.w, brique.h);
 
-                    // Effet 3D de brique
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.3); // Highlight du haut
-
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-                    ctx.fillRect(brique.x, brique.y + brique.h * 0.8, brique.w, brique.h * 0.2); // Ombre du bas
+                    // ⚡ OPTIMISATION: Effet 3D simplifié (pas en mode lanterne)
+                    if (!modeLanterne) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Réduit de 0.3 à 0.2
+                        ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.25); // Réduit de 0.3 à 0.25
+                    }
                 }
 
-                // ⚡ OPTIMISATION: Fissures simples en mode lanterne (pas de sin/cos)
+                // ⚡ OPTIMISATION ULTRA: Fissures simplifiées (économie sin/cos)
                 if (!estBriqueMur && ((brique.vieMax === 2 && brique.vie <= 1) || (brique.vieMax === 3 && brique.vie <= 2))) {
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 2;
                     
-                    if (modeLanterne) {
-                        // Fissure simple en mode lanterne (ligne droite)
-                        ctx.beginPath();
-                        ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
-                        ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
-                        ctx.stroke();
-                    } else {
-                        // Fissure zigzag détaillée en mode normal
-                        ctx.beginPath();
-                        const startX1 = brique.x + brique.w * 0.3;
-                        const endX1 = brique.x + brique.w * 0.2;
-                        const segments = 4;
-                        for(let i = 0; i <= segments; i++) {
-                            const progress = i / segments;
-                            const y = brique.y + progress * brique.h;
-                            const x = startX1 + (endX1 - startX1) * progress + (i % 2 === 0 ? 0 : brique.w * 0.05) * Math.sin(progress * Math.PI);
-                            if(i === 0) ctx.moveTo(x, y);
-                            else ctx.lineTo(x, y);
-                        }
-                        ctx.stroke();
-                    }
+                    // Toujours utiliser fissure simple (plus de zigzag coûteux)
+                    ctx.beginPath();
+                    ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
+                    ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
+                    ctx.stroke();
                 }
 
                 if (!estBriqueMur && brique.vie <= 1) {
-                    if (modeLanterne) {
-                        // Deuxième fissure simple en mode lanterne
-                        ctx.beginPath();
-                        ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
-                        ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
-                        ctx.stroke();
-                    } else {
-                        // Deuxième fissure zigzag détaillée
-                        ctx.beginPath();
-                        const startX2 = brique.x + brique.w * 0.7;
-                        const endX2 = brique.x + brique.w * 0.8;
-                        const segments = 4;
-                        for(let i = 0; i <= segments; i++) {
-                            const progress = i / segments;
-                            const y = brique.y + progress * brique.h;
-                            const x = startX2 + (endX2 - startX2) * progress + (i % 2 === 1 ? 0 : brique.w * 0.04) * Math.cos(progress * Math.PI);
-                            if(i === 0) ctx.moveTo(x, y);
-                            else ctx.lineTo(x, y);
-                        }
-                        ctx.stroke();
-                    }
+                    // Deuxième fissure simple toujours
+                    ctx.beginPath();
+                    ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
+                    ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
+                    ctx.stroke();
                 }
 
                 ctx.restore();
@@ -11719,13 +11714,8 @@
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#ffffff';
-                    // ⚡ OPTIMISATION: Pas de shadowBlur en mode lanterne
-                    if (!modeLanterne) {
-                        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                        ctx.shadowBlur = 5;
-                    }
+                    // ⚡ OPTIMISATION: Pas de shadowBlur (trop coûteux)
                     ctx.fillText(brique.drapeau, centreX, centreY);
-                    if (!modeLanterne) ctx.shadowBlur = 0;
                 }
 
                 // En phase stars (nuit), afficher les mots pour guider le joueur
@@ -12013,8 +12003,8 @@
             ctx.save();
             ctx.globalAlpha = messagePowerupActif.alpha;
 
-            // Position centrée verticalement pour bonne visibilité
-            const posY = C.H * 0.40; // 40% de la hauteur (juste au-dessus du centre)
+            // Position centrée en haut pour meilleure visibilité (20% au lieu de 40%)
+            const posY = C.H * 0.20; // 20% de la hauteur (haut de l'écran)
 
             // Mesurer le texte pour dimensionner le fond
             ctx.font = '14px Arial';
@@ -12517,6 +12507,12 @@
                 
                 ctx.save();
 
+                // ⚡ ANIMATION SIMPLE: Pulsation légère optimisée (même en mode lanterne)
+                const pulsation = 1 + Math.sin(power.temps * 0.1) * 0.08; // ±8% de variation, lent
+                ctx.translate(power.x + power.w/2, power.y + power.h/2);
+                ctx.scale(pulsation, pulsation);
+                ctx.translate(-(power.x + power.w/2), -(power.y + power.h/2));
+
                 // ⚡ OPTIMISATION: Ombre simplifiée en mode lanterne
                 if (!modeLanterne) {
                     ctx.fillStyle = 'rgba(0,0,0,0.2)';
@@ -12528,6 +12524,10 @@
                 switch(power.type) {
                     case 'etoile_montante':
                         couleur1 = '#FFD700'; couleur2 = '#FFA500'; couleur3 = '#FF8C00'; // Doré
+                        
+                        // ⚡ ANIMATION SPÉCIALE: Scintillement pour étoile montante
+                        const scintillement = 0.7 + Math.sin(power.temps * 0.2) * 0.3; // Scintillement
+                        ctx.globalAlpha = scintillement;
                         break;
                     case 'poxerstart':
                         couleur1 = '#FF69B4'; couleur2 = '#FF1493'; couleur3 = '#DC143C'; // Rose/Rouge
@@ -12590,6 +12590,12 @@
                         couleur1 = rainbowColors[rainbowIndex];
                         couleur2 = rainbowColors[(rainbowIndex + 1) % 7];
                         couleur3 = rainbowColors[(rainbowIndex + 2) % 7];
+                        
+                        // ⚡ ANIMATION SPÉCIALE: Rotation légère pour rainbow_hope
+                        const rotationEspoir = Math.sin(power.temps * 0.05) * 0.1; // Rotation très légère
+                        ctx.translate(power.x + power.w/2, power.y + power.h/2);
+                        ctx.rotate(rotationEspoir);
+                        ctx.translate(-(power.x + power.w/2), -(power.y + power.h/2));
                         break;
                     default:
                         couleur1 = '#00aaff'; couleur2 = '#0099dd'; couleur3 = '#0088cc'; // Bleu
@@ -12777,6 +12783,9 @@
                 if (power.type !== 'rainbow_hope') {
                     power.temps += 1;
                 }
+                
+                // Restaurer alpha normal pour animations spéciales
+                ctx.globalAlpha = 1.0;
                 ctx.restore();
             });
         }
@@ -13175,12 +13184,8 @@
         }
 
         function mettreAJourCoeursBateau() {
-            const tempsActuel = Date.now();
-
-            // Plus de cœurs automatiques pendant l'intro
-            // Pendant le jeu normal : plus de déclenchement automatique
-            // Les rafales se déclenchent seulement sur clic/touche
-
+            // Optimisation pour vieux téléphones : calculs simplifiés
+            
             // Mettre à jour les cœurs de lumière
             for(let i = coeursBateau.length - 1; i >= 0; i--) {
                 const coeur = coeursBateau[i];
@@ -13188,16 +13193,12 @@
                 coeur.y += coeur.vy; // Montée rapide
                 coeur.vx *= 0.98; // Convergence vers le centre
 
-                // Animation de flottement gauche-droite
-                if(coeur.vitesseFlottement !== undefined) {
-                    coeur.flottemment += coeur.vitesseFlottement;
-                    // Ajouter un mouvement oscillant horizontal
-                    coeur.x += Math.sin(coeur.flottemment) * 0.5;
+                // Ondulation simple comme des bulles (droite à gauche)
+                if(coeur.tempsOndulation === undefined) {
+                    coeur.tempsOndulation = 0;
                 }
-
-                // Animation de scintillement
-                coeur.scintillement += 0.2;
-                coeur.luminosite = 0.7 + 0.3 * Math.sin(coeur.scintillement);
+                coeur.tempsOndulation += 0.02; // Vitesse d'ondulation ultra-lente (0.03 → 0.02)
+                coeur.x += Math.cos(coeur.tempsOndulation) * 2; // Amplitude de 2 pixels
 
                 // Supprimer si sort de l'écran par le haut
                 if(coeur.y < -100) {
@@ -13592,42 +13593,32 @@
         function dessinerCoeursBateau() {
             coeursBateau.forEach(coeur => {
                 const couleurCoeur = coeur.couleur || '#FFFFFF';
-
-                // Forme étoile/diamant pour les cœurs du bateau
-                ctx.save();
+                const t = coeur.taille;
+                
+                // Forme de cœur simplifiée (moins de points que l'original)
                 ctx.fillStyle = couleurCoeur;
                 ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = 2;
-
-                const t = coeur.taille;
-
-                ctx.translate(coeur.x, coeur.y);
-
-                // Cœur en polygone pour le bateau
+                ctx.lineWidth = 1; // Contour blanc fin
+                
                 ctx.beginPath();
-
-                // Lobe gauche
-                ctx.moveTo(-t * 0.25, 0);
-                ctx.lineTo(-t * 0.15, -t * 0.15);
-                ctx.lineTo(-t * 0.05, -t * 0.1);
-                ctx.lineTo(-t * 0.02, 0);
-
-                // Lobe droit
-                ctx.lineTo(t * 0.02, 0);
-                ctx.lineTo(t * 0.05, -t * 0.1);
-                ctx.lineTo(t * 0.15, -t * 0.15);
-                ctx.lineTo(t * 0.25, 0);
-
-                // Descente vers la pointe
-                ctx.lineTo(t * 0.1, t * 0.15);
-                ctx.lineTo(0, t * 0.3);
-                ctx.lineTo(-t * 0.1, t * 0.15);
-
+                ctx.moveTo(coeur.x, coeur.y + t * 0.3); // Pointe du bas
+                
+                // Côté gauche simplifié
+                ctx.lineTo(coeur.x - t * 0.15, coeur.y);
+                ctx.lineTo(coeur.x - t * 0.2, coeur.y - t * 0.1);
+                ctx.lineTo(coeur.x - t * 0.1, coeur.y - t * 0.15);
+                
+                // Haut centre
+                ctx.lineTo(coeur.x, coeur.y - t * 0.05);
+                
+                // Côté droit simplifié
+                ctx.lineTo(coeur.x + t * 0.1, coeur.y - t * 0.15);
+                ctx.lineTo(coeur.x + t * 0.2, coeur.y - t * 0.1);
+                ctx.lineTo(coeur.x + t * 0.15, coeur.y);
+                
                 ctx.closePath();
                 ctx.fill();
-                ctx.stroke();
-
-                ctx.restore();
+                ctx.stroke(); // Contour blanc fin
             });
         }
 
@@ -13667,7 +13658,7 @@
                     scintillement: Math.random() * Math.PI * 2,
                     vitesseScintillement: 0.05 + Math.random() * 0.05,
                     rotation: Math.random() * Math.PI * 2,
-                    vitesseRotation: (Math.random() - 0.5) * 0.02,
+                    vitesseRotation: (Math.random() - 0.5) * 0.012, // ✅ Augmenté de 0.008 à 0.012 (un peu plus rapide)
                     pulsation: Math.random() * Math.PI * 2,
                     vitessePulsation: 0.03 + Math.random() * 0.02,
                 });
@@ -14034,7 +14025,16 @@
             }
         }
 
+        // ⚡ OPTIMISATION: Limiter les updates d'animation à 60fps
+        let _derniereUpdateCoeurs = 0;
+        const _intervalUpdateCoeurs = 16; // 60fps (16ms)
+
         function mettreAJourPetitsCoeurs() {
+            // ⚡ Skip si pas assez de temps écoulé (throttling à 60fps)
+            const now = Date.now();
+            if (now - _derniereUpdateCoeurs < _intervalUpdateCoeurs) return;
+            _derniereUpdateCoeurs = now;
+
             petitsCoeurs.forEach((coeur, index) => {
                 // Animation de scintillement
                 coeur.scintillement += coeur.vitesseScintillement;
@@ -14049,78 +14049,53 @@
         }
 
         // Fonction pour dessiner des cœurs avec 20 triangles (pour les briques)
+        // ⚡ CACHE pour optimiser dessinerCoeurPixelArt
+        let _coeurPixelCache = {
+            lastUpdate: 0,
+            pulsation: 1,
+            updateInterval: 50 // Mise à jour toutes les 50ms (20fps) au lieu de 60fps
+        };
+
         function dessinerCoeurPixelArt(x, y, taille, couleur) {
             ctx.save();
             ctx.translate(x, y);
 
             const t = taille;
-            const temps = Date.now() * 0.003;
-            const pulsation = 1 + Math.sin(temps) * 0.15; // Pulsation douce
+            
+            // ⚡ OPTIMISATION: Cache pulsation (20fps au lieu de 60fps)
+            const now = Date.now();
+            if (now - _coeurPixelCache.lastUpdate > _coeurPixelCache.updateInterval) {
+                _coeurPixelCache.pulsation = 1 + Math.sin(now * 0.003) * 0.1; // Réduit de 0.15 à 0.1
+                _coeurPixelCache.lastUpdate = now;
+            }
 
-            // Appliquer la pulsation
-            ctx.scale(pulsation, pulsation);
+            // Appliquer la pulsation cachée
+            ctx.scale(_coeurPixelCache.pulsation, _coeurPixelCache.pulsation);
 
             // Style simple et clair
             ctx.fillStyle = couleur;
             ctx.strokeStyle = '#FFFFFF';
             ctx.lineWidth = 1;
 
-            const triangleSize = t * 0.08;
-
-            // Cœur super mignon pour les briques qui pulse
+            // ⚡ CŒUR SIMPLIFIÉ: Forme basique (moins de points)
             ctx.beginPath();
-
-            // Lobe gauche (forme arrondie avec segments)
-            ctx.moveTo(-t * 0.3, -t * 0.02);
-            ctx.lineTo(-t * 0.22, -t * 0.18);
-            ctx.lineTo(-t * 0.12, -t * 0.2);
-            ctx.lineTo(-t * 0.05, -t * 0.1);
-            ctx.lineTo(-t * 0.02, -t * 0.02);
-
-            // Lobe droit (forme arrondie avec segments)
-            ctx.lineTo(t * 0.02, -t * 0.02);
-            ctx.lineTo(t * 0.05, -t * 0.1);
-            ctx.lineTo(t * 0.12, -t * 0.2);
-            ctx.lineTo(t * 0.22, -t * 0.18);
-            ctx.lineTo(t * 0.3, -t * 0.02);
-
-            // Descente vers la pointe avec courbe
-            ctx.lineTo(t * 0.18, t * 0.15);
-            ctx.lineTo(t * 0.08, t * 0.3);
-            ctx.lineTo(0, t * 0.4);
-            ctx.lineTo(-t * 0.08, t * 0.3);
-            ctx.lineTo(-t * 0.18, t * 0.15);
-
+            
+            // Forme simplifiée avec seulement 8 points
+            ctx.moveTo(-t * 0.25, 0);
+            ctx.lineTo(-t * 0.15, -t * 0.15);
+            ctx.lineTo(0, -t * 0.05);
+            ctx.lineTo(t * 0.15, -t * 0.15);
+            ctx.lineTo(t * 0.25, 0);
+            ctx.lineTo(t * 0.1, t * 0.15);
+            ctx.lineTo(0, t * 0.3);
+            ctx.lineTo(-t * 0.1, t * 0.15);
+            
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
-            // Détails mignons - petits cœurs à l'intérieur
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-
-            // Petit cœur gauche
-            ctx.beginPath();
-            ctx.moveTo(-t * 0.15, -t * 0.05);
-            ctx.lineTo(-t * 0.12, -t * 0.08);
-            ctx.lineTo(-t * 0.09, -t * 0.05);
-            ctx.lineTo(-t * 0.12, t * 0.02);
-            ctx.closePath();
-            ctx.fill();
-
-            // Petit cœur droit
-            ctx.beginPath();
-            ctx.moveTo(t * 0.09, -t * 0.05);
-            ctx.lineTo(t * 0.12, -t * 0.08);
-            ctx.lineTo(t * 0.15, -t * 0.05);
-            ctx.lineTo(t * 0.12, t * 0.02);
-            ctx.closePath();
-            ctx.fill();
-
-            // Point lumineux central
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath();
-            ctx.arc(0, t * 0.05, t * 0.02, 0, Math.PI * 2);
-            ctx.fill();
+            // ⚡ OPTIMISATION: Pas de détails intérieurs (trop coûteux pour des briques)
+            // Supprimé: petits cœurs intérieurs et point lumineux
 
             ctx.restore();
         }
@@ -14164,113 +14139,165 @@
             ctx.restore();
         }
 
+        // ⚡ VERSION OPTIMISÉE sans save/restore individuel (appelée dans un batch)
+        function dessinerCoeurPolygonalOptimise(x, y, taille, couleur, rotation = 0, intensite = 1) {
+            const t = taille;
+
+            // ⚡ Sauvegarder l'état seulement si rotation nécessaire
+            const needTransform = rotation !== 0;
+            if (needTransform) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rotation);
+            }
+
+            // Style simple
+            ctx.fillStyle = couleur;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+
+            // ⚡ Utiliser translate au lieu de save/restore si pas de rotation
+            const offsetX = needTransform ? 0 : x;
+            const offsetY = needTransform ? 0 : y;
+
+            // Cœur fait avec plusieurs triangles pour former une vraie forme
+            ctx.beginPath();
+
+            // Lobe gauche
+            ctx.moveTo(offsetX + -t * 0.3, offsetY + -t * 0.05);
+            ctx.lineTo(offsetX + -t * 0.2, offsetY + -t * 0.2);
+            ctx.lineTo(offsetX + -t * 0.1, offsetY + -t * 0.15);
+            ctx.lineTo(offsetX + -t * 0.05, offsetY + -t * 0.05);
+
+            // Lobe droit
+            ctx.lineTo(offsetX + t * 0.05, offsetY + -t * 0.05);
+            ctx.lineTo(offsetX + t * 0.1, offsetY + -t * 0.15);
+            ctx.lineTo(offsetX + t * 0.2, offsetY + -t * 0.2);
+            ctx.lineTo(offsetX + t * 0.3, offsetY + -t * 0.05);
+
+            // Côtés qui descendent vers la pointe
+            ctx.lineTo(offsetX + t * 0.15, offsetY + t * 0.1);
+            ctx.lineTo(offsetX + 0, offsetY + t * 0.4);
+            ctx.lineTo(offsetX + -t * 0.15, offsetY + t * 0.1);
+
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            if (needTransform) {
+                ctx.restore();
+            }
+        }
+
         function dessinerPetitsCoeurs() {
             // Ne pas dessiner les petits cœurs pendant l'animation du bateau, la phase lanterne, stars, final ou feux d'artifice
             if(animationBateau.active || phaseJeu === 'lanterne' || phaseJeu === 'stars' || phaseJeu === 'final' || phaseJeu === 'feux_artifice') return;
 
+            // ⚡ OPTIMISATION: Batching - un seul save/restore pour tous les cœurs
+            ctx.save();
+            
             petitsCoeurs.forEach(coeur => {
                 if(!coeur.visible) return;
 
-                // Calculs d'animation
+                // ⚡ OPTIMISATION: Calculs d'animation simplifiés
                 const intensite = (Math.sin(coeur.scintillement) + 1) * 0.5;
                 const taillePulsee = coeur.taille * (1 + Math.sin(coeur.pulsation) * 0.1);
 
-                // Dessiner le cœur polygonal
-                dessinerCoeurPolygonal(coeur.x, coeur.y, taillePulsee, coeur.couleur, coeur.rotation, intensite);
+                // Dessiner le cœur polygonal sans save/restore individuel
+                dessinerCoeurPolygonalOptimise(coeur.x, coeur.y, taillePulsee, coeur.couleur, coeur.rotation, intensite);
             });
+            
+            ctx.restore();
 
             // Dessiner l'icône thématique au centre du cercle de cœurs
             dessinerIconeThematique();
         }
 
-        // ⚡ OPTIMISATION: Variables de cache pour l'animation
+        // ⚡ OPTIMISATION ULTRA: Variables de cache pour l'animation
         let _iconeTempsCached = 0;
         let _iconePulsationCached = 1;
         let _iconeRotationCached = 0;
         let _iconeLastUpdate = 0;
+        let _iconeCache = {
+            icone: '💖',
+            font: '28px Arial',
+            hover: false,
+            needsUpdate: true
+        };
 
-        // Fonction unifiée pour dessiner l'icône centrale (Phase 23 ou énigmes)
+        // Fonction optimisée pour dessiner l'icône centrale
         function dessinerIconeCentrale(isPhase23 = false) {
             // Ne pas afficher l'icône si l'animation est en cours (sauf Phase 23)
             if (!isPhase23 && animationIconeMenu.active) return;
 
-            // Position selon la phase
+            // Position selon la phase (cachée)
             const centerX = C.W / 2;
             const centerY = isPhase23 ? 60 : C.H * 0.30;
-
-            // Mettre à jour la zone cliquable de l'icône centrale
             const iconSize = 60;
-            menuEnigmesCanvas.centralIcon.x = centerX - iconSize / 2;
-            menuEnigmesCanvas.centralIcon.y = centerY - iconSize / 2;
-            menuEnigmesCanvas.centralIcon.width = iconSize;
-            menuEnigmesCanvas.centralIcon.height = iconSize;
 
-            // ⚡ OPTIMISATION: Recalculer l'animation seulement toutes les 16ms (60fps)
+            // Zone cliquable mise à jour seulement si nécessaire
+            if (_iconeCache.needsUpdate) {
+                menuEnigmesCanvas.centralIcon.x = centerX - iconSize / 2;
+                menuEnigmesCanvas.centralIcon.y = centerY - iconSize / 2;
+                menuEnigmesCanvas.centralIcon.width = iconSize;
+                menuEnigmesCanvas.centralIcon.height = iconSize;
+                _iconeCache.needsUpdate = false;
+            }
+
+            // ⚡ OPTIMISATION: Recalculer l'animation à 30fps au lieu de 60fps (économie CPU)
             const now = Date.now();
-            if (now - _iconeLastUpdate > 16) {
+            if (now - _iconeLastUpdate > 33) { // 30fps = 33ms
                 _iconeTempsCached = now * 0.003;
-                const pulsationBase = menuEnigmesCanvas.centralIcon.hover ? 0.25 : 0.15;
+                const pulsationBase = menuEnigmesCanvas.centralIcon.hover ? 0.2 : 0.1; // Réduit de 25%/15% à 20%/10%
                 _iconePulsationCached = 1 + Math.sin(_iconeTempsCached) * pulsationBase;
-                _iconeRotationCached = Math.sin(_iconeTempsCached * 0.5) * 0.08;
+                _iconeRotationCached = Math.sin(_iconeTempsCached * 0.5) * 0.05; // Réduit de 0.08 à 0.05
                 _iconeLastUpdate = now;
             }
 
-            // ⚡ OPTIMISATION: Un seul ctx.save pour tout
+            // Déterminer l'icône (avec cache)
+            if (_iconeCache.needsUpdate || _iconeCache.hover !== menuEnigmesCanvas.centralIcon.hover) {
+                if (!isPhase23) {
+                    const iconesThematiques = {
+                        'humanite': '🤝', 'paix': '🕊️', 'diversite': '🌈', 'liberte': '🗽',
+                        'foi': '🙏', 'respect': '🤲', 'entraide': '💞', 'hopital': '🏥',
+                        'restauration': '🌱', 'coeurs': '💖', 'liberation': '🕊️',
+                        'guerison': '✨', 'renaissance': '🌸', 'transformation': '🦋',
+                        'elevation': '🌟', 'illumination': '💫'
+                    };
+                    _iconeCache.icone = iconesThematiques[phaseJeu] || '💖';
+                    _iconeCache.font = '28px Arial';
+                } else {
+                    _iconeCache.icone = '❤️';
+                    _iconeCache.font = '50px Arial';
+                }
+                _iconeCache.hover = menuEnigmesCanvas.centralIcon.hover;
+                detecterFinNiveau();
+            }
+
+            // Rendu optimisé avec un seul save/restore
             ctx.save();
             ctx.translate(centerX, centerY);
-
-            // Effet de bordure cliquable si survolée
+            
+            // Bordure hover simplifiée (sans shadowBlur coûteux)
             if (menuEnigmesCanvas.centralIcon.hover) {
-                ctx.save();
-                ctx.scale(_iconePulsationCached, _iconePulsationCached);
-                
-                // Bordure lumineuse blanche
                 ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.shadowColor = '#ffffff';
-                ctx.shadowBlur = 10;
+                ctx.lineWidth = 2; // Réduit de 3 à 2
                 ctx.beginPath();
-                ctx.arc(0, 0, 35, 0, Math.PI * 2);
+                ctx.arc(0, 0, 30 * _iconePulsationCached, 0, Math.PI * 2);
                 ctx.stroke();
-                
-                ctx.restore();
             }
 
             ctx.rotate(_iconeRotationCached);
             ctx.scale(_iconePulsationCached, _iconePulsationCached);
 
-            // Déterminer l'icône à afficher
-            let icone = '💖'; // Cœur par défaut
-            
-            if (!isPhase23) {
-                // Mapping des icônes selon les phases
-                const iconesThematiques = {
-                    'humanite': '🤝', 'paix': '🕊️', 'diversite': '🌈', 'liberte': '🗽',
-                    'foi': '🙏', 'respect': '🤲', 'entraide': '💞', 'hopital': '🏥',
-                    'restauration': '🌱', 'coeurs': '💖', 'liberation': '🕊️',
-                    'guerison': '✨', 'renaissance': '🌸', 'transformation': '🦋',
-                    'elevation': '🌟', 'illumination': '💫'
-                };
-                icone = iconesThematiques[phaseJeu] || '💖';
-                detecterFinNiveau();
-            } else {
-                icone = '❤️'; // Phase 23 finale
-            }
-
-            // Affichage de l'icône
-            ctx.font = isPhase23 ? '50px Arial' : '28px Arial';
+            // Affichage de l'icône (optimisé)
+            ctx.font = _iconeCache.font;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-
-            // Effet de lueur douce
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-            ctx.shadowBlur = 10;
             ctx.fillStyle = '#ffffff';
-            ctx.fillText(icone, 0, 0);
-
-            // Deuxième couche sans ombre pour plus de clarté
-            ctx.shadowBlur = 0;
-            ctx.fillText(icone, 0, 0);
+            
+            // Effet de lueur simplifié (sans shadowBlur)
+            ctx.fillText(_iconeCache.icone, 0, 0);
 
             ctx.restore();
         }
@@ -16750,8 +16777,29 @@ Elle a besoin de ponts.`
             // Nettoyer SANS toucher au score/progression
             briques = [];
             projectiles = [];
+            starsProjectiles = [];
             particules = [];
             powerUps = [];
+            petitsCoeurs = [];
+            
+            // ✅ Nettoyer les états temporaires (power-ups, modes spéciaux)
+            if (window.modeTirStars) {
+                window.modeTirStars = { actif: false, fin: 0 };
+            }
+            if (raquette) {
+                raquette.poxerstart = false;
+                raquette.poxerstartFin = 0;
+            }
+            
+            // ✅ Définir un flag AVANT de désactiver l'intro pour éviter que initJeu() la réactive
+            window.skipIntroAnimation = true;
+            
+            // ✅ Désactiver l'animation du bateau (intro)
+            animationBateau.active = false;
+            animationBateau.phase = 'complete';
+            
+            // ✅ Désactiver la phase d'intro
+            phaseIntro = { active: false, etape: 'complete', tempsDebut: 0 };
             
             // Cacher les messages narratifs
             cacherMessage();
@@ -16763,24 +16811,36 @@ Elle a besoin de ponts.`
                 overlay.remove();
             }
             
-            // Recréer les briques selon la phase actuelle
-            if (phaseActuelle >= 2) {
-                dedoublerCoeursEnBriques();
-            }
+            // ✅ NE PAS créer les briques maintenant, laisser executeCurrentPhase() le faire
+            // après avoir configuré le bon mode de jeu
             
-            // Réactiver le jeu
-            jeu = true;
+            // ✅ Forcer la reconfiguration en réinitialisant phaseJeu
+            phaseJeu = '';
             
-            // Ré-exécuter l'action de la phase SANS afficher la narration
-            if (narrationManager && phaseActuelle > 0 && phaseActuelle < narrationManager.phases.length) {
+            // ✅ Désactiver temporairement le jeu pendant la reconfiguration
+            jeu = false;
+            
+            // ✅ Ré-exécuter la configuration complète de la phase (mode de jeu, briques, etc.)
+            if (narrationManager && phaseActuelle > 0) {
+                // ✅ Récupérer la phase par son numéro (pas par index)
+                const phase = narrationManager.getCurrentPhase();
+                if (phase && phase.mode) {
+                    console.log(`🔧 Configuration directe du mode: ${phase.mode} pour phase ${phaseActuelle} (${phase.titre})`);
+                    
+                    // Appeler directement la méthode de configuration appropriée
+                    narrationManager.configureGameMode(phase.mode);
+                } else {
+                    console.error(`❌ Phase ${phaseActuelle} non trouvée !`);
+                }
+                
+                // ✅ Réactiver le jeu APRÈS configuration
                 setTimeout(() => {
-                    const phase = narrationManager.phases[phaseActuelle];
-                    if (phase && phase.action && typeof phase.action === 'function') {
-                        // Exécuter uniquement l'action de gameplay, pas le texte narratif
-                        phase.action();
-                    }
-                    console.log(`✅ Phase ${phaseActuelle} recréée (score: ${score}, vies: ${vies})`);
-                }, 100);
+                    jeu = true;
+                    console.log(`✅ Phase ${phaseActuelle} recréée avec mode ${phaseJeu} (score: ${score}, vies: ${vies})`);
+                    
+                    // ✅ Nettoyer le flag après la recréation
+                    window.skipIntroAnimation = false;
+                }, 50);
             }
         }
 
@@ -17255,14 +17315,26 @@ Elle a besoin de ponts.`
                 ctx.arc(soleilX, soleilY, soleilR, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Rayons du soleil (plus nombreux pendant le lever)
+                // ⚡ OPTIMISATION: Rayons du soleil avec throttling et cache
+                const frameCount = Date.now();
+                if (frameCount - fondAniméCache.lastSunRaysFrame > fondAniméCache.sunRaysThrottle * 16) { // ~30fps
+                    const rotationSoleil = frameCount * 0.0005; // Rotation lente cachée
+                    const nbRayons = leverSoleil.active ? 12 : 6; // Réduit: 16→12, 8→6
+                    
+                    // Précalculer les angles des rayons
+                    fondAniméCache.sunRaysAngles = [];
+                    for(let i = 0; i < nbRayons; i++) {
+                        fondAniméCache.sunRaysAngles.push((i / nbRayons) * Math.PI * 2 + rotationSoleil);
+                    }
+                    fondAniméCache.lastSunRaysFrame = frameCount;
+                }
+                
+                // Dessiner les rayons avec les angles cachés
                 ctx.strokeStyle = leverSoleil.active ? ctx.fillStyle : '#FFD700';
-                ctx.lineWidth = leverSoleil.active ? 4 : 3;
-                const nbRayons = leverSoleil.active ? 16 : 8;
-                for(let i = 0; i < nbRayons; i++) {
-                    const rotationSoleil = Date.now() * 0.0005; // Rotation lente
-                    const angle = (i / nbRayons) * Math.PI * 2 + rotationSoleil;
-                    const longueurRayon = leverSoleil.active ? 25 : 15;
+                ctx.lineWidth = leverSoleil.active ? 4 : 3; // ✅ Épaisseur originale restaurée
+                
+                fondAniméCache.sunRaysAngles.forEach(angle => {
+                    const longueurRayon = leverSoleil.active ? 20 : 12; // Réduit: 25→20, 15→12
                     const x1 = soleilX + Math.cos(angle) * (soleilR + 5);
                     const y1 = soleilY + Math.sin(angle) * (soleilR + 5);
                     const x2 = soleilX + Math.cos(angle) * (soleilR + longueurRayon);
@@ -17271,7 +17343,7 @@ Elle a besoin de ponts.`
                     ctx.moveTo(x1, y1);
                     ctx.lineTo(x2, y2);
                     ctx.stroke();
-                }
+                });
             } else {
                 // CHAPITRE 2: Lune inquiétante
                 luneX = C.W * 0.2;
@@ -19376,7 +19448,7 @@ Elle a besoin de ponts.`
                 C.PW = Math.max(size.width * 0.3, 100);
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-                C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
+                C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
                 
                 // ⚡ OPTIMISATION: Invalider cache gradients pour recréer avec nouvelles dimensions
                 fondAniméCache.gradients.fondFinale = null;
@@ -19431,7 +19503,7 @@ Elle a besoin de ponts.`
                     C.PW = Math.max(size.width * 0.3, 100);
                     C.PH = Math.max(size.height * 0.025, 15);
                     C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-                    C.SP = Math.max(Math.min(size.width, size.height) * 0.002, 1.5);
+                    C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
                     if(!jeu) initJeu();
                 }, 300); // Délai pour laisser le temps au navigateur de se repositionner
             });
@@ -20290,10 +20362,12 @@ Elle a besoin de ponts.`
                 }
                 mettreAJourParticules();
 
-                // Pluie uniquement en phase 5
+                // Pluie - mise à jour toujours si active
+                mettreAJourPluie();
+                
+                // Création de gouttes uniquement en phase 5
                 if (narrationManager && narrationManager.currentPhase === 5) {
                     creerGouttesPluie();
-                    mettreAJourPluie();
                 }
 
                 mettreAJourPowerUps();
@@ -20940,8 +21014,10 @@ Elle a besoin de ponts.`
                 window.isRestoringGame = true;
                 window.narrationStarted = true;
                 window.skipNarrationIntro = true;
+                window.skipIntroAnimation = false; // ✅ Initialiser le flag
                 console.log('🔒 Sauvegarde détectée - Flags de blocage activés');
             } else {
+                window.skipIntroAnimation = false; // ✅ Initialiser le flag
                 console.log('ℹ️ Pas de sauvegarde - Démarrage normal');
             }
             
@@ -21003,6 +21079,7 @@ Elle a besoin de ponts.`
                         window.isRestoringGame = false;
                         window.narrationStarted = false;
                         window.skipNarrationIntro = false;
+                        window.skipIntroAnimation = false; // ✅ Reset du flag
                     }
                 } else {
                     // Pas de sauvegarde valide → Démarrage normal
@@ -21010,6 +21087,7 @@ Elle a besoin de ponts.`
                     window.isRestoringGame = false;
                     window.narrationStarted = false;
                     window.skipNarrationIntro = false;
+                    window.skipIntroAnimation = false; // ✅ Reset du flag
                 }
             }
 

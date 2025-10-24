@@ -611,11 +611,20 @@
                     throw error;
                 }
 
-                console.log('✅ Données reçues:', data?.length || 0, 'records');
+                console.log('✅ Données Supabase reçues:', data?.length || 0, 'records');
                 console.log('📊 Total count:', count);
                 console.log('🎮 Jeux trouvés:', [...new Set(data?.map(s => s.game_id) || [])]);
 
                 allScores = Array.isArray(data) ? data : [];
+                
+                // 💾 AJOUTER LES SCORES LOCAUX
+                const localScores = getLocalScores();
+                console.log('💾 Scores locaux trouvés:', localScores.length);
+                allScores = [...allScores, ...localScores];
+                
+                // Trier par score décroissant
+                allScores.sort((a, b) => b.score - a.score);
+                
                 loadedCount = allScores.length;
                 totalScores = count || 0;
 
@@ -627,26 +636,59 @@
                     totalScores = allScores.length;
                 }
 
-                console.log('✅ Scores chargés:', loadedCount, 'Total:', totalScores);
+                console.log('✅ Scores chargés (Supabase + Local):', loadedCount, 'Total DB:', totalScores);
                 console.log('🏆 Top 3:', allScores.slice(0, 3).map(s => ({ 
-                    pseudo: s.users?.pseudo || s.donnees_extra?.pseudo, 
+                    pseudo: s.users?.pseudo || s.user?.pseudo || s.donnees_extra?.pseudo, 
                     score: s.score,
-                    game: s.game_id
+                    game: s.game_id,
+                    local: s._isLocal || false
                 })));
 
                 updateStats();
                 renderPage();
             } catch (error) {
                 console.error('❌ Erreur complète:', error);
-                console.log('📌 Création de données de test...');
+                console.log('📌 Tentative de chargement scores locaux uniquement...');
                 
-                // Utiliser données de test en cas d'erreur
-                allScores = createTestScores();
+                // 💾 FALLBACK: Utiliser scores locaux + test
+                const localScores = getLocalScores();
+                const testScores = createTestScores();
+                allScores = [...localScores, ...testScores];
+                allScores.sort((a, b) => b.score - a.score);
+                
                 loadedCount = allScores.length;
                 totalScores = allScores.length;
                 
+                console.log('💾 Mode hors ligne:', loadedCount, 'scores (local + test)');
                 updateStats();
                 renderPage();
+            }
+        }
+
+        // 💾 Récupérer les scores localStorage
+        function getLocalScores() {
+            try {
+                const data = localStorage.getItem('petit_bateau_local_scores');
+                if (!data) return [];
+                
+                const scores = JSON.parse(data);
+                return scores.map(s => ({
+                    score: s.score,
+                    niveau_atteint: s.niveau_atteint,
+                    temps_jeu: s.temps_jeu,
+                    created_at: s.created_at,
+                    donnees_extra: s.donnees_extra,
+                    game_id: s.game_id,
+                    users: {
+                        pseudo: s.user?.pseudo || 'Anonyme',
+                        avatar: s.user?.avatar || '👤',
+                        pays: s.user?.pays || null
+                    },
+                    _isLocal: true
+                }));
+            } catch (e) {
+                console.error('❌ Erreur lecture localStorage:', e);
+                return [];
             }
         }
 

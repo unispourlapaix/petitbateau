@@ -78,11 +78,8 @@ class AudioManager {
         // Configuration du lecteur de musique
         this.musicPlayer.volume = this.volume.master * this.volume.music;
         this.musicPlayer.loop = false;
-        this.musicPlayer.addEventListener('ended', () => {
-            if (this.autoPlayNext) {
-                this.playNext();
-            }
-        });
+        
+        // ⚡ FIX: Un seul event listener (doublon supprimé)
         this.musicPlayer.addEventListener('ended', () => {
             if (this.autoPlayNext) {
                 this.playNext();
@@ -94,7 +91,9 @@ class AudioManager {
         this.masterGain.connect(this.ctx.destination);
         this.masterGain.gain.value = this.volume.master * this.volume.sfx;
 
-        console.log('🎵 AudioManager unifié initialisé');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🎵 AudioManager unifié initialisé');
+        }
     }
 
     // === CONTRÔLES GÉNÉRAUX ===
@@ -110,7 +109,9 @@ class AudioManager {
             this.masterGain.gain.value = this.volume.master * this.volume.sfx;
         }
         
-        console.log(`🎚️ Volume master: ${Math.round(this.volume.master * 100)}% (musicPlayer: ${Math.round(this.musicPlayer.volume * 100)}%, muté: ${this.isMuted})`);
+        if (!window.PRODUCTION_MODE) {
+            console.log(`🎚️ Volume master: ${Math.round(this.volume.master * 100)}% (musicPlayer: ${Math.round(this.musicPlayer.volume * 100)}%, muté: ${this.isMuted})`);
+        }
     }
 
     toggleMute() {
@@ -122,14 +123,18 @@ class AudioManager {
             this.musicPlayer.volume = 0;
             this.masterGain.gain.value = 0;
             if (this.isPlaying) this.pause();
-            console.log('🔇 Muté (volume sauvegardé:', Math.round(this.volumeBeforeMute * 100) + '%)');
+            if (!window.PRODUCTION_MODE) {
+                console.log('🔇 Muté (volume sauvegardé:', Math.round(this.volumeBeforeMute * 100) + '%)');
+            }
         } else {
             // Restaurer le volume d'avant le mute
             const volToRestore = this.volumeBeforeMute || this.volume.master;
             this.musicPlayer.volume = volToRestore * this.volume.music;
             this.masterGain.gain.value = volToRestore * this.volume.sfx;
             if (!this.isPlaying) this.play();
-            console.log('🔊 Démuté (volume restauré:', Math.round(volToRestore * 100) + '%)');
+            if (!window.PRODUCTION_MODE) {
+                console.log('🔊 Démuté (volume restauré:', Math.round(volToRestore * 100) + '%)');
+            }
         }
     }
 
@@ -184,7 +189,7 @@ class AudioManager {
             
             // Mode aléatoire SEULEMENT si c'est après le mode secret (normal) et randomMode activé
             // Sinon, toujours en mode séquentiel pour le jeu normal
-            if (phase !== 'secret' && !this.randomMode) {
+            if (!window.PRODUCTION_MODE && phase !== 'secret' && !this.randomMode) {
                 // Garder le mode séquentiel pour le jeu normal
                 console.log('🎵 Jeu normal - Mode séquentiel maintenu');
             }
@@ -196,7 +201,9 @@ class AudioManager {
             .filter(({ track }) => track.phases.includes(phase));
 
         if (appropriateTracks.length === 0) {
-            console.log('🎵 Aucune piste disponible pour la phase', phase);
+            if (!window.PRODUCTION_MODE) {
+                console.log('🎵 Aucune piste disponible pour la phase', phase);
+            }
             return;
         }
 
@@ -240,7 +247,9 @@ class AudioManager {
         this.musicPlayer.volume = 0; // Démarrer silencieux pour le fade in
         this.musicPlayer.play()
             .then(() => {
-                console.log('🎵 Lecture séquentielle:', this.currentTrack.file);
+                if (!window.PRODUCTION_MODE) {
+                    console.log('🎵 Lecture séquentielle:', this.currentTrack.file);
+                }
                 this.isPlaying = true;
                 this.fadeIn(); // Fade in progressif
             })
@@ -367,7 +376,9 @@ class AudioManager {
         // Si on entre en mode secret, désactiver le mode aléatoire
         if (phase === 'secret') {
             this.setRandomMode(false);
-            console.log('🎵 Entrée mode secret - Mode séquentiel activé');
+            if (!window.PRODUCTION_MODE) {
+                console.log('🎵 Entrée mode secret - Mode séquentiel activé');
+            }
         }
         this.changePhaseNumber(phase);
     }
@@ -380,12 +391,16 @@ class AudioManager {
     // Activer/désactiver le mode aléatoire
     setRandomMode(enabled) {
         this.randomMode = enabled;
-        console.log('🎵 Mode aléatoire:', enabled ? 'ACTIVÉ' : 'DÉSACTIVÉ');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🎵 Mode aléatoire:', enabled ? 'ACTIVÉ' : 'DÉSACTIVÉ');
+        }
     }
 
     // Méthode pour reprendre la musique après le mode secret
     resumeAfterSecret() {
-        console.log('🎵 Reprise musique après mode secret - Mode aléatoire activé');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🎵 Reprise musique après mode secret - Mode aléatoire activé');
+        }
         this.setRandomMode(true);
         this.currentPhase = 'normal';
         this.playedTracks = [];
@@ -394,7 +409,9 @@ class AudioManager {
 
     // Méthode pour démarrer la musique normale (séquentielle)
     startNormalMusic() {
-        console.log('🎵 Démarrage musique normale - Mode séquentiel');
+        if (!window.PRODUCTION_MODE) {
+            console.log('🎵 Démarrage musique normale - Mode séquentiel');
+        }
         this.setRandomMode(false);
         this.currentPhase = 'normal';
         this.playedTracks = [];
