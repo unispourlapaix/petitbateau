@@ -477,7 +477,7 @@ class SupabaseScores {
             }
 
             return {
-                success: result.success !== false, // ✅ true si result.success n'est pas explicitement false
+                success: true, // ✅ Si on arrive ici, la sauvegarde a fonctionné (record ou pas)
                 is_best: result.is_best,
                 old_score: result.old_score,
                 new_score: result.new_score,

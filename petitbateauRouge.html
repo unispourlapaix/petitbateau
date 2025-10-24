@@ -8070,7 +8070,10 @@ console.info = function() {}; // Désactiver les infos
                             }
                         });
 
-                        if (!resultat || !resultat.success) {
+                        // ✅ Considérer la sauvegarde réussie si on a un user_id (même si success=false)
+                        const saveSuccess = resultat && (resultat.success || resultat.user_id);
+                        
+                        if (!saveSuccess) {
                             const errorMsg = resultat?.error || 'Échec de la sauvegarde du score';
                             console.error('❌ Échec sauvegarde:', errorMsg, resultat);
                             throw new Error(errorMsg);
