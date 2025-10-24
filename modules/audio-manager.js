@@ -11,8 +11,9 @@ class AudioManager {
             return window.audioManager;
         }
 
-        // Contexte audio pour les effets sonores
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // ✅ AudioContext différé (créé après interaction utilisateur)
+        this.ctx = null;
+        this.audioContextInitialized = false;
         
         // Lecteur de musique
         this.musicPlayer = new Audio();
@@ -86,13 +87,37 @@ class AudioManager {
             }
         });
 
-        // Nœud principal pour les effets sonores
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.connect(this.ctx.destination);
-        this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+        // ✅ AudioContext sera créé lors de la première interaction
+        this.masterGain = null;
 
         // ✅ Toujours logger l'initialisation audio (même en production)
-        console.log('🎵 AudioManager unifié initialisé');
+        console.log('🎵 AudioManager unifié initialisé (AudioContext différé)');
+    }
+
+    // ✅ Initialiser l'AudioContext après interaction utilisateur
+    initAudioContext() {
+        if (this.audioContextInitialized) return true;
+
+        try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Reprendre le contexte s'il est suspendu
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+            
+            // Créer le nœud principal pour les effets sonores
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.connect(this.ctx.destination);
+            this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+            
+            this.audioContextInitialized = true;
+            console.log('🎵 AudioContext initialisé avec succès');
+            return true;
+        } catch (error) {
+            console.error('❌ Erreur initialisation AudioContext:', error);
+            return false;
+        }
     }
 
     // === CONTRÔLES GÉNÉRAUX ===
@@ -105,7 +130,11 @@ class AudioManager {
         // IMPORTANT: Toujours appliquer le volume même si muté (pour que le démute fonctionne)
         if (!this.isMuted) {
             this.musicPlayer.volume = this.volume.master * this.volume.music;
-            this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+            
+            // ✅ Vérifier que l'AudioContext est initialisé avant d'utiliser masterGain
+            if (this.masterGain) {
+                this.masterGain.gain.value = this.volume.master * this.volume.sfx;
+            }
         }
         
         if (!window.PRODUCTION_MODE) {
@@ -120,7 +149,9 @@ class AudioManager {
             // Sauvegarder le volume actuel avant de muter
             this.volumeBeforeMute = this.volume.master;
             this.musicPlayer.volume = 0;
-            this.masterGain.gain.value = 0;
+            if (this.masterGain) {
+                this.masterGain.gain.value = 0;
+            }
             if (this.isPlaying) this.pause();
             if (!window.PRODUCTION_MODE) {
                 console.log('🔇 Muté (volume sauvegardé:', Math.round(this.volumeBeforeMute * 100) + '%)');
@@ -129,7 +160,9 @@ class AudioManager {
             // Restaurer le volume d'avant le mute
             const volToRestore = this.volumeBeforeMute || this.volume.master;
             this.musicPlayer.volume = volToRestore * this.volume.music;
-            this.masterGain.gain.value = volToRestore * this.volume.sfx;
+            if (this.masterGain) {
+                this.masterGain.gain.value = volToRestore * this.volume.sfx;
+            }
             if (!this.isPlaying) this.play();
             if (!window.PRODUCTION_MODE) {
                 console.log('🔊 Démuté (volume restauré:', Math.round(volToRestore * 100) + '%)');
@@ -140,6 +173,12 @@ class AudioManager {
     // === EFFETS SONORES ===
 
     async loadEffect(name) {
+        // ✅ Initialiser l'AudioContext si nécessaire
+        if (!this.audioContextInitialized) {
+            const success = this.initAudioContext();
+            if (!success) return null;
+        }
+
         if (this.effectsCache.has(name)) {
             return this.effectsCache.get(name);
         }
@@ -159,12 +198,18 @@ class AudioManager {
 
     async playEffect(name) {
         try {
+            // ✅ Initialiser l'AudioContext si nécessaire
+            if (!this.audioContextInitialized) {
+                const success = this.initAudioContext();
+                if (!success) return;
+            }
+
             if (this.ctx.state === 'suspended') {
                 await this.ctx.resume();
             }
 
             const buffer = await this.loadEffect(name);
-            if (!buffer) return;
+            if (!buffer || !this.masterGain) return;
 
             const source = this.ctx.createBufferSource();
             source.buffer = buffer;
@@ -180,6 +225,12 @@ class AudioManager {
     play(phase = 'normal') {
         // ✅ Logger le démarrage musique même en production
         console.log('🎵 Démarrage musique phase:', phase);
+        
+        // ✅ Initialiser l'AudioContext au premier démarrage
+        if (!this.audioContextInitialized) {
+            console.log('🎵 Initialisation AudioContext...');
+            this.initAudioContext();
+        }
         
         if (this.isMuted) return;
         
