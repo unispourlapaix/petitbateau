@@ -243,33 +243,43 @@
 
         .leaderboard-stats {
             display: flex;
-            justify-content: space-around;
-            gap: 15px;
+            justify-content: center;
+            gap: 0;
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .stat-box {
             background: white;
-            padding: 15px 20px;
+            padding: 15px 30px;
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            flex: 1;
-            min-width: 150px;
+            flex: 0 0 auto;
+            min-width: auto;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .stat-divider {
+            width: 2px;
+            height: 30px;
+            background: #e0e0e0;
+            margin: 0 15px;
         }
 
         .stat-value {
             font-size: 1.8em;
             font-weight: bold;
             color: #3498db;
-            display: block;
+            display: inline-block;
         }
 
         .stat-label {
-            font-size: 0.85em;
-            color: #7f8c8d;
-            margin-top: 5px;
+            font-size: 2em;
+            margin: 0;
         }
 
         .search-box {
@@ -434,25 +444,54 @@
         }
 
         @media (max-width: 768px) {
+            .module-container {
+                padding: 25px;
+            }
+
+            .main-title {
+                font-size: 2em;
+            }
+
+            .platforms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-section {
+                padding: 20px 15px;
+            }
+
+            .leaderboard-title {
+                font-size: 1.5em;
+            }
+
             .table-header,
             .table-row {
-                grid-template-columns: 50px 50px 1fr 80px;
-                gap: 10px;
-                font-size: 12px;
-                padding: 12px 15px;
+                grid-template-columns: 40px 40px 1fr 70px;
+                gap: 8px;
+                font-size: 11px;
+                padding: 10px 12px;
             }
 
             .player-level,
             .badges {
-                display: none;
+                display: none !important;
             }
 
-            .leaderboard-stats {
-                flex-direction: column;
+            .player-name {
+                font-size: 12px;
             }
 
-            .stat-box {
-                min-width: 100%;
+            .score-value {
+                font-size: 14px;
+            }
+
+            .pagination {
+                gap: 5px;
+            }
+
+            .page-btn {
+                padding: 6px 10px;
+                font-size: 12px;
             }
         }
     </style>
@@ -473,16 +512,11 @@
 
             <div class="leaderboard-stats">
                 <div class="stat-box">
+                    <span class="stat-label">👥</span>
                     <span class="stat-value" id="totalPlayers">-</span>
-                    <span class="stat-label">Joueurs</span>
-                </div>
-                <div class="stat-box">
+                    <div class="stat-divider"></div>
+                    <span class="stat-label">🏆</span>
                     <span class="stat-value" id="topScore">-</span>
-                    <span class="stat-label">Meilleur Score</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-value" id="avgScore">-</span>
-                    <span class="stat-label">Score Moyen</span>
                 </div>
             </div>
 
@@ -778,10 +812,8 @@
             
             if (allScores.length > 0) {
                 const topScore = allScores[0].score;
-                const avgScore = Math.round(allScores.reduce((sum, s) => sum + s.score, 0) / allScores.length);
                 
                 document.getElementById('topScore').textContent = topScore.toLocaleString();
-                document.getElementById('avgScore').textContent = avgScore.toLocaleString();
             }
         }
 
