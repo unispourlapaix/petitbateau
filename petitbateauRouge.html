@@ -13045,11 +13045,11 @@ console.info = function() {}; // Désactiver les infos
                             break;
 
                         case 'vitesse':
-                            // Balle plus rapide pendant 15 secondes (ne pas cumuler)
+                            // Balle plus rapide pendant 60 secondes (ne pas cumuler)
                             if(!balle.vitesseActive) {
                                 balle.multiplicateurVitesse = 1.8; // Fixe à 1.8x pour éviter l'accumulation
                                 balle.vitesseActive = true;
-                                balle.vitesseFinTime = Date.now() + 15000; // 15s (augmenté de 8s)
+                                balle.vitesseFinTime = Date.now() + 60000; // 60s (1 minute complète)
 
                                 // Effet visuel de traînée verte
                                 balle.traineeVerte = true;
@@ -13058,9 +13058,9 @@ console.info = function() {}; // Désactiver les infos
                                     balle.multiplicateurVitesse = 1; // Reset à 1 au lieu de diviser
                                     balle.vitesseActive = false;
                                     balle.traineeVerte = false;
-                                }, 15000);
+                                }, 60000);
 
-                                ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#00FF00', 15);console.log('💨 Mode vitesse TURBO activé (15s) - 1.8x plus rapide!');
+                                ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#00FF00', 15);console.log('💨 Mode vitesse TURBO activé (60s) - 1.8x plus rapide!');
 
                                 // 🔊 Son de collecte power-up
                                 AudioSystem.playCollect();
