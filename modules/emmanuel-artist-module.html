@@ -724,14 +724,21 @@
     </div>
 
     <script type="module">
-        // Import Supabase
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
         // Configuration Supabase - UTILISER LE MÊME QUE LE JEU
         const SUPABASE_URL = 'https://dmszyxowetilvsanqsxm.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
         
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Import Supabase (optionnel - fallback sur scores locaux si échec)
+        let supabase = null;
+        
+        try {
+            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('✅ Supabase chargé avec succès');
+        } catch (error) {
+            console.warn('⚠️ Supabase non disponible, utilisation scores locaux uniquement:', error);
+            supabase = null;
+        }
 
         let currentPage = 1;
         const perPage = 100;
