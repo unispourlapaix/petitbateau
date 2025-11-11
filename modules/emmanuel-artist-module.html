@@ -2,25 +2,26 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title id="page-title">Emmanuel Payet - Artiste Chrétien</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .module-container {
@@ -443,33 +444,113 @@
             font-size: 1.1em;
         }
 
+        /* 📱 OPTIMISATIONS MOBILE - Résolution adaptative */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .module-container {
-                padding: 25px;
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+
+            .header {
+                margin-bottom: 25px;
             }
 
             .main-title {
-                font-size: 2em;
+                font-size: 1.8em;
+            }
+
+            .subtitle {
+                font-size: 1em;
             }
 
             .platforms-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
 
+            .platform-card {
+                padding: 20px;
+            }
+
+            .platform-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            .platform-title {
+                font-size: 1.2em;
+            }
+
+            .platform-description {
+                font-size: 0.85em;
+                line-height: 1.5;
+            }
+
+            .inspiring-quote {
+                font-size: 0.95em;
+                padding: 20px;
+                margin-top: 25px;
+            }
+
+            .inspiring-quote::before,
+            .inspiring-quote::after {
+                font-size: 3em;
+            }
+
+            /* Leaderboard mobile */
             .leaderboard-section {
-                padding: 20px 15px;
+                padding: 15px 10px;
+                margin: 20px 0 30px 0;
             }
 
             .leaderboard-title {
+                font-size: 1.4em;
+            }
+
+            .leaderboard-subtitle {
+                font-size: 0.85em;
+            }
+
+            .leaderboard-stats {
+                flex-direction: row;
+                gap: 0;
+            }
+
+            .stat-box {
+                padding: 10px 15px;
+                gap: 5px;
+            }
+
+            .stat-value {
+                font-size: 1.3em;
+            }
+
+            .stat-label {
                 font-size: 1.5em;
+            }
+
+            .stat-divider {
+                height: 20px;
+                margin: 0 10px;
+            }
+
+            .search-box {
+                padding: 10px 15px;
+                font-size: 12px;
             }
 
             .table-header,
             .table-row {
                 grid-template-columns: 40px 40px 1fr 70px;
-                gap: 8px;
-                font-size: 11px;
-                padding: 10px 12px;
+                gap: 5px;
+                font-size: 10px;
+                padding: 8px 10px;
             }
 
             .player-level,
@@ -478,20 +559,84 @@
             }
 
             .player-name {
-                font-size: 12px;
+                font-size: 11px;
+            }
+
+            .avatar {
+                font-size: 18px;
+            }
+
+            .rank {
+                font-size: 13px;
+            }
+
+            .rank.medal {
+                font-size: 18px;
             }
 
             .score-value {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             .pagination {
-                gap: 5px;
+                gap: 4px;
             }
 
             .page-btn {
-                padding: 6px 10px;
-                font-size: 12px;
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .load-more-btn {
+                padding: 12px 30px;
+                font-size: 14px;
+            }
+        }
+
+        /* 📱 EXTRA PETITS ÉCRANS (iPhone SE, etc.) */
+        @media (max-width: 380px) {
+            .module-container {
+                padding: 15px 10px;
+            }
+
+            .main-title {
+                font-size: 1.5em;
+            }
+
+            .subtitle {
+                font-size: 0.9em;
+            }
+
+            .platform-card {
+                padding: 15px;
+            }
+
+            .platform-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+
+            .platform-title {
+                font-size: 1.1em;
+            }
+
+            .platform-description {
+                font-size: 0.8em;
+            }
+
+            .platform-url {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+
+            .leaderboard-title {
+                font-size: 1.2em;
+            }
+
+            .table-header,
+            .table-row {
+                padding: 6px 8px;
             }
         }
     </style>

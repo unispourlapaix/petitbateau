@@ -1,16 +1,19 @@
 {
-  "name": "petit-bateau-icons",
+  "name": "petit-bateau-rouge",
   "version": "1.0.0",
-  "description": "Générateur d'icônes pour l'app Petit Bateau",
+  "description": "Petit Bateau Rouge - Jeu d'énigmes poétique par Emmanuel Payet",
   "main": "generate-icons.js",
   "scripts": {
+    "start": "npx http-server -p 3000 -c-1 --cors -o petitbateauRouge.html",
+    "dev": "npx http-server -p 3000 -c-1 --cors -o petitbateauRouge.html",
+    "serve": "npx http-server -p 8080 -c-1 --cors",
     "generate-icons": "node generate-icons.js",
     "install-deps": "npm install canvas"
   },
   "dependencies": {
     "canvas": "^2.11.2"
   },
-  "keywords": ["icons", "pwa", "petit-bateau"],
-  "author": "Petit Bateau Team",
+  "keywords": ["icons", "pwa", "petit-bateau", "game", "jeu"],
+  "author": "Emmanuel Payet - Petit Bateau Team",
   "license": "MIT"
 }

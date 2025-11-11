@@ -2074,7 +2074,7 @@ console.info = function() {}; // Désactiver les infos
 
             // Sur mobile, utiliser les dimensions réelles de l'écran
             if (isMobile) {
-                // 📱 SYSTÈME DE QUALITÉ ADAPTATIVE - 3 NIVEAUX
+                // 📱 SYSTÈME DE QUALITÉ ADAPTATIVE OPTIMISÉ - Résolution réduite pour performances
                 const basePixelRatio = window.devicePixelRatio || 1;
                 
                 // Détecter les performances du device
@@ -2083,25 +2083,26 @@ console.info = function() {}; // Désactiver les infos
                     const cores = navigator.hardwareConcurrency || 4;
                     const screenPixels = window.screen.width * window.screen.height;
                     
-                    // 🟢 HAUTE QUALITÉ : Desktop-like, Flagship (iPhone 14+, Galaxy S22+)
-                    // - 8GB+ RAM OU 8+ cores OU < 2M pixels
+                    // 🟢 QUALITÉ MOYENNE : Tous les flagships
+                    // - 8GB+ RAM OU 8+ cores - ratio réduit pour meilleures perfs
                     if (memory >= 8 || cores >= 8 || screenPixels < 2000000) {
-                        return { level: 'high', ratio: 1.0, name: '🟢 Haute' };
+                        return { level: 'medium', ratio: 0.75, name: '🟢 Optimisée' };
                     }
                     
-                    // 🟡 QUALITÉ MOYENNE : Milieu de gamme (iPhone 11-13, Galaxy A52)
+                    // 🟡 QUALITÉ ÉCONOMIQUE : Milieu de gamme (iPhone 11-13, Galaxy A52)
                     // - 4-6GB RAM, 4-6 cores, écrans FHD+
                     if (memory >= 4 || cores >= 4) {
-                        return { level: 'medium', ratio: 0.75, name: '🟡 Moyenne' };
+                        return { level: 'low', ratio: 0.5, name: '🟡 Économique' };
                     }
                     
-                    // 🔴 QUALITÉ BASSE : Entrée de gamme
-                    // - < 4GB RAM, < 4 cores
-                    return { level: 'low', ratio: 0.5, name: '🔴 Économie' };
+                    // 🔴 QUALITÉ MINIMALE : Entrée de gamme
+                    // - < 4GB RAM, < 4 cores - ratio très réduit
+                    return { level: 'minimal', ratio: 0.35, name: '🔴 Minimale' };
                 };
                 
                 const quality = detectQualityLevel();
-                const pixelRatio = basePixelRatio * quality.ratio;
+                // Limiter le pixelRatio final pour éviter les résolutions trop élevées
+                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.5);
                 
                 console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
                 console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
@@ -4169,14 +4170,17 @@ console.info = function() {}; // Désactiver les infos
 
                 let yPos = menuY + 100;
 
-                // ✅ Affichage amélioré du meilleur score utilisateur
+                // ✅ Affichage mobile optimisé du meilleur score utilisateur
                 if (userBestScore) {
-                    ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+                    // 📱 Détection mobile
+                    const isMobileView = C.W < 500;
+                    
+                    ctx.font = `bold ${isMobileView ? 14 : 16}px "Segoe UI", system-ui, sans-serif`;
                     ctx.fillStyle = '#3b82f6';
                     ctx.fillText(getTranslatedText('game.your_best', '✨ Votre meilleur score'), C.W / 2, yPos);
-                    yPos += 25;
+                    yPos += isMobileView ? 22 : 25;
 
-                    // ✅ Fond amélioré avec coins arrondis
+                    // ✅ Fond amélioré avec coins arrondis - adaptatif
                     const donnees = userBestScore.donnees_extra;
                     let bgColor = 'rgba(59, 130, 246, 0.08)';
                     if (donnees && donnees.sagesse) {
@@ -4188,8 +4192,8 @@ console.info = function() {}; // Désactiver les infos
                         bgColor = `rgba(${r}, ${g}, ${b}, 0.12)`;
                     }
                     
-                    const userBoxWidth = 320;
-                    const userBoxHeight = 50;
+                    const userBoxWidth = isMobileView ? Math.min(C.W - 60, 260) : 320;
+                    const userBoxHeight = isMobileView ? 45 : 50;
                     const userBoxX = C.W / 2 - userBoxWidth / 2;
                     
                     ctx.fillStyle = bgColor;
@@ -4197,21 +4201,29 @@ console.info = function() {}; // Désactiver les infos
                     ctx.roundRect(userBoxX, yPos - 25, userBoxWidth, userBoxHeight, 8);
                     ctx.fill();
 
-                    // Score utilisateur
-                    ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                    // Score utilisateur - adaptatif
+                    ctx.font = `bold ${isMobileView ? 16 : 18}px "Segoe UI", system-ui, sans-serif`;
                     ctx.fillStyle = '#1e293b';
                     ctx.fillText(userBestScore.score.toLocaleString() + ' pts', C.W / 2, yPos - 5);
 
-                    // ✅ Niveau et énigmes avec meilleur espacement
+                    // ✅ Niveau et énigmes - version mobile simplifiée
                     if (donnees && donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
-                        ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+                        ctx.font = `${isMobileView ? 11 : 13}px "Segoe UI", system-ui, sans-serif`;
                         ctx.fillStyle = '#64748b';
-                        const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                        ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 12);
+                        
+                        if (isMobileView) {
+                            // Mobile: version compacte sans sagesse en nombre
+                            const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
+                            ctx.fillText(niveau.icone + ' ' + niveau.titre + enigmesInfo, C.W / 2, yPos + 12);
+                        } else {
+                            // Desktop: version complète
+                            const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
+                            ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 12);
+                        }
                     }
 
-                    yPos += 55; // ✅ Plus d'espace après le score utilisateur
+                    yPos += isMobileView ? 48 : 55;
                 }
 
                 // ✅ Texte cliquable surligné "🏆 Scores Mondial" (lien vers emmanuel-artist-module.html)
@@ -4276,10 +4288,15 @@ console.info = function() {}; // Désactiver les infos
                     ctx.fillStyle = '#94a3b8';
                     ctx.fillText(getTranslatedText('game.quotes.be_first', 'Soyez le premier à terminer le jeu !'), C.W / 2, yPos);
                 } else {
-                    // ✅ AFFICHAGE AMÉLIORÉ DES SCORES - Meilleur espacement
+                    // ✅ AFFICHAGE OPTIMISÉ MOBILE DES SCORES - Layout adaptatif
                     ctx.textAlign = 'left';
-                    const startX = menuX + 40;
-                    const lineHeight = 55; // ✅ Augmenté pour éviter le chevauchement des traductions
+                    
+                    // 📱 OPTIMISATION MOBILE: Adapter l'espacement selon la largeur
+                    const isMobileView = C.W < 500;
+                    const startX = menuX + (isMobileView ? 15 : 40);
+                    const lineHeight = isMobileView ? 48 : 55; // Plus compact sur mobile
+                    const fontSize = isMobileView ? 13 : 16; // Texte plus petit sur mobile
+                    const pseudoMaxLength = isMobileView ? 10 : 15; // Pseudo plus court sur mobile
 
                     leaderboardData.forEach((entry, index) => {
                         // Position et rang
@@ -4303,85 +4320,95 @@ console.info = function() {}; // Désactiver les infos
                         ctx.fillStyle = bgColor;
                         
                         // ✅ Rectangle arrondi pour chaque entrée
-                        const entryX = menuX + 25;
-                        const entryWidth = menuWidth - 50;
+                        const entryX = menuX + (isMobileView ? 10 : 25);
+                        const entryWidth = menuWidth - (isMobileView ? 20 : 50);
                         const entryHeight = lineHeight - 5;
-                        const entryY = yPos - 28;
+                        const entryY = yPos - (isMobileView ? 24 : 28);
                         
                         ctx.beginPath();
                         ctx.roundRect(entryX, entryY, entryWidth, entryHeight, 6);
                         ctx.fill();
 
-                        // Médaille/Rang
-                        ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+                        // Médaille/Rang - plus petit sur mobile
+                        ctx.font = `bold ${isMobileView ? 13 : 16}px "Segoe UI", system-ui, sans-serif`;
                         ctx.fillStyle = '#1e293b';
                         ctx.fillText(medal, startX, yPos);
 
-                        // Avatar (si présent)
+                        // Avatar (si présent) - plus petit sur mobile
                         const avatar = entry.users?.avatar || donnees?.avatar;
-                        let pseudoX = startX + 35;
+                        let pseudoX = startX + (isMobileView ? 28 : 35);
                         if (avatar) {
-                            ctx.font = '18px "Segoe UI", system-ui, sans-serif';
-                            ctx.fillText(avatar, startX + 35, yPos);
-                            pseudoX = startX + 58;
+                            ctx.font = `${isMobileView ? 15 : 18}px "Segoe UI", system-ui, sans-serif`;
+                            ctx.fillText(avatar, startX + (isMobileView ? 25 : 35), yPos);
+                            pseudoX = startX + (isMobileView ? 45 : 58);
                         }
 
-                        // Pseudo (tronqué si trop long)
-                        ctx.font = '15px "Segoe UI", system-ui, sans-serif';
+                        // Pseudo (tronqué adaptatif selon taille écran)
+                        ctx.font = `${isMobileView ? 13 : 15}px "Segoe UI", system-ui, sans-serif`;
                         ctx.fillStyle = '#475569';
                         const pseudo = entry.users?.pseudo || donnees?.pseudo || 'Anonyme';
-                        const maxPseudoLength = 15; // ✅ Limiter la longueur pour éviter débordement
-                        const displayPseudo = pseudo.length > maxPseudoLength ? pseudo.substring(0, maxPseudoLength) + '...' : pseudo;
+                        const displayPseudo = pseudo.length > pseudoMaxLength ? pseudo.substring(0, pseudoMaxLength) + '...' : pseudo;
                         ctx.fillText(displayPseudo, pseudoX, yPos);
 
-                        // ✅ Niveau de sagesse et infos sur ligne séparée avec plus d'espace
+                        // ✅ Niveau de sagesse - Conditionnel sur mobile
                         if (donnees && donnees.sagesse) {
                             const niveau = getNiveauSagesse(donnees.sagesse);
-                            ctx.font = '11px "Segoe UI", system-ui, sans-serif';
-                            ctx.fillStyle = '#94a3b8';
+                            
+                            if (!isMobileView) {
+                                // Version desktop complète
+                                ctx.font = '11px "Segoe UI", system-ui, sans-serif';
+                                ctx.fillStyle = '#94a3b8';
+                                const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
+                                const infoText = `${niveau.icone} ${niveau.titre}${enigmesInfo}`;
+                                ctx.fillText(infoText, pseudoX, yPos + 18);
 
-                            // Afficher niveau + énigmes collectées (plus compact et lisible)
-                            const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                            const infoText = `${niveau.icone} ${niveau.titre}${enigmesInfo}`;
-                            ctx.fillText(infoText, pseudoX, yPos + 18); // ✅ Plus d'espace vertical
-
-                            // ✅ Badges spéciaux repositionnés pour éviter conflit
-                            const badges = getBadges(donnees, index === 0, donnees.enigmes);
-                            if (badges.length > 0) {
-                                let badgeX = menuX + menuWidth - 140; // ✅ Plus à gauche pour éviter score
-                                badges.forEach((badge, badgeIndex) => {
-                                    if (badgeIndex < 3) { // ✅ Limiter à 3 badges max
-                                        ctx.font = '12px "Segoe UI", system-ui, sans-serif';
-                                        ctx.fillStyle = '#f39c12';
-                                        ctx.fillText(badge.icone, badgeX, yPos + 18);
-                                        badgeX += 16;
-                                    }
-                                });
+                                // Badges spéciaux
+                                const badges = getBadges(donnees, index === 0, donnees.enigmes);
+                                if (badges.length > 0) {
+                                    let badgeX = menuX + menuWidth - 140;
+                                    badges.forEach((badge, badgeIndex) => {
+                                        if (badgeIndex < 3) {
+                                            ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+                                            ctx.fillStyle = '#f39c12';
+                                            ctx.fillText(badge.icone, badgeX, yPos + 18);
+                                            badgeX += 16;
+                                        }
+                                    });
+                                }
+                            } else {
+                                // 📱 Version mobile simplifiée - juste icône niveau
+                                ctx.font = '9px "Segoe UI", system-ui, sans-serif';
+                                ctx.fillStyle = '#94a3b8';
+                                ctx.fillText(`${niveau.icone}`, pseudoX, yPos + 14);
                             }
                         }
 
-                        // ✅ Score positionné pour éviter conflit avec badges
-                        ctx.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+                        // ✅ Score positionné adaptatif
+                        ctx.font = `bold ${isMobileView ? 13 : 16}px "Segoe UI", system-ui, sans-serif`;
                         ctx.fillStyle = '#3b82f6';
                         ctx.textAlign = 'right';
-                        ctx.fillText(entry.score.toLocaleString() + ' pts', menuX + menuWidth - 30, yPos - 5); // ✅ Décalé vers le haut
+                        const scoreText = isMobileView ? entry.score.toLocaleString() : entry.score.toLocaleString() + ' pts';
+                        ctx.fillText(scoreText, menuX + menuWidth - (isMobileView ? 15 : 30), yPos - (isMobileView ? 2 : 5));
                         ctx.textAlign = 'left';
 
                         yPos += lineHeight;
                     });
                 }
 
-                // ✅ Message de motivation avec design moderne amélioré
+                // ✅ Message de motivation avec design moderne adaptatif
                 yPos = menuY + menuHeight - 50;
                 ctx.textAlign = 'center';
-                ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+                
+                // 📱 Adapter la taille selon l'écran
+                const isMobileView = C.W < 500;
+                ctx.font = `${isMobileView ? 11 : 13}px "Segoe UI", system-ui, sans-serif`;
                 
                 const motivationText = getTranslatedText('ui.complete_game_save_score', 
                     'Terminez le jeu pour enregistrer votre score !');
                 const textMetrics = ctx.measureText(motivationText);
                 const textWidth = textMetrics.width;
-                const padding = 12;
-                const boxHeight = 28;
+                const padding = isMobileView ? 8 : 12;
+                const boxHeight = isMobileView ? 24 : 28;
                 
                 const boxX = C.W / 2 - textWidth / 2 - padding;
                 const boxY = yPos - boxHeight / 2;
@@ -4390,7 +4417,7 @@ console.info = function() {}; // Désactiver les infos
                 // ✅ Fond rose moderne avec roundRect
                 ctx.fillStyle = 'rgba(255, 182, 193, 0.25)';
                 ctx.beginPath();
-                ctx.roundRect(boxX, boxY, boxW, boxHeight, 14);
+                ctx.roundRect(boxX, boxY, boxW, boxHeight, isMobileView ? 10 : 14);
                 ctx.fill();
                 
                 // Bordure
