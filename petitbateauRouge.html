@@ -15348,8 +15348,9 @@ console.info = function() {}; // Désactiver les infos
                 }
 
                 // ✨ PAILLETTES MAGIQUES AUTOUR DU PROJECTILE ✨
-                // ⚡ OPTIMISATION: Réduit de 8 à 4 paillettes pour performance
-                const sparkleCount = 4;
+                // ⚡ OPTIMISATION: Adaptatif selon qualité device (4→2→1 paillettes)
+                const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0 };
+                const sparkleCount = Math.max(1, Math.floor(4 * effects.particleMultiplier));
                 const sparkleTime = Date.now() * 0.005;
                 for (let s = 0; s < sparkleCount; s++) {
                     const angle = (s / sparkleCount) * Math.PI * 2 + sparkleTime;
@@ -15360,8 +15361,11 @@ console.info = function() {}; // Désactiver les infos
                     
                     ctx.save();
                     ctx.globalAlpha = 0.6 + Math.sin(sparkleTime * 3 + s) * 0.3;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = '#FFFFFF';
+                    // ⚡ OPTIMISATION: shadowBlur adaptatif selon device
+                    if (effects.shadows) {
+                        ctx.shadowBlur = Math.min(8, effects.shadowBlurMax);
+                        ctx.shadowColor = '#FFFFFF';
+                    }
                     ctx.fillStyle = '#FFFFFF';
                     ctx.beginPath();
                     ctx.arc(sparkleX, sparkleY, sparkleSize, 0, Math.PI * 2);
@@ -15375,8 +15379,10 @@ console.info = function() {}; // Désactiver les infos
                     
                     // Phase 22 : Traînée de paillettes arc-en-ciel ✨
                     if (config.trailType === 'sparkle') {
-                        // ⚡ OPTIMISATION: Réduit de /2 à /3 pour performance (25/3 ≈ 8)
-                        const sparkleCount = Math.floor(trailLength / 3);
+                        // ⚡ OPTIMISATION: Adaptatif selon qualité device (~8→4→2 paillettes)
+                        const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0 };
+                        const baseSparkleCount = Math.floor(trailLength / 3);
+                        const sparkleCount = Math.max(2, Math.floor(baseSparkleCount * effects.particleMultiplier));
                         for (let s = 0; s < sparkleCount; s++) {
                             const sparkleRatio = s / sparkleCount;
                             const sparkleX = posX - projectile.dx * (sparkleRatio * trailLength / config.speed);
@@ -15389,8 +15395,11 @@ console.info = function() {}; // Désactiver les infos
                             // Dessiner une étoile scintillante plus grande et plus visible
                             ctx.save();
                             ctx.globalAlpha = 0.9 - sparkleRatio * 0.6; // Plus opaque au début
-                            ctx.shadowBlur = 20; // Glow encore plus intense
-                            ctx.shadowColor = sparkleColor;
+                            // ⚡ OPTIMISATION: shadowBlur adaptatif selon device
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(20, effects.shadowBlurMax);
+                                ctx.shadowColor = sparkleColor;
+                            }
                             ctx.fillStyle = sparkleColor;
 
                             ctx.translate(sparkleX, sparkleY);
@@ -15409,9 +15418,11 @@ console.info = function() {}; // Désactiver les infos
                             ctx.closePath();
                             ctx.fill();
 
-                            // Ajouter un second glow pour plus d'éclat
-                            ctx.shadowBlur = 30;
-                            ctx.globalAlpha = 0.6 - sparkleRatio * 0.4;
+                            // Ajouter un second glow pour plus d'éclat (si shadows activés)
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(30, effects.shadowBlurMax * 1.5);
+                                ctx.globalAlpha = 0.6 - sparkleRatio * 0.4;
+                            }
                             ctx.fill();
 
                             ctx.restore();
