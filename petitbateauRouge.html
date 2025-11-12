@@ -15687,7 +15687,7 @@ console.info = function() {}; // Désactiver les infos
                     trailLength: 45,
                     colorChange: false,
                     particles: true,
-                    particleCount: 6, // ⚡ OPTIMISATION: Réduit de 12 à 6 pour performance
+                    particleCount: 3, // ⚡ OPTIMISATION ULTIME: Réduit de 6 à 3 (max absolu)
                     particleEmoji: '💰',
                     cadence: 12,
                     speed: 3.5,
@@ -15961,23 +15961,23 @@ console.info = function() {}; // Désactiver les infos
                                 
                                 // Phase 20 : particules emoji 💰
                                 if (proj.config.particleEmoji) {
-                                    // ⚡ OPTIMISATION: Adapter selon device (6→3→2)
-                                    const adaptedCount = Math.max(2, Math.floor(particleCount * effects.particleMultiplier));
+                                    // ⚡ OPTIMISATION ULTIME: Fixé à 3 particules max pour performance
+                                    const adaptedCount = Math.min(3, Math.max(2, Math.floor(particleCount * effects.particleMultiplier)));
                                     for (let p = 0; p < adaptedCount; p++) {
                                         const angle = (Math.PI * 2 * p) / adaptedCount;
-                                        const speed = 2 + Math.random() * 3;
+                                        const speed = 2 + Math.random() * 2; // ⚡ Réduit variabilité vitesse
                                         particules.push({
                                             x: proj.x,
                                             y: proj.y,
                                             vx: Math.cos(angle) * speed,
                                             vy: Math.sin(angle) * speed,
                                             couleur: '#FFD700',
-                                            vie: 30 + Math.random() * 20,
-                                            taille: 12, // ⚡ OPTIMISATION: Réduit de 16 à 12px
+                                            vie: 25 + Math.random() * 10, // ⚡ Durée réduite: 30-50 → 25-35 frames
+                                            taille: 12,
                                             type: 'emoji',
                                             emoji: proj.config.particleEmoji,
-                                            rotation: Math.random() * Math.PI * 2,
-                                            rotationSpeed: (Math.random() - 0.5) * 0.1
+                                            rotation: 0, // ⚡ Pas de rotation aléatoire initiale
+                                            rotationSpeed: 0.05 // ⚡ Rotation fixe simplifiée (au lieu de random)
                                         });
                                     }
                                 } else {
