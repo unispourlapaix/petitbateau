@@ -2037,11 +2037,6 @@
             }
         };
 
-        // Fonction pour détecter la langue depuis l'URL ou le parent
-        function detectLanguage() {
-            return detectInitialLanguage(); // Utilise la même logique
-        }
-
         // Fonction pour appliquer la traduction
         function applyTranslation(lang) {
             const t = translations[lang];
@@ -2123,7 +2118,7 @@
         // ⚡ INITIALISATION UNIQUE AU CHARGEMENT DU DOM
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Détecter et appliquer la langue
-            currentLang = detectLanguage();
+            currentLang = detectInitialLanguage();
             applyTranslation(currentLang);
             console.log('🌍 Module Emmanuel chargé en:', currentLang);
             
