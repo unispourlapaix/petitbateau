@@ -1496,12 +1496,12 @@ console.info = function() {}; // Désactiver les infos
 
 .custom-popup {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 500px;
-    width: 90%;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    max-width: 380px;
+    width: 85%;
     overflow: hidden;
-    animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     border: 3px solid transparent;
     background-clip: padding-box;
     position: relative;
@@ -1513,24 +1513,24 @@ console.info = function() {}; // Désactiver les infos
     top: 0;
     left: 0;
     right: 0;
-    height: 6px;
+    height: 4px;
     background: linear-gradient(90deg, #0055A4 33%, #FFFFFF 33%, #FFFFFF 66%, #EF4135 66%);
 }
 
 .custom-popup-header {
-    padding: 24px 24px 16px;
+    padding: 16px 16px 12px;
     text-align: center;
     position: relative;
 }
 
 .custom-popup-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    animation: bounceIn 0.6s ease;
+    font-size: 3rem;
+    margin-bottom: 8px;
+    animation: bounceIn 0.5s ease;
 }
 
 .custom-popup-title {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     color: #1e293b;
     margin: 0;
@@ -1538,13 +1538,13 @@ console.info = function() {}; // Désactiver les infos
 }
 
 .custom-popup-body {
-    padding: 0 24px 24px;
+    padding: 0 16px 16px;
     text-align: center;
 }
 
 .custom-popup-message {
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.5;
     color: #475569;
     margin: 0;
     white-space: pre-line;
@@ -1553,8 +1553,8 @@ console.info = function() {}; // Désactiver les infos
 
 .custom-popup-buttons {
     display: flex;
-    gap: 12px;
-    padding: 0 24px 24px;
+    gap: 10px;
+    padding: 0 16px 16px;
     justify-content: center;
 }
 
@@ -1782,7 +1782,7 @@ console.info = function() {}; // Désactiver les infos
 
                     // Icône = drapeau de la langue cible
                     icon.textContent = targetFlag;
-                    icon.style.fontSize = '4rem';
+                    icon.style.fontSize = '3rem';
                     
                     // Pas de titre ni message (universel)
                     title.textContent = '';
@@ -1797,14 +1797,14 @@ console.info = function() {}; // Désactiver les infos
                     closeBtn.innerHTML = '✕';
                     closeBtn.style.cssText = `
                         position: absolute;
-                        top: 15px;
-                        right: 15px;
+                        top: 10px;
+                        right: 10px;
                         background: rgba(255, 255, 255, 0.1);
                         border: 2px solid rgba(255, 255, 255, 0.3);
                         border-radius: 50%;
-                        width: 40px;
-                        height: 40px;
-                        font-size: 24px;
+                        width: 32px;
+                        height: 32px;
+                        font-size: 20px;
                         color: rgba(255, 255, 255, 0.7);
                         cursor: pointer;
                         transition: all 0.3s;
@@ -1843,7 +1843,7 @@ console.info = function() {}; // Désactiver les infos
                         const continueBtn = document.createElement('button');
                         continueBtn.className = 'custom-popup-btn custom-popup-btn-icon';
                         continueBtn.textContent = '➡️';
-                        continueBtn.style.cssText = 'background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: 3px solid #93c5fd; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 3rem; padding: 25px; min-width: 100px; border-radius: 15px; transition: all 0.3s; cursor: pointer;';
+                        continueBtn.style.cssText = 'background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: 3px solid #93c5fd; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 2.2rem; padding: 18px; min-width: 80px; border-radius: 12px; transition: all 0.3s; cursor: pointer;';
                         continueBtn.onmouseenter = () => {
                             continueBtn.style.transform = 'translateY(-5px) scale(1.05)';
                             continueBtn.style.boxShadow = '0 8px 30px rgba(59, 130, 246, 0.6), inset 0 2px 15px rgba(255, 255, 255, 0.3)';
@@ -1863,7 +1863,7 @@ console.info = function() {}; // Désactiver les infos
                         const restartBtn = document.createElement('button');
                         restartBtn.className = 'custom-popup-btn custom-popup-btn-icon';
                         restartBtn.textContent = '🔄';
-                        restartBtn.style.cssText = 'background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); border: 3px solid #c4b5fd; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 3rem; padding: 25px; min-width: 100px; border-radius: 15px; transition: all 0.3s; cursor: pointer;';
+                        restartBtn.style.cssText = 'background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); border: 3px solid #c4b5fd; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 2.2rem; padding: 18px; min-width: 80px; border-radius: 12px; transition: all 0.3s; cursor: pointer;';
                         restartBtn.onmouseenter = () => {
                             restartBtn.style.transform = 'translateY(-5px) scale(1.05) rotate(-15deg)';
                             restartBtn.style.boxShadow = '0 8px 30px rgba(139, 92, 246, 0.6), inset 0 2px 15px rgba(255, 255, 255, 0.3)';
@@ -1883,7 +1883,7 @@ console.info = function() {}; // Désactiver les infos
                         const confirmBtn = document.createElement('button');
                         confirmBtn.className = 'custom-popup-btn custom-popup-btn-icon';
                         confirmBtn.textContent = '➡️';
-                        confirmBtn.style.cssText = 'background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: 3px solid #93c5fd; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 3rem; padding: 25px; min-width: 100px; border-radius: 15px; transition: all 0.3s; cursor: pointer;';
+                        confirmBtn.style.cssText = 'background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: 3px solid #93c5fd; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.2); font-size: 2.2rem; padding: 18px; min-width: 80px; border-radius: 12px; transition: all 0.3s; cursor: pointer;';
                         confirmBtn.onmouseenter = () => {
                             confirmBtn.style.transform = 'translateY(-5px) scale(1.05)';
                             confirmBtn.style.boxShadow = '0 8px 30px rgba(59, 130, 246, 0.6), inset 0 2px 15px rgba(255, 255, 255, 0.3)';
