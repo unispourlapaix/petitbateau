@@ -2156,17 +2156,14 @@
                         const selectedLang = opt.dataset.lang;
                         console.log('🌍 Langue sélectionnée:', selectedLang);
                         
-                        // 💾 SAUVEGARDER dans localStorage AVANT de recharger
+                        // 💾 Sauvegarder et appliquer la nouvelle langue
                         localStorage.setItem('selectedLanguage', selectedLang);
                         console.log('💾 Langue sauvegardée dans localStorage:', selectedLang);
                         
                         applyTranslation(selectedLang);
                         dropdown.classList.remove('open');
                         
-                        // Rafraîchir la page pour appliquer complètement les traductions
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 100);
+                        // Plus besoin de reload : applyTranslation() redessine déjà tout !
                     });
                 });
             } else {
