@@ -10833,7 +10833,7 @@ console.info = function() {}; // Désactiver les infos
             C.PW = Math.max(C.W * 0.3, 100);  // Plus large
             C.PH = Math.max(C.H * 0.025, 15); // Plus haut
             C.BS = Math.max(Math.min(C.W, C.H) * 0.04, 16); // Taille de balle agrandie
-            C.SP = Math.max(Math.min(C.W, C.H) * 0.0015, 1.2); // Vitesse balle normale
+            C.SP = Math.max(Math.min(C.W, C.H) * 0.001, 0.8); // Vitesse balle modérée
 
             // Les objets kawaii seront activés après l'animation d'intro
             // activerObjetsKawaii(); // Trop tôt, on attend la fin de l'intro
@@ -15348,7 +15348,8 @@ console.info = function() {}; // Désactiver les infos
                 }
 
                 // ✨ PAILLETTES MAGIQUES AUTOUR DU PROJECTILE ✨
-                const sparkleCount = 8;
+                // ⚡ OPTIMISATION: Réduit de 8 à 4 paillettes pour performance
+                const sparkleCount = 4;
                 const sparkleTime = Date.now() * 0.005;
                 for (let s = 0; s < sparkleCount; s++) {
                     const angle = (s / sparkleCount) * Math.PI * 2 + sparkleTime;
@@ -15374,7 +15375,8 @@ console.info = function() {}; // Désactiver les infos
                     
                     // Phase 22 : Traînée de paillettes arc-en-ciel ✨
                     if (config.trailType === 'sparkle') {
-                        const sparkleCount = Math.floor(trailLength / 2); // Plus de paillettes (25/2 ≈ 12)
+                        // ⚡ OPTIMISATION: Réduit de /2 à /3 pour performance (25/3 ≈ 8)
+                        const sparkleCount = Math.floor(trailLength / 3);
                         for (let s = 0; s < sparkleCount; s++) {
                             const sparkleRatio = s / sparkleCount;
                             const sparkleX = posX - projectile.dx * (sparkleRatio * trailLength / config.speed);
