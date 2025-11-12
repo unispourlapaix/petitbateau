@@ -15111,8 +15111,8 @@ console.info = function() {}; // Désactiver les infos
                     vie: Math.random() * 40 + 20, // Réduit : 20-60 au lieu de 30-90
                     taille: Math.random() * 6 + 2, // Plus grosses
                     type: typeParticule,
-                    rotation: Math.random() * Math.PI * 2,
-                    rotationSpeed: (Math.random() - 0.5) * 0.05,
+                    rotation: 0, // ⚡ Rotation fixe (0 au lieu de random)
+                    rotationSpeed: 0.03, // ⚡ Vitesse fixe (au lieu de random)
                     longueur: Math.random() * 30 + 15, // Pour les traits lumineux
                     angle: Math.random() * Math.PI * 2 // Angle du trait
                 });
@@ -15258,8 +15258,8 @@ console.info = function() {}; // Désactiver les infos
                 p.x += p.vx;
                 p.y += p.vy;
 
-                // 🌟 Rotation pour les étoiles
-                if(p.rotation !== undefined) {
+                // 🌟 Rotation optimisée - uniquement pour emoji et étoiles
+                if(p.rotation !== undefined && (p.type === 'emoji' || p.type === 'etoile')) {
                     p.rotation += p.rotationSpeed;
                 }
 
@@ -15366,7 +15366,7 @@ console.info = function() {}; // Désactiver les infos
                     ctx.textBaseline = 'middle';
                     ctx.shadowBlur = 0; // Pas de flou pour les emojis (performance)
                     ctx.fillText(p.emoji, 0, 0);
-                    p.rotation += p.rotationSpeed; // Rotation continue
+                    // ⚡ Rotation gérée dans mettreAJourParticules() (ligne 15262)
                 } else {
                     // Particule ronde simple
                     ctx.beginPath();
@@ -15857,9 +15857,9 @@ console.info = function() {}; // Désactiver les infos
                 
                 // Mettre à jour les effets spéciaux
                 if (proj.config) {
-                    // Rotation pour phase 23
+                    // Rotation pour phase 23 - ⚡ Simplifiée (0.1 → 0.05)
                     if (proj.config.rotation) {
-                        proj.rotation += 0.1;
+                        proj.rotation += 0.05;
                     }
                     
                     // Changement de couleur pour phase 20 (rainbow)
