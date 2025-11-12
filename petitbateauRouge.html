@@ -15352,18 +15352,15 @@ console.info = function() {}; // Désactiver les infos
                     ctx.stroke();
                 } else if(p.type === 'emoji') {
                     // 💰 Particule emoji (billets de banque phase 20)
-                    // ⚡ OPTIMISATION: 1 seul emoji gros avec fade simple
+                    // ⚡ OPTIMISATION: 1 énorme emoji toutes les 7 briques seulement
                     ctx.translate(p.x, p.y);
                     ctx.rotate(p.rotation);
                     
-                    // Cache de la font (créé 1 fois au lieu de N fois)
-                    if (!window.emojiParticleFontCache) {
-                        window.emojiParticleFontCache = '24px Arial'; // ⚡ Taille augmentée 12→24px
-                    }
-                    ctx.font = window.emojiParticleFontCache;
+                    // Font dynamique basée sur la taille de la particule
+                    ctx.font = `${p.taille}px Arial`;
                     
-                    // ⚡ Fade basé sur la vie restante (disparition douce)
-                    ctx.globalAlpha = Math.min(1, p.vie / 20);
+                    // ⚡ Fade ultra-rapide basé sur la vie restante (12 frames)
+                    ctx.globalAlpha = Math.min(1, p.vie / 12);
                     
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -15964,22 +15961,26 @@ console.info = function() {}; // Désactiver les infos
                                 const particleCount = Math.max(1, Math.floor(baseParticleCount * effects.particleMultiplier));
                                 const colors = proj.config.color;
                                 
-                                // Phase 20 : 💰 UN SEUL EMOJI GROS (anti-lag spam)
+                                // Phase 20 : 💰 EMOJI TOUTES LES 7 BRIQUES (ultra-optimisé)
                                 if (proj.config.particleEmoji) {
-                                    // ⚡ ULTRA OPTIMISATION: 1 seul emoji gros qui disparaît en fade
-                                    particules.push({
-                                        x: proj.x,
-                                        y: proj.y,
-                                        vx: 0, // Statique, pas de mouvement
-                                        vy: -0.5, // Monte légèrement
-                                        couleur: '#FFD700',
-                                        vie: 20, // Disparaît rapidement (20 frames = 0.33s)
-                                        taille: 24, // ⚡ 2× plus gros (24 au lieu de 12)
-                                        type: 'emoji',
-                                        emoji: proj.config.particleEmoji,
-                                        rotation: 0,
-                                        rotationSpeed: 0 // Pas de rotation
-                                    });
+                                    // ⚡ ULTRA OPTIMISATION: 1 seul emoji GROS toutes les 7 briques
+                                    // Afficher sur 1ère brique (brises === 0) puis toutes les 7 (brises % 7 === 0)
+                                    if (brises === 0 || brises % 7 === 0) {
+                                        particules.push({
+                                            x: proj.x,
+                                            y: proj.y,
+                                            vx: 0, // Statique
+                                            vy: -1.5, // Monte plus vite
+                                            couleur: '#FFD700',
+                                            vie: 12, // ⚡ Disparaît ultra-rapide (12 frames = 0.2s au lieu de 0.33s)
+                                            taille: 32, // ⚡ ÉNORME (32 au lieu de 24)
+                                            type: 'emoji',
+                                            emoji: proj.config.particleEmoji,
+                                            rotation: 0,
+                                            rotationSpeed: 0
+                                        });
+                                    }
+                                    // Sinon: pas d'emoji du tout (économie GPU massive)
                                 } else {
                                     // Autres phases : particules colorées normales
                                     for (let p = 0; p < particleCount; p++) {
