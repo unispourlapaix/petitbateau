@@ -910,16 +910,57 @@
         const initialLoad = 100;
         const loadMoreIncrement = 200;
         
-        // Initialiser la langue dès le début
-        let currentLang = 'fr'; // Par défaut
-        try {
+        // ⚡ Fonction de détection de langue (appelée immédiatement)
+        function detectInitialLanguage() {
+            // 1. Essayer l'URL en priorité
             const urlParams = new URLSearchParams(window.location.search);
             let lang = urlParams.get('lang');
-            if (!lang && localStorage.getItem('selectedLanguage')) {
-                lang = localStorage.getItem('selectedLanguage');
+            if (lang && translations[lang]) {
+                console.log('🌍 Langue détectée depuis URL:', lang);
+                return lang;
             }
-            if (lang) currentLang = lang;
-        } catch(e) {}
+            
+            // 2. Essayer le parent (window.opener = jeu)
+            try {
+                if (window.opener && window.opener.window && window.opener.window.i18n) {
+                    lang = window.opener.window.i18n.getCurrentLanguage();
+                    if (lang && translations[lang]) {
+                        console.log('🌍 Langue récupérée depuis le jeu parent:', lang);
+                        return lang;
+                    }
+                }
+            } catch (e) {
+                console.log('⚠️ Impossible de récupérer la langue depuis le parent');
+            }
+            
+            // 3. Essayer localStorage
+            lang = localStorage.getItem('selectedLanguage');
+            if (lang && translations[lang]) {
+                console.log('🌍 Langue récupérée depuis localStorage:', lang);
+                return lang;
+            }
+            
+            // 4. Détecter langue navigateur
+            const browserLang = navigator.language || navigator.userLanguage;
+            const shortLang = browserLang.split('-')[0].toLowerCase();
+            const langMap = {
+                'fr': 'fr', 'en': 'en', 'es': 'es', 'de': 'de', 'it': 'it',
+                'pt': 'pt', 'ru': 'ru', 'zh': 'zh', 'ko': 'ko', 'ja': 'jp',
+                'ar': 'ar', 'he': 'he', 'uk': 'uk'
+            };
+            lang = langMap[shortLang];
+            if (lang && translations[lang]) {
+                console.log('🌍 Langue détectée depuis navigateur:', browserLang, '→', lang);
+                return lang;
+            }
+            
+            // 5. Par défaut français
+            console.log('🌍 Langue par défaut: fr');
+            return 'fr';
+        }
+        
+        // Initialiser la langue dès le début
+        let currentLang = detectInitialLanguage();
 
         // Niveaux de sagesse
         const niveauxSagesse = [
@@ -1995,52 +2036,7 @@
 
         // Fonction pour détecter la langue depuis l'URL ou le parent
         function detectLanguage() {
-            // Essayer de récupérer la langue depuis l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            let lang = urlParams.get('lang');
-            
-            // Si pas dans l'URL, essayer de récupérer depuis le parent (le jeu)
-            if (!lang && window.opener && window.opener.window && window.opener.window.i18n) {
-                try {
-                    lang = window.opener.window.i18n.getCurrentLanguage();
-                } catch (e) {
-                    console.log('Impossible de récupérer la langue depuis le parent');
-                }
-            }
-            
-            // Si pas trouvé, essayer localStorage
-            if (!lang && localStorage.getItem('selectedLanguage')) {
-                lang = localStorage.getItem('selectedLanguage');
-            }
-            
-            // Si toujours pas trouvé, détecter la langue du navigateur
-            if (!lang) {
-                const browserLang = navigator.language || navigator.userLanguage;
-                const shortLang = browserLang.split('-')[0].toLowerCase();
-                
-                // Mapper les codes de langue aux langues disponibles
-                const langMap = {
-                    'fr': 'fr',
-                    'en': 'en',
-                    'es': 'es',
-                    'de': 'de',
-                    'it': 'it',
-                    'pt': 'pt',
-                    'ru': 'ru',
-                    'zh': 'zh',
-                    'ko': 'ko',
-                    'ja': 'jp',  // japonais
-                    'ar': 'ar',
-                    'he': 'he',
-                    'uk': 'uk'
-                };
-                
-                lang = langMap[shortLang] || null;
-                console.log('🌍 Langue du navigateur détectée:', browserLang, '→', lang || 'non supportée');
-            }
-            
-            // Par défaut français
-            return lang && translations[lang] ? lang : 'fr';
+            return detectInitialLanguage(); // Utilise la même logique
         }
 
         // Fonction pour appliquer la traduction
