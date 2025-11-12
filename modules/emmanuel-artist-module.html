@@ -926,16 +926,10 @@
 
         function getNiveauSagesse(sagesse) {
             const niveau = niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
-            const titre = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
-            console.log('🎯 Niveau sagesse:', {
-                key: niveau.key,
-                currentLang,
-                titre,
-                wisdomLevels: translations[currentLang]?.wisdomLevels
-            });
+            // NE PAS traduire ici, juste retourner la clé
             return {
-                ...niveau,
-                titre
+                ...niveau
+                // Le titre sera traduit dans renderPage() avec la langue active
             };
         }
 
@@ -1150,6 +1144,7 @@
         }
 
         function renderPage() {
+            console.log('📄 renderPage() appelé - currentLang:', currentLang, '- allScores:', allScores?.length);
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
             
@@ -1188,10 +1183,12 @@
                 let levelInfo = '';
                 if (donnees.sagesse) {
                     const niveau = getNiveauSagesse(donnees.sagesse);
+                    // ✨ Traduire le titre MAINTENANT avec currentLang actif
+                    const titreNiveau = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
                     const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
                     levelInfo = `
                         <div class="player-name">${pseudo}</div>
-                        <div class="player-level">${niveau.icone} ${niveau.titre}${enigmesInfo}</div>
+                        <div class="player-level">${niveau.icone} ${titreNiveau}${enigmesInfo}</div>
                     `;
                 } else {
                     levelInfo = `<div class="player-name">${pseudo}</div>`;
@@ -1323,10 +1320,12 @@
                     let levelInfo = '';
                     if (donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
+                        // ✨ Traduire le titre MAINTENANT avec currentLang actif
+                        const titreNiveau = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
                         const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
                         levelInfo = `
                             <div class="player-name">${pseudo}</div>
-                            <div class="player-level">${niveau.icone} ${niveau.titre}${enigmesInfo}</div>
+                            <div class="player-level">${niveau.icone} ${titreNiveau}${enigmesInfo}</div>
                         `;
                     } else {
                         levelInfo = `<div class="player-name">${pseudo}</div>`;
@@ -2048,7 +2047,9 @@
 
             // Sauvegarder la langue courante
             currentLang = lang;
+            localStorage.setItem('selectedLanguage', lang);
 
+            // Traduire les textes statiques
             document.getElementById('page-title').textContent = t.pageTitle;
             document.title = t.pageTitle;
             document.getElementById('subtitle').textContent = t.subtitle;
@@ -2107,27 +2108,14 @@
                 document.querySelector('.lang-code').textContent = code;
             }
             
-            // Sauvegarder dans localStorage
-            localStorage.setItem('selectedLanguage', lang);
-            
-            // Rafraîchir le leaderboard si les scores sont déjà chargés
-            // Utiliser try/catch pour éviter ReferenceError si allScores pas encore défini
-            try {
-                const scoresExist = allScores && allScores.length > 0;
-                console.log('🔄 Rafraîchir leaderboard?', {
-                    allScoresExists: !!allScores,
-                    hasScores: scoresExist,
-                    length: allScores ? allScores.length : 0
-                });
-                if (scoresExist) {
-                    console.log('✅ Rafraîchissement du leaderboard en cours...');
-                    renderPage();
-                    renderLoadMoreButton();
-                } else {
-                    console.log('⏳ Scores pas encore chargés, skip renderPage()');
-                }
-            } catch (e) {
-                console.log('⏳ allScores pas encore défini, skip renderPage()');
+            // ✨ REDESSINER LE LEADERBOARD si les données existent
+            console.log('🔍 Check scores:', { allScores, length: allScores?.length, isArray: Array.isArray(allScores) });
+            if (allScores && allScores.length > 0) {
+                console.log('🔄 Redessiner leaderboard avec langue:', lang, '- Scores:', allScores.length);
+                renderPage();
+                renderLoadMoreButton();
+            } else {
+                console.log('⏳ Pas de scores à redessiner');
             }
         }
 
@@ -2175,16 +2163,10 @@
                     opt.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const selectedLang = opt.dataset.lang;
-                        console.log('🌍 Langue sélectionnée:', selectedLang);
                         
-                        // 💾 Sauvegarder et appliquer la nouvelle langue
-                        localStorage.setItem('selectedLanguage', selectedLang);
-                        console.log('💾 Langue sauvegardée dans localStorage:', selectedLang);
-                        
+                        // Appliquer la traduction (sauvegarde automatiquement dans localStorage)
                         applyTranslation(selectedLang);
                         dropdown.classList.remove('open');
-                        
-                        // Plus besoin de reload : applyTranslation() redessine déjà tout !
                     });
                 });
             } else {
