@@ -926,9 +926,16 @@
 
         function getNiveauSagesse(sagesse) {
             const niveau = niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
+            const titre = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
+            console.log('🎯 Niveau sagesse:', {
+                key: niveau.key,
+                currentLang,
+                titre,
+                wisdomLevels: translations[currentLang]?.wisdomLevels
+            });
             return {
                 ...niveau,
-                titre: translations[currentLang]?.wisdomLevels[niveau.key] || niveau.key
+                titre
             };
         }
 
@@ -2104,9 +2111,23 @@
             localStorage.setItem('selectedLanguage', lang);
             
             // Rafraîchir le leaderboard si les scores sont déjà chargés
-            if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
-                renderPage();
-                renderLoadMoreButton();
+            // Utiliser try/catch pour éviter ReferenceError si allScores pas encore défini
+            try {
+                const scoresExist = allScores && allScores.length > 0;
+                console.log('🔄 Rafraîchir leaderboard?', {
+                    allScoresExists: !!allScores,
+                    hasScores: scoresExist,
+                    length: allScores ? allScores.length : 0
+                });
+                if (scoresExist) {
+                    console.log('✅ Rafraîchissement du leaderboard en cours...');
+                    renderPage();
+                    renderLoadMoreButton();
+                } else {
+                    console.log('⏳ Scores pas encore chargés, skip renderPage()');
+                }
+            } catch (e) {
+                console.log('⏳ allScores pas encore défini, skip renderPage()');
             }
         }
 
