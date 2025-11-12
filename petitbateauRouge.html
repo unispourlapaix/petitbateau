@@ -15352,20 +15352,25 @@ console.info = function() {}; // Désactiver les infos
                     ctx.stroke();
                 } else if(p.type === 'emoji') {
                     // 💰 Particule emoji (billets de banque phase 20)
-                    // ⚡ OPTIMISATION: Cache font pour éviter recréation 120×/frame
+                    // ⚡ OPTIMISATION: 1 seul emoji gros avec fade simple
                     ctx.translate(p.x, p.y);
                     ctx.rotate(p.rotation);
                     
                     // Cache de la font (créé 1 fois au lieu de N fois)
                     if (!window.emojiParticleFontCache) {
-                        window.emojiParticleFontCache = '12px Arial'; // ⚡ Taille réduite 16→12px
+                        window.emojiParticleFontCache = '24px Arial'; // ⚡ Taille augmentée 12→24px
                     }
                     ctx.font = window.emojiParticleFontCache;
+                    
+                    // ⚡ Fade basé sur la vie restante (disparition douce)
+                    ctx.globalAlpha = Math.min(1, p.vie / 20);
                     
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.shadowBlur = 0; // Pas de flou pour les emojis (performance)
                     ctx.fillText(p.emoji, 0, 0);
+                    
+                    ctx.globalAlpha = 1; // Reset opacity
                     // ⚡ Rotation gérée dans mettreAJourParticules() (ligne 15262)
                 } else {
                     // Particule ronde simple
@@ -15959,27 +15964,22 @@ console.info = function() {}; // Désactiver les infos
                                 const particleCount = Math.max(1, Math.floor(baseParticleCount * effects.particleMultiplier));
                                 const colors = proj.config.color;
                                 
-                                // Phase 20 : particules emoji 💰
+                                // Phase 20 : 💰 UN SEUL EMOJI GROS (anti-lag spam)
                                 if (proj.config.particleEmoji) {
-                                    // ⚡ OPTIMISATION ULTIME: Fixé à 3 particules max pour performance
-                                    const adaptedCount = Math.min(3, Math.max(2, Math.floor(particleCount * effects.particleMultiplier)));
-                                    for (let p = 0; p < adaptedCount; p++) {
-                                        const angle = (Math.PI * 2 * p) / adaptedCount;
-                                        const speed = 2 + Math.random() * 2; // ⚡ Réduit variabilité vitesse
-                                        particules.push({
-                                            x: proj.x,
-                                            y: proj.y,
-                                            vx: Math.cos(angle) * speed,
-                                            vy: Math.sin(angle) * speed,
-                                            couleur: '#FFD700',
-                                            vie: 25 + Math.random() * 10, // ⚡ Durée réduite: 30-50 → 25-35 frames
-                                            taille: 12,
-                                            type: 'emoji',
-                                            emoji: proj.config.particleEmoji,
-                                            rotation: 0, // ⚡ Pas de rotation aléatoire initiale
-                                            rotationSpeed: 0.05 // ⚡ Rotation fixe simplifiée (au lieu de random)
-                                        });
-                                    }
+                                    // ⚡ ULTRA OPTIMISATION: 1 seul emoji gros qui disparaît en fade
+                                    particules.push({
+                                        x: proj.x,
+                                        y: proj.y,
+                                        vx: 0, // Statique, pas de mouvement
+                                        vy: -0.5, // Monte légèrement
+                                        couleur: '#FFD700',
+                                        vie: 20, // Disparaît rapidement (20 frames = 0.33s)
+                                        taille: 24, // ⚡ 2× plus gros (24 au lieu de 12)
+                                        type: 'emoji',
+                                        emoji: proj.config.particleEmoji,
+                                        rotation: 0,
+                                        rotationSpeed: 0 // Pas de rotation
+                                    });
                                 } else {
                                     // Autres phases : particules colorées normales
                                     for (let p = 0; p < particleCount; p++) {
