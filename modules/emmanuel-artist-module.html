@@ -910,6 +910,9 @@
         const initialLoad = 100;
         const loadMoreIncrement = 200;
         
+        // ⚡ Déclarer currentLang AVANT les fonctions (sera mis à jour après)
+        let currentLang = 'fr'; // Valeur par défaut temporaire
+        
         // ⚡ Fonction de détection de langue (appelée immédiatement)
         function detectInitialLanguage() {
             // 1. Essayer l'URL en priorité
@@ -959,8 +962,8 @@
             return 'fr';
         }
         
-        // Initialiser la langue dès le début
-        let currentLang = detectInitialLanguage();
+        // ⚡ Mettre à jour currentLang maintenant que detectInitialLanguage() est défini
+        currentLang = detectInitialLanguage();
 
         // Niveaux de sagesse
         const niveauxSagesse = [
@@ -2134,15 +2137,24 @@
             const dropdown = document.querySelector('.lang-dropdown');
             const currentBtn = document.querySelector('.lang-current');
             
+            console.log('🔍 Sélecteur langue:', {
+                dropdown: dropdown ? 'trouvé' : 'NON TROUVÉ',
+                currentBtn: currentBtn ? 'trouvé' : 'NON TROUVÉ'
+            });
+            
             if (currentBtn && dropdown) {
                 currentBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     dropdown.classList.toggle('open');
+                    const isOpen = dropdown.classList.contains('open');
+                    console.log('🎯 Dropdown cliqué, état:', isOpen ? 'OUVERT' : 'FERMÉ');
                 });
                 
                 // Fermer le dropdown si on clique ailleurs
-                document.addEventListener('click', () => {
-                    dropdown.classList.remove('open');
+                document.addEventListener('click', (e) => {
+                    if (!dropdown.contains(e.target)) {
+                        dropdown.classList.remove('open');
+                    }
                 });
                 
                 // Ajouter les événements aux options de langue
@@ -2150,9 +2162,9 @@
                     opt.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const selectedLang = opt.dataset.lang;
+                        console.log('🌍 Langue sélectionnée:', selectedLang);
                         applyTranslation(selectedLang);
                         dropdown.classList.remove('open');
-                        console.log('🌍 Langue changée:', selectedLang);
                         
                         // Rafraîchir la page pour appliquer complètement les traductions
                         setTimeout(() => {
@@ -2160,6 +2172,8 @@
                         }, 100);
                     });
                 });
+            } else {
+                console.error('❌ ERREUR: Sélecteur langue non trouvé dans le DOM!');
             }
 
             // 4. Animation au scroll pour les cartes
