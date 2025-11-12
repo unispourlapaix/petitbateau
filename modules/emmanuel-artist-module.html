@@ -926,11 +926,8 @@
 
         function getNiveauSagesse(sagesse) {
             const niveau = niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
-            // NE PAS traduire ici, juste retourner la clé
-            return {
-                ...niveau
-                // Le titre sera traduit dans renderPage() avec la langue active
-            };
+            // Retourner juste la clé et l'icône, pas le titre traduit
+            return niveau;
         }
 
         function getBadges(donnees, isFirst, enigmes) {
@@ -1183,8 +1180,8 @@
                 let levelInfo = '';
                 if (donnees.sagesse) {
                     const niveau = getNiveauSagesse(donnees.sagesse);
-                    // ✨ Traduire le titre MAINTENANT avec currentLang actif
-                    const titreNiveau = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
+                    // ✨ Utiliser la fonction de traduction
+                    const titreNiveau = translateWisdomLevel(niveau.key);
                     const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
                     levelInfo = `
                         <div class="player-name">${pseudo}</div>
@@ -1320,8 +1317,8 @@
                     let levelInfo = '';
                     if (donnees.sagesse) {
                         const niveau = getNiveauSagesse(donnees.sagesse);
-                        // ✨ Traduire le titre MAINTENANT avec currentLang actif
-                        const titreNiveau = translations[currentLang]?.wisdomLevels?.[niveau.key] || niveau.key;
+                        // ✨ Utiliser la fonction de traduction
+                        const titreNiveau = translateWisdomLevel(niveau.key);
                         const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
                         levelInfo = `
                             <div class="player-name">${pseudo}</div>
@@ -1991,6 +1988,11 @@
             }
         };
 
+        // ✨ Fonction pour traduire un niveau de sagesse (APRÈS translations)
+        function translateWisdomLevel(key) {
+            return translations[currentLang]?.wisdomLevels?.[key] || key;
+        }
+
         // ⚡ Fonction de détection de langue (APRÈS translations pour pouvoir l'utiliser)
         function detectInitialLanguage() {
             // 1. PRIORITÉ 1: localStorage (choix manuel de l'utilisateur)
@@ -2108,14 +2110,12 @@
                 document.querySelector('.lang-code').textContent = code;
             }
             
-            // ✨ REDESSINER LE LEADERBOARD si les données existent
-            console.log('🔍 Check scores:', { allScores, length: allScores?.length, isArray: Array.isArray(allScores) });
-            if (allScores && allScores.length > 0) {
-                console.log('🔄 Redessiner leaderboard avec langue:', lang, '- Scores:', allScores.length);
+            // ✨ REDESSINER LE LEADERBOARD si des données sont chargées
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            if (leaderboardContent && leaderboardContent.children.length > 0) {
+                console.log('🔄 Redessiner leaderboard avec langue:', lang);
                 renderPage();
                 renderLoadMoreButton();
-            } else {
-                console.log('⏳ Pas de scores à redessiner');
             }
         }
 
