@@ -11482,6 +11482,14 @@ console.info = function() {}; // Désactiver les infos
             // Pas de consommation de munitions en mode stars normal
         }
 
+        // ⚡ CACHE: Gradients des projectiles stars (créés 1 fois au lieu de 60fps × N projectiles)
+        let starsGradientsCache = {
+            trainee: null,
+            halo: null,
+            etoile: null,
+            lastSize: 0
+        };
+
         // Dessiner les projectiles stars
         function dessinerStarsProjectiles() {
             // Dessiner pendant la phase stars, feux_artifice ET lanterne (pour Poxerstart)
@@ -11505,15 +11513,16 @@ console.info = function() {}; // Désactiver les infos
                 const longueurTrainee = rayonEtoile * 3;
                 const largeurTrainee = rayonEtoile * 0.3;
 
-                // Gradient de la traînée
-                const gradientTrainee = ctx.createLinearGradient(-longueurTrainee, 0, 0, 0);
-                // Traînée dorée normale
-                gradientTrainee.addColorStop(0, 'rgba(255, 215, 0, 0)');
-                gradientTrainee.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
-                gradientTrainee.addColorStop(1, projectile.couleur || '#FFD700');
+                // ⚡ CACHE: Gradient de la traînée (créé 1 fois)
+                if (!starsGradientsCache.trainee || starsGradientsCache.lastSize !== rayonEtoile) {
+                    starsGradientsCache.trainee = ctx.createLinearGradient(-longueurTrainee, 0, 0, 0);
+                    starsGradientsCache.trainee.addColorStop(0, 'rgba(255, 215, 0, 0)');
+                    starsGradientsCache.trainee.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
+                    starsGradientsCache.trainee.addColorStop(1, '#FFD700');
+                }
 
                 // Dessiner la traînée
-                ctx.fillStyle = gradientTrainee;
+                ctx.fillStyle = starsGradientsCache.trainee;
                 ctx.beginPath();
                 ctx.moveTo(-longueurTrainee, -largeurTrainee);
                 ctx.lineTo(0, 0);
@@ -11527,24 +11536,31 @@ console.info = function() {}; // Désactiver les infos
 
                 // Étoile principale avec halo
                 if (isFinite(rayonEtoile) && rayonEtoile > 0) {
-                    // Halo lumineux
-                    const gradientHalo = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile * 1.5);
-                    gradientHalo.addColorStop(0, projectile.couleur || '#FFD700');
-                    gradientHalo.addColorStop(0.5, 'rgba(255, 215, 0, 0.5)');
-                    gradientHalo.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                    // ⚡ CACHE: Halo lumineux (créé 1 fois)
+                    if (!starsGradientsCache.halo || starsGradientsCache.lastSize !== rayonEtoile) {
+                        starsGradientsCache.halo = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile * 1.5);
+                        starsGradientsCache.halo.addColorStop(0, '#FFD700');
+                        starsGradientsCache.halo.addColorStop(0.5, 'rgba(255, 215, 0, 0.5)');
+                        starsGradientsCache.halo.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                    }
 
-                    ctx.fillStyle = gradientHalo;
+                    ctx.fillStyle = starsGradientsCache.halo;
                     ctx.beginPath();
                     ctx.arc(0, 0, rayonEtoile * 1.5, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Étoile centrale brillante
-                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile);
-                    gradient.addColorStop(0, '#FFFFFF');
-                    gradient.addColorStop(0.3, projectile.couleur || '#FFD700');
-                    gradient.addColorStop(1, 'rgba(255, 215, 0, 0.8)');
+                    // ⚡ CACHE: Étoile centrale brillante (créé 1 fois)
+                    if (!starsGradientsCache.etoile || starsGradientsCache.lastSize !== rayonEtoile) {
+                        starsGradientsCache.etoile = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile);
+                        starsGradientsCache.etoile.addColorStop(0, '#FFFFFF');
+                        starsGradientsCache.etoile.addColorStop(0.3, '#FFD700');
+                        starsGradientsCache.etoile.addColorStop(1, 'rgba(255, 215, 0, 0.8)');
+                        
+                        // Marquer la taille pour invalider le cache si nécessaire
+                        starsGradientsCache.lastSize = rayonEtoile;
+                    }
 
-                    ctx.fillStyle = gradient;
+                    ctx.fillStyle = starsGradientsCache.etoile;
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 1;
 
@@ -11729,6 +11745,10 @@ console.info = function() {}; // Désactiver les infos
             }
         }
 
+        // ⚡ CACHE: Gradient du halo de la lanterne (créé 1 fois au lieu de 60fps)
+        let lantherneHaloGradientCache = null;
+        let lantherneHaloGradientCacheSize = 0;
+
         // Vraie lanterne volante avec halo bougie et nouveaux effets
         function dessinerLanterne() {
             // ⚡ VERSION OPTIMISÉE - Lanterne simplifiée pour performances
@@ -11745,11 +11765,19 @@ console.info = function() {}; // Désactiver les infos
                 return;
             }
 
-            // EFFET TRAÎNÉE VERTE (power-up vitesse) - SIMPLIFIÉ
+            // ⚡ OPTIMISATION: Récupérer paramètres adaptatifs
+            const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { 
+                particleMultiplier: 1.0, 
+                shadows: true,
+                shadowBlurMax: 20
+            };
+
+            // EFFET TRAÎNÉE VERTE (power-up vitesse) - ADAPTATIF
             if(balle.traineeVerte && balle.vitesseActive) {
-                // Traînée simple sans gradients
-                for(let i = 0; i < 3; i++) { // Réduit de 5 à 3
-                    const alpha = (3 - i) / 3 * 0.5;
+                // ⚡ Traînée adaptative selon device (3→2→1)
+                const traineeCount = Math.max(1, Math.floor(3 * effects.particleMultiplier));
+                for(let i = 0; i < traineeCount; i++) {
+                    const alpha = (traineeCount - i) / traineeCount * 0.5;
                     const size = C.BS * (1 - i * 0.2);
                     const offsetX = (balle.dx || 0) * -i * 2;
                     const offsetY = (balle.dy || 0) * -i * 2;
@@ -11765,16 +11793,25 @@ console.info = function() {}; // Désactiver les infos
             const multiplTaille = balle.multiplicateurTaille || 1;
             const rayon = C.BS * 0.5 * multiplTaille;
 
-            // 1. HALO SIMPLE (seulement si lanterne active) - 1 SEUL GRADIENT
-            if(lanterne.active) {
+            // 1. HALO SIMPLE - ⚡ GRADIENT CACHÉ (créé 1 fois, pas 60fps)
+            if(lanterne.active && effects.particleMultiplier >= 0.5) { // Pas de halo sur mobiles low
                 const haloSize = rayon * 2;
-                const haloGrad = ctx.createRadialGradient(posX, posY, 0, posX, posY, haloSize);
-                haloGrad.addColorStop(0, 'rgba(255, 220, 150, 0.4)');
-                haloGrad.addColorStop(1, 'rgba(255, 100, 30, 0)');
-                ctx.fillStyle = haloGrad;
+                
+                // ⚡ CACHE: Vérifier si le gradient existe et a la bonne taille
+                if (!lantherneHaloGradientCache || lantherneHaloGradientCacheSize !== haloSize) {
+                    lantherneHaloGradientCache = ctx.createRadialGradient(0, 0, 0, 0, 0, haloSize);
+                    lantherneHaloGradientCache.addColorStop(0, 'rgba(255, 220, 150, 0.4)');
+                    lantherneHaloGradientCache.addColorStop(1, 'rgba(255, 100, 30, 0)');
+                    lantherneHaloGradientCacheSize = haloSize;
+                }
+                
+                ctx.save();
+                ctx.translate(posX, posY);
+                ctx.fillStyle = lantherneHaloGradientCache;
                 ctx.beginPath();
-                ctx.arc(posX, posY, haloSize, 0, Math.PI * 2);
+                ctx.arc(0, 0, haloSize, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
             }
 
             // 2. CORPS DE LA LANTERNE - CERCLE SIMPLE
@@ -11934,6 +11971,16 @@ console.info = function() {}; // Désactiver les infos
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.fillRect(raquette.x + 3, raquette.y + 3, C.PW, C.PH);
 
+            // ⚡ CACHE: Gradients du bateau (créés 1 fois au lieu de 60fps)
+            if (!window.bateauGradientsCache) {
+                window.bateauGradientsCache = {
+                    coque: null,
+                    reflet: null,
+                    voile: null,
+                    lastHeight: 0
+                };
+            }
+
             if(modeSecret) {
                 // === BATEAU MILITAIRE POUR LE MODE SECRET ===
 
@@ -11952,11 +11999,17 @@ console.info = function() {}; // Désactiver les infos
                 const isValid = isFinite(raquette.x) && isFinite(raquette.y) && isFinite(C.PH);
 
                 if (isValid) {
-                    const coqueGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH);
-                    coqueGrad.addColorStop(0, '#74b9ff'); // Bleu clair
-                    coqueGrad.addColorStop(0.5, '#0984e3'); // Bleu moyen
-                    coqueGrad.addColorStop(1, '#2d3436'); // Bleu foncé
-                    ctx.fillStyle = coqueGrad;
+                    // ⚡ CACHE: Gradient coque (créé 1 fois ou si hauteur change)
+                    if (!window.bateauGradientsCache.coque || window.bateauGradientsCache.lastHeight !== C.PH) {
+                        window.bateauGradientsCache.coque = ctx.createLinearGradient(0, 0, 0, C.PH);
+                        window.bateauGradientsCache.coque.addColorStop(0, '#74b9ff'); // Bleu clair
+                        window.bateauGradientsCache.coque.addColorStop(0.5, '#0984e3'); // Bleu moyen
+                        window.bateauGradientsCache.coque.addColorStop(1, '#2d3436'); // Bleu foncé
+                    }
+                    
+                    ctx.save();
+                    ctx.translate(raquette.x, raquette.y);
+                    ctx.fillStyle = window.bateauGradientsCache.coque;
                 } else {
                     ctx.fillStyle = '#0984e3'; // Couleur de secours
                 }
@@ -11967,6 +12020,7 @@ console.info = function() {}; // Désactiver les infos
                 }
                 ctx.closePath();
                 ctx.fill();
+                if (isValid) ctx.restore();
 
                 // Bordure de la coque
                 ctx.strokeStyle = '#2d3436';
@@ -11975,10 +12029,16 @@ console.info = function() {}; // Désactiver les infos
 
                 // Reflet sur la coque
                 if (isValid) {
-                    const refletGrad = ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH*0.4);
-                    refletGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
-                    refletGrad.addColorStop(1, 'rgba(255,255,255,0)');
-                    ctx.fillStyle = refletGrad;
+                    // ⚡ CACHE: Gradient reflet (créé 1 fois ou si hauteur change)
+                    if (!window.bateauGradientsCache.reflet || window.bateauGradientsCache.lastHeight !== C.PH) {
+                        window.bateauGradientsCache.reflet = ctx.createLinearGradient(0, 0, 0, C.PH*0.4);
+                        window.bateauGradientsCache.reflet.addColorStop(0, 'rgba(255,255,255,0.4)');
+                        window.bateauGradientsCache.reflet.addColorStop(1, 'rgba(255,255,255,0)');
+                    }
+                    
+                    ctx.save();
+                    ctx.translate(raquette.x, raquette.y);
+                    ctx.fillStyle = window.bateauGradientsCache.reflet;
                 } else {
                     ctx.fillStyle = 'rgba(255,255,255,0.2)';
                 }
@@ -11989,6 +12049,7 @@ console.info = function() {}; // Désactiver les infos
                 }
                 ctx.closePath();
                 ctx.fill();
+                if (isValid) ctx.restore();
 
                 // Mât central plus haut
                 const matX = raquette.x + C.PW/2;
@@ -12010,11 +12071,21 @@ console.info = function() {}; // Désactiver les infos
 
                 // Gradient blanc pour la voile
                 if (isFinite(matX) && isFinite(matY) && isValid) {
-                    const voileGrad = ctx.createLinearGradient(matX - C.PW*0.4, matY, matX + C.PW*0.25, raquette.y);
-                    voileGrad.addColorStop(0, '#ffffff');
-                    voileGrad.addColorStop(0.6, '#f8f9fa');
-                    voileGrad.addColorStop(1, '#e9ecef');
-                    ctx.fillStyle = voileGrad;
+                    // ⚡ CACHE: Gradient voile (créé 1 fois ou si taille change)
+                    if (!window.bateauGradientsCache.voile || window.bateauGradientsCache.lastHeight !== C.PH) {
+                        const voileWidth = C.PW * 0.65; // Largeur de la voile
+                        window.bateauGradientsCache.voile = ctx.createLinearGradient(-C.PW*0.4, 0, C.PW*0.25, C.PH);
+                        window.bateauGradientsCache.voile.addColorStop(0, '#ffffff');
+                        window.bateauGradientsCache.voile.addColorStop(0.6, '#f8f9fa');
+                        window.bateauGradientsCache.voile.addColorStop(1, '#e9ecef');
+                        
+                        // Marquer pour invalider le cache si nécessaire
+                        window.bateauGradientsCache.lastHeight = C.PH;
+                    }
+                    
+                    ctx.save();
+                    ctx.translate(matX, matY);
+                    ctx.fillStyle = window.bateauGradientsCache.voile;
                 } else {
                     ctx.fillStyle = '#f8f9fa';
                 }
