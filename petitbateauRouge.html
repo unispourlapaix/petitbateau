@@ -15352,12 +15352,19 @@ console.info = function() {}; // Désactiver les infos
                     ctx.stroke();
                 } else if(p.type === 'emoji') {
                     // 💰 Particule emoji (billets de banque phase 20)
+                    // ⚡ OPTIMISATION: Cache font pour éviter recréation 120×/frame
                     ctx.translate(p.x, p.y);
                     ctx.rotate(p.rotation);
-                    ctx.font = `${p.taille}px Arial`;
+                    
+                    // Cache de la font (créé 1 fois au lieu de N fois)
+                    if (!window.emojiParticleFontCache) {
+                        window.emojiParticleFontCache = '12px Arial'; // ⚡ Taille réduite 16→12px
+                    }
+                    ctx.font = window.emojiParticleFontCache;
+                    
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.shadowBlur = 0; // Pas de flou pour les emojis
+                    ctx.shadowBlur = 0; // Pas de flou pour les emojis (performance)
                     ctx.fillText(p.emoji, 0, 0);
                     p.rotation += p.rotationSpeed; // Rotation continue
                 } else {
@@ -15680,7 +15687,7 @@ console.info = function() {}; // Désactiver les infos
                     trailLength: 45,
                     colorChange: false,
                     particles: true,
-                    particleCount: 12,
+                    particleCount: 6, // ⚡ OPTIMISATION: Réduit de 12 à 6 pour performance
                     particleEmoji: '💰',
                     cadence: 12,
                     speed: 3.5,
@@ -15954,8 +15961,10 @@ console.info = function() {}; // Désactiver les infos
                                 
                                 // Phase 20 : particules emoji 💰
                                 if (proj.config.particleEmoji) {
-                                    for (let p = 0; p < particleCount; p++) {
-                                        const angle = (Math.PI * 2 * p) / particleCount;
+                                    // ⚡ OPTIMISATION: Adapter selon device (6→3→2)
+                                    const adaptedCount = Math.max(2, Math.floor(particleCount * effects.particleMultiplier));
+                                    for (let p = 0; p < adaptedCount; p++) {
+                                        const angle = (Math.PI * 2 * p) / adaptedCount;
                                         const speed = 2 + Math.random() * 3;
                                         particules.push({
                                             x: proj.x,
@@ -15964,7 +15973,7 @@ console.info = function() {}; // Désactiver les infos
                                             vy: Math.sin(angle) * speed,
                                             couleur: '#FFD700',
                                             vie: 30 + Math.random() * 20,
-                                            taille: 16,
+                                            taille: 12, // ⚡ OPTIMISATION: Réduit de 16 à 12px
                                             type: 'emoji',
                                             emoji: proj.config.particleEmoji,
                                             rotation: Math.random() * Math.PI * 2,
