@@ -2115,87 +2115,92 @@
             }
         }
 
-        // Initialiser la langue au chargement
-        window.addEventListener('load', () => {
-            currentLang = detectLanguage(); // Mettre à jour la variable globale
+        // ⚡ APPLIQUER LA TRADUCTION IMMÉDIATEMENT (avant affichage)
+        // Utiliser DOMContentLoaded au lieu de 'load' pour être plus rapide
+        // ⚡ INITIALISATION UNIQUE AU CHARGEMENT DU DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Détecter et appliquer la langue
+            currentLang = detectLanguage();
             applyTranslation(currentLang);
             console.log('🌍 Module Emmanuel chargé en:', currentLang);
             
-            // Rafraîchir le leaderboard avec la langue détectée
+            // 2. Rafraîchir le leaderboard avec la langue détectée
             if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
                 renderPage();
                 renderLoadMoreButton();
             }
             
-            // Toggle du dropdown
+            // 3. Initialiser le sélecteur de langue
             const dropdown = document.querySelector('.lang-dropdown');
             const currentBtn = document.querySelector('.lang-current');
             
-            currentBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('open');
-            });
-            
-            // Fermer le dropdown si on clique ailleurs
-            document.addEventListener('click', () => {
-                dropdown.classList.remove('open');
-            });
-            
-            // Ajouter les événements aux options de langue
-            document.querySelectorAll('.lang-option').forEach(opt => {
-                opt.addEventListener('click', (e) => {
+            if (currentBtn && dropdown) {
+                currentBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const selectedLang = opt.dataset.lang;
-                    applyTranslation(selectedLang);
-                    dropdown.classList.remove('open');
-                    console.log('🌍 Langue changée:', selectedLang);
-                    
-                    // Rafraîchir la page pour appliquer complètement les traductions
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 100);
+                    dropdown.classList.toggle('open');
                 });
-            });
-        });
+                
+                // Fermer le dropdown si on clique ailleurs
+                document.addEventListener('click', () => {
+                    dropdown.classList.remove('open');
+                });
+                
+                // Ajouter les événements aux options de langue
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    opt.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const selectedLang = opt.dataset.lang;
+                        applyTranslation(selectedLang);
+                        dropdown.classList.remove('open');
+                        console.log('🌍 Langue changée:', selectedLang);
+                        
+                        // Rafraîchir la page pour appliquer complètement les traductions
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
+                    });
+                });
+            }
 
-        // Animation au scroll pour les cartes
-        const cards = document.querySelectorAll('.platform-card');
-        
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
-            observer.observe(card);
-        });
-
-        // Animation des icônes au survol
-        cards.forEach(card => {
-            const icon = card.querySelector('.platform-icon');
+            // 4. Animation au scroll pour les cartes
+            const cards = document.querySelectorAll('.platform-card');
             
-            card.addEventListener('mouseenter', () => {
-                icon.style.transform = 'rotateY(180deg)';
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
+                observer.observe(card);
             });
-            
-            card.addEventListener('mouseleave', () => {
-                icon.style.transform = 'rotateY(0deg)';
+
+            // 5. Animation des icônes au survol
+            cards.forEach(card => {
+                const icon = card.querySelector('.platform-icon');
+                
+                card.addEventListener('mouseenter', () => {
+                    icon.style.transform = 'rotateY(180deg)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    icon.style.transform = 'rotateY(0deg)';
+                });
+                
+                icon.style.transition = 'transform 0.6s ease';
             });
-            
-            icon.style.transition = 'transform 0.6s ease';
-        });
+        }); // ⚡ FIN DU DOMCONTENTLOADED
     </script>
 </body>
 </html>
