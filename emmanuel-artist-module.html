@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Emmanuel Payet - Artiste Chrétien</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .module-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 1400px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            animation: rainbow 3s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .platform-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .platform-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-color: #3498db;
+        }
+
+        .platform-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .gallery-icon { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .art-icon { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .music-icon { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .shop-icon { background: linear-gradient(45deg, #f39c12, #e67e22); }
+
+        .platform-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .platform-description {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .platform-url {
+            font-weight: 600;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9em;
+            padding: 8px 16px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .platform-url:hover {
+            background: #3498db;
+            color: white;
+            transform: scale(1.05);
+        }
+
+
+
+        .inspiring-quote {
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-style: italic;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        .inspiring-quote::before {
+            content: '"';
+            font-size: 4em;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            opacity: 0.3;
+        }
+
+        .inspiring-quote::after {
+            content: '"';
+            font-size: 4em;
+            position: absolute;
+            bottom: -40px;
+            right: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .module-container {
+                padding: 25px;
+            }
+            
+            .main-title {
+                font-size: 2em;
+            }
+            
+            .platforms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Sélecteur de langue */
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .lang-icon {
+            font-size: 1.5em;
+        }
+
+        .lang-select {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            outline: none;
+            padding: 5px;
+            font-family: inherit;
+        }
+
+        .lang-select option {
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .language-selector {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+            }
+
+            .lang-icon {
+                font-size: 1.2em;
+            }
+
+            .lang-select {
+                font-size: 12px;
+            }
+        }
+
+        /* Styles pour le Top 10000 */
+        .leaderboard-section {
+            margin: 30px 0 40px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .leaderboard-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-subtitle {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .leaderboard-stats {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 20px;
+            flex-wrap: nowrap;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            flex: 0 0 auto;
+            min-width: auto;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .stat-divider {
+            width: 2px;
+            height: 30px;
+            background: #e0e0e0;
+            margin: 0 15px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #3498db;
+            display: inline-block;
+        }
+
+        .stat-label {
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .leaderboard-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 60px 60px 1fr 180px 120px;
+            gap: 15px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 60px 60px 1fr 180px 120px;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .table-row.top-3 {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            font-weight: 600;
+        }
+
+        .rank {
+            font-size: 16px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .rank.medal {
+            font-size: 22px;
+        }
+
+        .avatar {
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .player-level {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        
+        .progress-container {
+            margin-top: 5px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-info {
+            font-size: 10px;
+            color: #95a5a6;
+            margin-top: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .next-rank {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .badges {
+            display: flex;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .score-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: right;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .load-more-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .load-more-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .load-more-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .module-container {
+                padding: 20px 15px;
+            }
+            
+            .main-title {
+                font-size: 1.8em;
+            }
+            
+            .platforms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-section {
+                padding: 15px 10px;
+            }
+
+            .leaderboard-title {
+                font-size: 1.4em;
+            }
+
+            .leaderboard-subtitle {
+                font-size: 0.85em;
+            }
+
+            .leaderboard-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stat-box {
+                min-width: 100%;
+                padding: 15px;
+            }
+
+            /* Affichage mobile optimisé - tout en carte */
+            .table-header {
+                display: none;
+            }
+
+            .table-row {
+                display: grid;
+                grid-template-columns: 45px 1fr 50px;
+                grid-template-rows: auto auto auto;
+                padding: 12px;
+                gap: 8px;
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                margin-bottom: 10px;
+                background: white;
+                align-items: start;
+            }
+            
+            .table-row.top-3 {
+                border: 2px solid #ffd700;
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+            }
+            
+            /* Rang à gauche */
+            .table-row .rank {
+                grid-column: 1;
+                grid-row: 1 / 3;
+                font-size: 18px;
+                font-weight: bold;
+                color: #667eea;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Avatar à droite */
+            .table-row .avatar {
+                grid-column: 3;
+                grid-row: 1 / 3;
+                font-size: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Zone principale (niveau + nom + progression) */
+            .table-row > div:nth-child(3) {
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .player-level {
+                display: block !important;
+                font-size: 13px;
+                font-weight: 600;
+                color: #667eea;
+                order: -1;
+            }
+
+            .player-name {
+                font-size: 15px;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+            
+            /* Badges sous le niveau/nom */
+            .badges {
+                grid-column: 2;
+                grid-row: 2;
+                display: flex !important;
+                gap: 5px;
+                font-size: 16px;
+                margin-top: 2px;
+            }
+            
+            /* Score en bas sur toute la largeur avec badges */
+            .score-value {
+                grid-column: 1 / 4;
+                grid-row: 3;
+                font-size: 18px;
+                font-weight: 700;
+                color: #2c3e50;
+                text-align: center;
+                margin-top: 6px;
+                padding: 6px 10px;
+                background: white;
+                border-radius: 8px;
+                border: 2px solid #d1d5db;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            /* Badges intégrés dans le score sur mobile */
+            .table-row .badges {
+                grid-column: auto;
+                grid-row: auto;
+                position: static;
+                margin: 0;
+                order: 1;
+            }
+            
+            .progress-container {
+                display: block !important;
+                margin-top: 6px;
+            }
+            
+            .progress-info {
+                display: flex !important;
+                font-size: 9px;
+                margin-top: 3px;
+            }
+
+            .pagination {
+                gap: 4px;
+            }
+
+            .page-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sélecteur de langue -->
+    <div class="language-selector">
+        <span class="lang-icon">🌍</span>
+        <select id="languageSelect" class="lang-select">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+            <option value="zh">中文</option>
+            <option value="ar">العربية</option>
+            <option value="he">עברית</option>
+            <option value="jp">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="hi">हिन्दी</option>
+            <option value="sw">Kiswahili</option>
+            <option value="pl">Polski</option>
+            <option value="rc">Lingala</option>
+        </select>
+    </div>
+
+    <div class="module-container">
+        <div class="header">
+            <h1 class="main-title pulse" id="main-title">Emmanuel Payet</h1>
+            <p class="subtitle" id="subtitle">Artiste Chrétien • Créateur • Inspirateur</p>
+        </div>
+
+        <!-- Section Top 10000 -->
+        <div class="leaderboard-section">
+            <div class="leaderboard-header">
+                <h2 id="leaderboard-title" class="leaderboard-title">🏆 Top 33 Millions Mondial</h2>
+                <p id="leaderboard-subtitle" class="leaderboard-subtitle">Classement des meilleurs joueurs de FAITHCHRONICLES</p>
+            </div>
+
+            <div class="leaderboard-stats">
+                <div class="stat-box">
+                    <span class="stat-label">👥</span>
+                    <span class="stat-value" id="totalPlayers">-</span>
+                    <div class="stat-divider"></div>
+                    <span class="stat-label">🏆</span>
+                    <span class="stat-value" id="topScore">-</span>
+                </div>
+            </div>
+
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Rechercher un joueur..." data-translation-key="searchPlaceholder">
+
+            <div class="leaderboard-table">
+                <div class="table-header">
+                    <div id="rank-header">Rang</div>
+                    <div id="avatar-header">Avatar</div>
+                    <div id="player-header">Joueur</div>
+                    <div id="level-header">Niveau</div>
+                    <div id="score-header">Score</div>
+                </div>
+                <div id="leaderboardContent">
+                    <div id="loading-message" class="loading">⏳ Chargement des scores...</div>
+                </div>
+            </div>
+
+            <div id="loadMoreContainer" style="margin: 20px 0;"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+        <div class="platforms-grid">
+            <div class="platform-card">
+                <div class="platform-icon gallery-icon">◆</div>
+                <h3 class="platform-title" id="games-title">Jeux & Déco</h3>
+                <p class="platform-description" id="games-desc">Découvre mes créations visuelles, jeux interactifs et décorations artistiques qui célèbrent la foi et la beauté.</p>
+                <a href="https://emmanuel.gallery" class="platform-url" target="_blank">emmanuel.gallery</a>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-icon art-icon">▲</div>
+                <h3 class="platform-title" id="books-title">Livres & Art</h3>
+                <p class="platform-description" id="books-desc">Plonge dans mes œuvres littéraires et artistiques, créées avec ma fille Béthanie, pour nourrir l'âme et l'esprit.</p>
+                <a href="https://emmanuelpayet.art" class="platform-url" target="_blank">emmanuelpayet.art</a>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-icon music-icon">●</div>
+                <h3 class="platform-title" id="music-title">Gospel Gratuit</h3>
+                <p class="platform-description" id="music-desc">Écoute mes compositions gospel sur AudioMack, des mélodies qui louent Dieu et inspirent l'unité dans la diversité.</p>
+                <a href="https://audiomack.com/emmanuelpayet888" class="platform-url" target="_blank">AudioMack - emmanuelpayet888</a>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-icon shop-icon">■</div>
+                <h3 class="platform-title" id="shop-title">La Bonne Heure</h3>
+                <p class="platform-description" id="shop-desc">C'est maintenant ! Découvre ma boutique Redbubble avec des designs uniques et des créations inspirantes à porter.</p>
+                <a href="https://www.redbubble.com/fr/people/h777plx/shop" class="platform-url" target="_blank">Redbubble Shop</a>
+            </div>
+        </div>
+
+        <div class="inspiring-quote" id="inspiring-quote">
+            L'art chrétien unit les cœurs au-delà des différences, célébrant la beauté de la création divine dans toute sa diversité.
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #95a5a6; font-style: italic;" id="credits">
+            Codé par Claude • Idée originale Emmanuel Payet
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Supabase
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Configuration Supabase - UTILISER LE MÊME QUE LE JEU
+        const SUPABASE_URL = 'https://dmszyxowetilvsanqsxm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
+        
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentPage = 1;
+        const perPage = 100;
+        let totalScores = 0;
+        let allScores = [];
+        let loadedCount = 0;
+        const initialLoad = 100;
+        const loadMoreIncrement = 200;
+
+        // Niveaux de sagesse
+        const niveauxSagesse = [
+            { min: 0, max: 499, titre: 'Seeker', icone: '🌱', next: 500 },
+            { min: 500, max: 1499, titre: 'Disciple', icone: '📖', next: 1500 },
+            { min: 1500, max: 2999, titre: 'Éveillé', icone: '💫', next: 3000 },
+            { min: 3000, max: 4999, titre: 'Fidèle', icone: '🙏', next: 5000 },
+            { min: 5000, max: 7999, titre: 'Sage', icone: '📜', next: 8000 },
+            { min: 8000, max: 11999, titre: 'Prophète', icone: '�️', next: 12000 },
+            { min: 12000, max: 999999, titre: 'Saint', icone: '�', next: null }
+        ];
+
+        function getNiveauSagesse(sagesse) {
+            return niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
+        }
+        
+        function getProgressToNextRank(sagesse) {
+            const currentRank = getNiveauSagesse(sagesse);
+            if (!currentRank.next) return { percent: 100, remaining: 0, next: null };
+            
+            const rangeSize = currentRank.next - currentRank.min;
+            const progress = sagesse - currentRank.min;
+            const percent = Math.min(100, Math.floor((progress / rangeSize) * 100));
+            const remaining = currentRank.next - sagesse;
+            
+            const nextRankIndex = niveauxSagesse.findIndex(n => n.min === currentRank.next);
+            const nextRank = nextRankIndex >= 0 ? niveauxSagesse[nextRankIndex] : null;
+            
+            return { percent, remaining, next: nextRank };
+        }
+
+        function getBadges(donnees, isFirst, enigmes) {
+            const badges = [];
+            if (isFirst) badges.push('👑');
+            if (enigmes >= 18) badges.push('🎓');
+            if (donnees.niveau_atteint >= 23) badges.push('🏁');
+            return badges;
+        }
+
+        async function loadScores() {
+            try {
+                const t = window.translations?.[window.currentLanguage || 'en'] || window.translations.en;
+                document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
+                console.log('📡 Tentative de connexion Supabase:', SUPABASE_URL);
+
+                // Charger depuis users + faithchronicles_game_progress
+                let data, error, count;
+                
+                try {
+                    console.log('🔍 Chargement données: users + faithchronicles_game_progress (JOIN par email)...');
+                    
+                    // 1. Récupérer TOUS les utilisateurs de la table users
+                    const { data: allUsersData, error: usersError } = await supabase
+                        .from('users')
+                        .select('id, email, pseudo, avatar, created_at')
+                        .order('created_at', { ascending: false });
+                    
+                    if (usersError) throw usersError;
+                    
+                    console.log('✅ Users chargés:', allUsersData?.length || 0);
+                    
+                    // 2. Récupérer TOUTES les progressions (avec email pour JOIN)
+                    const { data: allProgressData, error: progressError } = await supabase
+                        .from('faithchronicles_game_progress')
+                        .select('*');  // Sélectionner TOUTES les colonnes pour voir ce qui existe
+                    
+                    if (progressError) {
+                        console.error('❌ ERREUR progression:', progressError);
+                        console.error('   Code:', progressError.code);
+                        console.error('   Message:', progressError.message);
+                        console.error('   Détails:', progressError.details);
+                    }
+                    
+                    console.log('✅ Progressions chargées:', allProgressData?.length || 0);
+                    if (allProgressData && allProgressData.length > 0) {
+                        console.log('🔍 Première progression chargée avec succès');
+                    } else {
+                        console.warn('⚠️ Aucune progression trouvée dans faithchronicles_game_progress');
+                        console.warn('💡 Vérifier: La table existe? Elle contient des données? Permissions RLS?');
+                    }
+                    
+                    // 3. Créer un mapping email -> progression OU user_id -> progression
+                    const progressByEmail = {};
+                    const progressByUserId = {};
+                    if (allProgressData) {
+                        allProgressData.forEach(progress => {
+                            // Mapping par email (prioritaire)
+                            if (progress.email) {
+                                progressByEmail[progress.email] = progress;
+                            }
+                            // Mapping par user_id (fallback)
+                            if (progress.user_id) {
+                                progressByUserId[progress.user_id] = progress;
+                            }
+                        });
+                    }
+                    
+                    console.log('🔗 JOIN ready:', Object.keys(progressByEmail).length, 'progressions avec email,', Object.keys(progressByUserId).length, 'avec user_id');
+                    
+                    // 4. IMPORTANT: Vérifier si on doit mettre à jour les emails manquants
+                    if (Object.keys(progressByEmail).length === 0 && Object.keys(progressByUserId).length > 0) {
+                        console.warn('⚠️ Aucune progression n\'a d\'email! Les progressions utilisent uniquement user_id.');
+                        console.warn('💡 Il faudrait UPDATE la table pour ajouter les emails depuis auth.users');
+                    }
+                    
+                    // 4. Associer chaque utilisateur avec sa progression par EMAIL ou USER_ID
+                    const enrichedData = [];
+                    if (allUsersData) {
+                        allUsersData.forEach(user => {
+                            // ✅ Essayer JOIN par email d'abord, puis par user_id
+                            let userProgress = progressByEmail[user.email];
+                            
+                            // Si pas de progression par email, chercher par user_id depuis auth.users
+                            if (!userProgress && user.id) {
+                                userProgress = progressByUserId[user.id];
+                            }
+                            
+                            // Calculer le vrai score à afficher
+                            let displayScore = 0;
+                            if (userProgress) {
+                                // Priorité: wisdom_points > total_xp > score
+                                displayScore = userProgress.wisdom_points || userProgress.total_xp || userProgress.score || 0;
+                            }
+                            
+                            enrichedData.push({
+                                // Données de progression (ou valeurs par défaut)
+                                score: displayScore,
+                                wisdom_points: userProgress?.wisdom_points || 0,
+                                total_xp: userProgress?.total_xp || 0,
+                                current_level: userProgress?.current_level || 1,
+                                current_grade: userProgress?.current_grade || 0,
+                                created_at: userProgress?.created_at || user.created_at,
+                                user_id: userProgress?.user_id || user.id || null,
+                                // Données utilisateur
+                                users: {
+                                    pseudo: user.pseudo,
+                                    avatar: user.avatar || '✨',
+                                    email: user.email
+                                }
+                            });
+                        });
+                    }
+                    
+                    // Trier par score décroissant
+                    enrichedData.sort((a, b) => (b.score || 0) - (a.score || 0));
+                    
+                    // Limiter aux premiers résultats
+                    data = enrichedData.slice(0, initialLoad);
+                    error = null;
+                    count = enrichedData.length;
+                    
+                    console.log('✅ Données enrichies:', data.length, '/', count, 'utilisateurs (JOIN par email)');
+                    
+                } catch (loadError) {
+                    console.warn('⚠️ Erreur chargement données:', loadError.message);
+                    data = null;
+                    error = loadError;
+                }
+
+                if (error) {
+                    console.error('❌ Erreur Supabase:', error);
+                    throw error;
+                }
+
+                console.log('✅ Données Supabase reçues:', data?.length || 0, 'records');
+                console.log('📊 Total count:', count);
+                console.log('🎮 Jeux trouvés:', [...new Set(data?.map(s => s.game_id) || [])]);
+
+                allScores = Array.isArray(data) ? data : [];
+                
+                // 💾 AJOUTER LES SCORES LOCAUX
+                const localScores = getLocalScores();
+                console.log('💾 Scores locaux trouvés:', localScores.length);
+                allScores = [...allScores, ...localScores];
+                
+                // Trier par score décroissant
+                allScores.sort((a, b) => b.score - a.score);
+                
+                loadedCount = allScores.length;
+                totalScores = count || 0;
+
+                // Si pas de données, utiliser des données de test
+                if (allScores.length === 0) {
+                    console.warn('⚠️ Aucune donnée trouvée, création de données de test...');
+                    allScores = createTestScores();
+                    loadedCount = allScores.length;
+                    totalScores = allScores.length;
+                }
+
+                console.log('✅ Scores chargés (Supabase + Local):', loadedCount, 'Total DB:', totalScores);
+                console.log('🏆 Top 3:', allScores.slice(0, 3).map(s => ({ 
+                    pseudo: s.users?.pseudo || s.user?.pseudo || s.donnees_extra?.pseudo, 
+                    score: s.score,
+                    game: s.game_id,
+                    local: s._isLocal || false
+                })));
+
+                updateStats();
+                renderPage();
+            } catch (error) {
+                console.error('❌ Erreur complète:', error);
+                console.log('📌 Tentative de chargement scores locaux uniquement...');
+                
+                // 💾 FALLBACK: Utiliser scores locaux + test
+                const localScores = getLocalScores();
+                const testScores = createTestScores();
+                allScores = [...localScores, ...testScores];
+                allScores.sort((a, b) => b.score - a.score);
+                
+                loadedCount = allScores.length;
+                totalScores = allScores.length;
+                
+                console.log('💾 Mode hors ligne:', loadedCount, 'scores (local + test)');
+                updateStats();
+                renderPage();
+            }
+        }
+
+        // 💾 Récupérer les scores localStorage
+        function getLocalScores() {
+            try {
+                const data = localStorage.getItem('faithChroniclesProgress');
+                if (!data) return [];
+                
+                const progress = JSON.parse(data);
+                // Créer un score à partir de la progression
+                const scores = [];
+                
+                if (progress && progress.sagesse) {
+                    scores.push({
+                        score: progress.sagesse || 0,
+                        niveau_atteint: progress.chapitreActuel || 1,
+                        temps_jeu: progress.tempsTotal || 0,
+                        created_at: new Date().toISOString(),
+                        donnees_extra: {
+                            pseudo: localStorage.getItem('faithChronicles_pseudo') || 'Joueur Local',
+                            avatar: '👤',
+                            sagesse: progress.sagesse || 0,
+                            enigmes: progress.enigmesResolues || 0,
+                            niveau_atteint: progress.chapitreActuel || 1
+                        },
+                        game_id: 'faithchronicles',
+                        users: {
+                            pseudo: localStorage.getItem('faithChronicles_pseudo') || 'Joueur Local',
+                            avatar: '👤',
+                            pays: null
+                        },
+                        _isLocal: true
+                    });
+                }
+                
+                return scores;
+            } catch (e) {
+                console.error('❌ Erreur lecture localStorage FAITHCHRONICLES:', e);
+                return [];
+            }
+        }
+
+        function createTestScores() {
+            const pseudos = ['Marie', 'David', 'Sarah', 'Paul', 'Ruth', 'Jean', 'Esther', 'Pierre', 'Déborah', 'André'];
+            const avatars = ['�', '�‍�', '💫', '📖', '✨', '🙏', '💎', '⭐', '�', '�'];
+            const niveaux = [2400, 2100, 1800, 1500, 1200, 900, 600, 300, 150, 75];
+            
+            // 🎯 IMPORTANT: Scores de test pour FAITHCHRONICLES
+            // Sagesse comme score principal, commencer à 180000 et descendre
+            const maxTestScore = 180000;
+            
+            const testScores = [];
+            for (let i = 0; i < 50; i++) {
+                const pseudoIdx = i % pseudos.length;
+                // Score décroissant: 180000, 179500, 179000, etc.
+                const score = maxTestScore - (i * 500);
+                
+                testScores.push({
+                    id: `test-faithchronicles-${i}`,
+                    score: score,
+                    donnees_extra: {
+                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
+                        avatar: avatars[pseudoIdx],
+                        sagesse: score, // La sagesse = le score dans FAITHCHRONICLES
+                        enigmes: Math.floor(Math.random() * 18),
+                        niveau_atteint: Math.min(8, Math.floor(score / 1000))
+                    },
+                    game_id: 'faithchronicles',
+                    users: {
+                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
+                        avatar: avatars[pseudoIdx]
+                    },
+                    created_at: new Date(Date.now() - i * 86400000).toISOString()
+                });
+            }
+            console.log('🧪 Données de test FAITHCHRONICLES créées:', testScores.length, 'scores (max:', maxTestScore, ')');
+            console.log('📝 Les scores de test sont en secours si Supabase est vide');
+            return testScores;
+        }
+
+        async function loadMoreScores() {
+            try {
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (loadMoreBtn) {
+                    loadMoreBtn.disabled = true;
+                    loadMoreBtn.innerHTML = '⏳ Chargement...';
+                }
+
+                const start = loadedCount;
+                const end = Math.min(loadedCount + loadMoreIncrement - 1, totalScores - 1);
+
+                let data, error;
+                
+                try {
+                    // Tentative PRIORITAIRE avec table USERS globale
+                    console.log('🔍 LoadMore - Tentative avec table USERS globale...');
+                    
+                    const progressResult = await supabase
+                        .from('faithchronicles_game_progress')
+                        .select(`
+                            score,
+                            wisdom_points,
+                            total_xp,
+                            current_level,
+                            current_grade,
+                            created_at,
+                            user_id
+                        `)
+                        .order('wisdom_points', { ascending: false })
+                        .range(start, end);
+                    
+                    if (!progressResult.error && progressResult.data) {
+                        // LoadMore SIMPLIFIÉ: Pas d'enrichissement, on utilisera le fallback
+                        data = progressResult.data.map(progress => ({
+                            ...progress,
+                            users: { pseudo: `Joueur${progress.user_id.slice(0, 6)}`, avatar: '🎮' }
+                        }));
+                        error = null;
+                        console.log('✅ LoadMore SIMPLIFIÉ réussi');
+                    } else {
+                        throw new Error('LoadMore: Progressions inaccessibles');
+                    }
+                    
+                } catch (globalUsersError) {
+                    console.error('⚠️ Erreur LoadMore:', globalUsersError.message);
+                    data = null;
+                    error = globalUsersError;
+                }
+
+                if (error) throw error;
+
+                const newData = Array.isArray(data) ? data : [];
+                allScores = [...allScores, ...newData];
+                loadedCount = allScores.length;
+
+                console.log('✅ Chargement progressif:', loadedCount, 'scores');
+                renderPage();
+            } catch (error) {
+                console.error('Erreur chargement supplémentaire:', error);
+                alert('❌ Erreur lors du chargement: ' + error.message);
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (loadMoreBtn) {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.innerHTML = '📥 Charger plus...';
+                }
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalPlayers').textContent = totalScores.toLocaleString();
+            
+            if (allScores.length > 0) {
+                // Calculer le meilleur score (déjà dans entry.score après le traitement)
+                let topScore = 0;
+                
+                allScores.forEach(entry => {
+                    const score = entry.score || 0;
+                    if (score > topScore) topScore = score;
+                });
+                
+                document.getElementById('topScore').textContent = topScore.toLocaleString();
+            }
+        }
+
+        function renderPage() {
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            
+            if (!Array.isArray(allScores)) {
+                document.getElementById('leaderboardContent').innerHTML = '<div class="loading" style="color: #e74c3c;">❌ Erreur: données corrompues</div>';
+                return;
+            }
+            
+            const pageScores = allScores.slice(start, end);
+
+            let html = '';
+            pageScores.forEach((entry, index) => {
+                const globalRank = start + index + 1;
+                
+                // Pour les données FAITHCHRONICLES depuis Supabase
+                let pseudo, avatar, sagesse, niveau, enigmes;
+                
+                // Le score est déjà calculé dans entry.score
+                const score = entry.score || 0;
+                
+                if (entry.users && entry.users.pseudo) {
+                    // Données depuis Supabase avec table USERS globale
+                    pseudo = entry.users.pseudo;
+                    avatar = entry.users.avatar || '✨';
+                    sagesse = entry.wisdom_points || entry.total_xp || score;
+                    niveau = entry.current_level || 1;
+                    enigmes = 0;
+                } else if (entry.user_id) {
+                    // Données depuis Supabase SANS join users (fallback)
+                    pseudo = `Joueur ${entry.user_id.slice(0, 8)}...`;
+                    avatar = '✨';
+                    sagesse = entry.wisdom_points || entry.total_xp || score;
+                    niveau = entry.current_level || 1;
+                    enigmes = 0;
+                } else {
+                    // Données locales ou de test
+                    pseudo = 'Anonyme';
+                    avatar = '👤';
+                    sagesse = score;
+                    niveau = entry.current_level || 1;
+                    enigmes = 0;
+                }
+                
+                let medal = `${globalRank}.`;
+                let rankClass = '';
+                
+                if (globalRank === 1) {
+                    medal = '🥇';
+                    rankClass = 'medal';
+                } else if (globalRank === 2) {
+                    medal = '🥈';
+                    rankClass = 'medal';
+                } else if (globalRank === 3) {
+                    medal = '🥉';
+                    rankClass = 'medal';
+                }
+
+                const rowClass = globalRank <= 3 ? 'table-row top-3' : 'table-row';
+
+                let levelInfo = '';
+                if (sagesse > 0) {
+                    const niveauSagesse = getNiveauSagesse(sagesse);
+                    const progression = getProgressToNextRank(sagesse);
+                    const enigmesInfo = enigmes > 0 ? ` • ${enigmes}/18🧩` : '';
+                    const niveauInfo = niveau > 1 ? ` • Ch.${niveau}` : '';
+                    
+                    let progressBarHtml = '';
+                    if (progression.next) {
+                        progressBarHtml = `
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${progression.percent}%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span>${progression.percent}%</span>
+                                <span class="next-rank">→ ${progression.next.icone} ${progression.next.titre}</span>
+                                <span>-${progression.remaining.toLocaleString()} pts</span>
+                            </div>
+                        `;
+                    } else {
+                        progressBarHtml = `
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 100%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span style="color: #f39c12; font-weight: 700;">✨ Rang Maximum Atteint! ✨</span>
+                            </div>
+                        `;
+                    }
+                    
+                    levelInfo = `
+                        <div class="player-name">${pseudo}</div>
+                        <div class="player-level">${niveauSagesse.icone} ${niveauSagesse.titre}${niveauInfo}${enigmesInfo}</div>
+                        ${progressBarHtml}
+                    `;
+                } else {
+                    levelInfo = `
+                        <div class="player-name">${pseudo}</div>
+                        <div class="player-level" style="color: #95a5a6; font-style: italic;">📖 Pas encore commencé</div>
+                    `;
+                }
+
+                const badges = getBadges({ sagesse, niveau_atteint: niveau }, globalRank === 1, enigmes);
+                const badgesHtml = badges.length > 0 ? `<span class="badges">${badges.join(' ')}</span>` : '';
+                
+                // Score avec badges intégrés
+                const scoreDisplay = `💎 ${score.toLocaleString()} ${badgesHtml}`;
+
+                html += `
+                    <div class="${rowClass}" data-rank="${medal}">
+                        <div class="rank ${rankClass}">${medal}</div>
+                        <div class="avatar">${avatar}</div>
+                        <div>${levelInfo}</div>
+                        <div class="score-value">${scoreDisplay}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('leaderboardContent').innerHTML = html || '<div class="loading">Aucun score</div>';
+            
+            // Afficher le bouton "Voir plus" si nécessaire
+            renderLoadMoreButton();
+            renderPagination();
+        }
+
+        function renderLoadMoreButton() {
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            if (!loadMoreContainer) return;
+
+            if (loadedCount < totalScores) {
+                const remaining = totalScores - loadedCount;
+                const nextLoad = Math.min(loadMoreIncrement, remaining);
+                loadMoreContainer.innerHTML = `
+                    <button id="loadMoreBtn" class="load-more-btn" onclick="window.loadMoreScores()">
+                        📥 Charger ${nextLoad} scores supplémentaires (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
+                    </button>
+                `;
+            } else {
+                loadMoreContainer.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #7f8c8d; font-size: 14px;">
+                        ✅ Tous les scores chargés (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
+                    </div>
+                `;
+            }
+        }
+
+        function renderPagination() {
+            const maxPossiblePages = Math.ceil(loadedCount / perPage);
+            const totalPages = maxPossiblePages;
+            let html = '';
+
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="window.goToPage(1)">«</button>`;
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="window.goToPage(${currentPage - 1})">‹</button>`;
+
+            const range = 3;
+            let start = Math.max(1, currentPage - range);
+            let end = Math.min(totalPages, currentPage + range);
+
+            if (start > 1) {
+                html += `<button class="page-btn" onclick="window.goToPage(1)">1</button>`;
+                if (start > 2) html += `<span class="page-btn" disabled>...</span>`;
+            }
+
+            for (let i = start; i <= end; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
+            }
+
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span class="page-btn" disabled>...</span>`;
+                html += `<button class="page-btn" onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.goToPage(${currentPage + 1})">›</button>`;
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.goToPage(${totalPages})">»</button>`;
+
+            // Afficher info sur les scores chargés
+            html += `<span style="margin-left: 15px; color: #7f8c8d; font-size: 13px;">${loadedCount.toLocaleString()} scores chargés</span>`;
+
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        window.goToPage = function(page) {
+            const maxPossiblePages = Math.ceil(loadedCount / perPage);
+            if (page < 1 || page > maxPossiblePages) return;
+            
+            // Si on essaie d'aller sur une page non chargée, proposer de charger plus
+            const neededScores = page * perPage;
+            if (neededScores > loadedCount && loadedCount < totalScores) {
+                if (confirm(`Vous devez charger plus de scores pour accéder à cette page.\nCharger ${loadMoreIncrement} scores supplémentaires ?`)) {
+                    loadMoreScores().then(() => {
+                        if (page <= Math.ceil(loadedCount / perPage)) {
+                            currentPage = page;
+                            renderPage();
+                            document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    });
+                }
+                return;
+            }
+            
+            currentPage = page;
+            renderPage();
+            document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.loadMoreScores = loadMoreScores;
+
+        // Recherche
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            if (search && Array.isArray(allScores)) {
+                const filtered = allScores.filter(entry => {
+                    let pseudo;
+                    if (entry.users && entry.users.pseudo) {
+                        // Table USERS globale
+                        pseudo = entry.users.pseudo;
+                    } else if (entry.user_id && !entry.donnees_extra) {
+                        pseudo = `Joueur ${entry.user_id.slice(0, 8)}...`;
+                    } else {
+                        pseudo = entry.users?.pseudo || entry.donnees_extra?.pseudo || '';
+                    }
+                    return pseudo.toLowerCase().includes(search);
+                });
+                
+                let html = '';
+                filtered.slice(0, 100).forEach((entry, index) => {
+                    // Trouver le rang réel dans allScores
+                    const globalRank = allScores.findIndex(s => s === entry) + 1;
+                    
+                    // Traitement des données pour la recherche (même logique que renderPage)
+                    let pseudo, avatar, sagesse, niveau, enigmes, score;
+                    
+                    if (entry.users && entry.users.pseudo) {
+                        // Table USERS globale
+                        pseudo = entry.users.pseudo;
+                        avatar = entry.users.avatar || '✨';
+                        sagesse = entry.wisdom_points || 0;
+                        score = sagesse;
+                        niveau = entry.current_level || 1;
+                        enigmes = 0;
+                    } else if (entry.user_id && !entry.donnees_extra) {
+                        pseudo = `Joueur ${entry.user_id.slice(0, 8)}...`;
+                        avatar = '✨';
+                        sagesse = entry.wisdom_points || 0;
+                        score = sagesse;
+                        niveau = entry.current_level || 1;
+                        enigmes = 0;
+                    } else {
+                        const donnees = entry.donnees_extra || {};
+                        pseudo = entry.users?.pseudo || donnees.pseudo || 'Anonyme';
+                        avatar = entry.users?.avatar || donnees.avatar || '👤';
+                        sagesse = donnees.sagesse || entry.score || 0;
+                        score = entry.score || sagesse;
+                        niveau = donnees.niveau_atteint || entry.niveau_atteint || entry.current_level || 1;
+                        enigmes = donnees.enigmes || 0;
+                    }
+                    
+                    let levelInfo = '';
+                    if (sagesse > 0) {
+                        const niveauSagesse = getNiveauSagesse(sagesse);
+                        const enigmesInfo = enigmes > 0 ? ` • ${enigmes}/18🧩` : '';
+                        const niveauInfo = niveau > 1 ? ` • Ch.${niveau}` : '';
+                        levelInfo = `
+                            <div class="player-name">${pseudo}</div>
+                            <div class="player-level">${niveauSagesse.icone} ${niveauSagesse.titre}${niveauInfo}${enigmesInfo}</div>
+                        `;
+                    } else {
+                        levelInfo = `
+                            <div class="player-name">${pseudo}</div>
+                            <div class="player-level" style="color: #95a5a6; font-style: italic;">📖 Pas encore commencé</div>
+                        `;
+                    }
+
+                    const badges = getBadges({ sagesse, niveau_atteint: niveau }, globalRank === 1, enigmes);
+                    const badgesHtml = badges.join(' ');
+
+                    html += `
+                        <div class="table-row">
+                            <div class="rank">${globalRank}.</div>
+                            <div class="avatar">${avatar}</div>
+                            <div>${levelInfo}</div>
+                            <div class="badges">${badgesHtml}</div>
+                            <div class="score-value">${score.toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('leaderboardContent').innerHTML = html || '<div class="loading">Aucun résultat</div>';
+                document.getElementById('pagination').innerHTML = '';
+            } else {
+                renderPage();
+            }
+        });
+
+        // Chargement initial - attendre que les traductions soient chargées
+        window.addEventListener('DOMContentLoaded', () => {
+            // Attendre un peu que le script des traductions soit chargé
+            setTimeout(() => {
+                if (window.translations) {
+                    loadScores();
+                } else {
+                    console.warn('⚠️ Traductions non chargées, réessai...');
+                    setTimeout(() => loadScores(), 500);
+                }
+            }, 100);
+        });
+    </script>
+
+    <script>
+        // Traductions multilingues
+        // Variables globales accessibles depuis tous les scripts
+        window.translations = {
+            fr: {
+                pageTitle: "Emmanuel Payet - Artiste Chrétien",
+                subtitle: "Artiste Chrétien • Créateur • Inspirateur",
+                leaderboardTitle: "🏆 Top 33 Millions Mondial",
+                leaderboardSubtitle: "Classement des meilleurs joueurs de FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Rechercher un joueur...",
+                loading: "⏳ Chargement des scores...",
+                rankHeader: "Rang",
+                avatarHeader: "Avatar",
+                playerHeader: "Joueur",
+                levelHeader: "Niveau",
+                scoreHeader: "Score",
+                gamesTitle: "Jeux & Déco",
+                gamesDesc: "Découvre mes créations visuelles, jeux interactifs et décorations artistiques qui célèbrent la foi et la beauté.",
+                booksTitle: "Livres & Art",
+                booksDesc: "Plonge dans mes œuvres littéraires et artistiques, créées avec ma fille Béthanie, pour nourrir l'âme et l'esprit.",
+                musicTitle: "Gospel Gratuit",
+                musicDesc: "Écoute mes compositions gospel sur AudioMack, des mélodies qui louent Dieu et inspirent l'unité dans la diversité.",
+                shopTitle: "La Bonne Heure",
+                shopDesc: "C'est maintenant ! Découvre ma boutique Redbubble avec des designs uniques et des créations inspirantes à porter.",
+                quote: "L'art chrétien unit les cœurs au-delà des différences, célébrant la beauté de la création divine dans toute sa diversité.",
+                credits: "Codé par Claude • Idée originale Emmanuel Payet"
+            },
+            en: {
+                pageTitle: "Emmanuel Payet - Christian Artist",
+                subtitle: "Christian Artist • Creator • Inspirator",
+                leaderboardTitle: "🏆 Top 33 Million Worldwide",
+                leaderboardSubtitle: "Ranking of the best FAITHCHRONICLES players",
+                searchPlaceholder: "🔍 Search for a player...",
+                loading: "⏳ Loading scores...",
+                rankHeader: "Rank",
+                avatarHeader: "Avatar",
+                playerHeader: "Player",
+                levelHeader: "Level",
+                scoreHeader: "Score",
+                gamesTitle: "Games & Deco",
+                gamesDesc: "Discover my visual creations, interactive games and artistic decorations that celebrate faith and beauty.",
+                booksTitle: "Books & Art",
+                booksDesc: "Dive into my literary and artistic works, created with my daughter Béthanie, to nourish the soul and spirit.",
+                musicTitle: "Free Gospel",
+                musicDesc: "Listen to my gospel compositions on AudioMack, melodies that praise God and inspire unity in diversity.",
+                shopTitle: "The Good Time",
+                shopDesc: "It's now! Discover my Redbubble shop with unique designs and inspiring creations to wear.",
+                quote: "Christian art unites hearts beyond differences, celebrating the beauty of divine creation in all its diversity.",
+                credits: "Coded by Claude • Original idea Emmanuel Payet"
+            },
+            es: {
+                pageTitle: "Emmanuel Payet - Artista Cristiano",
+                subtitle: "Artista Cristiano • Creador • Inspirador",
+                leaderboardTitle: "🏆 Top 33 Millones Mundial",
+                leaderboardSubtitle: "Clasificación de los mejores jugadores de FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Buscar un jugador...",
+                loading: "⏳ Cargando puntuaciones...",
+                rankHeader: "Rango",
+                avatarHeader: "Avatar",
+                playerHeader: "Jugador",
+                levelHeader: "Nivel",
+                scoreHeader: "Puntuación",
+                gamesTitle: "Juegos y Decoración",
+                gamesDesc: "Descubre mis creaciones visuales, juegos interactivos y decoraciones artísticas que celebran la fe y la belleza.",
+                booksTitle: "Libros y Arte",
+                booksDesc: "Sumérgete en mis obras literarias y artísticas, creadas con mi hija Béthanie, para nutrir el alma y el espíritu.",
+                musicTitle: "Gospel Gratuito",
+                musicDesc: "Escucha mis composiciones gospel en AudioMack, melodías que alaban a Dios e inspiran unidad en la diversidad.",
+                shopTitle: "El Buen Momento",
+                shopDesc: "¡Es ahora! Descubre mi tienda Redbubble con diseños únicos y creaciones inspiradoras para llevar.",
+                quote: "El arte cristiano une corazones más allá de las diferencias, celebrando la belleza de la creación divina en toda su diversidad.",
+                credits: "Programado por Claude • Idea original Emmanuel Payet"
+            },
+            de: {
+                pageTitle: "Emmanuel Payet - Christlicher Künstler",
+                subtitle: "Christlicher Künstler • Schöpfer • Inspirator",
+                leaderboardTitle: "🏆 Top 33 Millionen Weltweit",
+                leaderboardSubtitle: "Rangliste der besten FAITHCHRONICLES-Spieler",
+                searchPlaceholder: "🔍 Spieler suchen...",
+                loading: "⏳ Lade Punkte...",
+                rankHeader: "Rang",
+                avatarHeader: "Avatar",
+                playerHeader: "Spieler",
+                levelHeader: "Level",
+                scoreHeader: "Punkte",
+                gamesTitle: "Spiele & Deko",
+                gamesDesc: "Entdecke meine visuellen Kreationen, interaktiven Spiele und künstlerischen Dekorationen, die Glaube und Schönheit feiern.",
+                booksTitle: "Bücher & Kunst",
+                booksDesc: "Tauche ein in meine literarischen und künstlerischen Werke, geschaffen mit meiner Tochter Béthanie, um Seele und Geist zu nähren.",
+                musicTitle: "Kostenloses Gospel",
+                musicDesc: "Höre meine Gospel-Kompositionen auf AudioMack, Melodien, die Gott preisen und Einheit in Vielfalt inspirieren.",
+                shopTitle: "Die Gute Zeit",
+                shopDesc: "Es ist jetzt! Entdecke meinen Redbubble-Shop mit einzigartigen Designs und inspirierenden Kreationen zum Tragen.",
+                quote: "Christliche Kunst vereint Herzen jenseits von Unterschieden und feiert die Schönheit der göttlichen Schöpfung in all ihrer Vielfalt.",
+                credits: "Programmiert von Claude • Originalidee Emmanuel Payet"
+            },
+            it: {
+                pageTitle: "Emmanuel Payet - Artista Cristiano",
+                subtitle: "Artista Cristiano • Creatore • Ispiratore",
+                leaderboardTitle: "🏆 Top 33 Milioni Mondiale",
+                leaderboardSubtitle: "Classifica dei migliori giocatori di FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Cerca un giocatore...",
+                loading: "⏳ Caricamento punteggi...",
+                rankHeader: "Posizione",
+                avatarHeader: "Avatar",
+                playerHeader: "Giocatore",
+                levelHeader: "Livello",
+                scoreHeader: "Punteggio",
+                gamesTitle: "Giochi e Decorazioni",
+                gamesDesc: "Scopri le mie creazioni visive, giochi interattivi e decorazioni artistiche che celebrano la fede e la bellezza.",
+                booksTitle: "Libri e Arte",
+                booksDesc: "Immergiti nelle mie opere letterarie e artistiche, create con mia figlia Béthanie, per nutrire anima e spirito.",
+                musicTitle: "Gospel Gratuito",
+                musicDesc: "Ascolta le mie composizioni gospel su AudioMack, melodie che lodano Dio e ispirano unità nella diversità.",
+                shopTitle: "Il Momento Giusto",
+                shopDesc: "È ora! Scopri il mio negozio Redbubble con design unici e creazioni ispiratrici da indossare.",
+                quote: "L'arte cristiana unisce i cuori oltre le differenze, celebrando la bellezza della creazione divina in tutta la sua diversità.",
+                credits: "Programmato da Claude • Idea originale Emmanuel Payet"
+            },
+            pt: {
+                pageTitle: "Emmanuel Payet - Artista Cristão",
+                subtitle: "Artista Cristão • Criador • Inspirador",
+                leaderboardTitle: "🏆 Top 33 Milhões Mundial",
+                leaderboardSubtitle: "Classificação dos melhores jogadores de FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Procurar um jogador...",
+                loading: "⏳ Carregando pontuações...",
+                rankHeader: "Posição",
+                avatarHeader: "Avatar",
+                playerHeader: "Jogador",
+                levelHeader: "Nível",
+                scoreHeader: "Pontuação",
+                gamesTitle: "Jogos e Decoração",
+                gamesDesc: "Descubra minhas criações visuais, jogos interativos e decorações artísticas que celebram a fé e a beleza.",
+                booksTitle: "Livros e Arte",
+                booksDesc: "Mergulhe em minhas obras literárias e artísticas, criadas com minha filha Béthanie, para nutrir alma e espírito.",
+                musicTitle: "Gospel Gratuito",
+                musicDesc: "Ouça minhas composições gospel no AudioMack, melodias que louvam a Deus e inspiram unidade na diversidade.",
+                shopTitle: "A Boa Hora",
+                shopDesc: "É agora! Descubra minha loja Redbubble com designs únicos e criações inspiradoras para vestir.",
+                quote: "A arte cristã une corações além das diferenças, celebrando a beleza da criação divina em toda sua diversidade.",
+                credits: "Programado por Claude • Ideia original Emmanuel Payet"
+            },
+            ru: {
+                pageTitle: "Эммануэль Пайе - Христианский Художник",
+                subtitle: "Христианский Художник • Творец • Вдохновитель",
+                leaderboardTitle: "🏆 Топ 33 Миллиона Мировой",
+                leaderboardSubtitle: "Рейтинг лучших игроков FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Поиск игрока...",
+                loading: "⏳ Загрузка результатов...",
+                rankHeader: "Ранг",
+                avatarHeader: "Аватар",
+                playerHeader: "Игрок",
+                levelHeader: "Уровень",
+                scoreHeader: "Счёт",
+                gamesTitle: "Игры и Декор",
+                gamesDesc: "Откройте мои визуальные творения, интерактивные игры и художественные украшения, которые прославляют веру и красоту.",
+                booksTitle: "Книги и Искусство",
+                booksDesc: "Погрузитесь в мои литературные и художественные произведения, созданные с моей дочерью Бетани, чтобы питать душу и дух.",
+                musicTitle: "Бесплатный Госпел",
+                musicDesc: "Слушайте мои госпел-композиции на AudioMack, мелодии, которые славят Бога и вдохновляют единство в разнообразии.",
+                shopTitle: "Хорошее Время",
+                shopDesc: "Сейчас! Откройте мой магазин Redbubble с уникальными дизайнами и вдохновляющими творениями для ношения.",
+                quote: "Христианское искусство объединяет сердца за пределами различий, прославляя красоту божественного творения во всем его разнообразии.",
+                credits: "Запрограммировано Claude • Оригинальная идея Эммануэль Пайе"
+            },
+            zh: {
+                pageTitle: "艾曼纽·佩耶 - 基督教艺术家",
+                subtitle: "基督教艺术家 • 创作者 • 启发者",
+                leaderboardTitle: "🏆 全球前3300万名",
+                leaderboardSubtitle: "FAITHCHRONICLES最佳玩家排名",
+                searchPlaceholder: "🔍 搜索玩家...",
+                loading: "⏳ 加载分数中...",
+                rankHeader: "排名",
+                avatarHeader: "头像",
+                playerHeader: "玩家",
+                levelHeader: "等级",
+                scoreHeader: "分数",
+                gamesTitle: "游戏与装饰",
+                gamesDesc: "发现我的视觉创作、互动游戏和艺术装饰，它们颂扬信仰和美丽。",
+                booksTitle: "书籍与艺术",
+                booksDesc: "沉浸在我与女儿贝塔妮创作的文学和艺术作品中，滋养灵魂和精神。",
+                musicTitle: "免费福音音乐",
+                musicDesc: "在AudioMack上聆听我的福音作品，这些旋律赞美上帝并激励多样性中的团结。",
+                shopTitle: "好时光",
+                shopDesc: "就是现在！发现我的Redbubble商店，拥有独特的设计和鼓舞人心的创作。",
+                quote: "基督教艺术超越差异联合心灵，在其多样性中庆祝神圣创造的美丽。",
+                credits: "由Claude编程 • 原创想法艾曼纽·佩耶"
+            },
+            ko: {
+                pageTitle: "엠마누엘 파예 - 기독교 예술가",
+                subtitle: "기독교 예술가 • 창작자 • 영감자",
+                leaderboardTitle: "🏆 전 세계 상위 3,300만",
+                leaderboardSubtitle: "FAITHCHRONICLES 최고의 플레이어 순위",
+                searchPlaceholder: "🔍 플레이어 검색...",
+                loading: "⏳ 점수 로딩 중...",
+                rankHeader: "순위",
+                avatarHeader: "아바타",
+                playerHeader: "플레이어",
+                levelHeader: "레벨",
+                scoreHeader: "점수",
+                gamesTitle: "게임과 장식",
+                gamesDesc: "신앙과 아름다움을 찬양하는 나의 시각적 창작물, 인터랙티브 게임, 예술적 장식을 발견하세요.",
+                booksTitle: "책과 예술",
+                booksDesc: "딸 베타니와 함께 만든 나의 문학적, 예술적 작품에 빠져들어 영혼과 정신을 기르세요.",
+                musicTitle: "무료 가스펠",
+                musicDesc: "AudioMack에서 하나님을 찬양하고 다양성 속의 일치를 영감하는 나의 가스펠 작품을 들어보세요.",
+                shopTitle: "좋은 시간",
+                shopDesc: "지금이에요! 독특한 디자인과 영감을 주는 창작물을 가진 나의 Redbubble 상점을 발견하세요.",
+                quote: "기독교 예술은 차이를 넘어 마음을 하나로 만들며, 모든 다양성 속에서 신성한 창조의 아름다움을 찬양합니다.",
+                credits: "Claude가 프로그래밍 • 원작 아이디어 엠마누엘 파예"
+            },
+            jp: {
+                pageTitle: "エマニュエル・パイエ - キリスト教アーティスト",
+                subtitle: "キリスト教アーティスト • クリエイター • インスピレーター",
+                leaderboardTitle: "🏆 世界トップ3300万",
+                leaderboardSubtitle: "FaITHCHRONICLES最高のプレイヤーランキング",
+                searchPlaceholder: "🔍 プレイヤーを検索...",
+                loading: "⏳ スコアを読み込み中...",
+                rankHeader: "ランク",
+                avatarHeader: "アバター",
+                playerHeader: "プレイヤー",
+                levelHeader: "レベル",
+                scoreHeader: "スコア",
+                gamesTitle: "ゲーム＆デコレーション",
+                gamesDesc: "信仰と美しさを讃える私のビジュアル創作、インタラクティブゲーム、芸術的装飾を発見してください。",
+                booksTitle: "書籍＆アート",
+                booksDesc: "娘ベタニーと共に創作した私の文学的・芸術的作品に浸り、魂と精神を養ってください。",
+                musicTitle: "フリーゴスペル",
+                musicDesc: "AudioMackで神を讃え、多様性の中の一致を鼓舞する私のゴスペル作品を聴いてください。",
+                shopTitle: "良い時間",
+                shopDesc: "今です！ユニークなデザインと感動的な創作物を持つ私のRedbubbleショップを発見してください。",
+                quote: "キリスト教芸術は違いを超えて心を結び、その多様性のすべてにおいて神聖な創造の美しさを讃えます。",
+                credits: "Claudeによってプログラム • オリジナルアイデア エマニュエル・パイエ"
+            },
+            ar: {
+                pageTitle: "إيمانويل باييت - فنان مسيحي",
+                subtitle: "فنان مسيحي • مبدع • ملهم",
+                leaderboardTitle: "🏆 أفضل 33 مليون عالمياً",
+                leaderboardSubtitle: "تصنيف أفضل لاعبي FAITHCHRONICLES",
+                searchPlaceholder: "🔍 البحث عن لاعب...",
+                loading: "⏳ تحميل النتائج...",
+                rankHeader: "الترتيب",
+                avatarHeader: "الصورة",
+                playerHeader: "اللاعب",
+                levelHeader: "المستوى",
+                scoreHeader: "النتيجة",
+                gamesTitle: "الألعاب والديكور",
+                gamesDesc: "اكتشف إبداعاتي البصرية والألعاب التفاعلية والزخارف الفنية التي تحتفل بالإيمان والجمال.",
+                booksTitle: "الكتب والفن",
+                booksDesc: "انغمس في أعمالي الأدبية والفنية المصنوعة مع ابنتي بيتاني لتغذية الروح والروح.",
+                musicTitle: "إنجيل مجاني",
+                musicDesc: "استمع إلى مؤلفاتي الإنجيلية على AudioMack، ألحان تحمد الله وتلهم الوحدة في التنوع.",
+                shopTitle: "الوقت الجيد",
+                shopDesc: "الآن! اكتشف متجر Redbubble الخاص بي مع تصاميم فريدة وإبداعات ملهمة للارتداء.",
+                quote: "الفن المسيحي يوحد القلوب ما وراء الاختلافات، محتفلاً بجمال الخلق الإلهي في كل تنوعه.",
+                credits: "مبرمج بواسطة Claude • الفكرة الأصلية إيمانويل باييت"
+            },
+            he: {
+                pageTitle: "עמנואל פאייט - אמן נוצרי",
+                subtitle: "אמן נוצרי • יוצר • מעורר השראה",
+                leaderboardTitle: "🏆 33 מיליון הטובים בעולם",
+                leaderboardSubtitle: "דירוג השחקנים הטובים ביותר של FAITHCHRONICLES",
+                searchPlaceholder: "🔍 חיפוש שחקן...",
+                loading: "⏳ טוען תוצאות...",
+                rankHeader: "דירוג",
+                avatarHeader: "אווטר",
+                playerHeader: "שחקן",
+                levelHeader: "רמה",
+                scoreHeader: "ניקוד",
+                gamesTitle: "משחקים ועיצוב",
+                gamesDesc: "גלו את היצירות החזותיות שלי, משחקים אינטראקטיביים ועיטורים אמנותיים החוגגים אמונה ויופי.",
+                booksTitle: "ספרים ואמנות",
+                booksDesc: "צללו ביצירותיי הספרותיות והאמנותיות שנוצרו עם בתי בתניה כדי להזין נפש ורוח.",
+                musicTitle: "גוספל חינם",
+                musicDesc: "הקשיבו לחיבוריי הגוספל ב-AudioMack, מנגינות המהללות את אלוהים ומעוררות אחדות בגיוון.",
+                shopTitle: "הזמן הטוב",
+                shopDesc: "זה עכשיו! גלו את חנות Redbubble שלי עם עיצובים ייחודיים ויצירות מעוררות השראה ללבישה.",
+                quote: "אמנות נוצרית מאחדת לבבות מעבר להבדלים, חוגגת את יופי הבריאה האלוהית בכל הגיוון שלה.",
+                credits: "מתוכנת על ידי Claude • רעיון מקורי עמנואל פאייט"
+            },
+            uk: {
+                pageTitle: "Еммануель Пайє - Християнський Художник",
+                subtitle: "Християнський Художник • Творець • Натхненник",
+                leaderboardTitle: "🏆 Топ 33 Мільйони Світовий",
+                leaderboardSubtitle: "Рейтинг найкращих гравців FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Пошук гравця...",
+                loading: "⏳ Завантаження результатів...",
+                rankHeader: "Ранг",
+                avatarHeader: "Аватар",
+                playerHeader: "Гравець",
+                levelHeader: "Рівень",
+                scoreHeader: "Рахунок",
+                gamesTitle: "Ігри та Декор",
+                gamesDesc: "Відкрийте мої візуальні творіння, інтерактивні ігри та художні прикраси, які прославляють віру та красу.",
+                booksTitle: "Книги та Мистецтво",
+                booksDesc: "Поринте в мої літературні та художні твори, створені з моєю дочкою Бетані, щоб живити душу та дух.",
+                musicTitle: "Безкоштовний Госпел",
+                musicDesc: "Слухайте мої госпел-композиції на AudioMack, мелодії, які славлять Бога та надихають єдність у різноманітності.",
+                shopTitle: "Гарний Час",
+                shopDesc: "Це зараз! Відкрийте мій магазин Redbubble з унікальними дизайнами та надихаючими творіннями для носіння.",
+                quote: "Християнське мистецтво об'єднує серця за межами відмінностей, прославляючи красу божественного творіння у всьому його різноманітті.",
+                credits: "Запрограмовано Claude • Оригінальна ідея Еммануель Пайє"
+            },
+            pl: {
+                pageTitle: "Emmanuel Payet - Artysta Chrześcijański",
+                subtitle: "Artysta Chrześcijański • Twórca • Inspirator",
+                leaderboardTitle: "🏆 Top 33 Miliony Światowy",
+                leaderboardSubtitle: "Ranking najlepszych graczy FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Szukaj gracza...",
+                loading: "⏳ Ładowanie wyników...",
+                rankHeader: "Ranga",
+                avatarHeader: "Awatar",
+                playerHeader: "Gracz",
+                levelHeader: "Poziom",
+                scoreHeader: "Wynik",
+                gamesTitle: "Gry i Dekoracje",
+                gamesDesc: "Odkryj moje wizualne kreacje, interaktywne gry i artystyczne dekoracje, które celebrują wiarę i piękno.",
+                booksTitle: "Książki i Sztuka",
+                booksDesc: "Zanurz się w moich dziełach literackich i artystycznych, stworzonych z moją córką Béthanie, aby odżywiać duszę i ducha.",
+                musicTitle: "Darmowy Gospel",
+                musicDesc: "Słuchaj moich kompozycji gospel na AudioMack, melodii, które chwalą Boga i inspirują jedność w różnorodności.",
+                shopTitle: "Dobry Czas",
+                shopDesc: "To teraz! Odkryj mój sklep Redbubble z unikalnymi projektami i inspirującymi kreacjami do noszenia.",
+                quote: "Sztuka chrześcijańska jednoczy serca ponad różnicami, celebrując piękno boskiego stworzenia we wszystkich jego odmianach.",
+                credits: "Zaprogramowane przez Claude • Pomysł oryginalny Emmanuel Payet"
+            },
+            sw: {
+                pageTitle: "Emmanuel Payet - Msanii wa Kikristo",
+                subtitle: "Msanii wa Kikristo • Muumbaji • Mtia Hamasa",
+                leaderboardTitle: "🏆 Wabora 33 Milioni Duniani",
+                leaderboardSubtitle: "Orodha ya wachezaji bora wa FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Tafuta mchezaji...",
+                loading: "⏳ Inapakia matokeo...",
+                rankHeader: "Hadhi",
+                avatarHeader: "Picha",
+                playerHeader: "Mchezaji",
+                levelHeader: "Kiwango",
+                scoreHeader: "Alama",
+                gamesTitle: "Michezo na Mapambo",
+                gamesDesc: "Gundua miundo yangu ya kuona, michezo ya maingiliano na mapambo ya kisanii yanayosherehekea imani na uzuri.",
+                booksTitle: "Vitabu na Sanaa",
+                booksDesc: "Zama katika kazi zangu za kifasihi na kisanii, zilizotengenezwa na binti yangu Béthanie, ili kulisha roho na nafsi.",
+                musicTitle: "Gospel Bure",
+                musicDesc: "Sikiliza michanganyiko yangu ya gospel kwenye AudioMack, melodi zinazomsifu Mungu na kuhamasisha umoja katika utofauti.",
+                shopTitle: "Wakati Mzuri",
+                shopDesc: "Ni sasa! Gundua duka langu la Redbubble lilialo na miundo ya kipekee na ubunifu unaotia hamasa wa kuvaa.",
+                quote: "Sanaa ya Kikristo inaunganisha mioyo zaidi ya tofauti, ikisherehekea uzuri wa uumbaji wa kimungu katika utofauti wake wote.",
+                credits: "Imeprogramiwa na Claude • Wazo la asili Emmanuel Payet"
+            },
+            hi: {
+                pageTitle: "इमैनुएल पायेट - ईसाई कलाकार",
+                subtitle: "ईसाई कलाकार • रचनाकार • प्रेरक",
+                leaderboardTitle: "🏆 शीर्ष 33 मिलियन विश्वव्यापी",
+                leaderboardSubtitle: "FAITHCHRONICLES के सर्वश्रेष्ठ खिलाड़ियों की रैंकिंग",
+                searchPlaceholder: "🔍 खिलाड़ी खोजें...",
+                loading: "⏳ परिणाम लोड हो रहे हैं...",
+                rankHeader: "रैंक",
+                avatarHeader: "अवतार",
+                playerHeader: "खिलाड़ी",
+                levelHeader: "स्तर",
+                scoreHeader: "स्कोर",
+                gamesTitle: "गेम्स और सजावट",
+                gamesDesc: "मेरी दृश्य रचनाएँ, इंटरएक्टिव गेम्स और कलात्मक सजावट की खोज करें जो विश्वास और सुंदरता का जश्न मनाती हैं।",
+                booksTitle: "किताबें और कला",
+                booksDesc: "मेरी साहित्यिक और कलात्मक रचनाओं में डूबें, जो मेरी बेटी बेताने के साथ बनाई गई हैं, आत्मा और आत्मा को पोषण देने के लिए।",
+                musicTitle: "मुफ्त गॉस्पेल",
+                musicDesc: "AudioMack पर मेरी गॉस्पेल रचनाएँ सुनें, धुनें जो भगवान की स्तुति करती हैं और विविधता में एकता को प्रेरित करती हैं।",
+                shopTitle: "अच्छा समय",
+                shopDesc: "यह अभी है! अद्वितीय डिज़ाइन और प्रेरक रचनाओं के साथ मेरी Redbubble दुकान खोजें।",
+                quote: "ईसाई कला अंतर से परे दिलों को जोड़ती है, अपनी सभी विविधता में दिव्य सृष्टि की सुंदरता का जश्न मनाती है।",
+                credits: "Claude द्वारा प्रोग्राम किया गया • मूल विचार इमैनुएल पायेट"
+            },
+            rc: {
+                pageTitle: "Emmanuel Payet - Mosali ya Kristo",
+                subtitle: "Mosali ya Kristo • Mokeli • Motindi",
+                leaderboardTitle: "🏆 Ba Malamu 33 Million na Mokili",
+                leaderboardSubtitle: "Classement ya ba basani malamu ya FAITHCHRONICLES",
+                searchPlaceholder: "🔍 Luka mosani...",
+                loading: "⏳ Ezali kokarga ba scores...",
+                rankHeader: "Rang",
+                avatarHeader: "Avatar",
+                playerHeader: "Mosani",
+                levelHeader: "Niveau",
+                scoreHeader: "Score",
+                gamesTitle: "Masano na Mapambo",
+                gamesDesc: "Mona ba créations visuelles na ngai, masano ya kozongazonga na mapambo ya bongengi oyo ezali kosepelisa kondima na kitoko.",
+                booksTitle: "Mikanda na Art",
+                booksDesc: "Kota na misala na ngai ya mikanda na bongengi, oyo nasalaki elongo na mwana na ngai ya mwasi Béthanie, mpo na koleisa molimo na motema.",
+                musicTitle: "Gospel ya Ofele",
+                musicDesc: "Yoka ba compositions na ngai ya gospel na AudioMack, melodi oyo ezali kokumisa Nzambe mpe kopesa ngolu na bosangani na bokeseni.",
+                shopTitle: "Ngonga Malamu",
+                shopDesc: "Ezali sikawa! Mona magazini na ngai Redbubble na ba designs ekeseni mpe ba créations ya kopesa ngolu ya kolata.",
+                quote: "Art ya Kristo esangisaka mitema na likolo ya bokeseni, kosepelaka na kitoko ya bokeli ya Nzambe na bokeseni na yango mobimba.",
+                credits: "Esalemi na Claude • Likanisi ya ebandeli Emmanuel Payet"
+            },
+        };
+
+        // Variable globale pour la langue actuelle
+        window.currentLanguage = 'en';
+
+        // Fonction pour détecter la langue depuis l'URL ou le parent
+        window.detectLanguage = function() {
+            // Essayer de récupérer la langue depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            let lang = urlParams.get('lang');
+            
+            // Si pas dans l'URL, essayer de récupérer depuis le parent (le jeu)
+            if (!lang && window.opener && window.opener.window && window.opener.window.i18n) {
+                try {
+                    lang = window.opener.window.i18n.getCurrentLanguage();
+                } catch (e) {
+                    console.log('Impossible de récupérer la langue depuis le parent');
+                }
+            }
+            
+            // Si pas trouvé, essayer localStorage
+            if (!lang && localStorage.getItem('emmanuelModuleLanguage')) {
+                lang = localStorage.getItem('emmanuelModuleLanguage');
+            }
+            
+            // Si toujours pas trouvé, détecter la langue du navigateur
+            if (!lang) {
+                const browserLang = navigator.language || navigator.userLanguage;
+                // Extraire le code langue (ex: 'en-US' -> 'en')
+                lang = browserLang.split('-')[0].toLowerCase();
+                
+                // Mapper certaines langues spécifiques
+                const langMap = {
+                    'zh': 'zh',
+                    'ar': 'ar',
+                    'he': 'he',
+                    'ja': 'jp',
+                    'ko': 'ko',
+                    'hi': 'hi',
+                    'sw': 'sw',
+                    'pl': 'pl',
+                    'ln': 'rc',  // Lingala
+                    'uk': 'uk',
+                    'ru': 'ru'
+                };
+                
+                if (langMap[lang]) {
+                    lang = langMap[lang];
+                }
+            }
+            
+            // Par défaut anglais si la langue n'est pas supportée
+            return lang && window.translations[lang] ? lang : 'en';
+        }
+
+        // Fonction pour changer la langue
+        window.changeLanguage = function(lang) {
+            if (!window.translations[lang]) {
+                console.error('❌ Langue non supportée:', lang);
+                return;
+            }
+            
+            window.currentLanguage = lang;
+            localStorage.setItem('emmanuelModuleLanguage', lang);
+            
+            // Mettre à jour le sélecteur
+            const select = document.getElementById('languageSelect');
+            if (select) {
+                select.value = lang;
+            }
+            
+            // Appliquer les traductions
+            window.applyTranslation(lang);
+            
+            console.log('✅ Langue changée:', lang);
+        }
+
+        // Fonction pour appliquer la traduction
+        window.applyTranslation = function(lang) {
+            const t = window.translations[lang];
+            if (!t) {
+                console.error('❌ Traduction non trouvée pour:', lang);
+                return;
+            }
+
+            console.log('🌍 Application des traductions pour:', lang);
+
+            // Éléments statiques à traduire
+            const staticElements = {
+                'page-title': t.pageTitle,
+                'subtitle': t.subtitle,
+                'leaderboard-title': t.leaderboardTitle,
+                'leaderboard-subtitle': t.leaderboardSubtitle,
+                'rank-header': t.rankHeader,
+                'avatar-header': t.avatarHeader,
+                'player-header': t.playerHeader,
+                'level-header': t.levelHeader,
+                'score-header': t.scoreHeader,
+                'games-title': t.gamesTitle,
+                'games-desc': t.gamesDesc,
+                'books-title': t.booksTitle,
+                'books-desc': t.booksDesc,
+                'music-title': t.musicTitle,
+                'music-desc': t.musicDesc,
+                'shop-title': t.shopTitle,
+                'shop-desc': t.shopDesc,
+                'inspiring-quote': t.quote,
+                'credits': t.credits
+            };
+
+            // Appliquer les traductions pour les éléments qui existent
+            Object.keys(staticElements).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = staticElements[id];
+                }
+            });
+
+            // Mettre à jour le titre de la page
+            document.title = t.pageTitle;
+            
+            // Mettre à jour le placeholder de recherche
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = t.searchPlaceholder;
+            }
+            
+            // Mettre à jour l'attribut lang et direction pour RTL
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar' || lang === 'he') ? 'rtl' : 'ltr';
+            
+            console.log('✅ Traductions appliquées avec succès');
+        }
+
+        // Initialiser la langue au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            window.currentLanguage = window.detectLanguage();
+            console.log('🔍 Langue détectée:', window.currentLanguage);
+            
+            // Mettre à jour le sélecteur avec la langue détectée
+            const select = document.getElementById('languageSelect');
+            if (select) {
+                select.value = window.currentLanguage;
+                
+                // Écouter les changements
+                select.addEventListener('change', (e) => {
+                    window.changeLanguage(e.target.value);
+                });
+            }
+            
+            // Appliquer la traduction initiale
+            window.applyTranslation(window.currentLanguage);
+        });
+
+        // Animation au scroll pour les cartes
+        const cards = document.querySelectorAll('.platform-card');
+        
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
+            observer.observe(card);
+        });
+
+        // Animation des icônes au survol
+        cards.forEach(card => {
+            const icon = card.querySelector('.platform-icon');
+            
+            card.addEventListener('mouseenter', () => {
+                icon.style.transform = 'rotateY(180deg)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                icon.style.transform = 'rotateY(0deg)';
+            });
+            
+            icon.style.transition = 'transform 0.6s ease';
+        });
+    </script>
+</body>
+</html>

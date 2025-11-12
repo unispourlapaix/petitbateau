@@ -1225,12 +1225,8 @@
                     </button>
                 `;
             } else {
-                const t = translations[currentLang] || translations['fr'];
-                loadMoreContainer.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #7f8c8d; font-size: 14px;">
-                        ${t.allScoresLoaded} (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
-                    </div>
-                `;
+                // Tous les scores chargés - ne rien afficher
+                loadMoreContainer.innerHTML = '';
             }
         }
 
@@ -1262,10 +1258,6 @@
 
             html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.goToPage(${currentPage + 1})">›</button>`;
             html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.goToPage(${totalPages})">»</button>`;
-
-            // Afficher info sur les scores chargés
-            const t = translations[currentLang] || translations['fr'];
-            html += `<span style="margin-left: 15px; color: #7f8c8d; font-size: 13px;">${loadedCount.toLocaleString()} ${t.scoresLoaded}</span>`;
 
             document.getElementById('pagination').innerHTML = html;
         }
