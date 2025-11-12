@@ -111,7 +111,14 @@
     "cancelled_step_2": "❌ Reinicio total cancelado (2ª confirmación)"
   },
   "popup": {
-    "blocked": "⚠️ ¡Ventana emergente bloqueada! Permite las ventanas emergentes para ver la información del artista."
+    "blocked": "⚠️ ¡Ventana emergente bloqueada! Permite las ventanas emergentes para ver la información del artista.",
+    "information": "Información",
+    "confirmation": "Confirmación",
+    "ok": "✓ OK",
+    "yes": "✓ Sí",
+    "no": "✖ No",
+    "confirm": "✓ Confirmar",
+    "cancel": "✖ Cancelar"
   },
   "game": {
     "messages": {

@@ -1,0 +1,910 @@
+{
+  "meta": {
+    "document_title": "Masuwa ya Moke ya Motane ⛵ - Lisano ya Bwanya na Emmanuel Payet",
+    "description": "Mona Masuwa ya Moke ya Motane, lisano ya bwanya mpe ya bonkoko oyo Emmanuel Payet asali. Tambola na nzela ya minoko 15 na mokili epai lisano moko na moko ezali kofungola solo ya bato. Mokano: basangi 33 millions!",
+    "og_title": "Masuwa ya Moke ya Motane ⛵ - Lisano ya Bwanya",
+    "og_description": "Mobembo ya bwanya na nzela ya lisano ya bato. Emmanuel Payet asali yango, ezali na minoko 15. Mokano: basangi 33 millions!"
+  },
+  "ui": {
+    "install_app": "Kotia programɛ",
+    "already_installed": "Programɛ etiami liboso to navigateur na yo esungaka te kotia.",
+    "install_success": "🎉 Programɛ etiami na elonga!",
+    "skip_button": "Koleka",
+    "continue_button": "Kokoba",
+    "save_score_ranking": "Kobomba ntango na yo mpo na komonana na bilembo ya mokili mobimba!",
+    "complete_game_save_score": "🎉 Silisa lisano mpo na kobomba ntango na yo!",
+    "journey_completed_title": "Mobembo esilisami!",
+    "game_over_title": "⚓ Nsuka ya mobembo",
+    "journey_completed_title_alt": "Mobembo Esilisami",
+    "thank_you_truth": "Matondi mpo na koluka solo.",
+    "epilogue_button": "📖 Nsuka",
+    "replay_button": "🔄 Kosakana lisusu",
+    "thank_you_reading": "🌊 Matondi mpo na kotanga 🌊",
+    "read_poetic_epilogue": "Tanga nsuka ya bonkoko",
+    "restart_journey": "Kobandela mobembo lisusu",
+    "bonus_phase_title": "🌊 Eteni ya Bonus Efungwami 🌊",
+    "bonus_phase_intro": "Osilisi mobembo na yo na nzela ya solo.<br>Tala kaniseli ya nsuka likolo ya mokili na biso...",
+    "bonus_phase_xp": "🌟 +200 XP mpo osilisi lisano! 🌟",
+    "final_wisdom_quote": "Mpo mai ezalaka koboma libanga ntango nyonso,<br>mpe bonsomi, nokinoki to na sima, ekozonga na nzela na yango.",
+    "end_of_game": "✨ Nsuka ya MASUWA YA MOKE ✨",
+    "journey_begins": "✨ Mobembo ebandi ✨",
+    "opened_eyes": "Ofungoli miso na yo mpo na komona solo...",
+    "intro_complete_xp": "🌟 +100 XP mpo na kotala ebandeli mobimba! 🌟",
+    "continue_journey": "Kokoba mobembo",
+    "game_title": "MASUWA YA MOKE",
+    "leaderboard_title": "🏆 Top 10 - Masuwa ya Moke",
+    "buttons": {
+      "save": "💾 Kobomba",
+      "skip": "Koleka",
+      "update": "Kosala sika",
+      "later": "Na sima",
+      "restart_phase": "Kobandela eteni lisusu",
+      "save_and_discover": "Bomba mpe mona",
+      "skip_and_continue": "Leka mpe koba"
+    },
+    "form": {
+      "email_label": "Email * :",
+      "pseudo_label": "Nkombo * :",
+      "avatar_label": "Avatar :",
+      "optional_info": "Makambo oyo ezali na mposa te",
+      "city_label": "Engumba :",
+      "city_placeholder": "Engumba na yo",
+      "country_label": "Ekolo :",
+      "country_placeholder": "Ekolo na yo",
+      "age_label": "Mbula :",
+      "age_placeholder": "Mbula na yo",
+      "gender_label": "Libota :",
+      "gender_not_specified": "Eyebami te",
+      "gender_male": "Mobali",
+      "gender_female": "Mwasi",
+      "gender_other": "Mosusu",
+      "email_placeholder": "Adresse email na yo",
+      "pseudo_placeholder": "Nkombo na yo",
+      "name_prompt": "Nkombo na yo?",
+      "city_prompt": "Engumba na yo?",
+      "country_prompt": "Ekolo na yo?"
+    },
+    "menu": {
+      "enigmes": "🧩 Bisano",
+      "enigmes_full": "📜 Bisano Mobimba",
+      "menu_games": "🎮 Menu ya Masano",
+      "poem1": "📜 Nzembo 1",
+      "poem2": "📖 Nzembo 2",
+      "artist_info": "🎨 Makambo ya Mosali",
+      "credits": "🎬 Bakolendisi",
+      "icons": "🦇👼 Bilembo"
+    },
+    "tabs": {
+      "enigmes": "📋 Bisano",
+      "scores": "🏆 Ntango"
+    },
+    "multilang_intro": {
+      "fr": "PETIT BATEAU",
+      "en": "LITTLE BOAT",
+      "jp": "小さな船",
+      "uk": "МАЛЕНЬКИЙ ЧОВЕН",
+      "ar": "قارب صغير",
+      "hi": "छोटी नाव",
+      "es": "PEQUEÑO BARCO",
+      "it": "PICCOLA BARCA",
+      "ko": "작은 배"
+    },
+    "reset_button": "Kobandela lisusu",
+    "confirm_reset_1": "Olingi solo kobandela lisusu?",
+    "confirm_reset_2": "Makambo nyonso oyo osali ekokende.",
+    "game_reset": "Lisano ebandi lisusu",
+    "scores_title": " Ntango ya Mokili"
+  },
+  "language_selector": {
+    "confirm_change": "🌍 Kobongola monoko na {language}?\n\nLokasa ekozonga mpo na kotalisa batraduction.",
+    "restart_confirm": "🌍 Kobongola Monoko\n\nOlingi kobandela lisolo uluki na ebandeli na monoko ya sika?\n\n✅ IYO = Bandela na ebandeli (expérience narrative cohérente)\n❌ TE = Kokoba esika ozalaki (ba textes omonaki na monoko ya liboso)"
+  },
+  "update": {
+    "new_version_available": "🎨 Version ya sika ezali!",
+    "update_now_question": "Olingi kosala update sikoyo?",
+    "and_more_improvements": "na bobongisi {count} mosusu"
+  },
+  "hard_reset": {
+    "confirm_1": "🔥 KEBA: Oyo ekolongola MAKAMBO NYONSO (progression, bantango, ba-énigmes oyo ozwi).\n\nOlingi mpenza kokoba?",
+    "confirm_2": "⚠️ KONDIMISA YA NSUKA: Likambo oyo EKOZONGA SIMA TE.\n\nOlingi mpenza kokoba?",
+    "cancelled": "❌ Reset mobimba ekangelami",
+    "cancelled_step_2": "❌ Reset mobimba ekangelami (kondimisa ya 2)"
+  },
+  "popup": {
+    "blocked": "⚠️ Fenêtre ezipami! Ndimisa ba fenêtres mpo na komona makambo ya mosali.",
+    "information": "Makambo",
+    "confirmation": "Kondimisa",
+    "ok": "✓ OK",
+    "yes": "✓ Iyo",
+    "no": "✖ Te",
+    "confirm": "✓ Kondimisa",
+    "cancel": "✖ Kokangisa"
+  },
+  "game": {
+    "messages": {
+      "intro_bonus": "🌟 +100 Bapointi mpo na komona ebandeli mobimba! 🌟",
+      "light_victory": "💡 Pole elongoli butu\n+1000 XP",
+      "frontiers_broken": "🌍💕 BANDELO EBUKANI! +XXX ❤️",
+      "intro_points": "🌟 +100 Bapointi ebandeli mobimba",
+      "frontier_mode": "🧱 Mode ya Bandelo efungwami!",
+      "all_broken": "💥 NYONSO EBUKANI! 💥",
+      "bird_no": "🐦 TE!",
+      "crow_transformed": "🕊️ Kongo ebongwani ebenga nde!",
+      "crow_hit": "🐦 Kongo ekutani {count}/7 mbala",
+      "secret_mode": "🎯 Mode ya Sekele: Kobwaka na Bosikisiki 🎯\n\n🧊 Bwaka na ba-iceberg mpe ba-poubelles ♻\n🐋 Nyama ya mayi ezali na bobateli!\n🚫 Kobwaka nyama ya mayi = Kolimwa bomoi\n👆 Kofina mbala moko = Tiri moko ya sikisiki\n💰 +100 bapointi mpo na bopanzi ya obstacle",
+      "attack_launched": "🧱 Etumbu ebandi!",
+      "lantern_launched": "🏮 Mwinda ebwakani!",
+      "shooting_mode_activated": "🪔 Mode ya Kobwaka efungwami! (10s)",
+      "wall_resists": "🧱 Efelo ezali makasi!",
+      "wall_resists_minus_1000": "🧱 Efelo ezali makasi! -1000 bapointi",
+      "lantern_mode_start": "🏮 Mode ya Mwinda efungwami!"
+    },
+    "errors": {
+      "fail_1": "TE! HAAAH!",
+      "fail_2": "BOOOO! MALAMU TE!",
+      "fail_3": "OOOH TE! NOKINOKI!",
+      "fail_4": "HAAAH! CATASTROPHE!",
+      "fail_5": "MBWA! MABE!",
+      "fail_6": "AIEEEE! ELIMO!",
+      "fail_7": "GRRRR! BOZOBA!",
+      "fail_8": "PFFFFFF! ZOBA!",
+      "fail_9": "TSSS TSSS! SONI!",
+      "whale_death": "💀 Obwaki nyama ya mayi oyo ezali na bobateli!\n😱 Bomoi na yo nyonso esilaki!\n🚫 Nyama ya mayi ebwakamaka te!\n🤪 HAHAHAHA! GAME OVER!",
+      "email_required": "⚠️ Email na nkombo esengeli",
+      "email_invalid": "⚠️ Email ezali malamu te",
+      "saving": "💾 Kobomba...",
+      "saved": "✅ Ntango ebombami!"
+    },
+    "origin_journey": "Ebandeli: Mobembo ya Bomoi",
+    "knowledge_given": "Boyebi Epesami",
+    "wisdom_score": "Ntango ya Bwanya",
+    "share_journey": "Kokabola mobembo na ngai",
+    "restart": "Kobandela lisusu",
+    "journey_continues": "😢 Mobembo epai ya solo ezali kokoba...",
+    "truth_triumphs": "Solo eleki ntango nyonso!",
+    "your_best": "✨ Malamu na yo",
+    "chapters_progress": "BAKAPI",
+    "chapters_subtitle": "📚 Kobanda na \"Pole\" tii na \"Bomoko ya Bato\"",
+    "chapters_journey": "Mobembo na nzela ya solo ya bato",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Ntango",
+    "wisdom_label": "💎 Bwanya",
+    "voyage_light": "Mobembo — Pole",
+    "wisdom_level": "Eteni ya bwanya",
+    "next_level": "epai ya eteni oyo elandi",
+    "content_unavailable": "Makambo ezali te",
+    "share_texts": {
+      "text1_title": "🌟 Natambolaki na nzela ya bandelo ya bato!",
+      "text1_quote": "Kobanda na molili tii na pole, nayekolaki ete bolingo ekosangi na nzela ya bokeseni.",
+      "text2_title": "🕊️ Mobembo epai ya solo...",
+      "text2_quote": "Nabukaki ba-efelo ya bobangi mpo na kotonga baponto ya bolingo.",
+      "text3_title": "🌍 Kobanda na ba-efelo tii na baponto, namonaki bato...",
+      "text3_quote": "Likoló ya bandelo, mitema na biso ezali kobɛta elongo.",
+      "text4_title": "👁️ Namonaki solo likoló ya makambo...",
+      "text4_quote": "Totongaki ba-efelo na bobangi, kasi bolingo ebongoli yango mabanga ya libondeli.",
+      "play_text": "Sakana ⛵ MASUWA YA MOKE 👁️"
+    },
+    "instructions": {
+      "break_frontiers": "🌍 BUKA BANDELO 🌍",
+      "click_to_launch": "🚀 FINA MPO NA KOBWAKA",
+      "click_to_start": "Fina mpo na kobandisa mobembo...",
+      "touch_to_start": "👆 Simba mpo na kobandisa mobembo!",
+      "intro_message_1": "⛵✨ MASUWA YA MOKE ✨⛵<br><br>🌅 MOKOLO YA 1: POLE<br><br>💭 \"Bato bayebisaki ngai ete bazalaki bato mabe nyonso...<br>Bato balobaki ngai makambo mabe mingi, pasi mingi na tina na bango...<br>Kasi ngai, nalingaki kokende komona na miso na ngai moko.<br>Banani bazalaki bato wana?...\"",
+      "intro_message_2": "💭 \"Mpe namonaki...<br>Tata moko... mama moko... bana...<br>Bango nyonso bazalaki koluka kokende bomoi na bango malamu... Lokola ngai.\"",
+      "intro_message_3": "🌑 Na sima molili ekoya kozonga... ⛈️<br>🎮 Buka makambo ya pete, telemela tii mvula!\n<br>👆 Simba mpo na kobandisa mobembo!"
+    },
+    "quotes": {
+      "enigma_truth": "Na kati ya lisano moko na moko ezali solo moko,",
+      "truth_humanity": "na kati ya solo moko na moko ezali bonkoko na biso.",
+      "be_first": "Zala ya liboso mpo na kosilisa lisano!"
+    },
+    "frontiers": {
+      "title": "🧱 Bandelo",
+      "subtitle": "Kobuka bandelo"
+    },
+    "canvas": {
+      "objective": "Mokano: 33 million! 🌍",
+      "click_info": "(Fina mpo na koyeba mingi)",
+      "author": "🎨 Emmanuel Payet",
+      "dreamer": "Dreamer Unisona",
+      "projects": "📂 Misala",
+      "languages_heart": "💝 Minoko ya Motema 💝",
+      "languages_message": "Monoko moko na moko ezali komema bolingo na kimia na mokili",
+      "love": "Bolingo",
+      "universal": "Ya Mokili Mobimba",
+      "voyage_origin": "Ebandeli ya Mobembo",
+      "continue_button": "➜ Kokoba",
+      "next_button": "➜ Oyo elandi"
+    },
+    "projects": {
+      "games_deco": "Masano & Kobongisa",
+      "unispourlapaix": "Bomoko mpo na Kimia",
+      "free_gospel": "Nsango Malamu ya Bonsomi",
+      "books_art": "Buku & Bonkoko",
+      "good_time": "Ntango Malamu"
+    },
+    "phase_display": {
+      "voyage": "Mobembo",
+      "phase_counter": "Eteni",
+      "secret_mode": "MODE YA SEKELE"
+    },
+    "voyage_names": {
+      "dawn_of_doubts": "Tongo ya Mitema",
+      "light": "Pole",
+      "shadow_of_clouds": "Elili ya Mapata",
+      "silence_of_soul": "Kimia ya Molimo",
+      "humanity_of_hearts": "Bonkoko ya Mitema",
+      "wisdom_of_differences": "Bwanya ya Bokeseni",
+      "unity": "Bomoko",
+      "unity_of_humanity": "Bomoko ya Bato",
+      "wall_of_greed": "Efelo ya Lokoso",
+      "default": "Mobembo"
+    },
+    "secret_mode": {
+      "title": "MODE YA SEKELE",
+      "shoot_to_transform": "Bwaka mpo na kobongola",
+      "avoid_eliminate_survive": "Kima • Koboma • Kobika",
+      "waiting_game": "⛵ Kozela lisano ya liboso...",
+      "starting_in": "Kobanda na",
+      "activated": "🎮 Mode ya sekele efungwami - Bwaka na biloko kawaii",
+      "discovered": "🎉 Mode ya sekele emonanaki +100 XP - Bwaka na biloko kawaii",
+      "victory": "🏆 Elonga ya sekele - Biloko ebomami: {count} - XP mobimba: +{xp}",
+      "object_hit_positive": "🎉 {object} +{points} bapointi!",
+      "object_hit_negative": "💔 {object} {points} bapointi!",
+      "objects": {
+        "baleine": "NYAMA YA MAYI",
+        "asteroide": "MABANGA YA LIKOLO",
+        "etoile": "MONZOTO",
+        "tank": "TANK",
+        "lune": "SANZA",
+        "banane": "NDIZI",
+        "smartphone": "TELEFONE",
+        "poubelle": "BOPUSI",
+        "avion": "MPƐPƆ"
+      }
+    }
+  },
+  "narrative": {
+    "voyage_titles": {
+      "phase1": "Mobembo — Tongo ya Mitema",
+      "phase2": "Mobembo — Pole",
+      "phase3": "Mobembo — Elili ya Mapata",
+      "phase4": "Mobembo — Elili ya Mapata",
+      "phase5": "Mobembo — Kimia ya Molimo",
+      "phase6": "Mobembo — Kimia ya Molimo",
+      "phase7": "Mobembo — Bonkoko ya Mitema",
+      "phase8": "Mobembo — Bonkoko ya Mitema",
+      "phase9": "Mobembo — Bonkoko ya Mitema",
+      "phase10": "Mobembo — Bwanya ya Bokeseni",
+      "phase11": "Mobembo — Bwanya ya Bokeseni",
+      "phase12": "Mobembo — Bwanya ya Bokeseni",
+      "phase13": "Mobembo — Bomoko",
+      "phase14": "Mobembo — Bomoko",
+      "phase15": "Mobembo — Bomoko",
+      "phase16": "Bomoko ya Bato",
+      "phase17": "Mobembo — Efelo ya Lokoso",
+      "phase18": "Mobembo — Boloko ya Bonsomi",
+      "phase19": "Mobembo — Minsinga ya Waya",
+      "phase20": "Mobembo — Libongo ya Ndako",
+      "phase21": "Mobembo — Mituna ya Bonsomi",
+      "phase22": "Mobembo — Elikya ya Milimo",
+      "phase23": "Komonisama"
+    },
+    "phase1": {
+      "title": "Tongo ya Mitema\nEteni 1",
+      "intro_short": "Bato bayebisaki ngai ete bazalaki bato mabe nyonso...\nBato balobaki ngai makambo mabe mingi, pasi mingi na tina na bango...\nKasi ngai, nalingaki kokende komona na miso na ngai moko.",
+      "intro_full": "Bato bayebisaki ngai ete bazalaki nyonso\nbato mabe...\nBato balobaki ngai makambo mabe mingi,\npasi mingi\nna tina na bango...\nKasi ngai,\nnalingaki kokende komona\nna miso na ngai moko...",
+      "reaction": "TE! Tokoki te kotika yango koleka!",
+      "text": "Bato bayebisaki ngai ete bazalaki nyonso\nbato mabe...\nBato balobaki ngai makambo mabe mingi,\npasi mingi\nna tina na bango...\nKasi ngai,\nnalingaki kokende komona\nna miso na ngai moko..."
+    },
+    "phase2": {
+      "text": "Banani bazalaki ya solo?...\nMpe namonaki...\nTata moko... mama moko...\nbana...\nBango nyonso bazalaki koluka kaka kokende\nbomoi na bango malamu...\nLokola ngai."
+    },
+    "phase3": {
+      "text": "Bongo, sanza emonani.\nLikolo ebonganaki molili mingi\nlokola etando etumbami\nna ntango.\nMolili moko epasolaki milimo\nya molili...\nBamoniɔni enyokanaki\nmapata ya gris.\n\nMpe elongo na bango eyaki pasi...\nMatata..."
+    },
+    "phase4": {
+      "text": "Soni...\nKobebisa...\nKoyiba, kokosa,\nKokelela...\nLokoso mpe mposa ya biloko,\nLokola minyololo oyo emonanaka te,\nEkangaka motema ya bato."
+    },
+    "phase5": {
+      "text": "Bato bayebisaki ngai mpo na koyoka te\nbagango na bango...\nBato bayebisaki ngai mpo na kotika te\nkovula ebangisa ngai.\nMpo kovula,\natako ezali makasi,\neyumelaka seko te\nmpo na libela."
+    },
+    "phase6": {
+      "text": "Mpe soki mopepe ekomi mongongo,\nmbala mingi\nezali mpo na kokundolisa bato\nete na nse ya mapata,\nezali ntango nyonso\npole moko.\nKasi mpo na komona yango,\nesengeli liboso kotambola\nna butu..."
+    },
+    "phase7": {
+      "text": "Bato bayebisaki ngai...\nete bonkoko ezali lisusu te,\nete ebungaki\nna bitumba\nmpe na mitema ya mabe.\nBato bayebisaki ngai ete bato\nbamitunaka\nlisusu te,\nete bakangami bango moko\nna nsima ya ba-efelo ya ebende\nmpe ya bobangi..."
+    },
+    "phase8": {
+      "text": "Kasi ngai, namonaki...\nLobɔkɔ moko esɛmbani epai ya mopaya.\nKoseka kopesami\natako nzala ezali.\nEbombelo efungwami\nmpo na oyo azali kolenga\nna butu..."
+    },
+    "phase9": {
+      "text": "Yango nde\nboyambi:\nekoki te kopesa oyo tozali na yango mingi,\nkasi kokabola\natako oyo ezali te..."
+    },
+    "phase10": {
+      "text": "Bato bayebisaki ngai ete bonsomi\nezalaki kaka liloba moko,\nndoto moko\noyo bato ya nguya\nbatɛkaka na bato ya bolɛmɛ.\nKasi namonaki...\nMwana moko azali kokima na makolo\nna nse ya mbula,\nazali koseka na bonsomi,\nmpe na koseka na ye,\nnasosoli ete bonsomi\nzali liboso na molimo."
+    },
+    "phase11": {
+      "text": "Bato bayebisaki ngai ete bato\nasalisaka lisusu te,\nete moko na moko azali kokende mpo na ye moko.\nKasi namonaki...\nBampaya basimbisaki elongo\nlibanga moko oyo ezali kilo mingi,\nmpe na nguya wana ya kokabola,\nnamonaki bolingo ezali komonisama."
+    },
+    "phase12": {
+      "text": "Bato bayebisaki ngai ete bolingo\nezalaki pete,\nkasi namonaki\nete ezali makasi\nkoleka soni,\nmpo ezali kotonga\nwana soni\nezali kobebisa..."
+    },
+    "phase13": {
+      "text": "Bato bayebisaki ngai ete kondima\nezalaki bolembu,\nkasi namonaki ete ezali\nbwanya moko:\nete kondima\nete tozali nyonso\nndenge moko te...\nMpe yango nde\nlibula ya bomoi,\nnzela epai ya\nkimia."
+    },
+    "phase14": {
+      "text": "Bokeseni...\nEzali likama te,\nezali libula.\nLokola balangi\nya arc-en-ciel,\nezali bokeseni na bango\nekomisaka kitoko komonisama."
+    },
+    "phase15": {
+      "text": "Mpe na kosangisa wana\nya bonkoko,\nnasosoli\nete tozali\nlibota moko,\ntosangani na mposa moko\nya komona,\nkokela,\nmpe kolinga."
+    },
+    "phase16": {
+      "text": "Mobembo ebandi,\nmpe napesi bino mopepe malamu.\n\nTika mopepe emema bino ntango nyonso mosika,\nepai esengo ezali na bonsomi.\n\nEpai bandelo ekokoma\nbilayi, elikya,\nmisala ya bomoi ya sika.\n\nKotika te bandelo ekangisa bino\noyo eteleemi liboso na bino\nna kobanga mpe mpio,\nkotika seko te,\nbobuka ba-efelo,\nbobangi, soni, matata, mabe,\nmpo na kokoma lokola pole mpo na basusu."
+    },
+    "phase17": {
+      "text": "Na mosika... namonaki efelo moko.\nEfelo moko etelemi na mbu lokola mpota.\nEfelo moko oyo esalemi na mabanga te,\nkasi na mimikano, mikanda mpe miso ekangami."
+    },
+    "phase18": {
+      "text": "Efelo wana ezali boloko ya bonsomi ya bato.\nEzali kokabola oyo bakoki kopota na bonsomi,\nmpe oyo bato bakangaki na bandelo oyo emonanaka te."
+    },
+    "phase19": {
+      "text": "Mpo na babola, ezali minsinga ya waya ya libondeli,\nekangami lokola ekuke eliaki nkola.\nBazali kobɛta na mabɔkɔ na bango oyo ezali na eloko te,\nbandoto na bango ebukani na kimia ya bakengeli."
+    },
+    "phase20": {
+      "text": "Mpo na bazwi, ezali libongo ya ndako.\nEzali kofungwana na mpasi te,\nmpe ezali kotika bango kotambola lokola mopepe oyo ezali na mboka te."
+    },
+    "phase21": {
+      "text": "Bongo natuni ngai moko...\nBonsomi ezali mpenza ndingisa,\nto ezali ekomi likula oyo batɛkaka na oyo bafuti mingi?"
+    },
+    "phase22": {
+      "text": "Kasi na motema ya milimo,\nmbu ezali koloba solo moko:\nEfelo ata moko evandaka seko te.\nMpo mwaki ekosila libanga ntango nyonso,\nmpe bonsomi, nokinoki to na sima,\nekozonga na nzela na yango."
+    },
+    "phase23": {
+      "text": "👁️ Bongo mobembo oyo esilaki boye...\n\nOtambolaki na nzela ya ba-mvula,\nobukaki ba-efelo ya bozangi boyokani,\nmpe omonaki ete solo\nezali nsuka te,\nkasi nzela.\n\nLisano moko na moko oyo osilisi,\nMotuna moko na moko oyo otuni,\nopusanaki na bwanya yango:\n\n💫 Tozali nyonso\nbakengeli ya pole.\n\nBokeseni ezali likama te,\nkasi libula ya kitoko koleka.\n\n⛵ Mobembo ezali kokoba...\nNa motema na yo, na mituna na yo,\nna lolenge oyo ozali komona mokili.\n\n--Emmanuel Payet"
+    },
+    "walls_message": "Ba-efelo wana ezali ya biso moko,\ntosalaki yango na bitumba na biso,\nna soni mpe na momeseno,\nna kondima te ya basusu,\nna bobangi ya oyo toyebi te.\n\nEzali biso, na kimia na biso mpe na pasi na biso,\nna bobangi oyo ezali na nse,\nna maloba na biso oyo tobwakaka lokola mabanga,\noyo ekomisaki yango makasi.\n\nEzali ba-efelo ya bokauki,\noyo esalemaki na oyo ekokaki kozala baponto,\nbabondeli, bandako.",
+    "final_message": "Bonkoko esengeli na ba-efelo te mpo na kobatela yango,\nkasi esengeli na baponto mpo na kokutana.\n\nTotonga na bolingo, na bobangi te.\nMokili ya bomoko ezali malamu koleka mokili oyo ekabwani.\n\n- Emmanuel.gallery",
+    "wall_crumbles": "✨ EFELO EKWEAKI MPO NA LIBELA ✨"
+  },
+  "interface": {
+    "tabs": {
+      "enigmas": "Bisano",
+      "scores": "Bantango",
+      "language": "Monoko",
+      "info": "Makambo"
+    },
+    "menus": {
+      "voyage_enigmas": "Mobembo: Bisano",
+      "collected_progress": "Ezwami: {collected}/{total} ({percent}%)",
+      "score_xp": "🕊️ {score} | ⭐ XP: {xp}",
+      "no_score_recorded": "Ntango ebombami te"
+    },
+    "buttons": {
+      "close": "Kokanga",
+      "restart": "Kobandela lisusu",
+      "share_journey": "🌍 Kokabola mobembo na ngai",
+      "break_borders": "🌍 BUKA BANDELO 🌍",
+      "click_to_launch": "🚀 FINA MPO NA KOBWAKA"
+    },
+    "system": {
+      "loading": "⏳ Kozela...",
+      "fireworks_starting": "Mwinda ya esengo ezali kobanda...",
+      "adventure_completed": "✨ Libembo esilaki ✨\n\n⛵ MASUWA YA MOKE ⛵\n\nMatondi mpo na kosakana!",
+      "error": "Libunga",
+      "text_copied_clipboard": "✅ Makambo ekopami!\n\nKabola yango na ba-réseaux sociaux na yo 🌍",
+      "enigma_not_discovered": "Lisano emonanaki nanu te",
+      "no_exclamation": "TE!"
+    },
+    "labels": {
+      "mystery": "Sekele",
+      "revelation": "Komonisama",
+      "wisdom": "Bwanya"
+    }
+  },
+  "bricks": {
+    "day": {
+      "told": {
+        "name": "BATO BAYEBISAKI NGAI...",
+        "msg": "🗣️ Bokeleli ezali kolimwa liboso ya solo!"
+      },
+      "monsters": {
+        "name": "BATO MABE",
+        "msg": "👨‍👩‍👧‍👦 Te... bato lokola biso!"
+      },
+      "prejudice": {
+        "name": "KOKANISA MABE LIBOSO",
+        "msg": "🎭 Bamasque ezali kokweya moko na moko..."
+      },
+      "fears": {
+        "name": "BOBANGI",
+        "msg": "👁️ Naponaki komona na miso na ngai moko!"
+      },
+      "distrust": {
+        "name": "KONDIMA TE",
+        "msg": "🤝 Kondima te ezali kopesa esika na mawa..."
+      },
+      "who_are_they": {
+        "name": "BANANI BANGO?",
+        "msg": "❓ Motuna wana ezali na motó na ngai..."
+      },
+      "i_saw": {
+        "name": "NAMONAKI...",
+        "msg": "👁️ Mpe miso na ngai efungwamaki..."
+      },
+      "father": {
+        "name": "TATA MOKO",
+        "msg": "👨 Mobali oyo alingaka bana na ye..."
+      },
+      "mother": {
+        "name": "MAMA MOKO",
+        "msg": "👩 Mwasi ya mpiko..."
+      },
+      "children": {
+        "name": "BANA",
+        "msg": "👶 Masɛkɔ ya pɛto mpe ya boyengebene..."
+      },
+      "humanity": {
+        "name": "BONKOKO",
+        "msg": "💫 Ezali nzoto ya oyo tozali..."
+      },
+      "love": {
+        "name": "BOLINGO",
+        "msg": "❤️ Makasi koleka mikakatano nyonso..."
+      },
+      "compassion": {
+        "name": "MAWA",
+        "msg": "🤗 Ezali kosangisa likoló ya bokeseni..."
+      },
+      "hope": {
+        "name": "ELIKYA",
+        "msg": "🌅 Pole moko na molili..."
+      },
+      "peace": {
+        "name": "KIMIA",
+        "msg": "🕊️ Ekoki soki toponaki kolinga..."
+      },
+      "like_me": {
+        "name": "LOKOLA NGAI",
+        "msg": "🌍 Tozali nyonso ba-migrants..."
+      },
+      "truth": {
+        "name": "SOLO EMONISAMI",
+        "msg": "👁️ Miso na ngai efungwamaki nsukansuka..."
+      },
+      "courage": {
+        "name": "MPIKO YA MOTEMA",
+        "msg": "💪 Naponaki komona na miso na ngai moko..."
+      },
+      "precious": {
+        "name": "YA MOTUYA",
+        "msg": "💎 Moto nyonso azali na motuya..."
+      }
+    },
+    "night": {
+      "discord": {
+        "name": "MATATA",
+        "msg": "⚡ Matata... soni... kobebisa..."
+      },
+      "hatred": {
+        "name": "SONI",
+        "msg": "💔 Eyaka na pasi ya elili..."
+      },
+      "destruction": {
+        "name": "KOBEBISA",
+        "msg": "🌪️ Koyiba, kokosa, kokelela..."
+      },
+      "theft": {
+        "name": "KOYIBA",
+        "msg": "🦹 Ezali kozwa oyo ezali ya bango te..."
+      },
+      "lies": {
+        "name": "KOKOSA",
+        "msg": "🎭 Bamasque ya kokosa..."
+      },
+      "manipulation": {
+        "name": "KOKELELA",
+        "msg": "🕷️ Misinga oyo emonanaka te ezali kobenda mitema..."
+      },
+      "greed": {
+        "name": "LOKOSO",
+        "msg": "💰 Lokoso mpe mposa ya biloko..."
+      },
+      "avarice": {
+        "name": "MPOSA YA BILOKO",
+        "msg": "⛓️ Lokola minyololo oyo emonanaka te..."
+      },
+      "chains": {
+        "name": "MINYOLOLO",
+        "msg": "🔗 Ekangaka motema ya bato..."
+      },
+      "iron_walls": {
+        "name": "BA-EFELO YA EBENDE",
+        "msg": "🧱 Ekangami na nsima ya ba-efelo ya ebende mpe bobangi..."
+      },
+      "jealousy": {
+        "name": "ZUWA",
+        "msg": "💚 Ngenge ya langi ya pondu..."
+      },
+      "pride": {
+        "name": "LOFUNDU",
+        "msg": "👑 Motole ekangisaka miso..."
+      },
+      "anger": {
+        "name": "NKANDA",
+        "msg": "🔥 Moto ezali kotumba boyebi..."
+      },
+      "revenge": {
+        "name": "KOZONGISA MABE",
+        "msg": "⚔️ Mobembo oyo ezali na nsuka te ya pasi..."
+      },
+      "indifference": {
+        "name": "KOSAKANA TE",
+        "msg": "🧊 Mpio ezali kokonzisa milimo..."
+      },
+      "selfishness": {
+        "name": "KOMITALA KAKA",
+        "msg": "🪞 Komona kaka elilingi na ye..."
+      },
+      "ignorance": {
+        "name": "BOZANGI BOYEBI",
+        "msg": "🙈 Kopona kokanga miso..."
+      },
+      "resistance": {
+        "name": "KOTELEMELA",
+        "msg": "🛡️ Kasi nazali kobatela motema na ngai ya pɛto na kovula..."
+      },
+      "light": {
+        "name": "POLE",
+        "msg": "✨ Mpo likoló ya mapata, ezali ntango nyonso..."
+      },
+      "hope_reborn": {
+        "name": "ELIKYA EBOTAMI LISUSU",
+        "msg": "🌅 Pole ezali kolonga nsukansuka molili..."
+      },
+      "inner_strength": {
+        "name": "NGUYA YA KATI",
+        "msg": "🌟 Motema na ngai ezali kotelemela molili..."
+      },
+      "wisdom": {
+        "name": "BWANYA EZWAMI",
+        "msg": "🧠 Na butu, nayekolaki komona..."
+      }
+    }
+  },
+  "enigmes": {
+    "humanity": {
+      "name": "Bonkoko",
+      "description": "Nguya ezali kosangisa mitema nyonso",
+      "mystery": "Nini ekomisaka biso bato ya solo?",
+      "revelation": "Bonkoko ezali kofanda na likoki na biso ya koyoka mawa mpo na basusu, ata mpo na baoyo bakeseni na biso.",
+      "wisdom": "Tata moko, mama moko, bana... Bango nyonso bazali koluka kaka kokende bomoi na bango malamu, lokola biso."
+    },
+    "wall_of_fear": {
+      "name": "Efelo ya Bobangi",
+      "description": "Ebandeli ya kala ya bandelo na biso",
+      "mystery": "Mpo na nini banzoto ya kala ya banyama ezali kaka?",
+      "revelation": "Efelo mpe bandelo na biso euti na bobangi mpe kala ya bitumba ya mokili, to bobangi ya kobungisa mabele, tozangama na banguna. Bunduki ezalaki ntalo mpe ya ntina mpo na kobatela, mpe yango banda na ba-grottes ya kala kaka mpo na kobatela liboso ya banyama. Kasi lelo mpo na nini ba-efelo ezali kokoba?",
+      "wisdom": "Banda na ba-grottes ya kala tii na ba-efelo ya lelo, bobangi ya kala ezali kowumela. Kasi boni biso tozali nanu banyama ya bobangi, to tokoki kokoma bato?"
+    },
+    "peace": {
+      "name": "Kimia",
+      "description": "Boyokani eleki bitumba",
+      "mystery": "Ndenge nini tozwaka kimia na mokili ya mobulu?",
+      "revelation": "Kimia ezali komonisama ntango topo na kolinga na esika ya koyina, kososola na esika ya kosambisa.",
+      "wisdom": "Likoló ya mapata, ezali ntango nyonso pole moko. Kasi mpo na komona yango, esengeli liboso kotambola na butu."
+    },
+    "diversity": {
+      "name": "Bokeseni",
+      "description": "Kitoko ya bokeseni na biso",
+      "mystery": "Mpo na nini tobangi oyo ekeseni?",
+      "revelation": "Bokeseni ezali bozwi ya mokili. Langi moko na moko, mimeseno moko na moko ezali komema kitoko na yango moko na arc-en-ciel ya bato.",
+      "wisdom": "Bato balobaki ngai makambo mabe mingi na tina na bango... Kasi ngai, nalingaki kokende komona na miso na ngai moko."
+    },
+    "freedom": {
+      "name": "Bonsomi",
+      "description": "Ndingisa ya kozala na bonsomi na minyololo te",
+      "mystery": "Nini ezali bonsomi ya solo?",
+      "revelation": "Bonsomi ezali bozangi ba-contraintes te, kasi likoki ya kopona bolingo atako ezali bobangi.",
+      "wisdom": "Lokoso mpe mposa ya biloko, lokola minyololo oyo emonanaka te, ekangaka motema ya bato."
+    },
+    "faith": {
+      "name": "Kondima",
+      "description": "Elikya ezali kotambwisa na molili",
+      "mystery": "Ndenge nini kobatela kondima ntango makambo nyonso emonani lokola ezali kobungana?",
+      "revelation": "Koluka bonsomi, ezali mpe kopesa yango na basusu. Bonsomi ekozala ntalo mpo na bato nyonso mpe ekomema kimia.",
+      "wisdom": "Mpo koluka kokima minyololo, ezali mpe likambo ya kondima."
+    },
+    "respect": {
+      "name": "Limemya",
+      "description": "Lokumu oyo epesami na moto nyonso",
+      "mystery": "Ndenge nini kopesa limemya na oyo tososolaka te?",
+      "revelation": "Limemya ezali kobima na kondima ete moto nyonso azali na kati na ye pole ya Nzambe.",
+      "wisdom": "Bazali kokanga bango na nsima ya ba-efelo ya ebende mpe bobangi... Kasi bonkoko ezalaki nanu."
+    },
+    "mutual_aid": {
+      "name": "Kosunga Bongo na Bongo",
+      "description": "Nguya ya bomoko ya kosunga",
+      "mystery": "Mpo na nini kosunga oyo akoki kopesa biso eloko te?",
+      "revelation": "Na kosunga bongo na bongo, tomonaka ete kopesa ezali kolɔngisa biso koleka kozwa.",
+      "wisdom": "Bolingo, makasi koleka mikakatano nyonso, ezali kosangisa likoló ya bokeseni."
+    },
+    "healing": {
+      "name": "Kobika",
+      "description": "Nguya ya kosalisa bampota",
+      "mystery": "Ndenge nini kobikisa bampota oyo emonanaka te?",
+      "revelation": "Kobika ya solo ebandaka na kondima mpe ekobaka na kolimbisa.",
+      "wisdom": "Soki mvula ekomi mongongo, ezali mpo na kokundolisa ete likoló ya mapata, ezali ntango nyonso pole moko."
+    },
+    "restoration": {
+      "name": "Kozongisa Ndenge Ezalaki",
+      "description": "Komema sika nsima ya kobebisama",
+      "mystery": "Ndenge nini kotonga lisusu nsima ya kobebisama?",
+      "revelation": "Nsuka moko na moko ezali na kati na yango mboto ya ebandeli ya sika.",
+      "wisdom": "Pole moko na molili... Elikya ekoki ntango topo na kolinga."
+    },
+    "avarice": {
+      "name": "Mposa ya Biloko",
+      "description": "Efelo ya lokoso",
+      "mystery": "Nini etelemi ba-efelo kati ya bato?",
+      "revelation": "Mposa ya biloko ezali kotonga ba-efelo epai bolingo ekokaki kotonga baponto.",
+      "wisdom": "Efelo moko etelemi na mbu lokola mpota... Efelo oyo esalemi na mabanga te, kasi na mimikano, mikanda mpe miso ekangami."
+    },
+    "prison_freedom": {
+      "name": "Boloko ya Bonsomi",
+      "description": "Minyololo oyo emonanaka te",
+      "mystery": "Nani akoki kozala na bonsomi?",
+      "revelation": "Bonsomi ezali likula te oyo ekoki kokabolama, kasi ndingisa ya mokili mobimba oyo esengeli kopesa lokumu.",
+      "wisdom": "Efelo wana ezali boloko ya bonsomi ya bato. Ezali kokabola oyo bakoki kokende na bonsomi, mpe oyo bato bakangaki na bandelo oyo emonanaka te."
+    },
+    "refusal": {
+      "name": "Koboya",
+      "description": "Minsinga ya waya ya kobwaka",
+      "mystery": "Mpo na nini tozali kokanga bikuke na biso?",
+      "revelation": "Koboya moko na moko ezali mpota oyo etiyami na bonkoko oyo tozali kokabola nyonso.",
+      "wisdom": "Minsinga ya waya ya ebende mpe bobangi... batindiki na oyo babosanaki ete bango mpe bazalaki ntango moko bantamboli."
+    },
+    "pride": {
+      "name": "Lofundu",
+      "description": "Ego ezali kobebisa botali na biso",
+      "mystery": "Mpo na nini tozali komona basusu lokola bazali na se?",
+      "revelation": "Lofundu mpe ego ekomisaka biso komona bato oyo bazali moke to babola na lolenge mosusu, kasi tozali nyonso ndenge moko na bonkoko.",
+      "wisdom": "Ekuke ya ndako oyo efungwanaka kaka mpo na mwa bato... Ego na biso ekomisaka biso komona ete tozali na motuya na yango, mpe basusu bazali na motuya na yango te."
+    },
+    "inequality": {
+      "name": "Bokeseni ya Kati",
+      "description": "Piramide ya ba-destin",
+      "mystery": "Mpo na nini bamosusu bazali komema mokumba ya basusu?",
+      "revelation": "Bokeseni ezali ndingisa te, kasi systeme oyo tozali kosalisa yango na kimia.",
+      "wisdom": "Piramide ya ba-destin etindi likolo... Oyo bazali na nse bazali komema kilo ya oyo bazali likolo, mpe moto moko te azali kotuna soki yango ezali sembo."
+    },
+    "hope": {
+      "name": "Elikya",
+      "description": "Bonsomi ekoki kokangama te",
+      "mystery": "Boni tokoki mpenza kokanga bonsomi?",
+      "revelation": "Tika elikya etondisa mitema na bino, bobatela mokapo na molende, tika mopepe ya Nzambe ebɔnga bino, mpe bobanga te likambo oyo ekoki kosalema te.",
+      "wisdom": "Na motema ya milimo, mbu ezali koloba solo moko: Efelo ata moko evandaka seko te. Mpo mwaki ekosila libanga ntango nyonso, mpe bonsomi, nokinoki to na sima, ekozonga na nzela na yango."
+    },
+    "lighthouse": {
+      "name": "Phare na Butu",
+      "description": "Pole ezali kotambwisa oyo babungi",
+      "mystery": "Ndenge nini kozwa nzela na biso na molili?",
+      "revelation": "Pole ezali makasi koleka butu. Ata mwaki moke ekoki kobengana molili ya mozindo koleka.",
+      "wisdom": "Na bantango ya molili mingi, zala pole oyo ozali koluka. Mawa ezali kongɛnga ata mitema oyo ezali na molili mingi."
+    },
+    "lamp": {
+      "name": "Mwinda Etonda Mafuta",
+      "description": "Bolingo ezali kongɛnga misala na biso",
+      "mystery": "Nini ezali eziba ya pole na kati na biso?",
+      "revelation": "Bolingo ezali kongɛnga misala na biso. Na bolingo te, tozali elili ya eloko te.",
+      "wisdom": "Misala na biso ezwaka ntina kaka ntango ezali kotambwisama na bolingo. Ezali yango ekomisaka pamba kokoma kotonda, elili kokoma pole."
+    },
+    "heart": {
+      "name": "Motema ya Bonkoko",
+      "description": "Nzoto ya bonkoko na biso oyo tokabolaka",
+      "mystery": "Nini ezali kosangisa biso nyonso likoló ya bokeseni na biso?",
+      "revelation": "Na motema ya moto nyonso ezali kobɛta bolingo moko, elikya moko, bobangi moko. Tozali moko.",
+      "wisdom": "Mobembo esilaki epai ebandelaki: na motema. Ezali na kondima bonkoko na biso ya bomoko nde tozwaka kimia ya solo."
+    },
+    "humanity_no_borders": {
+      "name": "Bonkoko Ezali na Bandelo te",
+      "description": "Bonkoko likoló ya ba-efelo",
+      "mystery": "Bandelo ezali kolimbola nani tozali?",
+      "revelation": "Bonkoko eyebi bandelo te. Tozali nyonso bantamboli na mabele moko.",
+      "wisdom": "Tata moko, mama moko, bana... bazali koluka kaka kokende bomoi, lokola biso nyonso."
+    },
+    "right_to_happiness": {
+      "name": "Ndingisa ya Esengo",
+      "description": "Ndako moko mpo na libota moko na moko",
+      "mystery": "Nani akoki kozala na ebombelo mpe esengo?",
+      "revelation": "Moto nyonso azali na ndingisa ya esengo, ebombelo, ndako moko. Totonga bandako mpe baponto na ba-efelo ya ntina, ba-efelo ya bolingo mpo na mabota oyo ezali na mposa.",
+      "wisdom": "Ba-efelo esengeli kokabola te, kasi kobatela. Baponto esengeli kokabola te, kasi kosangisa."
+    },
+    "precious_life": {
+      "name": "Bomoi ya Motuya",
+      "description": "Motuya ya bomoi moko na moko",
+      "mystery": "Bomoi nyonso ezali na motuya moko?",
+      "revelation": "Bomoi moko na moko ezali na motuya, ezala ebotami awa to na esika mosusu.",
+      "wisdom": "Bomoi ezali na motuya te na ebandeli na yango, kasi na nzoto na yango."
+    },
+    "communitarianism": {
+      "name": "Communautarisme",
+      "description": "Likama ya sectarisme",
+      "mystery": "Mpo na nini bokabwani na biso ekomisaka biso bolɛmɛ?",
+      "revelation": "Ntina na nzela ya bomoi kasi likama na bokeseni ya dictature. Tomonaka communautarisme bisika nyonso, kobanda na politiki mpe bokabwani na yango, ba-religions tii na ba-sectes atheistes. Moko na moko azali komema bitumba na ye, bitumba ya moto na vision na ye, motema na ye. Communauté ezali malamu, kasi kobebisa makanisi ya basusu, na kondima te mpe limemya te, esalisaka bonkoko te mpo na kokende liboso.",
+      "wisdom": "Sectarisme na biso ya politiki mpe ya bondimi ezali kobebisa baponto, ezali kobebisa kimia. Esengeli biso mpɛpɛ oyo ememi na bolamu misala ya basusu, kosunga mpo na kolonga, kolendisa mpe kobebisa te nokinoki makanisi ya basusu. Na kondima te, kokende liboso te."
+    }
+  },
+  "levels": {
+    "robe_blanche": {
+      "name": "Nzambala ya Mpɛmbɛ",
+      "points": 300
+    },
+    "saint_navigator": {
+      "name": "Mosanto Motambolisi",
+      "points": 250
+    },
+    "prophet": {
+      "name": "Profɛtɛ ya Mbu",
+      "points": 200
+    },
+    "illuminated": {
+      "name": "Oyo Angengisami",
+      "points": 175
+    },
+    "disciple": {
+      "name": "Moyekoli ya Pole",
+      "points": 150
+    },
+    "contemplative": {
+      "name": "Oyo Azali Kokanisa",
+      "points": 125
+    },
+    "guardian": {
+      "name": "Mokengeli ya Pole",
+      "points": 100
+    },
+    "meditating": {
+      "name": "Oyo Azali Komanyola",
+      "points": 80
+    },
+    "captain": {
+      "name": "Capitaine",
+      "points": 60
+    },
+    "navigator": {
+      "name": "Motambolisi",
+      "points": 45
+    },
+    "enlightened_sailor": {
+      "name": "Marin Oyo Angengisami",
+      "points": 30
+    },
+    "initiate": {
+      "name": "Oyo Abandaki",
+      "points": 20
+    },
+    "apprentice": {
+      "name": "Moyekoli",
+      "points": 10
+    },
+    "cabin_boy": {
+      "name": "Mwana Muke ya Masuwa",
+      "points": 5
+    },
+    "pilgrim": {
+      "name": "Motamboli",
+      "points": 0
+    }
+  },
+  "badges": {
+    "champion": {
+      "name": "Badge ya Champion",
+      "desc": "Top 1"
+    },
+    "perfectionist": {
+      "name": "Badge ya Perfectionniste",
+      "desc": "Bisano nyonso ezwami"
+    },
+    "contemplative": {
+      "name": "Badge ya Contemplation",
+      "desc": "Ntango ya kosakana > 1h"
+    }
+  },
+  "social": {
+    "share_1": "🌟 Natambolaki na nzela ya bandelo ya bonkoko!\n\n\"Kobanda na molili tii na pole, nayekolaki ete bolingo ekosangisa likoló ya bokeseni.\"\n\n{name} - {city}, {country}\n💎 Bwanya: {wisdom}\n🎯 Ntango: {score}\n\n#BomokompnaNaKimia #MASUWA #Emmanuel.gallery\n\nSakana ⛵ MASUWA YA MOKE 👁️",
+    "share_2": "🕊️ Mobembo epai ya solo...\n\n\"Nabukaki ba-efelo ya bobangi mpo na kotonga baponto ya bolingo.\"\n\n{name} - {city}, {country}\n💎 Bwanya: {wisdom}\n🎯 Ntango: {score}\n\n#BomokompnaNaKimia #MASUWA #Emmanuel.gallery\n\nSakana ⛵ MASUWA YA MOKE 👁️",
+    "share_3": "🌍 Kobanda na ba-efelo tii na baponto, namonaki bonkoko...\n\n\"Likoló ya bandelo, mitema na biso ezali kobɛta elongo.\"\n\n{name} - {city}, {country}\n💎 Bwanya: {wisdom}\n🎯 Ntango: {score}\n\n#BomokompnaNaKimia #MASUWA #Emmanuel.gallery\n\nSakana ⛵ MASUWA YA MOKE 👁️",
+    "share_4": "👁️ Namonaki solo likoló ya makambo...\n\n\"Totongaki ba-efelo na bobangi, kasi bolingo ebongoli yango mabanga ya libondeli.\"\n\n{name} - {city}, {country}\n💎 Bwanya: {wisdom}\n🎯 Ntango: {score}\n\n#BomokompnaNaKimia #MASUWA #Emmanuel.gallery\n\nSakana ⛵ MASUWA YA MOKE 👁️"
+  },
+  "end_form": {
+    "title": "Mobembo na Yo Esilaki",
+    "your_progress": "Bokei liboso na yo",
+    "xp_label": "💡 XP",
+    "score_label": "🎯 Ntango",
+    "total_label": "Mobimba (XP + Ntango)",
+    "wisdom_score": "Ntango ya Bwanya",
+    "wisdom_level": "Eteni ya bwanya",
+    "progress_to_next": "{current}/{next} epai ya eteni oyo elandi",
+    "save_question": "Kobomba ntango na yo na bilembo?",
+    "congrats": "🎉 Omeki malamu!",
+    "journey_complete": "Mobembo na yo esilaki",
+    "points": "bapointi"
+  },
+  "artist": {
+    "name": "Emmanuel Payet",
+    "subtitle": "Mosali ya Bondimi • Mokeli • Mopesi Mpiko",
+    "platform1_title": "Masano & Kobongisa",
+    "platform1_desc": "Mona bikeli na ngai ya komona, masano ya kosala elongo mpe kobongisa ya bonkoko oyo ezali kosepelisa kondima mpe kitoko.",
+    "platform1_link": "emmanuel.gallery",
+    "platform2_title": "Buku & Bonkoko",
+    "platform2_desc": "Kota na misala na ngai ya mikanda mpe bonkoko, oyo nasalaki elongo na mwana na ngai ya mwasi Béthanie, mpo na koleisa molimo mpe makanisi.",
+    "platform2_link": "emmanuelpayet.art",
+    "platform3_title": "Gospel ya Bonsomi",
+    "platform3_desc": "Yoka ba-compositions na ngai ya gospel na AudioMack, ba-mélodies oyo ezali kokumisa Nzambe mpe ezali kopesa mpiko mpo na bomoko na bokeseni.",
+    "platform3_link": "AudioMack - emmanuelpayet888",
+    "platform4_title": "Ntango Malamu",
+    "platform4_desc": "Ezali sikoyo! Mona boutique na ngai ya Redbubble na ba-designs ya kokamwa mpe bikeli oyo ezali kopesa mpiko mpo na kolata.",
+    "platform4_link": "Redbubble Shop",
+    "quote": "Bonkoko ya bondimi ezali kosangisa mitema likoló ya bokeseni,\nezali kosepelisa kitoko ya bokeli ya Nzambe na bokeseni na yango nyonso.",
+    "credits": "Esalami na Claude • Likambo ya ebandeli Emmanuel Payet"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English",
+    "jp": "日本語",
+    "uk": "Українська",
+    "es": "Español",
+    "de": "Deutsch",
+    "it": "Italiano",
+    "pt": "Português",
+    "ru": "Русский",
+    "zh": "中文",
+    "ko": "한국어",
+    "ar": "العربية",
+    "he": "עברית",
+    "hi": "हिन्दी",
+    "br": "Brasil",
+    "mx": "México",
+    "ca": "Canada",
+    "au": "Australia",
+    "za": "South Africa",
+    "eg": "مصر",
+    "ng": "Nigeria",
+    "ke": "Kenya",
+    "tr": "Türkiye",
+    "ir": "فارسی",
+    "th": "ไทย",
+    "vn": "Việt Nam",
+    "ph": "Philippines",
+    "id": "Indonesia",
+    "my": "Malaysia",
+    "sg": "Singapore",
+    "rc": "Kréol Rényoné",
+    "lg": "Lingala"
+  },
+  "pwa": {
+    "update_message": "🎨 Version ya sika ezali na ba-icônes ya malamu!\n\n✨ Ba-icônes ya sika oyo ebongisami\n🔧 Bobongisi PWA\n\nOlingi kosala update sikoyo?",
+    "update_banner": "🎨 Version ya sika na ba-icônes ya malamu ezali!",
+    "update_button": "Kosala update",
+    "later_button": "Na sima"
+  },
+  "save": {
+    "found_title": "💾 Tomonaki lisano oyo ebombami!",
+    "date": "📅 Mokolo: {date}",
+    "phase": "🎯 Eteni: {phase}",
+    "score": "⭐ Ntango: {score}",
+    "lives": "❤️ Bomoi: {lives}",
+    "confirm_load": "Olingi kokoba lisano wana?",
+    "yes_load": "✅ IYO = Kokoba lisano",
+    "no_reset": "❌ TE = Kobandela na ebandeli (kolongola bomba)",
+    "confirm_reset_title": "🔄 Kobandela na ebandeli?",
+    "confirm_reset_warning": "⚠️ Yango ekosala:",
+    "reset_action1": "- Kolongola bokei liboso na yo",
+    "reset_action2": "- Kolongola bomba na yo",
+    "reset_action3": "- Kobandela kobanda na eteni 1",
+    "confirm_reset_question": "Ozali na yango mpenza?",
+    "loaded": "📂 Lisano ebimisami!",
+    "not_found": "❌ Bomba ezali te"
+  }
+}

@@ -54,6 +54,107 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .lang-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-current {
+            padding: 10px 16px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .lang-current:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .lang-arrow {
+            font-size: 0.7em;
+            transition: transform 0.3s ease;
+        }
+
+        .lang-dropdown.open .lang-arrow {
+            transform: rotate(180deg);
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            min-width: 200px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            z-index: 2000;
+        }
+
+        .lang-dropdown.open .lang-menu {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .lang-option {
+            padding: 10px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .lang-option:hover {
+            border-color: #3498db;
+            background: #ebf5fb;
+            transform: translateX(4px);
+        }
+
+        .lang-option.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .lang-option.lang-rtl {
+            direction: rtl;
+            text-align: right;
         }
 
         .main-title {
@@ -197,6 +298,22 @@
                 padding: 25px;
             }
             
+            .language-selector {
+                position: static;
+                display: flex;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+
+            .lang-menu {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .lang-option {
+                padding: 8px 10px;
+                font-size: 0.75em;
+            }
+            
             .main-title {
                 font-size: 2em;
             }
@@ -311,7 +428,7 @@
             color: white;
             padding: 15px 20px;
             display: grid;
-            grid-template-columns: 60px 60px 1fr 180px 120px;
+            grid-template-columns: 60px 60px 1fr 120px;
             gap: 15px;
             font-weight: 600;
             font-size: 13px;
@@ -319,7 +436,7 @@
 
         .table-row {
             display: grid;
-            grid-template-columns: 60px 60px 1fr 180px 120px;
+            grid-template-columns: 60px 60px 1fr 120px;
             gap: 15px;
             padding: 15px 20px;
             border-bottom: 1px solid #f0f0f0;
@@ -599,6 +716,27 @@
                 padding: 15px 10px;
             }
 
+            .language-selector {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .lang-current {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            .lang-menu {
+                grid-template-columns: repeat(2, 1fr);
+                min-width: 160px;
+            }
+
+            .lang-option {
+                padding: 6px 8px;
+                font-size: 0.7em;
+            }
+
             .main-title {
                 font-size: 1.5em;
             }
@@ -644,6 +782,31 @@
 <body>
     <div class="module-container">
         <div class="header">
+            <div class="language-selector">
+                <div class="lang-dropdown">
+                    <div class="lang-current">
+                        <span class="lang-flag">🇫🇷</span>
+                        <span class="lang-code">FR</span>
+                        <span class="lang-arrow">▼</span>
+                    </div>
+                    <div class="lang-menu">
+                        <div class="lang-option" data-lang="fr" data-flag="🇫🇷">🇫🇷 Français</div>
+                        <div class="lang-option" data-lang="en" data-flag="🇬🇧">🇬🇧 English</div>
+                        <div class="lang-option" data-lang="es" data-flag="🇪🇸">🇪🇸 Español</div>
+                        <div class="lang-option" data-lang="de" data-flag="🇩🇪">🇩🇪 Deutsch</div>
+                        <div class="lang-option" data-lang="it" data-flag="🇮🇹">🇮🇹 Italiano</div>
+                        <div class="lang-option" data-lang="pt" data-flag="🇵🇹">🇵🇹 Português</div>
+                        <div class="lang-option" data-lang="ru" data-flag="🇷🇺">🇷🇺 Русский</div>
+                        <div class="lang-option" data-lang="uk" data-flag="🇺🇦">🇺🇦 Українська</div>
+                        <div class="lang-option" data-lang="zh" data-flag="🇨🇳">🇨🇳 中文</div>
+                        <div class="lang-option" data-lang="jp" data-flag="🇯🇵">🇯🇵 日本語</div>
+                        <div class="lang-option" data-lang="ko" data-flag="🇰🇷">🇰🇷 한국어</div>
+                        <div class="lang-option" data-lang="rc" data-flag="🇨🇩">🇨🇩 Lingala</div>
+                        <div class="lang-option lang-rtl" data-lang="ar" data-flag="🇸🇦">🇸🇦 العربية</div>
+                        <div class="lang-option lang-rtl" data-lang="he" data-flag="🇮🇱">🇮🇱 עברית</div>
+                    </div>
+                </div>
+            </div>
             <h1 class="main-title pulse" id="main-title">Emmanuel Payet</h1>
             <p class="subtitle" id="subtitle">Artiste Chrétien • Créateur • Inspirateur</p>
         </div>
@@ -657,10 +820,10 @@
 
             <div class="leaderboard-stats">
                 <div class="stat-box">
-                    <span class="stat-label">👥</span>
+                    <span class="stat-label" title="Joueurs">👥</span>
                     <span class="stat-value" id="totalPlayers">-</span>
                     <div class="stat-divider"></div>
-                    <span class="stat-label">🏆</span>
+                    <span class="stat-label" title="Meilleur Score">🏆</span>
                     <span class="stat-value" id="topScore">-</span>
                 </div>
             </div>
@@ -672,11 +835,10 @@
                     <div>Rang</div>
                     <div>Avatar</div>
                     <div>Joueur</div>
-                    <div>Niveau</div>
                     <div>Score</div>
                 </div>
                 <div id="leaderboardContent">
-                    <div class="loading">⏳ Chargement des scores...</div>
+                    <div class="loading" id="loadingMessage">⏳ Chargement des scores...</div>
                 </div>
             </div>
 
@@ -747,20 +909,35 @@
         let loadedCount = 0;
         const initialLoad = 100;
         const loadMoreIncrement = 200;
+        
+        // Initialiser la langue dès le début
+        let currentLang = 'fr'; // Par défaut
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            let lang = urlParams.get('lang');
+            if (!lang && localStorage.getItem('selectedLanguage')) {
+                lang = localStorage.getItem('selectedLanguage');
+            }
+            if (lang) currentLang = lang;
+        } catch(e) {}
 
         // Niveaux de sagesse
         const niveauxSagesse = [
-            { min: 0, max: 99, titre: 'Débutant', icone: '🌱' },
-            { min: 100, max: 299, titre: 'Apprenti', icone: '🌿' },
-            { min: 300, max: 599, titre: 'Adepte', icone: '🍀' },
-            { min: 600, max: 999, titre: 'Sage', icone: '✨' },
-            { min: 1000, max: 1499, titre: 'Maître', icone: '🌟' },
-            { min: 1500, max: 2099, titre: 'Éveillé', icone: '💫' },
-            { min: 2100, max: 9999, titre: 'Illuminé', icone: '🔮' }
+            { min: 0, max: 99, key: 'beginner', icone: '🌱' },
+            { min: 100, max: 299, key: 'apprentice', icone: '🌿' },
+            { min: 300, max: 599, key: 'adept', icone: '🍀' },
+            { min: 600, max: 999, key: 'sage', icone: '✨' },
+            { min: 1000, max: 1499, key: 'master', icone: '🌟' },
+            { min: 1500, max: 2099, key: 'enlightened', icone: '💫' },
+            { min: 2100, max: 9999, key: 'illuminated', icone: '🔮' }
         ];
 
         function getNiveauSagesse(sagesse) {
-            return niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
+            const niveau = niveauxSagesse.find(n => sagesse >= n.min && sagesse <= n.max) || niveauxSagesse[0];
+            return {
+                ...niveau,
+                titre: translations[currentLang]?.wisdomLevels[niveau.key] || niveau.key
+            };
         }
 
         function getBadges(donnees, isFirst, enigmes) {
@@ -773,7 +950,8 @@
 
         async function loadScores() {
             try {
-                document.getElementById('leaderboardContent').innerHTML = '<div class="loading">⏳ Connexion à Supabase...</div>';
+                const t = translations[currentLang] || translations['fr'];
+                document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
                 console.log('📡 Tentative de connexion Supabase:', SUPABASE_URL);
 
                 // Charger seulement les 100 premiers au départ
@@ -854,6 +1032,7 @@
         // 💾 Récupérer les scores localStorage
         function getLocalScores() {
             try {
+                const t = translations[currentLang] || translations['fr'];
                 const data = localStorage.getItem('petit_bateau_local_scores');
                 if (!data) return [];
                 
@@ -866,7 +1045,7 @@
                     donnees_extra: s.donnees_extra,
                     game_id: s.game_id,
                     users: {
-                        pseudo: s.user?.pseudo || 'Anonyme',
+                        pseudo: s.user?.pseudo || t.anonymous,
                         avatar: s.user?.avatar || '👤',
                         pays: s.user?.pays || null
                     },
@@ -917,10 +1096,11 @@
 
         async function loadMoreScores() {
             try {
+                const t = translations[currentLang] || translations['fr'];
                 const loadMoreBtn = document.getElementById('loadMoreBtn');
                 if (loadMoreBtn) {
                     loadMoreBtn.disabled = true;
-                    loadMoreBtn.innerHTML = '⏳ Chargement...';
+                    loadMoreBtn.innerHTML = t.loading;
                 }
 
                 const start = loadedCount;
@@ -950,11 +1130,12 @@
                 renderPage();
             } catch (error) {
                 console.error('Erreur chargement supplémentaire:', error);
-                alert('❌ Erreur lors du chargement: ' + error.message);
+                const t = translations[currentLang] || translations['fr'];
+                alert(`❌ ${t.errorLoading}: ${error.message}`);
                 const loadMoreBtn = document.getElementById('loadMoreBtn');
                 if (loadMoreBtn) {
                     loadMoreBtn.disabled = false;
-                    loadMoreBtn.innerHTML = '📥 Charger plus...';
+                    loadMoreBtn.innerHTML = `📥 ${t.loadMore}`;
                 }
             }
         }
@@ -973,8 +1154,10 @@
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
             
+            const t = translations[currentLang] || translations['fr'];
+            
             if (!Array.isArray(allScores)) {
-                document.getElementById('leaderboardContent').innerHTML = '<div class="loading" style="color: #e74c3c;">❌ Erreur: données corrompues</div>';
+                document.getElementById('leaderboardContent').innerHTML = `<div class="loading" style="color: #e74c3c;">❌ ${t.errorCorrupted}</div>`;
                 return;
             }
             
@@ -984,7 +1167,7 @@
             pageScores.forEach((entry, index) => {
                 const globalRank = start + index + 1;
                 const donnees = entry.donnees_extra || {};
-                const pseudo = entry.users?.pseudo || donnees.pseudo || 'Anonyme';
+                const pseudo = entry.users?.pseudo || donnees.pseudo || t.anonymous;
                 const avatar = entry.users?.avatar || donnees.avatar || '👤';
                 
                 let medal = `${globalRank}.`;
@@ -1023,13 +1206,12 @@
                         <div class="rank ${rankClass}">${medal}</div>
                         <div class="avatar">${avatar}</div>
                         <div>${levelInfo}</div>
-                        <div class="badges">${badgesHtml}</div>
                         <div class="score-value">${entry.score.toLocaleString()}</div>
                     </div>
                 `;
             });
 
-            document.getElementById('leaderboardContent').innerHTML = html || '<div class="loading">Aucun score</div>';
+            document.getElementById('leaderboardContent').innerHTML = html || `<div class="loading">${t.noResults}</div>`;
             
             // Afficher le bouton "Voir plus" si nécessaire
             renderLoadMoreButton();
@@ -1043,15 +1225,17 @@
             if (loadedCount < totalScores) {
                 const remaining = totalScores - loadedCount;
                 const nextLoad = Math.min(loadMoreIncrement, remaining);
+                const t = translations[currentLang] || translations['fr'];
                 loadMoreContainer.innerHTML = `
                     <button id="loadMoreBtn" class="load-more-btn" onclick="window.loadMoreScores()">
-                        📥 Charger ${nextLoad} scores supplémentaires (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
+                        ${t.loadMoreScores} ${nextLoad} ${t.moreScores} (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
                     </button>
                 `;
             } else {
+                const t = translations[currentLang] || translations['fr'];
                 loadMoreContainer.innerHTML = `
                     <div style="text-align: center; padding: 20px; color: #7f8c8d; font-size: 14px;">
-                        ✅ Tous les scores chargés (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
+                        ${t.allScoresLoaded} (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
                     </div>
                 `;
             }
@@ -1087,7 +1271,8 @@
             html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.goToPage(${totalPages})">»</button>`;
 
             // Afficher info sur les scores chargés
-            html += `<span style="margin-left: 15px; color: #7f8c8d; font-size: 13px;">${loadedCount.toLocaleString()} scores chargés</span>`;
+            const t = translations[currentLang] || translations['fr'];
+            html += `<span style="margin-left: 15px; color: #7f8c8d; font-size: 13px;">${loadedCount.toLocaleString()} ${t.scoresLoaded}</span>`;
 
             document.getElementById('pagination').innerHTML = html;
         }
@@ -1099,7 +1284,8 @@
             // Si on essaie d'aller sur une page non chargée, proposer de charger plus
             const neededScores = page * perPage;
             if (neededScores > loadedCount && loadedCount < totalScores) {
-                if (confirm(`Vous devez charger plus de scores pour accéder à cette page.\nCharger ${loadMoreIncrement} scores supplémentaires ?`)) {
+                const t = translations[currentLang] || translations['fr'];
+                if (confirm(`${t.confirmLoadMore} ${loadMoreIncrement} ${t.moreScoresQuestion}`)) {
                     loadMoreScores().then(() => {
                         if (page <= Math.ceil(loadedCount / perPage)) {
                             currentPage = page;
@@ -1155,20 +1341,20 @@
                             <div class="rank">${globalRank}.</div>
                             <div class="avatar">${avatar}</div>
                             <div>${levelInfo}</div>
-                            <div class="badges">${badgesHtml}</div>
                             <div class="score-value">${entry.score.toLocaleString()}</div>
                         </div>
                     `;
                 });
                 
-                document.getElementById('leaderboardContent').innerHTML = html || '<div class="loading">Aucun résultat</div>';
+                const t = translations[currentLang] || translations['fr'];
+                document.getElementById('leaderboardContent').innerHTML = html || `<div class="loading">${t.noResults}</div>`;
                 document.getElementById('pagination').innerHTML = '';
             } else {
                 renderPage();
             }
         });
 
-        // Chargement initial
+        // Chargement initial des scores
         loadScores();
     </script>
 
@@ -1187,7 +1373,38 @@
                 shopTitle: "La Bonne Heure",
                 shopDesc: "C'est maintenant ! Découvre ma boutique Redbubble avec des designs uniques et des créations inspirantes à porter.",
                 quote: "L'art chrétien unit les cœurs au-delà des différences, célébrant la beauté de la création divine dans toute sa diversité.",
-                credits: "Codé par Claude • Idée originale Emmanuel Payet"
+                credits: "Codé par Claude • Idée originale Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Millions Mondial",
+                leaderboardSubtitle: "Classement des meilleurs joueurs de Petit Bateau Rouge",
+                searchPlaceholder: "🔍 Rechercher un joueur...",
+                statPlayers: "Joueurs",
+                statTopScore: "Meilleur Score",
+                loading: "⏳ Chargement des scores...",
+                rankHeader: "Rang",
+                avatarHeader: "Avatar",
+                playerHeader: "Joueur",
+                levelHeader: "Niveau",
+                scoreHeader: "Score",
+                noResults: "Aucun résultat",
+                scoresLoaded: "scores chargés",
+                allScoresLoaded: "✅ Tous les scores chargés",
+                loadMoreScores: "📥 Charger",
+                moreScores: "scores supplémentaires",
+                confirmLoadMore: "Vous devez charger plus de scores pour accéder à cette page.\nCharger",
+                moreScoresQuestion: "scores supplémentaires ?",
+                errorLoading: "Erreur lors du chargement",
+                errorCorrupted: "Erreur: données corrompues",
+                loadMore: "Charger plus...",
+                anonymous: "Anonyme",
+                wisdomLevels: {
+                    beginner: "Débutant",
+                    apprentice: "Apprenti",
+                    adept: "Adepte",
+                    sage: "Sage",
+                    master: "Maître",
+                    enlightened: "Éveillé",
+                    illuminated: "Illuminé"
+                }
             },
             en: {
                 pageTitle: "Emmanuel Payet - Christian Artist",
@@ -1201,7 +1418,38 @@
                 shopTitle: "The Good Time",
                 shopDesc: "It's now! Discover my Redbubble shop with unique designs and inspiring creations to wear.",
                 quote: "Christian art unites hearts beyond differences, celebrating the beauty of divine creation in all its diversity.",
-                credits: "Coded by Claude • Original idea Emmanuel Payet"
+                credits: "Coded by Claude • Original idea Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Million Worldwide",
+                leaderboardSubtitle: "Ranking of the best Little Red Boat players",
+                searchPlaceholder: "🔍 Search for a player...",
+                statPlayers: "Players",
+                statTopScore: "Top Score",
+                loading: "⏳ Loading scores...",
+                rankHeader: "Rank",
+                avatarHeader: "Avatar",
+                playerHeader: "Player",
+                levelHeader: "Level",
+                scoreHeader: "Score",
+                noResults: "No results",
+                scoresLoaded: "scores loaded",
+                allScoresLoaded: "✅ All scores loaded",
+                loadMoreScores: "📥 Load",
+                moreScores: "more scores",
+                confirmLoadMore: "You need to load more scores to access this page.\nLoad",
+                moreScoresQuestion: "more scores?",
+                errorLoading: "Error loading",
+                errorCorrupted: "Error: corrupted data",
+                loadMore: "Load more...",
+                anonymous: "Anonymous",
+                wisdomLevels: {
+                    beginner: "Beginner",
+                    apprentice: "Apprentice",
+                    adept: "Adept",
+                    sage: "Sage",
+                    master: "Master",
+                    enlightened: "Enlightened",
+                    illuminated: "Illuminated"
+                }
             },
             es: {
                 pageTitle: "Emmanuel Payet - Artista Cristiano",
@@ -1215,7 +1463,38 @@
                 shopTitle: "El Buen Momento",
                 shopDesc: "¡Es ahora! Descubre mi tienda Redbubble con diseños únicos y creaciones inspiradoras para llevar.",
                 quote: "El arte cristiano une corazones más allá de las diferencias, celebrando la belleza de la creación divina en toda su diversidad.",
-                credits: "Programado por Claude • Idea original Emmanuel Payet"
+                credits: "Programado por Claude • Idea original Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Millones Mundial",
+                leaderboardSubtitle: "Clasificación de los mejores jugadores de Barquito Rojo",
+                searchPlaceholder: "🔍 Buscar un jugador...",
+                statPlayers: "Jugadores",
+                statTopScore: "Mejor Puntuación",
+                loading: "⏳ Cargando puntuaciones...",
+                rankHeader: "Rango",
+                avatarHeader: "Avatar",
+                playerHeader: "Jugador",
+                levelHeader: "Nivel",
+                scoreHeader: "Puntuación",
+                noResults: "Sin resultados",
+                scoresLoaded: "puntuaciones cargadas",
+                allScoresLoaded: "✅ Todas las puntuaciones cargadas",
+                loadMoreScores: "📥 Cargar",
+                moreScores: "puntuaciones adicionales",
+                confirmLoadMore: "Necesita cargar más puntuaciones para acceder a esta página.\nCargar",
+                moreScoresQuestion: "puntuaciones adicionales?",
+                errorLoading: "Error al cargar",
+                errorCorrupted: "Error: datos corruptos",
+                loadMore: "Cargar más...",
+                anonymous: "Anónimo",
+                wisdomLevels: {
+                    beginner: "Principiante",
+                    apprentice: "Aprendiz",
+                    adept: "Adepto",
+                    sage: "Sabio",
+                    master: "Maestro",
+                    enlightened: "Iluminado",
+                    illuminated: "Resplandeciente"
+                }
             },
             de: {
                 pageTitle: "Emmanuel Payet - Christlicher Künstler",
@@ -1229,7 +1508,38 @@
                 shopTitle: "Die Gute Zeit",
                 shopDesc: "Es ist jetzt! Entdecke meinen Redbubble-Shop mit einzigartigen Designs und inspirierenden Kreationen zum Tragen.",
                 quote: "Christliche Kunst vereint Herzen jenseits von Unterschieden und feiert die Schönheit der göttlichen Schöpfung in all ihrer Vielfalt.",
-                credits: "Programmiert von Claude • Originalidee Emmanuel Payet"
+                credits: "Programmiert von Claude • Originalidee Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Millionen Weltweit",
+                leaderboardSubtitle: "Rangliste der besten Kleines Rotes Boot Spieler",
+                searchPlaceholder: "🔍 Spieler suchen...",
+                statPlayers: "Spieler",
+                statTopScore: "Höchste Punktzahl",
+                loading: "⏳ Laden der Punktzahlen...",
+                rankHeader: "Rang",
+                avatarHeader: "Avatar",
+                playerHeader: "Spieler",
+                levelHeader: "Level",
+                scoreHeader: "Punktzahl",
+                noResults: "Keine Ergebnisse",
+                scoresLoaded: "Punktzahlen geladen",
+                allScoresLoaded: "✅ Alle Punktzahlen geladen",
+                loadMoreScores: "📥 Laden",
+                moreScores: "weitere Punktzahlen",
+                confirmLoadMore: "Sie müssen mehr Punktzahlen laden, um auf diese Seite zuzugreifen.\nLaden",
+                moreScoresQuestion: "weitere Punktzahlen?",
+                errorLoading: "Fehler beim Laden",
+                errorCorrupted: "Fehler: beschädigte Daten",
+                loadMore: "Mehr laden...",
+                anonymous: "Anonym",
+                wisdomLevels: {
+                    beginner: "Anfänger",
+                    apprentice: "Lehrling",
+                    adept: "Adept",
+                    sage: "Weiser",
+                    master: "Meister",
+                    enlightened: "Erleuchtet",
+                    illuminated: "Illuminiert"
+                }
             },
             it: {
                 pageTitle: "Emmanuel Payet - Artista Cristiano",
@@ -1243,7 +1553,38 @@
                 shopTitle: "Il Momento Giusto",
                 shopDesc: "È ora! Scopri il mio negozio Redbubble con design unici e creazioni ispiratrici da indossare.",
                 quote: "L'arte cristiana unisce i cuori oltre le differenze, celebrando la bellezza della creazione divina in tutta la sua diversità.",
-                credits: "Programmato da Claude • Idea originale Emmanuel Payet"
+                credits: "Programmato da Claude • Idea originale Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Milioni Mondiale",
+                leaderboardSubtitle: "Classifica dei migliori giocatori di Barchetta Rossa",
+                searchPlaceholder: "🔍 Cerca un giocatore...",
+                statPlayers: "Giocatori",
+                statTopScore: "Miglior Punteggio",
+                loading: "⏳ Caricamento punteggi...",
+                rankHeader: "Classifica",
+                avatarHeader: "Avatar",
+                playerHeader: "Giocatore",
+                levelHeader: "Livello",
+                scoreHeader: "Punteggio",
+                noResults: "Nessun risultato",
+                scoresLoaded: "punteggi caricati",
+                allScoresLoaded: "✅ Tutti i punteggi caricati",
+                loadMoreScores: "📥 Carica",
+                moreScores: "punteggi aggiuntivi",
+                confirmLoadMore: "È necessario caricare più punteggi per accedere a questa pagina.\nCaricare",
+                moreScoresQuestion: "punteggi aggiuntivi?",
+                errorLoading: "Errore di caricamento",
+                errorCorrupted: "Errore: dati corrotti",
+                loadMore: "Carica di più...",
+                anonymous: "Anonimo",
+                wisdomLevels: {
+                    beginner: "Principiante",
+                    apprentice: "Apprendista",
+                    adept: "Adepto",
+                    sage: "Saggio",
+                    master: "Maestro",
+                    enlightened: "Illuminato",
+                    illuminated: "Risplendente"
+                }
             },
             pt: {
                 pageTitle: "Emmanuel Payet - Artista Cristão",
@@ -1257,7 +1598,38 @@
                 shopTitle: "A Boa Hora",
                 shopDesc: "É agora! Descubra minha loja Redbubble com designs únicos e criações inspiradoras para vestir.",
                 quote: "A arte cristã une corações além das diferenças, celebrando a beleza da criação divina em toda sua diversidade.",
-                credits: "Programado por Claude • Ideia original Emmanuel Payet"
+                credits: "Programado por Claude • Ideia original Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Milhões Mundial",
+                leaderboardSubtitle: "Classificação dos melhores jogadores de Barquinho Vermelho",
+                searchPlaceholder: "🔍 Procurar um jogador...",
+                statPlayers: "Jogadores",
+                statTopScore: "Melhor Pontuação",
+                loading: "⏳ Carregando pontuações...",
+                rankHeader: "Posição",
+                avatarHeader: "Avatar",
+                playerHeader: "Jogador",
+                levelHeader: "Nível",
+                scoreHeader: "Pontuação",
+                noResults: "Sem resultados",
+                scoresLoaded: "pontuações carregadas",
+                allScoresLoaded: "✅ Todas as pontuações carregadas",
+                loadMoreScores: "📥 Carregar",
+                moreScores: "pontuações adicionais",
+                confirmLoadMore: "Você precisa carregar mais pontuações para acessar esta página.\nCarregar",
+                moreScoresQuestion: "pontuações adicionais?",
+                errorLoading: "Erro ao carregar",
+                errorCorrupted: "Erro: dados corrompidos",
+                loadMore: "Carregar mais...",
+                anonymous: "Anônimo",
+                wisdomLevels: {
+                    beginner: "Iniciante",
+                    apprentice: "Aprendiz",
+                    adept: "Adepto",
+                    sage: "Sábio",
+                    master: "Mestre",
+                    enlightened: "Iluminado",
+                    illuminated: "Resplandecente"
+                }
             },
             ru: {
                 pageTitle: "Эммануэль Пайе - Христианский Художник",
@@ -1271,7 +1643,38 @@
                 shopTitle: "Хорошее Время",
                 shopDesc: "Сейчас! Откройте мой магазин Redbubble с уникальными дизайнами и вдохновляющими творениями для ношения.",
                 quote: "Христианское искусство объединяет сердца за пределами различий, прославляя красоту божественного творения во всем его разнообразии.",
-                credits: "Запрограммировано Claude • Оригинальная идея Эммануэль Пайе"
+                credits: "Запрограммировано Claude • Оригинальная идея Эммануэль Пайе",
+                leaderboardTitle: "🏆 Топ 33 Миллиона Мировой",
+                leaderboardSubtitle: "Рейтинг лучших игроков Маленькая Красная Лодка",
+                searchPlaceholder: "🔍 Поиск игрока...",
+                statPlayers: "Игроки",
+                statTopScore: "Лучший Счет",
+                loading: "⏳ Загрузка счетов...",
+                rankHeader: "Ранг",
+                avatarHeader: "Аватар",
+                playerHeader: "Игрок",
+                levelHeader: "Уровень",
+                scoreHeader: "Счет",
+                noResults: "Нет результатов",
+                scoresLoaded: "счетов загружено",
+                allScoresLoaded: "✅ Все счета загружены",
+                loadMoreScores: "📥 Загрузить",
+                moreScores: "дополнительных счетов",
+                confirmLoadMore: "Вам нужно загрузить больше счетов для доступа к этой странице.\nЗагрузить",
+                moreScoresQuestion: "дополнительных счетов?",
+                errorLoading: "Ошибка загрузки",
+                errorCorrupted: "Ошибка: поврежденные данные",
+                loadMore: "Загрузить еще...",
+                anonymous: "Аноним",
+                wisdomLevels: {
+                    beginner: "Новичок",
+                    apprentice: "Ученик",
+                    adept: "Адепт",
+                    sage: "Мудрец",
+                    master: "Мастер",
+                    enlightened: "Просветленный",
+                    illuminated: "Озаренный"
+                }
             },
             zh: {
                 pageTitle: "艾曼纽·佩耶 - 基督教艺术家",
@@ -1285,7 +1688,38 @@
                 shopTitle: "好时光",
                 shopDesc: "就是现在！发现我的Redbubble商店，拥有独特的设计和鼓舞人心的创作。",
                 quote: "基督教艺术超越差异联合心灵，在其多样性中庆祝神圣创造的美丽。",
-                credits: "由Claude编程 • 原创想法艾曼纽·佩耶"
+                credits: "由Claude编程 • 原创想法艾曼纽·佩耶",
+                leaderboardTitle: "🏆 全球前3300万",
+                leaderboardSubtitle: "小红船最佳玩家排名",
+                searchPlaceholder: "🔍 搜索玩家...",
+                statPlayers: "玩家",
+                statTopScore: "最高分",
+                loading: "⏳ 加载分数中...",
+                rankHeader: "排名",
+                avatarHeader: "头像",
+                playerHeader: "玩家",
+                levelHeader: "等级",
+                scoreHeader: "分数",
+                noResults: "无结果",
+                scoresLoaded: "分数已加载",
+                allScoresLoaded: "✅ 所有分数已加载",
+                loadMoreScores: "📥 加载",
+                moreScores: "更多分数",
+                confirmLoadMore: "您需要加载更多分数才能访问此页面。\n加载",
+                moreScoresQuestion: "更多分数？",
+                errorLoading: "加载错误",
+                errorCorrupted: "错误：数据损坏",
+                loadMore: "加载更多...",
+                anonymous: "匿名",
+                wisdomLevels: {
+                    beginner: "初学者",
+                    apprentice: "学徒",
+                    adept: "熟练者",
+                    sage: "智者",
+                    master: "大师",
+                    enlightened: "觉悟者",
+                    illuminated: "圣者"
+                }
             },
             ko: {
                 pageTitle: "엠마누엘 파예 - 기독교 예술가",
@@ -1299,7 +1733,38 @@
                 shopTitle: "좋은 시간",
                 shopDesc: "지금이에요! 독특한 디자인과 영감을 주는 창작물을 가진 나의 Redbubble 상점을 발견하세요.",
                 quote: "기독교 예술은 차이를 넘어 마음을 하나로 만들며, 모든 다양성 속에서 신성한 창조의 아름다움을 찬양합니다.",
-                credits: "Claude가 프로그래밍 • 원작 아이디어 엠마누엘 파예"
+                credits: "Claude가 프로그래밍 • 원작 아이디어 엠마누엘 파예",
+                leaderboardTitle: "🏆 전 세계 상위 3300만",
+                leaderboardSubtitle: "작은 빨간 보트 최고 플레이어 순위",
+                searchPlaceholder: "🔍 플레이어 검색...",
+                statPlayers: "플레이어",
+                statTopScore: "최고 점수",
+                loading: "⏳ 점수 로딩 중...",
+                rankHeader: "순위",
+                avatarHeader: "아바타",
+                playerHeader: "플레이어",
+                levelHeader: "레벨",
+                scoreHeader: "점수",
+                noResults: "결과 없음",
+                scoresLoaded: "점수 로드됨",
+                allScoresLoaded: "✅ 모든 점수 로드됨",
+                loadMoreScores: "📥 로드",
+                moreScores: "추가 점수",
+                confirmLoadMore: "이 페이지에 액세스하려면 더 많은 점수를 로드해야 합니다.\n로드",
+                moreScoresQuestion: "추가 점수?",
+                errorLoading: "로딩 오류",
+                errorCorrupted: "오류: 손상된 데이터",
+                loadMore: "더 로드...",
+                anonymous: "익명",
+                wisdomLevels: {
+                    beginner: "초보자",
+                    apprentice: "견습생",
+                    adept: "숙련자",
+                    sage: "현자",
+                    master: "달인",
+                    enlightened: "깨달은 자",
+                    illuminated: "성자"
+                }
             },
             jp: {
                 pageTitle: "エマニュエル・パイエ - キリスト教アーティスト",
@@ -1313,7 +1778,38 @@
                 shopTitle: "良い時間",
                 shopDesc: "今です！ユニークなデザインと感動的な創作物を持つ私のRedbubbleショップを発見してください。",
                 quote: "キリスト教芸術は違いを超えて心を結び、その多様性のすべてにおいて神聖な創造の美しさを讃えます。",
-                credits: "Claudeによってプログラム • オリジナルアイデア エマニュエル・パイエ"
+                credits: "Claudeによってプログラム • オリジナルアイデア エマニュエル・パイエ",
+                leaderboardTitle: "🏆 世界トップ3300万",
+                leaderboardSubtitle: "小さな赤いボート最高プレイヤーランキング",
+                searchPlaceholder: "🔍 プレイヤーを検索...",
+                statPlayers: "プレイヤー",
+                statTopScore: "最高スコア",
+                loading: "⏳ スコア読み込み中...",
+                rankHeader: "ランク",
+                avatarHeader: "アバター",
+                playerHeader: "プレイヤー",
+                levelHeader: "レベル",
+                scoreHeader: "スコア",
+                noResults: "結果なし",
+                scoresLoaded: "スコア読み込み済み",
+                allScoresLoaded: "✅ 全スコア読み込み済み",
+                loadMoreScores: "📥 ロード",
+                moreScores: "追加スコア",
+                confirmLoadMore: "このページにアクセスするには、さらにスコアをロードする必要があります。\nロード",
+                moreScoresQuestion: "追加スコア？",
+                errorLoading: "読み込みエラー",
+                errorCorrupted: "エラー：データ破損",
+                loadMore: "もっと読み込む...",
+                anonymous: "匿名",
+                wisdomLevels: {
+                    beginner: "初心者",
+                    apprentice: "見習い",
+                    adept: "熟練者",
+                    sage: "賢者",
+                    master: "達人",
+                    enlightened: "悟り者",
+                    illuminated: "聖者"
+                }
             },
             ar: {
                 pageTitle: "إيمانويل باييت - فنان مسيحي",
@@ -1327,7 +1823,38 @@
                 shopTitle: "الوقت الجيد",
                 shopDesc: "الآن! اكتشف متجر Redbubble الخاص بي مع تصاميم فريدة وإبداعات ملهمة للارتداء.",
                 quote: "الفن المسيحي يوحد القلوب ما وراء الاختلافات، محتفلاً بجمال الخلق الإلهي في كل تنوعه.",
-                credits: "مبرمج بواسطة Claude • الفكرة الأصلية إيمانويل باييت"
+                credits: "مبرمج بواسطة Claude • الفكرة الأصلية إيمانويل باييت",
+                leaderboardTitle: "🏆 أفضل 33 مليون عالمي",
+                leaderboardSubtitle: "ترتيب أفضل لاعبي القارب الأحمر الصغير",
+                searchPlaceholder: "🔍 البحث عن لاعب...",
+                statPlayers: "اللاعبون",
+                statTopScore: "أعلى نتيجة",
+                loading: "⏳ تحميل النتائج...",
+                rankHeader: "الترتيب",
+                avatarHeader: "الصورة",
+                playerHeader: "اللاعب",
+                levelHeader: "المستوى",
+                scoreHeader: "النتيجة",
+                noResults: "لا توجد نتائج",
+                scoresLoaded: "النتائج المحملة",
+                allScoresLoaded: "✅ جميع النتائج محملة",
+                loadMoreScores: "📥 تحميل",
+                moreScores: "نتائج إضافية",
+                confirmLoadMore: "تحتاج إلى تحميل المزيد من النتائج للوصول إلى هذه الصفحة.\nتحميل",
+                moreScoresQuestion: "نتائج إضافية؟",
+                errorLoading: "خطأ في التحميل",
+                errorCorrupted: "خطأ: بيانات تالفة",
+                loadMore: "تحميل المزيد...",
+                anonymous: "مجهول",
+                wisdomLevels: {
+                    beginner: "مبتدئ",
+                    apprentice: "متدرب",
+                    adept: "ماهر",
+                    sage: "حكيم",
+                    master: "أستاذ",
+                    enlightened: "مستنير",
+                    illuminated: "منير"
+                }
             },
             he: {
                 pageTitle: "עמנואל פאייט - אמן נוצרי",
@@ -1341,7 +1868,38 @@
                 shopTitle: "הזמן הטוב",
                 shopDesc: "זה עכשיו! גלו את חנות Redbubble שלי עם עיצובים ייחודיים ויצירות מעוררות השראה ללבישה.",
                 quote: "אמנות נוצרית מאחדת לבבות מעבר להבדלים, חוגגת את יופי הבריאה האלוהית בכל הגיוון שלה.",
-                credits: "מתוכנת על ידי Claude • רעיון מקורי עמנואל פאייט"
+                credits: "מתוכנת על ידי Claude • רעיון מקורי עמנואל פאייט",
+                leaderboardTitle: "🏆 33 מיליון הטובים בעולם",
+                leaderboardSubtitle: "דירוג השחקנים הטובים ביותר של סירה אדומה קטנה",
+                searchPlaceholder: "🔍 חיפוש שחקן...",
+                statPlayers: "שחקנים",
+                statTopScore: "ניקוד הגבוה ביותר",
+                loading: "⏳ טוען ניקודים...",
+                rankHeader: "דירוג",
+                avatarHeader: "אווטאר",
+                playerHeader: "שחקן",
+                levelHeader: "רמה",
+                scoreHeader: "ניקוד",
+                noResults: "אין תוצאות",
+                scoresLoaded: "ניקודים נטענו",
+                allScoresLoaded: "✅ כל הניקודים נטענו",
+                loadMoreScores: "📥 טען",
+                moreScores: "ניקודים נוספים",
+                confirmLoadMore: "עליך לטעון עוד ניקודים כדי לגשת לדף זה.\nטען",
+                moreScoresQuestion: "ניקודים נוספים?",
+                errorLoading: "שגיאת טעינה",
+                errorCorrupted: "שגיאה: נתונים פגומים",
+                loadMore: "טען עוד...",
+                anonymous: "אנונימי",
+                wisdomLevels: {
+                    beginner: "מתחיל",
+                    apprentice: "חניך",
+                    adept: "מיומן",
+                    sage: "חכם",
+                    master: "אמן",
+                    enlightened: "נאור",
+                    illuminated: "מואר"
+                }
             },
             uk: {
                 pageTitle: "Еммануель Пайє - Християнський Художник",
@@ -1355,7 +1913,83 @@
                 shopTitle: "Гарний Час",
                 shopDesc: "Це зараз! Відкрийте мій магазин Redbubble з унікальними дизайнами та надихаючими творіннями для носіння.",
                 quote: "Християнське мистецтво об'єднує серця за межами відмінностей, прославляючи красу божественного творіння у всьому його різноманітті.",
-                credits: "Запрограмовано Claude • Оригінальна ідея Еммануель Пайє"
+                credits: "Запрограмовано Claude • Оригінальна ідея Еммануель Пайє",
+                leaderboardTitle: "🏆 Топ 33 Мільйони Світовий",
+                leaderboardSubtitle: "Рейтинг найкращих гравців Маленький Червоний Човник",
+                searchPlaceholder: "🔍 Пошук гравця...",
+                statPlayers: "Гравці",
+                statTopScore: "Найкращий Рахунок",
+                loading: "⏳ Завантаження рахунків...",
+                rankHeader: "Ранг",
+                avatarHeader: "Аватар",
+                playerHeader: "Гравець",
+                levelHeader: "Рівень",
+                scoreHeader: "Рахунок",
+                noResults: "Немає результатів",
+                scoresLoaded: "рахунків завантажено",
+                allScoresLoaded: "✅ Всі рахунки завантажено",
+                loadMoreScores: "📥 Завантажити",
+                moreScores: "додаткових рахунків",
+                confirmLoadMore: "Вам потрібно завантажити більше рахунків для доступу до цієї сторінки.\nЗавантажити",
+                moreScoresQuestion: "додаткових рахунків?",
+                errorLoading: "Помилка завантаження",
+                errorCorrupted: "Помилка: пошкоджені дані",
+                loadMore: "Завантажити більше...",
+                anonymous: "Анонім",
+                wisdomLevels: {
+                    beginner: "Початківець",
+                    apprentice: "Учень",
+                    adept: "Адепт",
+                    sage: "Мудрець",
+                    master: "Майстер",
+                    enlightened: "Просвітлений",
+                    illuminated: "Освічений"
+                }
+            },
+            rc: {
+                pageTitle: "Emmanuel Payet - Artiss Krétyin",
+                subtitle: "Artiss Krétyin • Kréatèr • Inspiratèr",
+                gamesTitle: "Zé ék Déko",
+                gamesDesc: "Dékouvr mon kréasyon vizyèl, zé intéraktif ék dékorasyon artistik ki sélébr la fwa ék la boté.",
+                booksTitle: "Liv ék Lar",
+                booksDesc: "Plonz dann mon zouvraz litérèr ék artistik, kréyé èk mon fiy Béthanie, pou nouri lam ék lespri.",
+                musicTitle: "Gospel Gratui",
+                musicDesc: "Ékout mon kompozisyon gospel si AudioMack, bann mélodi ki lou Bondyé ék inspir linité dann la divèrsité.",
+                shopTitle: "La Bon Lèr",
+                shopDesc: "Sé astèr ! Dékouvr mon boutik Redbubble èk bann design inik ék bann kréasyon inspirant pou port.",
+                quote: "Lar krétyin i ini lè kèr osi loin lé diférens, i sélébr la boté la kréasyon divin dann tout son divèrsité.",
+                credits: "Kodé par Claude • Lidé orijinal Emmanuel Payet",
+                leaderboardTitle: "🏆 Top 33 Million Mondial",
+                leaderboardSubtitle: "Klasman bann meyèr zoué Pti Bato Rouz",
+                searchPlaceholder: "🔍 Sèrs in zoué...",
+                statPlayers: "Zoué",
+                statTopScore: "Meyèr Skor",
+                loading: "⏳ Charzman bann skor...",
+                rankHeader: "Ran",
+                avatarHeader: "Avatar",
+                playerHeader: "Zoué",
+                levelHeader: "Nivo",
+                scoreHeader: "Skor",
+                noResults: "Anyin trouv",
+                scoresLoaded: "skor sarzé",
+                allScoresLoaded: "✅ Tout bann skor sarzé",
+                loadMoreScores: "📥 Sarz",
+                moreScores: "skor anplis",
+                confirmLoadMore: "Ou bizin sarz ankor skor pou akséd dan sa paz la.\nSarz",
+                moreScoresQuestion: "skor anplis?",
+                errorLoading: "Erèr sarzman",
+                errorCorrupted: "Erèr: doné anbimé",
+                loadMore: "Sarz ankor...",
+                anonymous: "Anonim",
+                wisdomLevels: {
+                    beginner: "Débitan",
+                    apprentice: "Apranti",
+                    adept: "Adèpt",
+                    sage: "Saz",
+                    master: "Mèt",
+                    enlightened: "Évèyé",
+                    illuminated: "Iliminé"
+                }
             }
         };
 
@@ -1379,6 +2013,32 @@
                 lang = localStorage.getItem('selectedLanguage');
             }
             
+            // Si toujours pas trouvé, détecter la langue du navigateur
+            if (!lang) {
+                const browserLang = navigator.language || navigator.userLanguage;
+                const shortLang = browserLang.split('-')[0].toLowerCase();
+                
+                // Mapper les codes de langue aux langues disponibles
+                const langMap = {
+                    'fr': 'fr',
+                    'en': 'en',
+                    'es': 'es',
+                    'de': 'de',
+                    'it': 'it',
+                    'pt': 'pt',
+                    'ru': 'ru',
+                    'zh': 'zh',
+                    'ko': 'ko',
+                    'ja': 'jp',  // japonais
+                    'ar': 'ar',
+                    'he': 'he',
+                    'uk': 'uk'
+                };
+                
+                lang = langMap[shortLang] || null;
+                console.log('🌍 Langue du navigateur détectée:', browserLang, '→', lang || 'non supportée');
+            }
+            
             // Par défaut français
             return lang && translations[lang] ? lang : 'fr';
         }
@@ -1387,6 +2047,9 @@
         function applyTranslation(lang) {
             const t = translations[lang];
             if (!t) return;
+
+            // Sauvegarder la langue courante
+            currentLang = lang;
 
             document.getElementById('page-title').textContent = t.pageTitle;
             document.title = t.pageTitle;
@@ -1402,15 +2065,101 @@
             document.getElementById('inspiring-quote').textContent = t.quote;
             document.getElementById('credits').textContent = t.credits;
             
+            // Traductions du leaderboard
+            const leaderboardTitle = document.querySelector('.leaderboard-title');
+            const leaderboardSubtitle = document.querySelector('.leaderboard-subtitle');
+            const searchInput = document.getElementById('searchInput');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const statLabels = document.querySelectorAll('.stat-label');
+            
+            if (leaderboardTitle) leaderboardTitle.textContent = t.leaderboardTitle;
+            if (leaderboardSubtitle) leaderboardSubtitle.textContent = t.leaderboardSubtitle;
+            if (searchInput) searchInput.placeholder = t.searchPlaceholder;
+            if (loadingMessage) loadingMessage.textContent = t.loading;
+            
+            // Tooltips des statistiques
+            if (statLabels.length >= 2) {
+                statLabels[0].title = t.statPlayers;
+                statLabels[1].title = t.statTopScore;
+            }
+            
+            // Headers du tableau
+            const headers = document.querySelectorAll('.table-header > div');
+            if (headers.length >= 4) {
+                headers[0].textContent = t.rankHeader;
+                headers[1].textContent = t.avatarHeader;
+                headers[2].textContent = t.playerHeader;
+                headers[3].textContent = t.scoreHeader;
+            }
+            
             // Mettre à jour l'attribut lang
             document.documentElement.lang = lang;
+            
+            // Mettre à jour l'option active dans le menu
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
+            
+            // Mettre à jour le bouton principal
+            const selectedOption = document.querySelector(`.lang-option[data-lang="${lang}"]`);
+            if (selectedOption) {
+                const flag = selectedOption.dataset.flag;
+                const code = lang.toUpperCase();
+                document.querySelector('.lang-flag').textContent = flag;
+                document.querySelector('.lang-code').textContent = code;
+            }
+            
+            // Sauvegarder dans localStorage
+            localStorage.setItem('selectedLanguage', lang);
+            
+            // Rafraîchir le leaderboard si les scores sont déjà chargés
+            if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
+                renderPage();
+                renderLoadMoreButton();
+            }
         }
 
         // Initialiser la langue au chargement
         window.addEventListener('load', () => {
-            const currentLang = detectLanguage();
+            currentLang = detectLanguage(); // Mettre à jour la variable globale
             applyTranslation(currentLang);
             console.log('🌍 Module Emmanuel chargé en:', currentLang);
+            
+            // Rafraîchir le leaderboard avec la langue détectée
+            if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
+                renderPage();
+                renderLoadMoreButton();
+            }
+            
+            // Toggle du dropdown
+            const dropdown = document.querySelector('.lang-dropdown');
+            const currentBtn = document.querySelector('.lang-current');
+            
+            currentBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+            
+            // Fermer le dropdown si on clique ailleurs
+            document.addEventListener('click', () => {
+                dropdown.classList.remove('open');
+            });
+            
+            // Ajouter les événements aux options de langue
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const selectedLang = opt.dataset.lang;
+                    applyTranslation(selectedLang);
+                    dropdown.classList.remove('open');
+                    console.log('🌍 Langue changée:', selectedLang);
+                    
+                    // Rafraîchir la page pour appliquer complètement les traductions
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
+            });
         });
 
         // Animation au scroll pour les cartes

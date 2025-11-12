@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.5.0'; // Synchronisé avec VERSION.json
+const CACHE_NAME = 'petit-bateau-v2.5.1-nocache'; // Version avec suppression cache traductions
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
@@ -40,11 +40,11 @@ const urlsToCache = [
   './modules/graphics/environment-renderer.js',
   './modules/graphics/heart-renderer.js',
   './modules/graphics/lantern-renderer.js',
-  // Langues
-  './modules/lang/en.json',
-  './modules/lang/fr.json',
-  './modules/lang/jp.json',
-  './modules/lang/uk.json',
+  // ⚠️ LANGUES RETIRÉES DU CACHE - Toujours récupérées depuis le serveur
+  // './modules/lang/en.json',
+  // './modules/lang/fr.json',
+  // './modules/lang/jp.json',
+  // './modules/lang/uk.json',
   // Styles
   './modules/styles/ui-styles.css',
   // Systèmes
@@ -97,6 +97,24 @@ self.addEventListener('activate', event => {
 
 // Interception des requêtes
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // ⚠️ NE JAMAIS METTRE EN CACHE LES FICHIERS DE LANGUE - Toujours récupérer depuis le serveur
+  if (url.pathname.includes('/modules/lang/') && url.pathname.endsWith('.json')) {
+    console.log('🌍 Langue demandée - bypass cache:', url.pathname);
+    event.respondWith(
+      fetch(event.request, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
+    );
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {

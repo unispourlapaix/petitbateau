@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- 🔄 FORCER LE NO-CACHE POUR LES TRADUCTIONS -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- SEO Meta Tags Français -->
     <title>Petit Bateau Rouge ⛵ - Jeu d'Énigmes Poétique par Emmanuel Payet</title>
     <meta name="description" content="Découvrez Petit Bateau Rouge, un jeu d'énigmes philosophique et poétique créé par Emmanuel Payet. Naviguez à travers 14 langues dans un univers où chaque énigme révèle une vérité sur l'humanité. Objectif : 33 millions de joueurs !">
@@ -1469,8 +1474,179 @@ console.info = function() {}; // Désactiver les infos
     50% { transform: scale(1.3) translateX(-5px); opacity: 0.8; }
 }
 
+/* 🇫🇷 Popup Élégant Bleu-Blanc-Rouge */
+.custom-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.custom-popup-overlay.active {
+    display: flex;
+}
+
+.custom-popup {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    overflow: hidden;
+    animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+}
+
+.custom-popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #0055A4 33%, #FFFFFF 33%, #FFFFFF 66%, #EF4135 66%);
+}
+
+.custom-popup-header {
+    padding: 24px 24px 16px;
+    text-align: center;
+    position: relative;
+}
+
+.custom-popup-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    animation: bounceIn 0.6s ease;
+}
+
+.custom-popup-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+}
+
+.custom-popup-body {
+    padding: 0 24px 24px;
+    text-align: center;
+}
+
+.custom-popup-message {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #475569;
+    margin: 0;
+    white-space: pre-line;
+    font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+}
+
+.custom-popup-buttons {
+    display: flex;
+    gap: 12px;
+    padding: 0 24px 24px;
+    justify-content: center;
+}
+
+.custom-popup-btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    min-width: 120px;
+}
+
+.custom-popup-btn-confirm {
+    background: linear-gradient(135deg, #0055A4, #0041a8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 85, 164, 0.3);
+}
+
+.custom-popup-btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 85, 164, 0.4);
+}
+
+.custom-popup-btn-cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.custom-popup-btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.custom-popup-btn-ok {
+    background: linear-gradient(135deg, #0055A4, #0041a8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 85, 164, 0.3);
+}
+
+.custom-popup-btn-ok:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 85, 164, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5) translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounceIn {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
         </style></head>
 <body>
+    <!-- 🇫🇷 Popup Élégant Bleu-Blanc-Rouge -->
+    <div class="custom-popup-overlay" id="customPopupOverlay">
+        <div class="custom-popup">
+            <div class="custom-popup-header">
+                <div class="custom-popup-icon" id="customPopupIcon">ℹ️</div>
+                <h2 class="custom-popup-title" id="customPopupTitle">Information</h2>
+            </div>
+            <div class="custom-popup-body">
+                <p class="custom-popup-message" id="customPopupMessage"></p>
+            </div>
+            <div class="custom-popup-buttons" id="customPopupButtons"></div>
+        </div>
+    </div>
+
     <!-- Message d'orientation pour mobile en mode paysage - Minimaliste -->
     <div class="orientation-warning">
         <div style="font-size: 120px; color: #333; animation: rotate-pulse 2s ease-in-out infinite;">
@@ -1488,12 +1664,256 @@ console.info = function() {}; // Désactiver les infos
         <script src="modules/i18n.js"></script>
     <script src="modules/i18n-apply.js"></script>
 
+    <!-- Système de Popup Élégant -->
+    <script>
+        // � Obtenir le drapeau de la langue actuelle
+        function getCurrentLanguageFlag() {
+            const langCode = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
+            const flagMap = {
+                'fr': '🇫🇷', 'en': '🇬🇧', 'es': '🇪🇸', 'de': '🇩🇪',
+                'it': '🇮🇹', 'pt': '🇵🇹', 'ru': '🇷🇺', 'uk': '🇺🇦',
+                'zh': '🇨🇳', 'jp': '🇯🇵', 'ko': '🇰🇷', 'ar': '🇸🇦',
+                'he': '🇮🇱', 'rc': '🇷🇪', 'lg': '🇨🇩'
+            };
+            return flagMap[langCode] || '🌍';
+        }
+
+        // �🇫🇷 Système de popup élégant bleu-blanc-rouge
+        const CustomPopup = {
+            show(options) {
+                return new Promise((resolve) => {
+                    const overlay = document.getElementById('customPopupOverlay');
+                    const icon = document.getElementById('customPopupIcon');
+                    const title = document.getElementById('customPopupTitle');
+                    const message = document.getElementById('customPopupMessage');
+                    const buttons = document.getElementById('customPopupButtons');
+
+                    // Définir l'icône
+                    icon.textContent = options.icon || 'ℹ️';
+                    
+                    // Définir le titre
+                    title.textContent = options.title || 'Information';
+                    
+                    // Définir le message
+                    message.textContent = options.message || '';
+
+                    // Créer les boutons
+                    buttons.innerHTML = '';
+                    
+                    if (options.type === 'confirm') {
+                        // Bouton Annuler
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.className = 'custom-popup-btn custom-popup-btn-cancel';
+                        cancelBtn.textContent = options.cancelText || getTranslatedText('popup.cancel', '✖ Annuler');
+                        cancelBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve(false);
+                        };
+                        buttons.appendChild(cancelBtn);
+
+                        // Bouton Confirmer
+                        const confirmBtn = document.createElement('button');
+                        confirmBtn.className = 'custom-popup-btn custom-popup-btn-confirm';
+                        confirmBtn.textContent = options.confirmText || getTranslatedText('popup.confirm', '✓ Confirmer');
+                        confirmBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve(true);
+                        };
+                        buttons.appendChild(confirmBtn);
+                    } else {
+                        // Bouton OK
+                        const okBtn = document.createElement('button');
+                        okBtn.className = 'custom-popup-btn custom-popup-btn-ok';
+                        okBtn.textContent = options.okText || getTranslatedText('popup.ok', '✓ OK');
+                        okBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve(true);
+                        };
+                        buttons.appendChild(okBtn);
+                    }
+
+                    // Afficher le popup
+                    overlay.classList.add('active');
+
+                    // Fermer avec Escape
+                    const escapeHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            overlay.classList.remove('active');
+                            document.removeEventListener('keydown', escapeHandler);
+                            resolve(false);
+                        }
+                    };
+                    document.addEventListener('keydown', escapeHandler);
+                });
+            },
+
+            alert(message, title, icon) {
+                return this.show({
+                    type: 'alert',
+                    message,
+                    title: title || getTranslatedText('popup.information', 'Information'),
+                    icon: icon || 'ℹ️'
+                });
+            },
+
+            confirm(message, title, icon, confirmText, cancelText) {
+                return this.show({
+                    type: 'confirm',
+                    message,
+                    title: title || getTranslatedText('popup.confirmation', 'Confirmation'),
+                    icon: icon || getCurrentLanguageFlag(),
+                    confirmText: confirmText || getTranslatedText('popup.yes', '✓ Oui'),
+                    cancelText: cancelText || getTranslatedText('popup.no', '✖ Non')
+                });
+            },
+
+            // Popup à 3 choix pour changement de langue (sans texte, icônes seulement)
+            chooseLanguageAction(targetFlag, hasSave) {
+                return new Promise((resolve) => {
+                    const overlay = document.getElementById('customPopupOverlay');
+                    const icon = document.getElementById('customPopupIcon');
+                    const title = document.getElementById('customPopupTitle');
+                    const message = document.getElementById('customPopupMessage');
+                    const buttons = document.getElementById('customPopupButtons');
+
+                    // Icône = drapeau de la langue cible
+                    icon.textContent = targetFlag;
+                    icon.style.fontSize = '4rem';
+                    
+                    // Pas de titre ni message (universel)
+                    title.textContent = '';
+                    message.textContent = '';
+
+                    // Créer les boutons icônes
+                    buttons.innerHTML = '';
+                    buttons.style.display = 'flex';
+                    buttons.style.gap = '20px';
+                    buttons.style.justifyContent = 'center';
+
+                    if (hasSave) {
+                        // ➡️ Continuer (garder progression)
+                        const continueBtn = document.createElement('button');
+                        continueBtn.className = 'custom-popup-btn custom-popup-btn-icon';
+                        continueBtn.textContent = '➡️';
+                        continueBtn.style.cssText = 'background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%); border: 3px solid #00ff88; box-shadow: 0 0 30px rgba(0, 255, 136, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1); font-size: 4rem; padding: 30px; min-width: 120px; border-radius: 20px; transition: all 0.3s;';
+                        continueBtn.onmouseenter = () => {
+                            continueBtn.style.transform = 'scale(1.1) rotate(5deg)';
+                            continueBtn.style.boxShadow = '0 0 50px rgba(0, 255, 136, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.2)';
+                        };
+                        continueBtn.onmouseleave = () => {
+                            continueBtn.style.transform = 'scale(1) rotate(0deg)';
+                            continueBtn.style.boxShadow = '0 0 30px rgba(0, 255, 136, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+                        };
+                        continueBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve('continue');
+                        };
+                        buttons.appendChild(continueBtn);
+
+                        // � Redémarrer (nouvelle partie)
+                        const restartBtn = document.createElement('button');
+                        restartBtn.className = 'custom-popup-btn custom-popup-btn-icon';
+                        restartBtn.textContent = '🔄';
+                        restartBtn.style.cssText = 'background: linear-gradient(135deg, #ff6600 0%, #cc4400 100%); border: 3px solid #ff6600; box-shadow: 0 0 30px rgba(255, 102, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1); font-size: 4rem; padding: 30px; min-width: 120px; border-radius: 20px; transition: all 0.3s;';
+                        restartBtn.onmouseenter = () => {
+                            restartBtn.style.transform = 'scale(1.1) rotate(-360deg)';
+                            restartBtn.style.boxShadow = '0 0 50px rgba(255, 102, 0, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.2)';
+                        };
+                        restartBtn.onmouseleave = () => {
+                            restartBtn.style.transform = 'scale(1) rotate(0deg)';
+                            restartBtn.style.boxShadow = '0 0 30px rgba(255, 102, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+                        };
+                        restartBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve('restart');
+                        };
+                        buttons.appendChild(restartBtn);
+                    } else {
+                        // Pas de sauvegarde : juste un bouton pour confirmer
+                        const confirmBtn = document.createElement('button');
+                        confirmBtn.className = 'custom-popup-btn custom-popup-btn-icon';
+                        confirmBtn.textContent = '➡️';
+                        confirmBtn.style.cssText = 'background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%); border: 3px solid #00ff88; box-shadow: 0 0 30px rgba(0, 255, 136, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1); font-size: 4rem; padding: 30px; min-width: 120px; border-radius: 20px; transition: all 0.3s;';
+                        confirmBtn.onmouseenter = () => {
+                            confirmBtn.style.transform = 'scale(1.1) rotate(5deg)';
+                            confirmBtn.style.boxShadow = '0 0 50px rgba(0, 255, 136, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.2)';
+                        };
+                        confirmBtn.onmouseleave = () => {
+                            confirmBtn.style.transform = 'scale(1) rotate(0deg)';
+                            confirmBtn.style.boxShadow = '0 0 30px rgba(0, 255, 136, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+                        };
+                        confirmBtn.onclick = () => {
+                            overlay.classList.remove('active');
+                            if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                            resolve('continue');
+                        };
+                        buttons.appendChild(confirmBtn);
+                    }
+
+                    // ✖️ Annuler (toujours présent)
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'custom-popup-btn custom-popup-btn-icon';
+                    cancelBtn.textContent = '✖️';
+                    cancelBtn.style.cssText = 'background: linear-gradient(135deg, #666 0%, #333 100%); border: 3px solid #888; box-shadow: 0 0 20px rgba(128, 128, 128, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.05); font-size: 4rem; padding: 30px; min-width: 120px; border-radius: 20px; transition: all 0.3s;';
+                    cancelBtn.onmouseenter = () => {
+                        cancelBtn.style.transform = 'scale(1.1) rotate(90deg)';
+                        cancelBtn.style.boxShadow = '0 0 40px rgba(255, 0, 0, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.1)';
+                        cancelBtn.style.borderColor = '#ff0000';
+                    };
+                    cancelBtn.onmouseleave = () => {
+                        cancelBtn.style.transform = 'scale(1) rotate(0deg)';
+                        cancelBtn.style.boxShadow = '0 0 20px rgba(128, 128, 128, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.05)';
+                        cancelBtn.style.borderColor = '#888';
+                    };
+                    cancelBtn.onclick = () => {
+                        overlay.classList.remove('active');
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        resolve('cancel');
+                    };
+                    buttons.appendChild(cancelBtn);
+
+                    // Afficher le popup
+                    overlay.classList.add('active');
+
+                    // Fermer avec Escape = Annuler
+                    const escapeHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            overlay.classList.remove('active');
+                            document.removeEventListener('keydown', escapeHandler);
+                            resolve('cancel');
+                        }
+                    };
+                    document.addEventListener('keydown', escapeHandler);
+                });
+            }
+        };
+
+        // Remplacer les fonctions natives
+        window.customAlert = CustomPopup.alert.bind(CustomPopup);
+        window.customConfirm = CustomPopup.confirm.bind(CustomPopup);
+    </script>
+
     <!-- Initialisation du système de traduction -->
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         try {
+            // 🗑️ FORCER LA SUPPRESSION DU CACHE NAVIGATEUR
+            console.log('🔄 Suppression forcée du cache des traductions...');
+            
+            // Vider le cache des traductions si présent
+            if (window.i18n && window.i18n.translations) {
+                window.i18n.translations = { fr: { loaded: true } };
+                console.log('✅ Cache mémoire i18n vidé');
+            }
+            
             // Récupérer la langue sauvegardée ou utiliser français
             const savedLang = localStorage.getItem('petit_bateau_lang') || 'fr';
+            console.log(`🌍 Langue détectée: ${savedLang}`);
 
             // Initialiser i18n
             await window.i18n.init();
@@ -1605,9 +2025,23 @@ console.info = function() {}; // Désactiver les infos
             
             // 🔥 Fonction de HARD RESET accessible depuis la console
             // Utilisation: window.hardReset() dans la console
-            window.hardReset = () => {
-                if (confirm(getTranslatedText('hard_reset.confirm_1', '🔥 ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?'))) {
-                    if (confirm(getTranslatedText('hard_reset.confirm_2', '⚠️ DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?'))) {
+            window.hardReset = async () => {
+                const confirm1 = await customConfirm(
+                    getTranslatedText('hard_reset.confirm_1', 'ATTENTION : Cela va TOUT effacer (progression, scores, énigmes collectées).\n\nÊtes-vous SÛR de vouloir continuer ?'),
+                    '🔥 Hard Reset',
+                    '⚠️',
+                    '✓ Oui, tout effacer',
+                    '✖ Non, annuler'
+                );
+                if (confirm1) {
+                    const confirm2 = await customConfirm(
+                        getTranslatedText('hard_reset.confirm_2', 'DERNIÈRE CONFIRMATION : Cette action est IRRÉVERSIBLE.\n\nVraiment continuer ?'),
+                        '⚠️ Dernière confirmation',
+                        '🔥',
+                        '✓ Oui, c\'est sûr',
+                        '✖ Non, annuler'
+                    );
+                    if (confirm2) {
                         hardResetGame();
                     } else {
                         originalConsole.log(getTranslatedText('hard_reset.cancelled_step_2', '❌ Hard Reset annulé (2ème confirmation)'));
@@ -1902,21 +2336,11 @@ console.info = function() {}; // Désactiver les infos
         function getCurrentLanguageFlag() {
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
             const flags = {
-                'fr': '🇫🇷',
-                'en': '🇬🇧',
-                'jp': '🇯🇵',
-                'uk': '🇺🇦',
-                'es': '🇪🇸',
-                'de': '🇩🇪',
-                'it': '🇮🇹',
-                'pt': '🇵🇹',
-                'ru': '🇷🇺',
-                'zh': '🇨🇳',
-                'ko': '🇰🇷',
-                'ar': '🇸🇦',
-                'he': '🇮🇱',
-                'rc': '🇷🇪'
-            };
+                    'fr': '🇫🇷', 'en': '🇬🇧', 'es': '🇪🇸', 'de': '🇩🇪',
+                    'it': '🇮🇹', 'pt': '🇵🇹', 'ru': '🇷🇺', 'uk': '🇺🇦',
+                    'zh': '🇨🇳', 'jp': '🇯🇵', 'ko': '🇰🇷', 'rc': '🇷🇪',
+                    'lg': '🇨🇩', 'ar': '🇸🇦', 'he': '🇮🇱'
+                };
             return flags[currentLang] || '🌍';
         }
 
@@ -1978,8 +2402,12 @@ console.info = function() {}; // Désactiver les infos
         
         // 📱 PLEIN ÉCRAN AUTOMATIQUE SUR MOBILE
         if (isMobile) {
-            // Fonction pour activer le plein écran
+            // Fonction pour activer le plein écran (DÉSACTIVÉE)
             const activerPleinEcranMobile = async () => {
+                console.log('ℹ️ Mode plein écran désactivé');
+                return; // DÉSACTIVÉ
+                
+                /*
                 const elem = document.documentElement;
                 
                 // Vérifier si déjà en plein écran
@@ -2014,6 +2442,7 @@ console.info = function() {}; // Désactiver les infos
                 } catch (err) {
                     console.log('ℹ️ Plein écran non activable automatiquement:', err.message);
                 }
+                */
                 
                 // Retirer les écouteurs après tentative
                 document.removeEventListener('touchstart', activerPleinEcranMobile);
@@ -3459,8 +3888,12 @@ console.info = function() {}; // Désactiver les infos
             ctx.restore();
         }
 
-        // Fonction pour basculer le plein écran
+        // Fonction pour basculer le plein écran (DÉSACTIVÉE)
         function toggleFullscreen() {
+            console.log('ℹ️ Mode plein écran désactivé');
+            return; // DÉSACTIVÉ
+            
+            /*
             const elem = document.documentElement;
             
             if (!document.fullscreenElement && !document.webkitFullscreenElement && 
@@ -3499,6 +3932,7 @@ console.info = function() {}; // Désactiver les infos
                     AudioSystem.playClick();
                 }
             }
+            */
         }
 
         // Écouter les changements d'état du plein écran
@@ -3521,7 +3955,7 @@ console.info = function() {}; // Désactiver les infos
         // MENU PRINCIPAL - Accès à tous les menus
         // ========================================
 
-        function ouvrirMenuPrincipal() {
+        async function ouvrirMenuPrincipal() {
             // Créer un menu avec toutes les options
             const options = [
                 { nom: '🧩 Énigmes', action: () => ouvrirMenuEnigmesCanvas() },
@@ -3540,25 +3974,25 @@ console.info = function() {}; // Désactiver les infos
         }
 
         // Fonction pour ouvrir l'info artiste
-        function ouvrirInfoArtiste() {
+        async function ouvrirInfoArtiste() {
             // Utiliser le fichier externe emmanuel-artist-module.html (plus fiable que document.write)
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
             const newWindow = window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
             
             // Fallback si le popup est bloqué
             if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                alert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.'));
+                await customAlert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.'));
             }
         }
 
         // Fonction pour ouvrir le Top 10000
-        function ouvrirTop10000() {
+        async function ouvrirTop10000() {
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
             const newWindow = window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
             
             // Fallback si le popup est bloqué
             if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                alert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir le classement.'));
+                await customAlert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir le classement.'));
             }
         }
 
@@ -4462,13 +4896,14 @@ console.info = function() {}; // Désactiver les infos
                     'it': { name: 'Italiano', love: 'L\'amore ci unisce' },
                     'pt': { name: 'Português', love: 'O amor nos une' },
                     'ru': { name: 'Русский', love: 'Любовь объединяет нас' },
-                    'zh': { name: '中文', love: '爱将我们团结在一起' },
-                    'ko': { name: '한국어', love: '사랑이 우리를 하나로' },
-                    'jp': { name: '日本語', love: '愛が私たちを結ぶ' },
-                    'ar': { name: 'العربية', love: 'الحب يوحدنا' },
-                    'he': { name: 'עברית', love: 'אהבה מאחדת אותנו' },
                     'uk': { name: 'Українська', love: 'Любов єднає нас' },
-                    'rc': { name: 'Kréol Rényoné', love: 'Lamour i rèn nout kèr ansanm' }
+                    'zh': { name: '中文', love: '爱将我们团结在一起' },
+                    'jp': { name: '日本語', love: '愛が私たちを結ぶ' },
+                    'ko': { name: '한국어', love: '사랑이 우리를 하나로' },
+                    'rc': { name: 'Kréol Rényoné', love: 'Lamour i rèn nout kèr ansanm' },
+                    'lg': { name: 'Lingala', love: 'Bolingo ekosangisa biso' },
+                    'ar': { name: 'العربية', love: 'الحب يوحدنا' },
+                    'he': { name: 'עברית', love: 'אהבה מאחדת אותנו' }
                 };
                 
                 const currentLangData = languagesWithLove[currentLang] || languagesWithLove['fr'];
@@ -4533,10 +4968,10 @@ console.info = function() {}; // Désactiver les infos
 
                 // Dessiner les boutons de langue
                 const flags = {
-                    'fr': '🇫🇷', 'en': '🇬🇧', 'jp': '🇯🇵', 'uk': '🇺🇦',
-                    'es': '🇪🇸', 'de': '🇩🇪', 'it': '🇮🇹', 'pt': '🇵🇹',
-                    'ru': '🇷🇺', 'zh': '🇨🇳', 'ko': '🇰🇷', 'ar': '🇸🇦', 'he': '🇮🇱',
-                    'rc': '🇷🇪'
+                    'fr': '🇫🇷', 'en': '🇬🇧', 'es': '🇪🇸', 'de': '🇩🇪',
+                    'it': '🇮🇹', 'pt': '🇵🇹', 'ru': '🇷🇺', 'uk': '🇺🇦',
+                    'zh': '🇨🇳', 'jp': '🇯🇵', 'ko': '🇰🇷', 'rc': '🇷🇪',
+                    'lg': '🇨🇩', 'ar': '🇸🇦', 'he': '🇮🇱'
                 };
 
                 menuEnigmesCanvas.langueButtons.forEach(btn => {
@@ -7991,7 +8426,7 @@ console.info = function() {}; // Désactiver les infos
             // Gestion de la sélection d'avatar
             const avatarOptions = document.querySelectorAll('.avatar-option');
             avatarOptions.forEach(option => {
-                option.addEventListener('click', () => {
+                option.addEventListener('click', async () => {
                     // Retirer la sélection des autres
                     avatarOptions.forEach(opt => {
                         opt.style.background = 'transparent';
@@ -8026,7 +8461,7 @@ console.info = function() {}; // Désactiver les infos
             const btnMoreAvatars = document.getElementById('btn-more-avatars');
             let avatarsExpanded = false;
             if (btnMoreAvatars) {
-                btnMoreAvatars.addEventListener('click', () => {
+                btnMoreAvatars.addEventListener('click', async () => {
                     const extraAvatars = document.querySelectorAll('.avatar-extra');
                     avatarsExpanded = !avatarsExpanded;
 
@@ -10079,8 +10514,18 @@ console.info = function() {}; // Désactiver les infos
                 { code: 'fr', drapeau: '🇫🇷', nom: 'Français' },
                 { code: 'en', drapeau: '🇬🇧', nom: 'English' },
                 { code: 'es', drapeau: '🇪🇸', nom: 'Español' },
+                { code: 'de', drapeau: '🇩🇪', nom: 'Deutsch' },
+                { code: 'it', drapeau: '🇮🇹', nom: 'Italiano' },
+                { code: 'pt', drapeau: '🇵🇹', nom: 'Português' },
+                { code: 'ru', drapeau: '🇷🇺', nom: 'Русский' },
+                { code: 'uk', drapeau: '🇺🇦', nom: 'Українська' },
+                { code: 'zh', drapeau: '🇨🇳', nom: '中文' },
                 { code: 'jp', drapeau: '🇯🇵', nom: '日本語' },
-                { code: 'uk', drapeau: '🇺🇦', nom: 'Українська' }
+                { code: 'ko', drapeau: '🇰🇷', nom: '한국어' },
+                { code: 'rc', drapeau: '🇷🇪', nom: 'Kréol Rényoné' },
+                { code: 'lg', drapeau: '🇨🇩', nom: 'Lingala' },
+                { code: 'ar', drapeau: '🇸🇦', nom: 'العربية' },
+                { code: 'he', drapeau: '🇮🇱', nom: 'עברית' }
             ]
         };
 
@@ -12094,7 +12539,7 @@ console.info = function() {}; // Désactiver les infos
             };
 
             // Events de fermeture
-            modal.addEventListener('click', (e) => {
+            modal.addEventListener('click', async (e) => {
                 if (e.target === modal) closeModal();
             });
             modalContent.querySelector('#closeEnigmaModal').addEventListener('click', closeModal);
@@ -18487,7 +18932,7 @@ Elle a besoin de ponts.`
         }
 
         // Fonction d'inertie appelée dans la boucle de jeu
-        function appliquerInertieBateau() {
+        async function appliquerInertieBateau() {
             if (!jeu || !isTouchDevice || tactile) return; // Pas d'inertie si le doigt est sur l'écran
             
             if (Math.abs(vitesseBateau) > 0.1) {
@@ -18507,7 +18952,7 @@ Elle a besoin de ponts.`
         }
 
         // Événements tactiles - REFONTE SIMPLIFIÉE
-        canvas.addEventListener('touchstart', e => {
+        canvas.addEventListener('touchstart', async e => {
             e.preventDefault();
             tactile = true;
 
@@ -18596,59 +19041,114 @@ Elle a besoin de ponts.`
                                 
                                 const languageNames = {
                                     'fr': 'Français', 'en': 'English', 'es': 'Español',
-                                    'jp': '日本語', 'uk': 'Українська', 'de': 'Deutsch',
-                                    'it': 'Italiano', 'pt': 'Português', 'ru': 'Русский',
-                                    'ar': 'العربية', 'zh': '中文', 'hi': 'हिन्दी',
-                                    'sw': 'Kiswahili', 'he': 'עברית'
+                                    'de': 'Deutsch', 'it': 'Italiano', 'pt': 'Português',
+                                    'ru': 'Русский', 'uk': 'Українська', 'zh': '中文',
+                                    'jp': '日本語', 'ko': '한국어', 'rc': 'Kréol Rényoné',
+                                    'lg': 'Lingala', 'ar': 'العربية', 'he': 'עברית'
                                 };
+                                
+                                // Messages de confirmation dans chaque langue
+                                const confirmMessages = {
+                                    'fr': '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.',
+                                    'en': '🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations.',
+                                    'es': '🌍 ¿Cambiar idioma a {language}?\n\nLa página se recargará para aplicar las traducciones.',
+                                    'de': '🌍 Sprache zu {language} ändern?\n\nDie Seite wird neu geladen, um die Übersetzungen anzuwenden.',
+                                    'it': '🌍 Cambiare lingua in {language}?\n\nLa pagina verrà ricaricata per applicare le traduzioni.',
+                                    'pt': '🌍 Mudar idioma para {language}?\n\nA página será recarregada para aplicar as traduções.',
+                                    'ru': '🌍 Изменить язык на {language}?\n\nСтраница будет перезагружена для применения переводов.',
+                                    'uk': '🌍 Змінити мову на {language}?\n\nСторінку буде перезавантажено для застосування перекладів.',
+                                    'zh': '🌍 切换语言到{language}？\n\n页面将重新加载以应用翻译。',
+                                    'jp': '🌍 言語を{language}に変更しますか？\n\n翻訳を適用するためにページが再読み込みされます。',
+                                    'ko': '🌍 언어를 {language}(으)로 변경하시겠습니까?\n\n번역을 적용하기 위해 페이지가 새로고침됩니다.',
+                                    'rc': '🌍 Shanzé lang vèr {language}?\n\nLa paz va rasharze pou apliké tradixion.',
+                                    'lg': '🌍 Kobongola monoko na {language}?\n\nLokasa ekozonga mpo na kotalisa batraduction.',
+                                    'ar': '🌍 تغيير اللغة إلى {language}؟\n\nسيتم إعادة تحميل الصفحة لتطبيق الترجمات.',
+                                    'he': '🌍 לשנות שפה ל-{language}?\n\nהדף יטען מחדש כדי להחיל את התרגומים.'
+                                };
+                                
                                 const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
+                                const confirmMessage = (confirmMessages[btn.code] || confirmMessages['fr']).replace('{language}', newLangName);
                                 
-                                // ⚡ Utiliser getTranslatedText pour le message de confirmation
-                                const confirmMessage = getTranslatedText('language_selector.confirm_change', 
-                                    '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.')
-                                    .replace('{language}', newLangName);
+                                // Mapping des drapeaux par code langue
+                                const flagMap = {
+                                    'fr': '🇫🇷', 'en': '🇬🇧', 'es': '🇪🇸', 'de': '🇩🇪',
+                                    'it': '🇮🇹', 'pt': '🇵🇹', 'ru': '🇷🇺', 'uk': '🇺🇦',
+                                    'zh': '🇨🇳', 'jp': '🇯🇵', 'ko': '🇰🇷', 'ar': '🇸🇦',
+                                    'he': '🇮🇱', 'rc': '🇷🇪', 'lg': '🇨🇩'
+                                };
+                                const targetFlag = flagMap[btn.code] || '🌍';
                                 
-                                if (confirm(confirmMessage)) {
-                                    // ✅ Bloquer la sauvegarde pendant le changement de langue
-                                    window.isChangingLanguage = true;
-                                    console.log('🌍 Changement de langue - sauvegarde bloquée');
-                                    
-                                    window.i18n.setLanguage(btn.code).then(() => {
-                                        currentLang = btn.code;
-                                        localStorage.setItem('petit_bateau_lang', btn.code);
-                                        
-                                        // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
-                                        if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
-                                            menuEnigmesCanvas.enigmeTextesInitialized = false;
-                                            initEnigmeTextesCache();
-                                            console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
-                                        }
-                                        
-                                        // Vérifier s'il y a une sauvegarde en cours
-                                        const savedData = localStorage.getItem('petit_bateau_save');
-                                        if (savedData) {
-                                            // Demander le choix à l'utilisateur (texte traduit)
-                                            const restartMessage = window.i18n.t('language_selector.restart_confirm');
-                                            const restart = confirm(restartMessage);
-                                            
-                                            if (restart) {
-                                                // Effacer la sauvegarde pour recommencer l'intro
-                                                GameSaveSystem.clear();
-                                                console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
-                                            } else {
-                                                // Mettre à jour la langue dans la sauvegarde existante
-                                                const save = JSON.parse(savedData);
-                                                save.language = btn.code;
-                                                localStorage.setItem('petit_bateau_save', JSON.stringify(save));
-                                                console.log('🌍 Langue changée → Progression conservée');
-                                            }
-                                        } else {
-                                            console.log('🌍 Langue changée → Pas de sauvegarde');
-                                        }
-                                        
-                                        setTimeout(() => location.reload(), 500);
-                                    });
+                                // Vérifier s'il y a une sauvegarde en cours
+                                const savedData = localStorage.getItem('petit_bateau_save');
+                                const hasSave = !!savedData;
+                                
+                                // 🎨 Popup unique avec icônes design (pas de texte à traduire)
+                                const choice = await CustomPopup.chooseLanguageAction(targetFlag, hasSave);
+                                
+                                if (choice === 'cancel') {
+                                    // ❌ Utilisateur a annulé
+                                    console.log('❌ Changement de langue annulé');
+                                    return;
                                 }
+                                
+                                // ✅ Bloquer la sauvegarde pendant le changement de langue
+                                window.isChangingLanguage = true;
+                                console.log('🌍 Changement de langue - sauvegarde bloquée');
+                                
+                                // 🗑️ VIDER LE CACHE DES TRADUCTIONS
+                                if (typeof clearTranslationCache === 'function') {
+                                    clearTranslationCache();
+                                }
+                                
+                                window.i18n.setLanguage(btn.code).then(async () => {
+                                    console.log('✅ Langue chargée avec succès:', btn.code);
+                                    currentLang = btn.code;
+                                    localStorage.setItem('petit_bateau_lang', btn.code);
+                                    
+                                    // 🔄 RECHARGER LES PHASES NARRATIVES avec la nouvelle langue
+                                    if (window.narrationManager && window.narrationManager.reloadPhases) {
+                                        window.narrationManager.reloadPhases();
+                                        console.log('✅ Phases narratives rechargées dans la nouvelle langue');
+                                    }
+                                    
+                                    // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
+                                    if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
+                                        menuEnigmesCanvas.enigmeTextesInitialized = false;
+                                        initEnigmeTextesCache();
+                                        console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
+                                    }
+                                    
+                                    // Gérer la sauvegarde selon le choix
+                                    if (choice === 'restart') {
+                                        // 🔴 Redémarrer : effacer la sauvegarde
+                                        GameSaveSystem.clear();
+                                        console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
+                                        console.log('🔄 RECHARGEMENT IMMÉDIAT pour restart...');
+                                        // Rechargement immédiat avec forçage complet du cache
+                                        window.location.href = window.location.pathname + '?lang=' + btn.code + '&reload=' + Date.now();
+                                        return; // Sortir immédiatement
+                                    } else if (choice === 'continue' && hasSave) {
+                                        // 🔵 Continuer : mettre à jour la langue dans la sauvegarde
+                                        const save = JSON.parse(savedData);
+                                        save.language = btn.code;
+                                        localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                        console.log('🌍 Langue changée → Progression conservée');
+                                    } else {
+                                        console.log('🌍 Langue changée → Pas de sauvegarde');
+                                    }
+                                    
+                                    console.log('🔄 RECHARGEMENT dans 300ms...');
+                                    setTimeout(() => {
+                                        console.log('🔄 RECHARGEMENT MAINTENANT !');
+                                        // Rechargement forcé du serveur (bypass cache complet)
+                                        location.reload(true);
+                                    }, 300);
+                                }).catch(err => {
+                                    console.error('❌ ERREUR changement langue:', err);
+                                    // Recharger quand même pour éviter l'état incohérent
+                                    console.log('🔄 Rechargement forcé après erreur...');
+                                    setTimeout(() => location.reload(), 500);
+                                });
                             }
                             return;
                         }
@@ -19048,7 +19548,7 @@ Elle a besoin de ponts.`
 
         // Gestionnaire prioritaire pour le drapeau (capture = true pour priorité absolue)
         // 📖 Gestion des clics sur le livre de la phase bonus
-        canvas.addEventListener('click', (e) => {
+        canvas.addEventListener('click', async (e) => {
             if (phaseJeu === 'bonus_mur' && window.phaseBonusMur) {
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -19083,7 +19583,7 @@ Elle a besoin de ponts.`
             }
         }, { capture: true });
 
-        canvas.addEventListener('click', (e) => {
+        canvas.addEventListener('click', async (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -19118,7 +19618,7 @@ Elle a besoin de ponts.`
             }
         }, { capture: true }); // Capture = priorité absolue
 
-        canvas.addEventListener('click', (e) => {
+        canvas.addEventListener('click', async (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -19352,76 +19852,125 @@ Elle a besoin de ponts.`
                             if (window.i18n && btn.code !== window.i18n.getCurrentLanguage()) {
                                 // Demander confirmation avant de recharger
                                 const languageNames = {
-                                    'fr': 'Français',
-                                    'en': 'English',
-                                    'es': 'Español',
-                                    'jp': '日本語',
-                                    'uk': 'Українська'
+                                    'fr': 'Français', 'en': 'English', 'es': 'Español',
+                                    'de': 'Deutsch', 'it': 'Italiano', 'pt': 'Português',
+                                    'ru': 'Русский', 'uk': 'Українська', 'zh': '中文',
+                                    'jp': '日本語', 'ko': '한국어', 'rc': 'Kréol Rényoné',
+                                    'lg': 'Lingala', 'ar': 'العربية', 'he': 'עברית'
                                 };
+                                
+                                // Messages de confirmation dans chaque langue
+                                const confirmMessages = {
+                                    'fr': '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.',
+                                    'en': '🌍 Change language to {language}?\n\nThe page will be reloaded to apply translations.',
+                                    'es': '🌍 ¿Cambiar idioma a {language}?\n\nLa página se recargará para aplicar las traducciones.',
+                                    'de': '🌍 Sprache zu {language} ändern?\n\nDie Seite wird neu geladen, um die Übersetzungen anzuwenden.',
+                                    'it': '🌍 Cambiare lingua in {language}?\n\nLa pagina verrà ricaricata per applicare le traduzioni.',
+                                    'pt': '🌍 Mudar idioma para {language}?\n\nA página será recarregada para aplicar as traduções.',
+                                    'ru': '🌍 Изменить язык на {language}?\n\nСтраница будет перезагружена для применения переводов.',
+                                    'uk': '🌍 Змінити мову на {language}?\n\nСторінку буде перезавантажено для застосування перекладів.',
+                                    'zh': '🌍 切换语言到{language}？\n\n页面将重新加载以应用翻译。',
+                                    'jp': '🌍 言語を{language}に変更しますか？\n\n翻訳を適用するためにページが再読み込みされます。',
+                                    'ko': '🌍 언어를 {language}(으)로 변경하시겠습니까?\n\n번역을 적용하기 위해 페이지가 새로고침됩니다.',
+                                    'rc': '🌍 Shanzé lang vèr {language}?\n\nLa paz va rasharze pou apliké tradixion.',
+                                    'lg': '🌍 Kobongola monoko na {language}?\n\nLokasa ekozonga mpo na kotalisa batraduction.',
+                                    'ar': '🌍 تغيير اللغة إلى {language}؟\n\nسيتم إعادة تحميل الصفحة لتطبيق الترجمات.',
+                                    'he': '🌍 לשנות שפה ל-{language}?\n\nהדף יטען מחדש כדי להחיל את התרגומים.'
+                                };
+                                
                                 const newLangName = languageNames[btn.code] || btn.code.toUpperCase();
+                                const confirmMessage = (confirmMessages[btn.code] || confirmMessages['fr']).replace('{language}', newLangName);
                                 
-                                // ⚡ OPTIMISATION: Utiliser getTranslatedText pour le message de confirmation
-                                const confirmMessage = getTranslatedText('language_selector.confirm_change', 
-                                    '🌍 Changer la langue vers {language} ?\n\nLa page sera rechargée pour appliquer les traductions.')
-                                    .replace('{language}', newLangName);
+                                // Mapping des drapeaux par code langue
+                                const flagMap = {
+                                    'fr': '🇫🇷', 'en': '🇬🇧', 'es': '🇪🇸', 'de': '🇩🇪',
+                                    'it': '🇮🇹', 'pt': '🇵🇹', 'ru': '🇷🇺', 'uk': '🇺🇦',
+                                    'zh': '🇨🇳', 'jp': '🇯🇵', 'ko': '🇰🇷', 'ar': '🇸🇦',
+                                    'he': '🇮🇱', 'rc': '🇷🇪', 'lg': '🇨🇩'
+                                };
+                                const targetFlag = flagMap[btn.code] || '🌍';
                                 
-                                const confirmChange = confirm(confirmMessage);
+                                // Vérifier s'il y a une sauvegarde en cours
+                                const savedData = localStorage.getItem('petit_bateau_save');
+                                const hasSave = !!savedData;
                                 
-                                if (confirmChange) {
-                                    // ✅ Bloquer la sauvegarde pendant le changement de langue
-                                    window.isChangingLanguage = true;
-                                    console.log('🌍 Changement de langue - sauvegarde bloquée');
-                                    
-                                    window.i18n.setLanguage(btn.code).then(() => {
-                                        console.log('🌍 Langue changée vers:', btn.code);
-                                        
-                                        // Synchroniser currentLang et sauvegarder
-                                        currentLang = btn.code;
-                                        localStorage.setItem('petit_bateau_lang', btn.code);
-                                        
-                                        // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
-                                        if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
-                                            menuEnigmesCanvas.enigmeTextesInitialized = false;
-                                            initEnigmeTextesCache();
-                                            console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
-                                        }
-                                        
-                                        // Vérifier s'il y a une sauvegarde en cours
-                                        const savedData = localStorage.getItem('petit_bateau_save');
-                                        if (savedData) {
-                                            // Demander le choix à l'utilisateur (texte traduit)
-                                            const restartMessage = window.i18n.t('language_selector.restart_confirm');
-                                            const restart = confirm(restartMessage);
-                                            
-                                            if (restart) {
-                                                // Effacer la sauvegarde pour recommencer l'intro
-                                                GameSaveSystem.clear();
-                                                console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
-                                            } else {
-                                                // Mettre à jour la langue dans la sauvegarde existante
-                                                try {
-                                                    const save = JSON.parse(savedData);
-                                                    save.language = btn.code;
-                                                    localStorage.setItem('petit_bateau_save', JSON.stringify(save));
-                                                    console.log('🌍 Langue changée → Progression conservée');
-                                                } catch(e) {
-                                                    console.error('❌ Erreur mise à jour langue sauvegarde:', e);
-                                                }
-                                            }
-                                        } else {
-                                            console.log('🌍 Langue changée → Pas de sauvegarde');
-                                        }
-                                        
-                                        console.log('🔄 Rafraîchissement de la page pour appliquer les traductions...');
-                                        
-                                        // 🔄 RAFRAÎCHIR LA PAGE pour recharger tous les textes
-                                        setTimeout(() => {
-                                            location.reload();
-                                        }, 500); // Petit délai pour voir le message
-                                    }).catch(err => {
-                                        console.error('❌ Erreur changement langue:', err);
-                                    });
+                                // 🎨 Popup unique avec icônes design (pas de texte à traduire)
+                                const choice = await CustomPopup.chooseLanguageAction(targetFlag, hasSave);
+                                
+                                if (choice === 'cancel') {
+                                    // ❌ Utilisateur a annulé
+                                    console.log('❌ Changement de langue annulé');
+                                    break;
                                 }
+                                
+                                // ✅ Bloquer la sauvegarde pendant le changement de langue
+                                window.isChangingLanguage = true;
+                                console.log('🌍 Changement de langue - sauvegarde bloquée');
+                                
+                                // 🗑️ VIDER LE CACHE DES TRADUCTIONS
+                                if (typeof clearTranslationCache === 'function') {
+                                    clearTranslationCache();
+                                }
+                                
+                                window.i18n.setLanguage(btn.code).then(async () => {
+                                    console.log('✅ Langue chargée avec succès:', btn.code);
+                                    console.log('🌍 Langue changée vers:', btn.code);
+                                    
+                                    // Synchroniser currentLang et sauvegarder
+                                    currentLang = btn.code;
+                                    localStorage.setItem('petit_bateau_lang', btn.code);
+                                    
+                                    // 🔄 RECHARGER LES PHASES NARRATIVES avec la nouvelle langue
+                                    if (window.narrationManager && window.narrationManager.reloadPhases) {
+                                        window.narrationManager.reloadPhases();
+                                        console.log('✅ Phases narratives rechargées dans la nouvelle langue');
+                                    }
+                                    
+                                    // ⚡ OPTIMISATION: Invalider cache textes énigmes lors changement langue
+                                    if (menuEnigmesCanvas && menuEnigmesCanvas.enigmeTextesCache) {
+                                        menuEnigmesCanvas.enigmeTextesInitialized = false;
+                                        initEnigmeTextesCache();
+                                        console.log('⚡ Cache énigmes recalculé pour nouvelle langue');
+                                    }
+                                    
+                                    // Gérer la sauvegarde selon le choix
+                                    if (choice === 'restart') {
+                                        // 🔴 Redémarrer : effacer la sauvegarde
+                                        GameSaveSystem.clear();
+                                        console.log('🌍 Langue changée → Sauvegarde effacée → Redémarrage à l\'intro');
+                                        console.log('🔄 RECHARGEMENT IMMÉDIAT pour restart...');
+                                        // Rechargement immédiat avec forçage complet du cache
+                                        window.location.href = window.location.pathname + '?lang=' + btn.code + '&reload=' + Date.now();
+                                        return; // Sortir immédiatement
+                                    } else if (choice === 'continue' && hasSave) {
+                                        // 🔵 Continuer : mettre à jour la langue dans la sauvegarde
+                                        try {
+                                            const save = JSON.parse(savedData);
+                                            save.language = btn.code;
+                                            localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                            console.log('🌍 Langue changée → Progression conservée');
+                                        } catch(e) {
+                                            console.error('❌ Erreur mise à jour langue sauvegarde:', e);
+                                        }
+                                    } else {
+                                        console.log('🌍 Langue changée → Pas de sauvegarde');
+                                    }
+                                    
+                                    console.log('🔄 Rafraîchissement de la page pour appliquer les traductions...');
+                                    console.log('🔄 RECHARGEMENT dans 300ms...');
+                                    
+                                    // 🔄 RAFRAÎCHIR LA PAGE pour recharger tous les textes
+                                    setTimeout(() => {
+                                        console.log('🔄 RECHARGEMENT MAINTENANT !');
+                                        // Rechargement avec forçage du cache
+                                        window.location.href = window.location.pathname + '?lang=' + btn.code + '&reload=' + Date.now();
+                                    }, 300);
+                                }).catch(err => {
+                                    console.error('❌ ERREUR changement langue:', err);
+                                    // Recharger quand même pour éviter l'état incohérent
+                                    console.log('🔄 Rechargement forcé après erreur...');
+                                    setTimeout(() => location.reload(), 500);
+                                });
                             }
                             // Ne pas fermer le menu - pas de return qui sortirait de la fonction
                             break; // Sortir de la boucle mais rester dans le menu
@@ -19499,8 +20048,8 @@ Elle a besoin de ponts.`
                         });
                     } else {
                         // Fallback : copier dans le presse-papiers
-                        navigator.clipboard.writeText(messageNarratifActif.textePartage).then(() => {
-                            alert(getTranslatedText('interface.system.text_copied_clipboard', '✅ Texte copié dans le presse-papiers !\n\nPartagez-le sur vos réseaux sociaux 🌍'));
+                        navigator.clipboard.writeText(messageNarratifActif.textePartage).then(async () => {
+                            await customAlert(getTranslatedText('interface.system.text_copied_clipboard', '✅ Texte copié dans le presse-papiers !\n\nPartagez-le sur vos réseaux sociaux 🌍'));
                         }).catch(err => {
                             console.error('❌ Erreur copie:', err);
                         });
@@ -19872,7 +20421,7 @@ Elle a besoin de ponts.`
             const doveElement = document.getElementById('dove');
 
             // Clic sur le corbeau
-            crowElement.addEventListener('click', function(e) {
+            crowElement.addEventListener('click', async function(e) {
                 e.stopPropagation(); // Empêcher la propagation au canvas
                 if (corbeau.actif && corbeau.type === 'corbeau') {
                     handleBirdClick();
@@ -19880,7 +20429,7 @@ Elle a besoin de ponts.`
             });
 
             // Clic sur la colombe
-            doveElement.addEventListener('click', function(e) {
+            doveElement.addEventListener('click', async function(e) {
                 e.stopPropagation(); // Empêcher la propagation au canvas
                 if (corbeau.actif && corbeau.type === 'colombe') {
                     handleBirdClick();
@@ -21267,7 +21816,7 @@ Elle a besoin de ponts.`
             });
         }
 
-        function dessinerProjectilesSecret() {
+        async function dessinerProjectilesSecret() {
             if(!modeSecret) return;
 
             projectilesSecret.forEach(projectile => {
@@ -21424,7 +21973,7 @@ Elle a besoin de ponts.`
                                 // Charger les notes de version depuis VERSION.json
                                 fetch('./VERSION.json')
                                     .then(res => res.json())
-                                    .then(versionData => {
+                                    .then(async versionData => {
                                         const version = versionData.version;
                                         const changelog = versionData.changelog[version];
                                         
@@ -21441,7 +21990,7 @@ Elle a besoin de ponts.`
                                         const questionText = getTranslatedText('update.update_now_question', 'Voulez-vous mettre à jour maintenant ?');
                                         updateMessage += `\n\n${questionText}`;
                                         
-                                        if (confirm(updateMessage)) {
+                                        if (await customConfirm(updateMessage)) {
                                             newWorker.postMessage({type: 'SKIP_WAITING'});
                                             window.location.reload();
                                         } else {
@@ -21449,13 +21998,13 @@ Elle a besoin de ponts.`
                                             showUpdateBanner(version, changelog);
                                         }
                                     })
-                                    .catch(() => {
+                                    .catch(async () => {
                                         // Fallback si VERSION.json non disponible (traduit)
                                         const newVersionText = getTranslatedText('update.new_version_available', '🎨 Nouvelle version disponible !');
                                         const questionText = getTranslatedText('update.update_now_question', 'Voulez-vous mettre à jour maintenant ?');
                                         const updateMessage = `${newVersionText}\n\n${questionText}`;
                                         
-                                        if (confirm(updateMessage)) {
+                                        if (await customConfirm(updateMessage)) {
                                             newWorker.postMessage({type: 'SKIP_WAITING'});
                                             window.location.reload();
                                         } else {
@@ -21536,7 +22085,7 @@ Elle a besoin de ponts.`
     });
 
     // Fonction pour déclencher l'installation
-    function installPWA() {
+    async function installPWA() {
         if (!deferredPrompt) {
             console.log('⚠️ Prompt d\'installation non disponible');
             
@@ -21547,7 +22096,7 @@ Elle a besoin de ponts.`
             if (typeof afficherMessagePowerupSimple === 'function') {
                 afficherMessagePowerupSimple(message);
             } else {
-                alert(message);
+                await customAlert(message);
             }
             return;
         }

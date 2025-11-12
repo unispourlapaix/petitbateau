@@ -111,7 +111,14 @@
     "cancelled_step_2": "❌ Hard Reset annulé (2ème confirmation)"
   },
   "popup": {
-    "blocked": "⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste."
+    "blocked": "⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.",
+    "information": "Information",
+    "confirmation": "Confirmation",
+    "ok": "✓ OK",
+    "yes": "✓ Oui",
+    "no": "✖ Non",
+    "confirm": "✓ Confirmer",
+    "cancel": "✖ Annuler"
   },
   "game": {
     "messages": {

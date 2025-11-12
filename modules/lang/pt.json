@@ -111,7 +111,14 @@
     "cancelled_step_2": "❌ Reinicialização total cancelada (2ª confirmação)"
   },
   "popup": {
-    "blocked": "⚠️ Popup bloqueado! Por favor, permita popups para ver as informações do artista."
+    "blocked": "⚠️ Popup bloqueado! Por favor, permita popups para ver as informações do artista.",
+    "information": "Informação",
+    "confirmation": "Confirmação",
+    "ok": "✓ OK",
+    "yes": "✓ Sim",
+    "no": "✖ Não",
+    "confirm": "✓ Confirmar",
+    "cancel": "✖ Cancelar"
   },
   "game": {
     "messages": {

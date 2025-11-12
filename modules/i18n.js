@@ -1,6 +1,6 @@
 /**
  * 🌍 Module de Traduction Multi-Langues
- * Support: FR, EN, JP, UK
+ * Support: 15 langues dont FR (défaut), EN, ES, DE, IT, PT, RU, UK, ZH, JP, KO, RC, LG, AR, HE
  */
 
 class I18nManager {
@@ -10,18 +10,19 @@ class I18nManager {
         this.supportedLanguages = {
             'fr': 'Français',
             'en': 'English',
-            'jp': '日本語',
-            'uk': 'Українська',
             'es': 'Español',
             'de': 'Deutsch',
             'it': 'Italiano',
             'pt': 'Português',
             'ru': 'Русский',
+            'uk': 'Українська',
             'zh': '中文',
+            'jp': '日本語',
             'ko': '한국어',
+            'rc': 'Kréol Rényoné',
+            'lg': 'Lingala',
             'ar': 'العربية',
-            'he': 'עברית',
-            'rc': 'Kréol Rényoné'
+            'he': 'עברית'
         };
         this.fallbackLanguage = 'fr';
         
@@ -37,21 +38,37 @@ class I18nManager {
      * Charger les traductions pour une langue
      */
     async loadLanguage(lang) {
-        if (this.translations[lang] && this.translations[lang].loaded !== true) {
-            return; // Déjà chargé avec de vraies données
+        // ⚡ TOUJOURS recharger depuis le serveur (pas de cache mémoire)
+        // On supprime les données en cache pour forcer le rechargement
+        if (this.translations[lang]) {
+            delete this.translations[lang];
+            console.log(`🔄 Cache mémoire supprimé pour ${lang}`);
         }
 
         // Charger les fichiers JSON pour TOUTES les langues (y compris le français)
         try {
-            // 🔄 Ajouter un cache-buster pour forcer le rechargement
-            const cacheBuster = Date.now();
-            const response = await fetch(`modules/lang/${lang}.json?v=${cacheBuster}`);
+            // 🔄 Cache-buster avec timestamp + random pour forcer le rechargement complet
+            const cacheBuster = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // 🦊 Configuration spéciale pour Firefox et autres navigateurs
+            const response = await fetch(`modules/lang/${lang}.json?v=${cacheBuster}`, {
+                method: 'GET',
+                cache: 'no-store', // Force no-cache
+                mode: 'cors', // Pour Firefox
+                credentials: 'same-origin',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                    'If-Modified-Since': '0' // Force Firefox à recharger
+                }
+            });
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             const translations = await response.json();
             this.translations[lang] = translations;
-            console.log(`🌍 Langue ${lang} chargée avec succès depuis JSON`);
+            console.log(`🌍 Langue ${lang} chargée avec succès depuis JSON (cache forcé: ${cacheBuster})`);
         } catch (error) {
             console.warn(`⚠️ Impossible de charger la langue ${lang}:`, error.message);
             // Pour le français, utiliser un objet vide pour fallback aux textes HTML

@@ -111,7 +111,14 @@
     "cancelled_step_2": "❌ Reset completo annullato (2ª conferma)"
   },
   "popup": {
-    "blocked": "⚠️ Popup bloccato! Consenti i popup per vedere le informazioni sull'artista."
+    "blocked": "⚠️ Popup bloccato! Consenti i popup per vedere le informazioni sull'artista.",
+    "information": "Informazione",
+    "confirmation": "Conferma",
+    "ok": "✓ OK",
+    "yes": "✓ Sì",
+    "no": "✖ No",
+    "confirm": "✓ Confermare",
+    "cancel": "✖ Annulla"
   },
   "game": {
     "messages": {

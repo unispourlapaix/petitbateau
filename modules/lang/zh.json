@@ -111,7 +111,14 @@
     "cancelled_step_2": "❌ 完全重置已取消（第2次确认）"
   },
   "popup": {
-    "blocked": "⚠️ 弹出窗口被阻止！请允许弹出窗口以查看艺术家信息。"
+    "blocked": "⚠️ 弹出窗口被阻止！请允许弹出窗口以查看艺术家信息。",
+    "information": "信息",
+    "confirmation": "确认",
+    "ok": "✓ 确定",
+    "yes": "✓ 是",
+    "no": "✖ 否",
+    "confirm": "✓ 确认",
+    "cancel": "✖ 取消"
   },
   "game": {
     "messages": {
