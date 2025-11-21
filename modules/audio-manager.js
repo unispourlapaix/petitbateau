@@ -41,27 +41,27 @@ class AudioManager {
         this.basePath = './modules/gospel/'; // ✅ Chemin relatif explicite
         this.playlist = [
             // Playlist complète avec phases
-            { file: 'Pouring Light.mp3', phases: ['normal'] },
-            { file: 'Un vent Espoir.mp3', phases: ['normal'] },
-            { file: 'Naie pas peur.mp3', phases: ['normal'] },
-            { file: 'Il est Amour.mp3', phases: ['normal'] },
+            { file: 'Pouring_Light.mp3', phases: ['normal'] },
+            { file: 'Un_vent_Espoir.mp3', phases: ['normal'] },
+            { file: 'Naie_pas_peur.mp3', phases: ['normal'] },
+            { file: 'Il_est_Amour.mp3', phases: ['normal'] },
             { file: 'Triste.mp3', phases: ['normal'] },
-            { file: 'Un coeur immigre.mp3', phases: ['normal'] },
-            { file: 'Le drame.mp3', phases: ['normal'] },
-            { file: 'Voyage fragile.mp3', phases: ['normal'] },
-            { file: 'Wesh le monde est fou.mp3', phases: ['normal'] },
-            { file: 'The Presidents Blindness.mp3', phases: ['normal'] },
-            { file: 'Impunis Non.mp3', phases: ['normal'] },
-            { file: 'forteresses de peur xT.mp3', phases: ['normal'] },
-            { file: 'Sur des mauvaises voies.mp3', phases: ['normal'] },
+            { file: 'Un_coeur_immigre.mp3', phases: ['normal'] },
+            { file: 'Le_drame.mp3', phases: ['normal'] },
+            { file: 'Voyage_fragile.mp3', phases: ['normal'] },
+            { file: 'Wesh_le_monde_est_fou.mp3', phases: ['normal'] },
+            { file: 'The_Presidents_Blindness.mp3', phases: ['normal'] },
+            { file: 'Impunis_Non.mp3', phases: ['normal'] },
+            { file: 'forteresses_de_peur_xT.mp3', phases: ['normal'] },
+            { file: 'Sur_des_mauvaises_voies.mp3', phases: ['normal'] },
             { file: 'Coupables.mp3', phases: ['normal'] },
-            { file: 'La haine gangrene.mp3', phases: ['normal'] },
-            { file: 'Jai poursuivi la Paix.mp3', phases: ['normal'] },
-            { file: 'Un ti farine amour.mp3', phases: ['normal'] },
-            { file: 'Wesh le monde est fou 2.mp3', phases: ['normal'] },
-            { file: 'On a bouge.mp3', phases: ['normal'] },
-            { file: 'Tiens bon, tiens bon.mp3', phases: ['normal'] },
-            { file: 'Mise a jour de mon coeur.mp3', phases: ['normal'] },
+            { file: 'La_haine_gangrene.mp3', phases: ['normal'] },
+            { file: 'Jai_poursuivi_la_Paix.mp3', phases: ['normal'] },
+            { file: 'Un_ti_farine_amour.mp3', phases: ['normal'] },
+            { file: 'Wesh_le_monde_est_fou_2.mp3', phases: ['normal'] },
+            { file: 'On_a_bouge.mp3', phases: ['normal'] },
+            { file: 'Tiens_bon_tiens_bon.mp3', phases: ['normal'] },
+            { file: 'Mise_a_jour_de_mon_coeur.mp3', phases: ['normal'] },
             
             // Mode secret uniquement
             { file: 'Consommateur.mp3', phases: ['secret'] },
@@ -264,7 +264,7 @@ class AudioManager {
     // ✅ Nouvelle méthode pour vérifier les fichiers gospel
     async debugGospelFiles() {
         console.log('🔍 Vérification fichiers gospel...');
-        const testFiles = ['Pouring Light.mp3', 'Un vent Espoir.mp3', 'Naie pas peur.mp3'];
+        const testFiles = ['Pouring_Light.mp3', 'Un_vent_Espoir.mp3', 'Naie_pas_peur.mp3'];
         
         for (const file of testFiles) {
             try {
