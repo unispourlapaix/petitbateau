@@ -374,7 +374,30 @@
             try {
                 document.getElementById('leaderboardContent').innerHTML = '<div class="loading">⏳ Chargement...</div>';
 
-                // Charger le top 10000
+                // 🔥 CACHE CHECK: localStorage avec 5 min TTL
+                const CACHE_KEY = 'top_scores_cache';
+                const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+                
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    try {
+                        const { data, count, timestamp } = JSON.parse(cached);
+                        const age = Date.now() - timestamp;
+                        
+                        if (age < CACHE_DURATION) {
+                            // ✅ Cache valide
+                            allScores = data || [];
+                            totalScores = Math.min(count || 0, 10000);
+                            updateStats();
+                            renderPage();
+                            return;
+                        }
+                    } catch (e) {
+                        // Cache corrompu, continuer vers Supabase
+                    }
+                }
+
+                // ⚡ FETCH FROM SUPABASE - Charger seulement 100 au lieu de 10000
                 const { data, error, count } = await supabase
                     .from('scores')
                     .select(`
@@ -388,12 +411,23 @@
                         )
                     `, { count: 'exact' })
                     .order('score', { ascending: false })
-                    .limit(10000);
+                    .limit(100); // ⚡ Réduit de 10000 à 100
 
                 if (error) throw error;
 
                 allScores = data || [];
                 totalScores = Math.min(count || 0, 10000);
+
+                // 💾 SAVE TO CACHE
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        data: allScores,
+                        count: totalScores,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    // Quota dépassé, ignorer
+                }
 
                 updateStats();
                 renderPage();
