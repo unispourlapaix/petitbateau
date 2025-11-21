@@ -1,6 +1,7 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.5.1-nocache'; // Version avec suppression cache traductions
+const CACHE_NAME = 'petit-bateau-v2.5.2'; // Compatible multi-domaines
+const CACHE_PREFIX = 'petitbateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
@@ -82,7 +83,8 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
+          // Ne supprimer que les caches de ce jeu spécifiquement
+          if (cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME) {
             console.log('🗑️ Suppression du cache obsolète:', cacheName);
             return caches.delete(cacheName);
           }

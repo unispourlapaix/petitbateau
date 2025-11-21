@@ -3,7 +3,7 @@
   "short_name": "Petit Bateau Rouge",
   "description": "Un voyage poétique et interactif de 33 millions de kilomètres vers la paix. 33 énigmes philosophiques sur la foi, l'espoir et l'amour. 14 langues, musique gospel originale.",
   "start_url": "./petitbateauRouge.html",
-  "scope": "./",
+  "scope": "/petitbateau/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "any",
