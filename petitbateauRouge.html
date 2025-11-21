@@ -4006,26 +4006,21 @@ console.info = function() {}; // Désactiver les infos
         async function ouvrirInfoArtiste() {
             // Utiliser le fichier externe emmanuel-artist-module.html (plus fiable que document.write)
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            const newWindow = window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
-            
-            // Fallback si le popup est bloqué
-            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                await customAlert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir les infos artiste.'));
-            }
+            window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
         }
 
         // Fonction pour ouvrir le Top 10000
         async function ouvrirTop10000() {
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            // Ouvrir dans un nouvel onglet (pas de popup)
-            window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank');
+            // Ouvrir dans le même onglet pour éviter les popups
+            window.location.href = `modules/top-scores-module.html?lang=${currentLang}`;
         }
 
         // Fonction pour ouvrir les énigmes complètes avec le nouveau style
         function ouvrirEnigmesCompletes() {
             // Ouvrir le fichier existant directement avec la langue actuelle
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            const newWindow = window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+            window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
         }
 
         // Ouvrir le menu énigmes dans le canvas
@@ -8641,7 +8636,7 @@ console.info = function() {}; // Désactiver les infos
                 
                 // Ouvrir la page artiste
                 const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
                 
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
@@ -8667,7 +8662,7 @@ console.info = function() {}; // Désactiver les infos
                 
                 // Ouvrir la page artiste
                 const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
                 
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
@@ -17452,7 +17447,7 @@ Elle a besoin de ponts.`
 
                     <!-- Boutons de navigation améliorés -->
                     <div style="margin-top: 25px;">
-                        <button onclick="const lang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr'; window.open('modules/emmanuel-artist-module.html?lang=' + lang, '_blank')"
+                        <button onclick="const lang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr'; window.location.href = 'modules/emmanuel-artist-module.html?lang=' + lang"
                                 style="background: linear-gradient(145deg, #4169E1, #1E90FF); border: none; border-radius: 25px; padding: 12px 25px; margin: 8px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                             📜 Voir Collection Complète
                         </button>
