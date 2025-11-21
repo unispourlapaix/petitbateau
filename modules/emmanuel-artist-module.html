@@ -942,8 +942,38 @@
             try {
                 const t = translations[currentLang] || translations['fr'];
                 document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
-                console.log('📡 Tentative de connexion Supabase:', SUPABASE_URL);
 
+                // 🔥 CACHE CHECK: Vérifier si données récentes en localStorage
+                const CACHE_KEY = 'emmanuel_leaderboard_cache';
+                const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+                
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    try {
+                        const { data, count, timestamp } = JSON.parse(cached);
+                        const age = Date.now() - timestamp;
+                        
+                        if (age < CACHE_DURATION) {
+                            // ✅ Cache valide - utiliser les données sans requête Supabase
+                            allScores = Array.isArray(data) ? data : [];
+                            
+                            const localScores = getLocalScores();
+                            allScores = [...allScores, ...localScores];
+                            allScores.sort((a, b) => b.score - a.score);
+                            
+                            loadedCount = allScores.length;
+                            totalScores = count || 0;
+                            
+                            updateStats();
+                            renderPage();
+                            return; // Exit without Supabase request
+                        }
+                    } catch (e) {
+                        // Cache corrompu, continuer vers Supabase
+                    }
+                }
+
+                // ⚡ FETCH FROM SUPABASE (cache expiré ou absent)
                 // Charger seulement les 100 premiers au départ
                 // ⚠️ ON NE FILTRE PAS PAR GAME_ID - PRENDRE TOUS LES SCORES
                 const { data, error, count } = await supabase
@@ -965,15 +995,21 @@
                     throw error;
                 }
 
-                console.log('✅ Données Supabase reçues:', data?.length || 0, 'records');
-                console.log('📊 Total count:', count);
-                console.log('🎮 Jeux trouvés:', [...new Set(data?.map(s => s.game_id) || [])]);
-
                 allScores = Array.isArray(data) ? data : [];
+                
+                // 💾 SAVE TO CACHE
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        data: allScores,
+                        count: count,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    // Quota dépassé, ignorer
+                }
                 
                 // 💾 AJOUTER LES SCORES LOCAUX
                 const localScores = getLocalScores();
-                console.log('💾 Scores locaux trouvés:', localScores.length);
                 allScores = [...allScores, ...localScores];
                 
                 // Trier par score décroissant
@@ -984,25 +1020,15 @@
 
                 // Si pas de données, utiliser des données de test
                 if (allScores.length === 0) {
-                    console.warn('⚠️ Aucune donnée trouvée, création de données de test...');
                     allScores = createTestScores();
                     loadedCount = allScores.length;
                     totalScores = allScores.length;
                 }
 
-                console.log('✅ Scores chargés (Supabase + Local):', loadedCount, 'Total DB:', totalScores);
-                console.log('🏆 Top 3:', allScores.slice(0, 3).map(s => ({ 
-                    pseudo: s.users?.pseudo || s.user?.pseudo || s.donnees_extra?.pseudo, 
-                    score: s.score,
-                    game: s.game_id,
-                    local: s._isLocal || false
-                })));
-
                 updateStats();
                 renderPage();
             } catch (error) {
                 console.error('❌ Erreur complète:', error);
-                console.log('📌 Tentative de chargement scores locaux uniquement...');
                 
                 // 💾 FALLBACK: Utiliser scores locaux + test
                 const localScores = getLocalScores();
@@ -1013,7 +1039,6 @@
                 loadedCount = allScores.length;
                 totalScores = allScores.length;
                 
-                console.log('💾 Mode hors ligne:', loadedCount, 'scores (local + test)');
                 updateStats();
                 renderPage();
             }
@@ -1116,7 +1141,6 @@
                 allScores = [...allScores, ...newData];
                 loadedCount = allScores.length;
 
-                console.log('✅ Chargement progressif:', loadedCount, 'scores');
                 renderPage();
             } catch (error) {
                 console.error('Erreur chargement supplémentaire:', error);
@@ -1141,7 +1165,6 @@
         }
 
         function renderPage() {
-            console.log('📄 renderPage() appelé - currentLang:', currentLang, '- allScores:', allScores?.length);
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
             
@@ -2102,12 +2125,10 @@
                 document.querySelector('.lang-code').textContent = code;
             }
             
-            // ✨ REDESSINER LE LEADERBOARD si des données sont chargées
-            const leaderboardContent = document.getElementById('leaderboardContent');
-            if (leaderboardContent && leaderboardContent.children.length > 0) {
-                console.log('🔄 Redessiner leaderboard avec langue:', lang);
-                renderPage();
-                renderLoadMoreButton();
+            // ✨ RECHARGER LES DONNÉES si déjà chargées (pour mise à jour traductions)
+            if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
+                // Forcer le rechargement pour appliquer les traductions
+                loadScores();
             }
         }
 
