@@ -2529,32 +2529,35 @@ console.info = function() {}; // Désactiver les infos
                 // 📱 SYSTÈME DE QUALITÉ ADAPTATIVE OPTIMISÉ - Résolution réduite pour performances
                 const basePixelRatio = window.devicePixelRatio || 1;
                 
-                // Détecter les performances du device
+                // Détecter les performances du device avec priorité aux performances
                 const detectQualityLevel = () => {
                     const memory = navigator.deviceMemory || 4; // GB de RAM
                     const cores = navigator.hardwareConcurrency || 4;
                     const screenPixels = window.screen.width * window.screen.height;
+                    const screenWidth = window.screen.width;
                     
-                    // 🟢 QUALITÉ MOYENNE : Tous les flagships
-                    // - 8GB+ RAM OU 8+ cores - ratio réduit pour meilleures perfs
-                    if (memory >= 8 || cores >= 8 || screenPixels < 2000000) {
-                        return { level: 'medium', ratio: 0.75, name: '🟢 Optimisée' };
+                    // 🟢 HAUTE PERFORMANCE : Flagships récents (iPhone 14+, Galaxy S23+)
+                    // - 8GB+ RAM ET 8+ cores - ratio réduit pour perfs optimales
+                    if (memory >= 8 && cores >= 8 && screenWidth <= 1440) {
+                        return { level: 'high', ratio: 0.5, name: '🟢 Haute' };
                     }
                     
-                    // 🟡 QUALITÉ ÉCONOMIQUE : Milieu de gamme (iPhone 11-13, Galaxy A52)
-                    // - 4-6GB RAM, 4-6 cores, écrans FHD+
-                    if (memory >= 4 || cores >= 4) {
-                        return { level: 'low', ratio: 0.5, name: '🟡 Économique' };
+                    // 🟡 PERFORMANCE ÉQUILIBRÉE : Milieu/haut de gamme (iPhone 11-13, Galaxy A/S)
+                    // - 4GB+ RAM OU 6+ cores - le meilleur compromis perf/qualité
+                    if (memory >= 4 || cores >= 6 || screenPixels < 2500000) {
+                        return { level: 'medium', ratio: 0.4, name: '🟡 Équilibrée' };
                     }
                     
-                    // 🔴 QUALITÉ MINIMALE : Entrée de gamme
-                    // - < 4GB RAM, < 4 cores - ratio très réduit
-                    return { level: 'minimal', ratio: 0.35, name: '🔴 Minimale' };
+                    // 🔴 ÉCONOMIQUE : Entrée de gamme
+                    // - < 4GB RAM, peu de cores - prioriser la fluidité
+                    return { level: 'low', ratio: 0.33, name: '🔴 Économique' };
                 };
                 
                 const quality = detectQualityLevel();
-                // Limiter le pixelRatio final pour éviter les résolutions trop élevées
-                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.5);
+                // Limiter le pixelRatio final - max 1.0 pour éviter surcharge GPU
+                // Sur iPhone 14 (ratio 3×): 3 × 0.5 = 1.5 → limité à 1.0
+                // Résolution finale: 393×852 × 1.0 = 393×852 pixels (au lieu de 1179×2556!)
+                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.0);
                 
                 console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
                 console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
@@ -2611,19 +2614,22 @@ console.info = function() {}; // Désactiver les infos
             return {
                 // Ombres (shadowBlur coûteux sur mobile)
                 shadows: level === 'high',
-                shadowBlurMax: level === 'high' ? 20 : (level === 'medium' ? 10 : 0),
+                shadowBlurMax: level === 'high' ? 15 : (level === 'medium' ? 8 : 0),
                 
-                // Particules
-                particleMultiplier: level === 'high' ? 1.0 : (level === 'medium' ? 0.5 : 0.25),
+                // Particules (réduire en mode économique)
+                particleMultiplier: level === 'high' ? 1.0 : (level === 'medium' ? 0.6 : 0.3),
                 
-                // Blur et filtres CSS (très coûteux)
+                // Blur et filtres CSS (très coûteux - désactiver sauf haute qualité)
                 useBlur: level === 'high',
                 
-                // Gradients complexes
+                // Gradients complexes (désactiver en mode économique)
                 complexGradients: level !== 'low',
                 
-                // Anti-aliasing
-                imageSmoothingEnabled: level !== 'low'
+                // Anti-aliasing (garder sauf mode économique)
+                imageSmoothingEnabled: level !== 'low',
+                
+                // FPS visés selon le niveau
+                targetFPS: level === 'high' ? 60 : (level === 'medium' ? 50 : 40)
             };
         };
 
