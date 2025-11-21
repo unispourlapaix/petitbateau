@@ -2559,8 +2559,8 @@ console.info = function() {}; // Désactiver les infos
                 // Résolution finale: 393×852 × 1.0 = 393×852 pixels (au lieu de 1179×2556!)
                 const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.0);
                 
-                console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
-                console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
+                // console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
+                // console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
                 
                 // Dimensions physiques de l'écran
                 width = window.innerWidth || 449;
@@ -21507,7 +21507,8 @@ Elle a besoin de ponts.`
             console.warn('⏭️⏭️⏭️ SAUVEGARDE DÉTECTÉE - INTRO ENTIÈREMENT BLOQUÉE ⏭️⏭️⏭️');
         }
 
-        // === RACCOURCIS TEST ===
+        // === RACCOURCIS TEST (DÉSACTIVÉS EN PRODUCTION) ===
+        /*
         document.addEventListener('keydown', (e) => {
             // Ne pas intercepter les touches si on est dans un input/textarea/select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
@@ -21561,6 +21562,7 @@ Elle a besoin de ponts.`
                 }
             }
         });
+        */
 
         // === ANCIEN SYSTÈME NARRATION SUPPRIMÉ ===
         let niveauSecretDebloque = false;
@@ -21578,6 +21580,8 @@ Elle a besoin de ponts.`
 
         // Fonctions supprimées
 
+        // === RACCOURCIS CLAVIER (DÉSACTIVÉS EN PRODUCTION) ===
+        /*
         // Gestionnaire clavier pour mode passe
         document.addEventListener('keydown', (e) => {
             // Ne pas intercepter les touches si on est dans un input/textarea/select
@@ -21796,6 +21800,7 @@ Elle a besoin de ponts.`
             }
 
         });
+        */
 
         // ======== NIVEAU SECRET : PACMAN ========
         function lancerNiveauSecret() {
