@@ -4017,12 +4017,8 @@ console.info = function() {}; // Désactiver les infos
         // Fonction pour ouvrir le Top 10000
         async function ouvrirTop10000() {
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            const newWindow = window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
-            
-            // Fallback si le popup est bloqué
-            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                await customAlert(getTranslatedText('popup.blocked', '⚠️ Popup bloqué ! Veuillez autoriser les popups pour voir le classement.'));
-            }
+            // Ouvrir dans un nouvel onglet (pas de popup)
+            window.open(`modules/top-scores-module.html?lang=${currentLang}`, '_blank');
         }
 
         // Fonction pour ouvrir les énigmes complètes avec le nouveau style
