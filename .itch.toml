@@ -1,0 +1,7 @@
+[[actions.play]]
+name = "Jouer maintenant"
+path = "index.html"
+
+[[actions.launch]]
+name = "Lancer le jeu"
+path = "petitbateauRouge.html"

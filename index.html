@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0;url=petitbateauRouge.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petit Bateau Rouge - Redirection...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+        p {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <h1>⛵ Le Petit Bateau Rouge</h1>
+        <p>Chargement du jeu...</p>
+    </div>
+    <script>
+        // Redirection immédiate si le navigateur ne supporte pas meta refresh
+        window.location.href = 'petitbateauRouge.html';
+    </script>
+</body>
+</html>
