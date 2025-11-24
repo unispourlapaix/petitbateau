@@ -4,6 +4,12 @@
 
 Ce package contient l'intégralité du jeu "Le Petit Bateau Rouge" - un voyage poétique et philosophique de 33 millions de kilomètres.
 
+**✨ Optimisations appliquées :**
+- 🎵 Musique MP3 compressée à 92 kbps (qualité radio, joint stéréo)
+- 💾 Réduction de 43 MB → 35 MB (-19% sur les MP3)
+- ⚡ Cache Supabase optimisé (95% moins de requêtes)
+- 📦 Package total : ~69 MB (compressé)
+
 ## 🚀 Installation sur itch.io
 
 ### Étape 1 : Créer le ZIP
