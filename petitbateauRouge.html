@@ -657,23 +657,31 @@
 <script>
 window.PRODUCTION_MODE = true;
 // ✅ Désactiver seulement les logs non-critiques
+// 🔧 MODE DÉVELOPPEUR - À activer/désactiver selon besoin
+const MODE_DEV = true; // ⚠️ Mettre à false en production!
+
 const originalLog = console.log;
 const originalWarn = console.warn;
 const originalInfo = console.info;
 
-console.log = function(...args) {
-    // ✅ Autoriser les logs audio critiques
-    if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager'))) {
-        originalLog.apply(console, args);
-    }
-};
-console.warn = function(...args) {
-    // ✅ Autoriser les warnings audio critiques
-    if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager') || String(arg).includes('audio'))) {
-        originalWarn.apply(console, args);
-    }
-};
-console.info = function() {}; // Désactiver les infos
+if (!MODE_DEV) {
+    console.log = function(...args) {
+        // ✅ Autoriser les logs audio critiques
+        if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager'))) {
+            originalLog.apply(console, args);
+        }
+    };
+    console.warn = function(...args) {
+        // ✅ Autoriser les warnings audio critiques
+        if (args.some(arg => String(arg).includes('🎵') || String(arg).includes('AudioManager') || String(arg).includes('audio'))) {
+            originalWarn.apply(console, args);
+        }
+    };
+    console.info = function() {}; // Désactiver les infos
+} else {
+    // Mode développeur: tous les logs actifs
+    console.log('🔧 MODE DÉVELOPPEUR ACTIVÉ - Tous les logs sont visibles');
+}
 // Garder console.error pour le debug critique
 </script>
 
