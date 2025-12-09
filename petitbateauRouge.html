@@ -21604,19 +21604,34 @@ Elle a besoin de ponts.`
         function mettreAJourTextesVolants() {
             for(let i = textesVolants.length - 1; i >= 0; i--) {
                 const texte = textesVolants[i];
-                texte.temps += 0.02; // Plus rapide (était 0.006)
+                texte.temps += 0.016; // ~60fps
 
-                // ⚡ EXTREME SIMPLIFICATION: Montée directe sans descente
                 const centreX = C.W / 2;
-                texte.x = texte.xDepart + (centreX - texte.xDepart) * texte.temps * 2;
-                texte.y = texte.yDepart - (texte.temps * 120); // Monte directement
                 
-                // Fade simple et rapide
-                texte.alpha = Math.max(0, 1 - texte.temps * 2.5);
-                texte.taille = 14 + texte.temps * 8; // Moins de grossissement
+                // Phase 1: Montée rapide (0.5s)
+                if (texte.temps < 0.5) {
+                    texte.x = texte.xDepart + (centreX - texte.xDepart) * (texte.temps * 2);
+                    texte.y = texte.yDepart - (texte.temps * 150);
+                    texte.alpha = 1;
+                    texte.taille = 14 + texte.temps * 12;
+                }
+                // Phase 2: Pause visible en haut (2s - de 0.5s à 2.5s)
+                else if (texte.temps < 2.5) {
+                    texte.x = centreX;
+                    texte.y = texte.yDepart - 75; // Position fixe en haut
+                    texte.alpha = 1; // Pleinement visible
+                    texte.taille = 20; // Taille fixe
+                }
+                // Phase 3: Disparition (0.5s)
+                else {
+                    texte.x = centreX;
+                    texte.y = texte.yDepart - 75;
+                    texte.alpha = Math.max(0, 1 - (texte.temps - 2.5) * 2);
+                    texte.taille = 20;
+                }
 
-                // Supprimer rapidement (vie courte)
-                if(texte.temps > 0.5 || texte.alpha <= 0) {
+                // Supprimer après 3s total
+                if(texte.temps > 3 || texte.alpha <= 0) {
                     textesVolants.splice(i, 1);
                 }
             }
