@@ -21383,46 +21383,53 @@ Elle a besoin de ponts.`
             }
         }
 
+        // ⚡ OPTIMISATION: Cache Path2D de l'étoile compteur
+        let _etoileCompteurPathCache = null;
+        
         function dessinerEtoileCompteur() {
             if (!etoileCompteur.actif) return;
 
+            // ⚡ Créer le Path2D une seule fois (étoile normalisée rayon 1)
+            if (!_etoileCompteurPathCache) {
+                _etoileCompteurPathCache = new Path2D();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                    const x1 = Math.cos(angle);
+                    const y1 = Math.sin(angle);
+
+                    const angleInterne = ((i + 0.5) * Math.PI * 2) / 5 - Math.PI / 2;
+                    const x2 = Math.cos(angleInterne) * 0.4;
+                    const y2 = Math.sin(angleInterne) * 0.4;
+
+                    if (i === 0) _etoileCompteurPathCache.moveTo(x1, y1);
+                    else _etoileCompteurPathCache.lineTo(x1, y1);
+                    _etoileCompteurPathCache.lineTo(x2, y2);
+                }
+                _etoileCompteurPathCache.closePath();
+            }
+
             ctx.save();
             ctx.globalAlpha = etoileCompteur.alpha;
+            
+            // ⚡ Positionner et mettre à l'échelle le Path2D
+            ctx.translate(etoileCompteur.x, etoileCompteur.y);
+            ctx.scale(15, 15); // rayon = 15
 
-            // Dessiner l'étoile blanche
+            // ⚡ UN SEUL fill() et stroke() avec le Path2D en cache
             ctx.fillStyle = 'white';
+            ctx.fill(_etoileCompteurPathCache);
+            
             ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1 / 15; // Ajuster pour le scale
+            ctx.stroke(_etoileCompteurPathCache);
 
-            const x = etoileCompteur.x;
-            const y = etoileCompteur.y;
-            const rayon = 15;
-
-            // Forme d'étoile à 5 branches
-            ctx.beginPath();
-            for (let i = 0; i < 5; i++) {
-                const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
-                const x1 = x + Math.cos(angle) * rayon;
-                const y1 = y + Math.sin(angle) * rayon;
-
-                const angleInterne = ((i + 0.5) * Math.PI * 2) / 5 - Math.PI / 2;
-                const x2 = x + Math.cos(angleInterne) * (rayon * 0.4);
-                const y2 = y + Math.sin(angleInterne) * (rayon * 0.4);
-
-                if (i === 0) ctx.moveTo(x1, y1);
-                else ctx.lineTo(x1, y1);
-                ctx.lineTo(x2, y2);
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-
-            // Texte du compteur
+            // Texte du compteur (revenir à l'échelle normale)
+            ctx.scale(1/15, 1/15);
             ctx.fillStyle = 'black';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(corbeau.touches.toString(), x, y);
+            ctx.fillText(corbeau.touches.toString(), 0, 0);
 
             ctx.restore();
         }
