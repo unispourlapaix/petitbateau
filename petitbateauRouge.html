@@ -17138,8 +17138,8 @@ if (!MODE_DEV) {
             // Déclarer phaseActuelle en début de fonction pour la rendre accessible partout
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             
-            // Gérer la balle pour le mode casse-briques uniquement
-            if(phaseJeu !== 'lanterne') {
+            // Gérer la balle pour le mode casse-briques (lanterne ET mur)
+            if(phaseJeu !== 'lanterne' && phaseJeu !== 'mur') {
                 return; // Ignorer dans les autres phases
             }
 
@@ -17153,6 +17153,9 @@ if (!MODE_DEV) {
 
             // Attendre le clic de l'utilisateur avant de commencer
             if(balle.enAttente) {
+                // Faire suivre la balle à la raquette pendant l'attente
+                balle.x = raquette.x + C.PW * 0.7; // Position à l'avant du bateau
+                balle.y = raquette.y - C.BS - 12;
                 return; // Ne pas bouger tant que l'utilisateur n'a pas cliqué
             }
 
