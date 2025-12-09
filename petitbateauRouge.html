@@ -21785,12 +21785,19 @@ Elle a besoin de ponts.`
 
         // ======== NIVEAU SECRET : PACMAN ========
         function lancerNiveauSecret() {
-            // Bloquer en phases 1 et 2
+            // Bloquer en phases 1 et 2 (désactivé pour tests)
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
-            if (phaseActuelle === 1 || phaseActuelle === 2) {
+            if (false && (phaseActuelle === 1 || phaseActuelle === 2)) {
                 console.log('🚫 Mode secret bloqué en phases 1 et 2');
                 afficherMessagePowerupSimple(getTranslatedText('game.messages.bird_no', '🐦 NON !'));
                 return;
+            }
+            
+            // 🧪 TEST: Forcer phase 3 minimum pour le mode secret
+            if (phaseActuelle < 3) {
+                console.log('🧪 TEST: Passage automatique en phase 3 pour mode secret');
+                phaseJeu = 3;
+                if (narrationManager) narrationManager.currentPhase = 3;
             }
 
             // Désactiver les objets kawaii pendant le mode secret
