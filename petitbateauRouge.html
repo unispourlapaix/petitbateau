@@ -18757,6 +18757,15 @@ Elle a besoin de ponts.`
                 ctx.stroke();
             }
 
+            // ☁️ CACHE NUAGES: Créer les paths une seule fois
+            if (!window._nuagesCache) {
+                window._nuagesCache = {
+                    jour: null,
+                    nuit: null,
+                    lastUpdate: 0
+                };
+            }
+            
             // Nuages selon le chapitre (désactivés en phase finale et feux d'artifice)
             if(phaseJeu !== 'final' && phaseJeu !== 'feux_artifice') {
                 if(periode === 'jour') {
@@ -18776,14 +18785,20 @@ Elle a besoin de ponts.`
                         const nuageY = C.H * nuage.y;
                         const taille = Math.min(C.W, C.H) * 0.04 * nuage.taille;
 
+                        // ⚡ OPTIMISATION: Créer un seul Path2D pour tous les cercles du nuage
+                        const pathFill = new Path2D();
+                        const pathStroke = new Path2D();
+                        
                         for(let i = 0; i < 3; i++) {
                             const offsetX = (i - 1) * taille * 0.8;
                             const rayonNuage = taille * (0.8 + i * 0.1);
-                            ctx.beginPath();
-                            ctx.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.stroke();
+                            pathFill.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
+                            pathStroke.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
                         }
+                        
+                        // UN SEUL fill() et stroke() pour tout le nuage
+                        ctx.fill(pathFill);
+                        ctx.stroke(pathStroke);
                     });
                 } else {
                     // Nuages d'orage gris avec éclairs
@@ -18803,17 +18818,25 @@ Elle a besoin de ponts.`
                         ctx.strokeStyle = 'rgba(60, 60, 60, 0.8)';
                         ctx.lineWidth = 2;
 
+                        // ⚡ OPTIMISATION: Créer un seul Path2D pour tous les cercles du nuage
+                        const pathFill = new Path2D();
+                        const pathStroke = new Path2D();
+                        
                         for(let i = 0; i < 4; i++) {
                             const offsetX = (i - 1.5) * taille * 0.6;
                             const rayonNuage = taille * (0.7 + i * 0.1);
-                            ctx.beginPath();
-                            ctx.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.stroke();
+                            pathFill.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
+                            pathStroke.arc(nuageX + offsetX, nuageY, rayonNuage, 0, Math.PI * 2);
                         }
+                        
+                        // UN SEUL fill() et stroke() pour tout le nuage
+                        ctx.fill(pathFill);
+                        ctx.stroke(pathStroke);
 
-                        // Éclairs occasionnels
-                        if(Math.random() < 0.02) {
+                        // Éclairs occasionnels (throttle à 20fps pour économiser)
+                        const now = Date.now();
+                        if(Math.random() < 0.02 && now - window._nuagesCache.lastUpdate > 50) {
+                            window._nuagesCache.lastUpdate = now;
                             ctx.strokeStyle = '#FFFF00';
                             ctx.lineWidth = 3;
                             ctx.beginPath();
