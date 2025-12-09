@@ -15858,16 +15858,52 @@ if (!MODE_DEV) {
                 _particulesPathCache.etoile.closePath();
             }
 
+            // ⚡ OPTIMISATION: Grouper les traits lumineux par couleur pour batching
+            const traitsLumineuxParCouleur = {};
+            const autresParticules = [];
+            
             particules.forEach(p => {
+                if(p.type === 'trait_lumineux') {
+                    if(!traitsLumineuxParCouleur[p.couleur]) {
+                        traitsLumineuxParCouleur[p.couleur] = [];
+                    }
+                    traitsLumineuxParCouleur[p.couleur].push(p);
+                } else {
+                    autresParticules.push(p);
+                }
+            });
+
+            // Dessiner les traits lumineux en batch (UN stroke() par couleur)
+            Object.keys(traitsLumineuxParCouleur).forEach(couleur => {
+                const traits = traitsLumineuxParCouleur[couleur];
+                const path = new Path2D();
+                
+                traits.forEach(p => {
+                    path.moveTo(p.x, p.y);
+                    path.lineTo(
+                        p.x - Math.cos(p.angle) * p.longueur * 0.5,
+                        p.y - Math.sin(p.angle) * p.longueur * 0.5
+                    );
+                });
+                
+                ctx.save();
+                ctx.strokeStyle = couleur;
+                ctx.lineWidth = 0.6; // Moyenne optimisée
+                ctx.lineCap = 'round';
+                ctx.globalAlpha = 0.8; // Alpha moyen pour tous
+                ctx.stroke(path); // UN SEUL stroke() pour tous les traits de cette couleur
+                ctx.restore();
+            });
+
+            // Dessiner les autres particules (coeurs, étoiles, emojis, etc.)
+            autresParticules.forEach(p => {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0.1, p.vie * 0.8); // Minimum d'opacité pour voir les particules
                 ctx.fillStyle = p.couleur;
 
-                // Appliquer l'effet de lueur AVANT le dessin
-                if(p.type !== 'trait_lumineux') {
-                    ctx.shadowColor = p.couleur;
-                    ctx.shadowBlur = p.taille * 1.5;
-                }
+                // Appliquer l'effet de lueur
+                ctx.shadowColor = p.couleur;
+                ctx.shadowBlur = p.taille * 1.5;
 
                 if(p.type === 'coeur') {
                     // ⚡ Dessiner avec Path2D en cache
@@ -15879,19 +15915,6 @@ if (!MODE_DEV) {
                     ctx.translate(p.x, p.y);
                     ctx.scale(p.taille, p.taille);
                     ctx.fill(_particulesPathCache.etoile);
-                } else if(p.type === 'trait_lumineux') {
-                    // ✨ Trait lumineux fin et simple
-                    ctx.lineWidth = Math.max(1, p.taille * 0.3); // Plus fin
-                    ctx.lineCap = 'round';
-                    ctx.strokeStyle = p.couleur;
-
-                    ctx.beginPath();
-                    ctx.moveTo(p.x, p.y);
-                    ctx.lineTo(
-                        p.x - Math.cos(p.angle) * p.longueur * 0.5, // Plus court
-                        p.y - Math.sin(p.angle) * p.longueur * 0.5
-                    );
-                    ctx.stroke();
                 } else if(p.type === 'emoji') {
                     // 💰 Particule emoji (billets de banque phase 20)
                     // ⚡ OPTIMISATION: 1 énorme emoji toutes les 7 briques seulement
