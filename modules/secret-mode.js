@@ -154,9 +154,17 @@ class SecretModeModule {
         
         // 🧹 Fermer le popup s'il est visible
         const popupOverlay = document.getElementById('customPopupOverlay');
-        if (popupOverlay && popupOverlay.classList.contains('active')) {
+        if (popupOverlay) {
+            const isActive = popupOverlay.classList.contains('active');
+            const computedDisplay = window.getComputedStyle(popupOverlay).display;
+            console.log(`🔍 État popup au lancement mode secret: active=${isActive}, display=${computedDisplay}`);
+            
+            // Forcer le masquage complet
             popupOverlay.classList.remove('active');
-            console.log('🧹 Popup fermé pour le mode secret');
+            popupOverlay.style.display = 'none';
+            popupOverlay.style.visibility = 'hidden';
+            popupOverlay.style.opacity = '0';
+            console.log('🧹 Popup forcé caché pour le mode secret');
         }
 
         // 🎵 Changer la musique vers mode secret

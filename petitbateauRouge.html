@@ -1491,15 +1491,21 @@ if (!MODE_DEV) {
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
-    display: none;
+    display: none !important; /* Force le masquage par défaut */
     justify-content: center;
     align-items: center;
     z-index: 10000;
     animation: fadeIn 0.3s ease;
+    visibility: hidden; /* Double sécurité */
+    opacity: 0; /* Triple sécurité */
+    pointer-events: none; /* Ne bloque pas les clics */
 }
 
 .custom-popup-overlay.active {
-    display: flex;
+    display: flex !important;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto; /* Réactive les clics quand actif */
 }
 
 .custom-popup {
@@ -1772,6 +1778,9 @@ if (!MODE_DEV) {
                     }
 
                     // Afficher le popup
+                    overlay.style.display = ''; // Retirer le style inline
+                    overlay.style.visibility = '';
+                    overlay.style.opacity = '';
                     overlay.classList.add('active');
 
                     // Fermer avec Escape
@@ -1937,6 +1946,9 @@ if (!MODE_DEV) {
                     }
 
                     // Afficher le popup
+                    overlay.style.display = ''; // Retirer le style inline
+                    overlay.style.visibility = '';
+                    overlay.style.opacity = '';
                     overlay.classList.add('active');
 
                     // Fermer avec Escape = Annuler
