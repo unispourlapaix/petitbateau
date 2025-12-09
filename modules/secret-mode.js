@@ -144,6 +144,20 @@ class SecretModeModule {
 
         // Notifier le jeu principal
         this.gameState.modeSecret = true;
+        
+        // 🧹 Cacher les éléments UI du jeu principal qui pourraient interférer
+        const messageElement = document.getElementById('message');
+        if (messageElement) {
+            messageElement.style.display = 'none';
+            console.log('🧹 Élément #message caché pour le mode secret');
+        }
+        
+        // 🧹 Fermer le popup s'il est visible
+        const popupOverlay = document.getElementById('customPopupOverlay');
+        if (popupOverlay && popupOverlay.classList.contains('active')) {
+            popupOverlay.classList.remove('active');
+            console.log('🧹 Popup fermé pour le mode secret');
+        }
 
         // 🎵 Changer la musique vers mode secret
         if (typeof window.musicManager !== 'undefined' && window.musicManager && window.musicManager.changePhase) {
@@ -241,6 +255,13 @@ class SecretModeModule {
         // Nettoyer les objets kawaii DOM
         if (this.kawaiiObjects && this.kawaiiContainer) {
             this.clearKawaiiObjects();
+        }
+        
+        // 🧹 Restaurer l'affichage des éléments UI du jeu principal
+        const messageElement = document.getElementById('message');
+        if (messageElement) {
+            messageElement.style.display = '';
+            console.log('🧹 Élément #message restauré après le mode secret');
         }
 
         // Réinitialiser
