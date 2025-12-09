@@ -15699,22 +15699,25 @@ if (!MODE_DEV) {
         function creerGouttesPluie() {
             if (!pluieActive) return;
 
-            // Créer 2-3 gouttes par frame pour un effet continu mais léger
-            const nbGouttes = Math.random() < 0.7 ? 2 : 3;
+            // ⚡ ULTRA OPTIMISATION: Réduire drastiquement le nombre de gouttes
+            // 1 goutte toutes les 2 frames = 30 gouttes/sec au lieu de 120-180
+            if (Math.random() > 0.5) return; // Skip 50% des frames
+            
+            const nbGouttes = 1; // Une seule goutte à la fois
 
             for (let i = 0; i < nbGouttes; i++) {
                 gouttesPlui.push({
                     x: Math.random() * C.W,
                     y: -10,
-                    vitesse: 3 + Math.random() * 2, // Vitesse entre 3 et 5
-                    longueur: 8 + Math.random() * 8, // Longueur entre 8 et 16
-                    alpha: 0.3 + Math.random() * 0.3 // Transparence variable
+                    vitesse: 4 + Math.random() * 2, // Vitesse entre 4 et 6 (plus rapide)
+                    longueur: 12 + Math.random() * 8, // Longueur entre 12 et 20 (plus longues)
+                    alpha: 0.5 // Alpha fixe pour simplifier
                 });
             }
 
-            // Limiter le nombre de gouttes pour les performances
-            if (gouttesPlui.length > 150) {
-                gouttesPlui = gouttesPlui.slice(-150);
+            // Limiter drastiquement le nombre de gouttes
+            if (gouttesPlui.length > 50) {
+                gouttesPlui = gouttesPlui.slice(-50); // Max 50 au lieu de 150
             }
         }
 
@@ -15737,33 +15740,20 @@ if (!MODE_DEV) {
         function dessinerPluie() {
             if (!pluieActive || gouttesPlui.length === 0) return;
 
-            ctx.save();
-            ctx.strokeStyle = '#A0C4E0'; // Bleu clair
-            ctx.lineWidth = 1.5;
-            ctx.lineCap = 'round';
-
-            // ⚡ OPTIMISATION: Grouper les gouttes par niveau d'alpha pour batching
-            // Préserver la beauté en gardant les variations de transparence
-            const gouttesParAlpha = {};
+            // ⚡ ULTRA OPTIMISATION: UN SEUL Path2D pour TOUTES les gouttes (alpha fixe)
+            const path = new Path2D();
             
             for (const goutte of gouttesPlui) {
-                // Arrondir l'alpha à 0.1 près pour créer des groupes (3 niveaux: 0.3, 0.4, 0.5, 0.6)
-                const alphaKey = Math.round(goutte.alpha * 10) / 10;
-                if (!gouttesParAlpha[alphaKey]) {
-                    gouttesParAlpha[alphaKey] = new Path2D();
-                }
-                
-                // Ajouter la goutte au path de son groupe d'alpha
-                gouttesParAlpha[alphaKey].moveTo(goutte.x, goutte.y);
-                gouttesParAlpha[alphaKey].lineTo(goutte.x, goutte.y + goutte.longueur);
+                path.moveTo(goutte.x, goutte.y);
+                path.lineTo(goutte.x, goutte.y + goutte.longueur);
             }
 
-            // Dessiner chaque groupe d'alpha en un seul stroke()
-            Object.keys(gouttesParAlpha).forEach(alphaKey => {
-                ctx.globalAlpha = parseFloat(alphaKey);
-                ctx.stroke(gouttesParAlpha[alphaKey]); // UN SEUL stroke() pour toutes les gouttes de cet alpha
-            });
-
+            ctx.save();
+            ctx.strokeStyle = '#A0C4E0';
+            ctx.lineWidth = 2; // Légèrement plus épais
+            ctx.lineCap = 'round';
+            ctx.globalAlpha = 0.5;
+            ctx.stroke(path); // UN SEUL stroke() pour TOUTES les gouttes !
             ctx.restore();
         }
 
