@@ -1693,11 +1693,19 @@ console.info = function() {}; // Désactiver les infos
                     
                     // Définir le titre (force la conversion en chaîne pour éviter les objets DOM)
                     const titleText = options.title ? String(options.title) : 'Information';
-                    // Vérifier si c'est un sélecteur CSS ou XPath (bug potentiel)
-                    if ((titleText.includes('body') && titleText.includes('#customPopupTitle')) || 
-                        titleText.startsWith('/html/body/div') || 
-                        titleText.includes('[object HTML')) {
-                        console.warn('⚠️ BUG DÉTECTÉ: Tentative d\'affichage d\'un sélecteur/objet comme titre!', titleText);
+                    // Vérifier si c'est un sélecteur CSS, XPath ou objet HTML (bug potentiel)
+                    const isSelectorOrObject = 
+                        (titleText.includes('body') && titleText.includes('div')) || // CSS path
+                        titleText.startsWith('/html/body/div') || // XPath
+                        titleText.includes('[object HTML') || // HTML object
+                        titleText.includes('#customPopup') || // CSS selector with ID
+                        (titleText.includes('.custom-popup') && titleText.length > 50); // Long CSS class path
+                    
+                    if (isSelectorOrObject) {
+                        console.error('🚨 BUG CRITIQUE: Sélecteur/objet passé comme titre de popup!');
+                        console.error('Titre reçu:', titleText);
+                        console.error('Type:', typeof options.title);
+                        console.error('Options complètes:', options);
                         console.trace('Stack trace du bug:');
                         title.textContent = 'Information'; // Fallback sûr
                     } else {
