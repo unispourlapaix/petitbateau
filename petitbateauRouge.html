@@ -15735,20 +15735,22 @@ if (!MODE_DEV) {
         function dessinerPluie() {
             if (!pluieActive || gouttesPlui.length === 0) return;
 
-            // ⚡ ULTRA OPTIMISATION: UN SEUL Path2D pour TOUTES les gouttes (alpha fixe)
-            const path = new Path2D();
-            
-            for (const goutte of gouttesPlui) {
-                path.moveTo(goutte.x, goutte.y);
-                path.lineTo(goutte.x, goutte.y + goutte.longueur);
-            }
-
+            // ⚡ EXTREME OPTIMISATION: Dessiner DIRECTEMENT sans Path2D
+            // Path2D est trop lourd avec beaucoup de moveTo/lineTo
             ctx.save();
             ctx.strokeStyle = '#A0C4E0';
-            ctx.lineWidth = 2; // Légèrement plus épais
+            ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.globalAlpha = 0.5;
-            ctx.stroke(path); // UN SEUL stroke() pour TOUTES les gouttes !
+            
+            // UN SEUL beginPath() pour toutes les gouttes
+            ctx.beginPath();
+            for (const goutte of gouttesPlui) {
+                ctx.moveTo(goutte.x, goutte.y);
+                ctx.lineTo(goutte.x, goutte.y + goutte.longueur);
+            }
+            ctx.stroke(); // UN SEUL stroke()
+            
             ctx.restore();
         }
 
@@ -21641,10 +21643,10 @@ Elle a besoin de ponts.`
             if (textesVolants.length === 0) return;
 
             // ⚡ OPTIMISATION ULTRA: Dessiner tous les textes sans contour (plus rapide)
-            // Réduire drastiquement les appels coûteux strokeText()
+            // Adapter la couleur selon le mode jour/nuit
             ctx.save();
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#2c3e50';
+            ctx.fillStyle = (periode === 'nuit') ? '#ffffff' : '#2c3e50'; // Blanc la nuit, foncé le jour
 
             // Grouper par taille pour minimiser les changements de font
             const textesParTaille = {};
