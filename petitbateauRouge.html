@@ -18539,28 +18539,45 @@ Elle a besoin de ponts.`
                     });
                 }
                 
-                // Dessiner les requins avec positions en cache
+                // ⚡ OPTIMISATION: Dessiner tous les requins en batch avec Path2D
+                // Créer les paths pour tous les ailerons
+                const pathAileronsFill = new Path2D();
+                const pathAileronsStroke = new Path2D();
+                const pathVaguesBlanches = new Path2D();
+                
                 fondAniméCache.sharkPositions.forEach(({reqX, reqY, taille}) => {
-                    ctx.fillStyle = '#2F4F4F';
-                    ctx.strokeStyle = '#1C1C1C';
-                    ctx.lineWidth = 2;
-
-                    ctx.beginPath();
-                    ctx.moveTo(reqX - taille*0.5, reqY + taille*0.8);
-                    ctx.lineTo(reqX, reqY - taille);
-                    ctx.lineTo(reqX + taille*0.3, reqY + taille*0.5);
-                    ctx.lineTo(reqX - taille*0.2, reqY + taille*0.8);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(reqX - taille, reqY + taille*0.5);
-                    ctx.lineTo(reqX - taille*2, reqY + taille*0.3);
-                    ctx.stroke();
+                    // Aileron principal - ajouter au path de remplissage
+                    pathAileronsFill.moveTo(reqX - taille*0.5, reqY + taille*0.8);
+                    pathAileronsFill.lineTo(reqX, reqY - taille);
+                    pathAileronsFill.lineTo(reqX + taille*0.3, reqY + taille*0.5);
+                    pathAileronsFill.lineTo(reqX - taille*0.2, reqY + taille*0.8);
+                    pathAileronsFill.closePath();
+                    
+                    // Contour aileron - ajouter au path de contour
+                    pathAileronsStroke.moveTo(reqX - taille*0.5, reqY + taille*0.8);
+                    pathAileronsStroke.lineTo(reqX, reqY - taille);
+                    pathAileronsStroke.lineTo(reqX + taille*0.3, reqY + taille*0.5);
+                    pathAileronsStroke.lineTo(reqX - taille*0.2, reqY + taille*0.8);
+                    pathAileronsStroke.closePath();
+                    
+                    // Vague blanche - ajouter au path de vagues
+                    pathVaguesBlanches.moveTo(reqX - taille, reqY + taille*0.5);
+                    pathVaguesBlanches.lineTo(reqX - taille*2, reqY + taille*0.3);
                 });
+                
+                // UN SEUL fill() pour tous les ailerons
+                ctx.fillStyle = '#2F4F4F';
+                ctx.fill(pathAileronsFill);
+                
+                // UN SEUL stroke() pour tous les contours d'ailerons
+                ctx.strokeStyle = '#1C1C1C';
+                ctx.lineWidth = 2;
+                ctx.stroke(pathAileronsStroke);
+                
+                // UN SEUL stroke() pour toutes les vagues blanches
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke(pathVaguesBlanches);
             }
         }
 
