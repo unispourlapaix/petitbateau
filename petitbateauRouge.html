@@ -12422,128 +12422,167 @@ if (!MODE_DEV) {
             const afficherTexte = phaseActuelle < 17 || phaseActuelle > 22;
             const modeStars = phaseJeu === 'stars';
             const modeLanterne = phaseJeu === 'lanterne';
-
-            // ⚡ OPTIMISATION: Boucle sur briques visibles uniquement
-            briquesVisibles.forEach((brique, index) => {
-
-                const centreX = brique.x + brique.w/2;
-                const centreY = brique.y + brique.h/2;
+            
+            // 🚀 OPTIMISATION MOBILE: Détecter l'environnement
+            const isMobileDevice = window.PERF_QUALITY_LEVEL !== 'high';
+            const simplifierEffets = isMobileDevice;
+            
+            // 📝 CACHE TEXTE: Canvas off-screen pour les textes de briques
+            if (!window.brickTextCache) {
+                window.brickTextCache = {};
+                window.brickTextCanvas = document.createElement('canvas');
+                window.brickTextCanvas.width = 200;
+                window.brickTextCanvas.height = 60;
+            }
+            
+            // 📦 BATCHING: Grouper les briques par couleur et type
+            const batchedBricks = {};
+            briquesVisibles.forEach(brique => {
                 const couleur = brique.couleur || brique.etape.couleur;
-
-                // Dessiner la brique rectangulaire avec état de dégâts
+                const estMur = brique.type === 'mur';
+                const key = `${couleur}_${estMur}_${brique.vie}_${brique.vieMax}`;
+                if (!batchedBricks[key]) {
+                    batchedBricks[key] = [];
+                }
+                batchedBricks[key].push(brique);
+            });
+            
+            // ⚡ OPTIMISATION: Dessiner par batch de couleur
+            Object.keys(batchedBricks).forEach(batchKey => {
+                const batch = batchedBricks[batchKey];
+                if (batch.length === 0) return;
+                
+                const firstBrick = batch[0];
+                const couleur = firstBrick.couleur || firstBrick.etape.couleur;
+                const estBriqueMur = firstBrick.type === 'mur';
+                
                 ctx.save();
-
-                // Style différent pour les briques de mur (phases 17-22)
-                const estBriqueMur = brique.type === 'mur';
-
-                if (estBriqueMur) {
-                    // STYLE MUR : Simple, trait blanc épais, couleur mate
-                    ctx.fillStyle = couleur;
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 4; // Trait blanc épais
-
-                    // Rectangle simple
-                    ctx.fillRect(brique.x, brique.y, brique.w, brique.h);
-                    ctx.strokeRect(brique.x, brique.y, brique.w, brique.h);
-
-                    // Léger effet poncé (transparence sur les bords)
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-                    ctx.fillRect(brique.x + 2, brique.y + 2, brique.w - 4, brique.h * 0.3);
+                
+                // Calculer l'opacité selon les dégâts
+                if (firstBrick.vieMax === 2 && firstBrick.vie === 1) {
+                    ctx.globalAlpha = 0.6;
+                } else if (firstBrick.vieMax === 3 && firstBrick.vie === 2) {
+                    ctx.globalAlpha = 0.8;
+                } else if (firstBrick.vie === 1) {
+                    ctx.globalAlpha = 0.5;
                 } else {
-                    // STYLE NORMAL : Briques classiques avec effets 3D
-                    // ⚡ OPTIMISATION: Utiliser globalAlpha au lieu de recalculer RGBA
-                    ctx.fillStyle = couleur;
+                    ctx.globalAlpha = 1.0;
+                }
+                
+                ctx.fillStyle = couleur;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = estBriqueMur ? 4 : 2;
+                
+                // Dessiner toutes les briques du batch en une fois
+                batch.forEach((brique, index) => {
+
+                    const centreX = brique.x + brique.w/2;
+                    const centreY = brique.y + brique.h/2;
                     
-                    // Calculer l'opacité selon les dégâts
-                    if (brique.vieMax === 2 && brique.vie === 1) {
-                        ctx.globalAlpha = 0.6; // Phase lanterne endommagée
-                    } else if (brique.vieMax === 3 && brique.vie === 2) {
-                        ctx.globalAlpha = 0.8; // Phase stars légèrement endommagée
-                    } else if (brique.vie === 1) {
-                        ctx.globalAlpha = 0.5; // Très endommagée
-                    } else {
-                        ctx.globalAlpha = 1.0; // Intacte
-                    }
-
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 2;
-
                     // Clignotement si récemment touchée
                     if (brique.clignotement > 0) {
                         ctx.fillStyle = '#FFFFFF';
                         brique.clignotement--;
                     }
-
-                    // Rectangle de brique
+                    
+                    // Rectangle de brique (batched)
                     ctx.fillRect(brique.x, brique.y, brique.w, brique.h);
                     ctx.strokeRect(brique.x, brique.y, brique.w, brique.h);
-
-                    // ⚡ OPTIMISATION: Effet 3D simplifié (pas en mode lanterne)
-                    if (!modeLanterne) {
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Réduit de 0.3 à 0.2
-                        ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.25); // Réduit de 0.3 à 0.25
-                    }
-                }
-
-                // ⚡ OPTIMISATION ULTRA: Fissures simplifiées (économie sin/cos)
-                if (!estBriqueMur && ((brique.vieMax === 2 && brique.vie <= 1) || (brique.vieMax === 3 && brique.vie <= 2))) {
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 2;
                     
-                    // Toujours utiliser fissure simple (plus de zigzag coûteux)
-                    ctx.beginPath();
-                    ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
-                    ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
-                    ctx.stroke();
-                }
+                    // 🎨 EFFETS VISUELS: Simplifiés sur mobile
+                    if (!estBriqueMur) {
+                        // Effet 3D seulement si non-mobile et non-lanterne
+                        if (!simplifierEffets && !modeLanterne) {
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                            ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.25);
+                        } else if (estBriqueMur && !simplifierEffets) {
+                            // Effet poncé mur (desktop uniquement)
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                            ctx.fillRect(brique.x + 2, brique.y + 2, brique.w - 4, brique.h * 0.3);
+                        }
+                    }
 
-                if (!estBriqueMur && brique.vie <= 1) {
-                    // Deuxième fissure simple toujours
-                    ctx.beginPath();
-                    ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
-                    ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
-                    ctx.stroke();
-                }
+                    // ⚡ FISSURES: Simplifiées (seulement sur desktop pour économiser)
+                    if (!estBriqueMur && !simplifierEffets && ((brique.vieMax === 2 && brique.vie <= 1) || (brique.vieMax === 3 && brique.vie <= 2))) {
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 2;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
+                        ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
+                        ctx.stroke();
+                        
+                        if (brique.vie <= 1) {
+                            ctx.beginPath();
+                            ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
+                            ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
+                            ctx.stroke();
+                        }
+                    }
 
+                    // Dessiner le cœur à l'intérieur de la brique
+                    if (!estBriqueMur && brique.type !== 'drapeau') {
+                        dessinerCoeurPixelArt(centreX, centreY, brique.taille * 0.6, couleur);
+                    }
+                    
+                    // Dessiner le drapeau pour les briques drapeaux
+                    if (brique.type === 'drapeau' && brique.drapeau) {
+                        ctx.font = '32px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(brique.drapeau, centreX, centreY);
+                    }
+                    
+                    // 📝 CACHE TEXTE: Textes des briques en mode stars
+                    if(modeStars && brique.etape && (typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom) && afficherTexte) {
+                        const nomBrique = typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom;
+                        const cacheKey = `${nomBrique}_${Math.floor(brique.w)}`;
+                        
+                        // Utiliser le cache si disponible
+                        if (!window.brickTextCache[cacheKey]) {
+                            // Créer le texte dans le canvas off-screen
+                            const textCtx = window.brickTextCanvas.getContext('2d');
+                            textCtx.clearRect(0, 0, 200, 60);
+                            textCtx.fillStyle = '#FFFFFF';
+                            textCtx.font = `bold ${Math.max(12, brique.w * 0.15)}px Arial`;
+                            textCtx.textAlign = 'center';
+                            textCtx.textBaseline = 'middle';
+                            
+                            // Shadow simple (seulement sur desktop)
+                            if (!simplifierEffets) {
+                                textCtx.shadowColor = '#000000';
+                                textCtx.shadowBlur = 4;
+                                textCtx.shadowOffsetX = 1;
+                                textCtx.shadowOffsetY = 1;
+                            }
+                            
+                            textCtx.fillText(nomBrique, 100, 30);
+                            window.brickTextCache[cacheKey] = true;
+                        }
+                        
+                        // Dessiner depuis le cache
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = `bold ${Math.max(12, brique.w * 0.15)}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        if (!simplifierEffets) {
+                            ctx.shadowColor = '#000000';
+                            ctx.shadowBlur = 4;
+                            ctx.shadowOffsetX = 1;
+                            ctx.shadowOffsetY = 1;
+                        }
+                        
+                        ctx.fillText(nomBrique, centreX, centreY + brique.h * 0.3);
+                        
+                        if (!simplifierEffets) {
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                });
+                
                 ctx.restore();
-
-                // Dessiner le cœur à l'intérieur de la brique (pas pour les murs ni les drapeaux)
-                if (!estBriqueMur && brique.type !== 'drapeau') {
-                    dessinerCoeurPixelArt(centreX, centreY, brique.taille * 0.6, couleur);
-                }
-
-                // Dessiner le drapeau pour les briques drapeaux
-                if (brique.type === 'drapeau' && brique.drapeau) {
-                    ctx.font = '32px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#ffffff';
-                    // ⚡ OPTIMISATION: Pas de shadowBlur (trop coûteux)
-                    ctx.fillText(brique.drapeau, centreX, centreY);
-                }
-
-                // En phase stars (nuit), afficher les mots pour guider le joueur
-                // ⚡ OPTIMISATION: Pas de texte en mode lanterne (déjà calculé au début)
-                if(modeStars && brique.etape && (typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom) && afficherTexte) {
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.font = `bold ${Math.max(12, brique.w * 0.15)}px Arial`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    // ⚡ OPTIMISATION: Un seul fillText (pas de strokeText pour économiser)
-                    const nomBrique = typeof brique.etape.nom === 'function' ? brique.etape.nom() : brique.etape.nom;
-                    // Ombre simple au lieu de strokeText
-                    ctx.shadowColor = '#000000';
-                    ctx.shadowBlur = 4;
-                    ctx.shadowOffsetX = 1;
-                    ctx.shadowOffsetY = 1;
-                    ctx.fillText(nomBrique, centreX, centreY + brique.h * 0.3);
-                    ctx.shadowBlur = 0;
-                }
-
-                // En phase lanterne, le texte reste caché - il n'apparaît que lors de l'explosion
-                // Le mystère reste entier jusqu'à la libération du cœur !
             });
         }
 
