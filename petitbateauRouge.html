@@ -21502,62 +21502,24 @@ Elle a besoin de ponts.`
             console.warn('⏭️⏭️⏭️ SAUVEGARDE DÉTECTÉE - INTRO ENTIÈREMENT BLOQUÉE ⏭️⏭️⏭️');
         }
 
-        // === RACCOURCIS TEST (DÉSACTIVÉS EN PRODUCTION) ===
-        /*
+        // === RACCOURCIS TEST (ACTIVÉS POUR DEBUG MODE SECRET) ===
         document.addEventListener('keydown', (e) => {
             // Ne pas intercepter les touches si on est dans un input/textarea/select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
             }
 
-            if (e.key === 'F1') {
+            // Touche S pour lancer le mode secret directement
+            if (e.key === 's' || e.key === 'S') {
                 e.preventDefault();
-                narrationManager.showFinalMenu();
-            }
-
-            // Touche 1 pour aller directement à la phase 11
-            if (e.key === '1') {
-                e.preventDefault();
-                narrationManager.currentPhase = 11;
-                narrationManager.goToNextPhase();
-            }
-
-            // Touche 2 pour passer à la phase suivante
-            if (e.key === '2') {
-                e.preventDefault();
-                narrationManager.goToNextPhase();
-            }
-
-            // Touche M pour menu final
-            if (e.key === 'm' || e.key === 'M') {
-                e.preventDefault();
-                narrationManager.showFinalMenu();
-            }
-
-            // Touche J x7 pour activer le mini-jeu "Briser les Frontières"
-            if (e.key === 'j' || e.key === 'J') {
-                e.preventDefault();
-
-                if (!window.jKeyPresses) {
-                    window.jKeyPresses = [];
-                }
-
-                const now = Date.now();
-                window.jKeyPresses.push(now);
-
-                // Garder seulement les pressions des dernières 3 secondes
-                window.jKeyPresses = window.jKeyPresses.filter(time => now - time < 3000);
-
-                // Si 7 pressions rapides
-                if (window.jKeyPresses.length >= 7) {
-                    window.jKeyPresses = [];
-                    briqueLangue.active = true;
-                    briqueLangue.game = null; // Réinitialiser pour créer un nouveau jeu
-                    afficherMessagePowerupSimple(getTranslatedText('game.messages.frontier_mode', '🧱 Mode Frontières activé !'));
+                console.log('🎮 Activation MODE SECRET via touche S');
+                if (typeof lancerNiveauSecret === 'function') {
+                    lancerNiveauSecret();
+                } else {
+                    console.error('❌ Fonction lancerNiveauSecret non trouvée');
                 }
             }
         });
-        */
 
         // === ANCIEN SYSTÈME NARRATION SUPPRIMÉ ===
         let niveauSecretDebloque = false;
