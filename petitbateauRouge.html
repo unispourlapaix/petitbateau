@@ -6466,6 +6466,7 @@ if (!MODE_DEV) {
                 jeu = true;
                 modeTirMur = 'projectile'; // Réinitialiser le mode de tir à projectile
                 selecteurTirMurCache = false; // Réafficher le sélecteur
+                briquesCasseesModeBalle = 0; // Réinitialiser compteur power-ups destructeurs
 
                 // Initialiser le jeu avec des briques en forme de mur
                 initJeu(); // Maintenant phaseJeu='mur' est déjà défini, préservera les munitions
@@ -10908,6 +10909,7 @@ if (!MODE_DEV) {
         let selecteurTirMurCache = false; // True = sélecteur caché après sélection
         let projectilesSecret = []; // Projectiles simples (mode secret)
         let powerUps = [], lanterne = { active: false, intensite: 0 };
+        let briquesCasseesModeBalle = 0; // Compteur pour power-ups destructeurs tous les 4 briques
         let laserState = { lastFired: 0, active: false, startTime: 0, duration: 1000 }; // État du laser phase 23
         let coeursBateau = []; // Cœurs lancés par le bateau
         let derniereCreeRafale = 0; // Temps de la dernière rafale
@@ -13563,6 +13565,140 @@ if (!MODE_DEV) {
             powerUps.push(nouveauPowerUp);console.log(`🎯 Power-up créé: ${typeFinal} à (${x}, ${y}), total: ${powerUps.length}`);
         }
 
+        // Créer un power-up destructeur (5 types simples et efficaces)
+        function creerPowerUpDestructeur(x, y) {
+            const typesDestructeurs = [
+                'explosion_ligne',    // 💥 Explosion qui détruit une ligne horizontale
+                'boule_feu',          // 🔥 Boule de feu qui détruit en zone 3x3
+                'eclair_vertical',    // ⚡ Éclair qui détruit une colonne verticale
+                'onde_choc',          // 🌊 Onde de choc qui détruit en cercle
+                'laser_croix'         // ✖️ Laser en croix qui détruit ligne + colonne
+            ];
+            
+            const typeFinal = typesDestructeurs[Math.floor(Math.random() * typesDestructeurs.length)];
+            
+            const nouveauPowerUp = {
+                x, y,
+                w: C.BS * 2, h: C.BS * 2, // Plus gros pour bien visible
+                type: typeFinal,
+                temps: 0,
+                etincelles: [],
+                destructeur: true // Marqueur spécial
+            };
+
+            powerUps.push(nouveauPowerUp);
+            console.log(`💥 Power-up DESTRUCTEUR créé: ${typeFinal} à (${x}, ${y})`);
+        }
+
+        // Activer les effets des power-ups destructeurs
+        function activerPowerUpDestructeur(type, power) {
+            const centerX = power.x + power.w/2;
+            const centerY = power.y + power.h/2;
+            
+            console.log(`💥 Activation power-up destructeur: ${type}`);
+            
+            switch(type) {
+                case 'explosion_ligne':
+                    // 💥 Détruit toutes les briques sur la même ligne horizontale
+                    briques.forEach(brique => {
+                        if (brique.visible && Math.abs(brique.y + brique.h/2 - centerY) < 40) {
+                            brique.visible = false;
+                            brises++;
+                            score += 50;
+                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF4500', 8);
+                            grilleCollision.supprimerBrique(brique);
+                        }
+                    });
+                    AudioSystem.playBrickBreakCrack();
+                    afficherMessagePowerupSimple('💥 EXPLOSION LIGNE !');
+                    break;
+                    
+                case 'boule_feu':
+                    // 🔥 Détruit toutes les briques dans un rayon de 100px (zone 3x3)
+                    briques.forEach(brique => {
+                        if (brique.visible) {
+                            const dx = (brique.x + brique.w/2) - centerX;
+                            const dy = (brique.y + brique.h/2) - centerY;
+                            const distance = Math.sqrt(dx*dx + dy*dy);
+                            
+                            if (distance < 100) {
+                                brique.visible = false;
+                                brises++;
+                                score += 50;
+                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF0000', 8);
+                                grilleCollision.supprimerBrique(brique);
+                            }
+                        }
+                    });
+                    AudioSystem.playBrickBreakGlass();
+                    afficherMessagePowerupSimple('🔥 BOULE DE FEU !');
+                    break;
+                    
+                case 'eclair_vertical':
+                    // ⚡ Détruit toutes les briques sur la même colonne verticale
+                    briques.forEach(brique => {
+                        if (brique.visible && Math.abs(brique.x + brique.w/2 - centerX) < 40) {
+                            brique.visible = false;
+                            brises++;
+                            score += 50;
+                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FFFF00', 8);
+                            grilleCollision.supprimerBrique(brique);
+                        }
+                    });
+                    AudioSystem.playBrickBreakToc();
+                    afficherMessagePowerupSimple('⚡ ÉCLAIR VERTICAL !');
+                    break;
+                    
+                case 'onde_choc':
+                    // 🌊 Détruit toutes les briques dans un grand rayon de 150px (cercle)
+                    briques.forEach(brique => {
+                        if (brique.visible) {
+                            const dx = (brique.x + brique.w/2) - centerX;
+                            const dy = (brique.y + brique.h/2) - centerY;
+                            const distance = Math.sqrt(dx*dx + dy*dy);
+                            
+                            if (distance < 150) {
+                                brique.visible = false;
+                                brises++;
+                                score += 50;
+                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#00BFFF', 8);
+                                grilleCollision.supprimerBrique(brique);
+                            }
+                        }
+                    });
+                    AudioSystem.playBrickBreakCrack();
+                    afficherMessagePowerupSimple('🌊 ONDE DE CHOC !');
+                    break;
+                    
+                case 'laser_croix':
+                    // ✖️ Détruit toutes les briques en croix (ligne + colonne)
+                    briques.forEach(brique => {
+                        if (brique.visible) {
+                            const ligneMatch = Math.abs(brique.y + brique.h/2 - centerY) < 40;
+                            const colonneMatch = Math.abs(brique.x + brique.w/2 - centerX) < 40;
+                            
+                            if (ligneMatch || colonneMatch) {
+                                brique.visible = false;
+                                brises++;
+                                score += 50;
+                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF00FF', 8);
+                                grilleCollision.supprimerBrique(brique);
+                            }
+                        }
+                    });
+                    AudioSystem.playBrickBreakGlass();
+                    afficherMessagePowerupSimple('✖️ LASER EN CROIX !');
+                    break;
+            }
+            
+            // Effets visuels communs
+            ajouterParticules(centerX, centerY, '#FFD700', 20);
+            
+            // Vérifier si le niveau est terminé
+            const briquesRestantes = briques.filter(b => b.visible).length;
+            console.log(`💥 Après power-up destructeur: ${briquesRestantes} briques restantes`);
+        }
+
         function dessinerPowerUps() {
             if(powerUps.length === 0) return; // ⚡ Retour anticipé
             
@@ -13695,6 +13831,21 @@ if (!MODE_DEV) {
                         break;
                     case 'smile':
                         couleur1 = '#FFD700'; couleur2 = '#FFED4E'; couleur3 = '#FFF68F'; // Jaune lumineux (joie)
+                        break;
+                    case 'explosion_ligne':
+                        couleur1 = '#FF4500'; couleur2 = '#FF6347'; couleur3 = '#FF7F50'; // Orange vif (explosion)
+                        break;
+                    case 'boule_feu':
+                        couleur1 = '#FF0000'; couleur2 = '#FF4500'; couleur3 = '#FFA500'; // Rouge/Orange (feu)
+                        break;
+                    case 'eclair_vertical':
+                        couleur1 = '#FFFF00'; couleur2 = '#FFD700'; couleur3 = '#FFA500'; // Jaune/Or (éclair)
+                        break;
+                    case 'onde_choc':
+                        couleur1 = '#00BFFF'; couleur2 = '#1E90FF'; couleur3 = '#4169E1'; // Bleu clair (onde)
+                        break;
+                    case 'laser_croix':
+                        couleur1 = '#FF00FF'; couleur2 = '#DA70D6'; couleur3 = '#BA55D3'; // Magenta (laser)
                         break;
                     case 'rainbow_hope':
                         // Arc-en-ciel animé pour le power-up Espoir (Phase 22)
@@ -14056,6 +14207,23 @@ if (!MODE_DEV) {
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF1493', 15);
                             AudioSystem.playSoftCollect(); // 🔊 Son doux
                             afficherMessagePowerupSimple('💗 🌊 💪');
+                            break;
+
+                        // 💥 POWER-UPS DESTRUCTEURS (Mode Balle uniquement)
+                        case 'explosion_ligne':
+                            activerPowerUpDestructeur('explosion_ligne', power);
+                            break;
+                        case 'boule_feu':
+                            activerPowerUpDestructeur('boule_feu', power);
+                            break;
+                        case 'eclair_vertical':
+                            activerPowerUpDestructeur('eclair_vertical', power);
+                            break;
+                        case 'onde_choc':
+                            activerPowerUpDestructeur('onde_choc', power);
+                            break;
+                        case 'laser_croix':
+                            activerPowerUpDestructeur('laser_croix', power);
                             break;
 
                         case 'smile':
@@ -17135,6 +17303,16 @@ if (!MODE_DEV) {
                         if (brique.vie <= 0) {
                         brique.visible = false;
                         brises++;
+                        
+                        // 💥 MODE BALLE : Compteur pour power-ups destructeurs tous les 4 briques
+                        if (modeTirMur === 'balle') {
+                            briquesCasseesModeBalle++;
+                            if (briquesCasseesModeBalle >= 4) {
+                                briquesCasseesModeBalle = 0; // Réinitialiser le compteur
+                                creerPowerUpDestructeur(brique.x + brique.w/2 - C.BS, brique.y + brique.h/2 - C.BS);
+                                console.log('💥 Power-up destructeur créé après 4 briques!');
+                            }
+                        }
                         
                         // 🚀 OPTIMISATION : Supprimer la brique de la grille spatiale
                         grilleCollision.supprimerBrique(brique);
