@@ -3449,9 +3449,33 @@ if (!MODE_DEV) {
             afficherMessageNarratifSimple(getTranslatedText('powerups.light_chases_night', '💡 La lumière chasse la nuit\n+1000 XP'), 4000);
         }
 
+        // ⚡ OPTIMISATION: Cache Path2D pour la chauve-souris
+        let _chauveSourisPathCache = {
+            corps: null,
+            ailes: null,
+            yeux: null
+        };
+
         // Dessiner la chauve-souris
         function dessinerChauveSouris() {
             if(!chauveSouris.active) return;
+
+            // ⚡ Créer les Path2D une seule fois
+            if (!_chauveSourisPathCache.corps) {
+                // Corps normalisé
+                _chauveSourisPathCache.corps = new Path2D();
+                _chauveSourisPathCache.corps.ellipse(0, 0, 8, 12, 0, 0, Math.PI * 2);
+                
+                // Ailes normalisées
+                _chauveSourisPathCache.ailes = new Path2D();
+                _chauveSourisPathCache.ailes.ellipse(-12, -5, 10, 8, -0.5, 0, Math.PI * 2);
+                _chauveSourisPathCache.ailes.ellipse(12, -5, 10, 8, 0.5, 0, Math.PI * 2);
+                
+                // Yeux normalisés
+                _chauveSourisPathCache.yeux = new Path2D();
+                _chauveSourisPathCache.yeux.arc(-3, -3, 2, 0, Math.PI * 2);
+                _chauveSourisPathCache.yeux.arc(3, -3, 2, 0, Math.PI * 2);
+            }
 
             ctx.save();
             ctx.translate(chauveSouris.x, chauveSouris.y);
@@ -3459,27 +3483,17 @@ if (!MODE_DEV) {
             // ⚡ OPTIMISATION: Utiliser valeur de battement en cache
             ctx.rotate(chauveSourisCache.battement);
 
-            // Corps de la chauve-souris
+            // ⚡ UN SEUL fill() pour le corps
             ctx.fillStyle = '#2C1810';
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 8, 12, 0, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fill(_chauveSourisPathCache.corps);
 
-            // Ailes
+            // ⚡ UN SEUL fill() pour les ailes
             ctx.fillStyle = '#1A0F08';
-            ctx.beginPath();
-            // Aile gauche
-            ctx.ellipse(-12, -5, 10, 8, -0.5, 0, Math.PI * 2);
-            // Aile droite
-            ctx.ellipse(12, -5, 10, 8, 0.5, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fill(_chauveSourisPathCache.ailes);
 
-            // Yeux rouges
+            // ⚡ UN SEUL fill() pour les yeux
             ctx.fillStyle = '#FF4444';
-            ctx.beginPath();
-            ctx.arc(-3, -3, 2, 0, Math.PI * 2);
-            ctx.arc(3, -3, 2, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fill(_chauveSourisPathCache.yeux);
 
             // ⚡ OPTIMISATION: Calculer distance avant shadowBlur
             if(!chauveSouris.collectee && balle.visible) {
@@ -3496,8 +3510,9 @@ if (!MODE_DEV) {
                     }
                     ctx.strokeStyle = '#FFD700';
                     ctx.lineWidth = 2;
-                    ctx.stroke();
+                    ctx.stroke(_chauveSourisPathCache.corps); // Stroke sur le corps uniquement
                 }
+            }
             }
 
             ctx.restore();
