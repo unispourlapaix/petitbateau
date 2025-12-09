@@ -47,9 +47,9 @@ class SecretModeModule {
         if (typeof KawaiiObjects !== 'undefined') {
             this.kawaiiObjects = new KawaiiObjects();
             this.setupKawaiiContainer();
-            // console.log('💕 Objets kawaii DOM intégrés au mode secret - 9 objets disponibles !');
+            console.log('💕 Objets kawaii DOM intégrés au mode secret - 9 objets disponibles !');
         } else {
-            // console.warn('⚠️ Module objets kawaii non trouvé - Brian est safe pour le moment 😄');
+            console.warn('⚠️ Module objets kawaii non trouvé - Brian est safe pour le moment 😄');
         }
 
         // Configuration
@@ -69,7 +69,7 @@ class SecretModeModule {
     }
 
     init() {
-        // console.log('🎮 Module Mode Secret initialisé');
+        console.log('🎮 Module Mode Secret initialisé');
     }
 
     // Créer le conteneur DOM pour les objets kawaii
