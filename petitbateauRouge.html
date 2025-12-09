@@ -14722,36 +14722,35 @@ if (!MODE_DEV) {
                 return;
             }
 
-            const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF', '#FFA502', '#26de81', '#fd79a8'];
+            const couleurs = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57'];
 
-            // Créer un visage rond avec les cœurs - PLUS GRAND
+            // ⚡ EXTREME OPTIMISATION: REDUIRE À 20 CŒURS au lieu de 40
             const centreX = C.W / 2;
-            // Position différente en mode mur : juste sous le header (10%)
             const centreY = (phaseJeu === 'mur') ? C.H * 0.10 : C.H * 0.3;
-            const rayon = Math.min(C.W, C.H) * 0.22; // Rayon du visage agrandi (0.22 au lieu de 0.15)
+            const rayon = Math.min(C.W, C.H) * 0.22;
 
-            for(let i = 0; i < 40; i++) { // 40 cœurs pour former le visage
-                const taille = C.BS * (1.5 + Math.random() * 2.5); // Tailles variées
+            for(let i = 0; i < 20; i++) { // 20 cœurs au lieu de 40 (50% réduction)
+                const taille = C.BS * (1.5 + Math.random() * 2);
 
                 // Position en cercle
-                const angle = (i / 40) * 2 * Math.PI; // Répartir sur 360°
-                const x = centreX + Math.cos(angle) * rayon + (Math.random() - 0.5) * 20; // Légère variation
-                const y = centreY + Math.sin(angle) * rayon + (Math.random() - 0.5) * 20; // Légère variation
+                const angle = (i / 20) * 2 * Math.PI;
+                const x = centreX + Math.cos(angle) * rayon;
+                const y = centreY + Math.sin(angle) * rayon;
 
                 petitsCoeurs.push({
                     x: x,
                     y: y,
-                    w: taille, h: taille, // Dimensions pour collision
+                    w: taille, h: taille,
                     taille: taille,
                     couleur: couleurs[i % couleurs.length],
-                    visible: true, // Peut être cassé
-                    etape: VOYAGE[Math.min(i, VOYAGE.length - 1)], // Associer une étape narrative
+                    visible: true,
+                    etape: VOYAGE[Math.min(i, VOYAGE.length - 1)],
                     scintillement: Math.random() * Math.PI * 2,
-                    vitesseScintillement: 0.05 + Math.random() * 0.05,
+                    vitesseScintillement: 0.03, // Simplifié
                     rotation: Math.random() * Math.PI * 2,
-                    vitesseRotation: (Math.random() - 0.5) * 0.012, // ✅ Augmenté de 0.008 à 0.012 (un peu plus rapide)
+                    vitesseRotation: 0.008, // Simplifié
                     pulsation: Math.random() * Math.PI * 2,
-                    vitessePulsation: 0.03 + Math.random() * 0.02,
+                    vitessePulsation: 0.02, // Simplifié
                 });
             }
         }
@@ -15699,25 +15698,21 @@ if (!MODE_DEV) {
         function creerGouttesPluie() {
             if (!pluieActive) return;
 
-            // ⚡ ULTRA OPTIMISATION: Réduire drastiquement le nombre de gouttes
-            // 1 goutte toutes les 2 frames = 30 gouttes/sec au lieu de 120-180
-            if (Math.random() > 0.5) return; // Skip 50% des frames
+            // ⚡ EXTREME OPTIMISATION: Encore moins de gouttes
+            // 1 goutte toutes les 3 frames = 20 gouttes/sec
+            if (Math.random() > 0.33) return; // Skip 66% des frames
             
-            const nbGouttes = 1; // Une seule goutte à la fois
+            gouttesPlui.push({
+                x: Math.random() * C.W,
+                y: -10,
+                vitesse: 6 + Math.random() * 2, // Plus rapide (6-8)
+                longueur: 15 + Math.random() * 10, // Plus longues (15-25)
+                alpha: 0.5
+            });
 
-            for (let i = 0; i < nbGouttes; i++) {
-                gouttesPlui.push({
-                    x: Math.random() * C.W,
-                    y: -10,
-                    vitesse: 4 + Math.random() * 2, // Vitesse entre 4 et 6 (plus rapide)
-                    longueur: 12 + Math.random() * 8, // Longueur entre 12 et 20 (plus longues)
-                    alpha: 0.5 // Alpha fixe pour simplifier
-                });
-            }
-
-            // Limiter drastiquement le nombre de gouttes
-            if (gouttesPlui.length > 50) {
-                gouttesPlui = gouttesPlui.slice(-50); // Max 50 au lieu de 150
+            // Max 30 gouttes seulement
+            if (gouttesPlui.length > 30) {
+                gouttesPlui.shift(); // Retirer la plus ancienne
             }
         }
 
@@ -21609,47 +21604,19 @@ Elle a besoin de ponts.`
         function mettreAJourTextesVolants() {
             for(let i = textesVolants.length - 1; i >= 0; i--) {
                 const texte = textesVolants[i];
-                texte.temps += 0.006; // Ralenti (était 0.012)
+                texte.temps += 0.02; // Plus rapide (était 0.006)
 
-                // Mouvement vers le centre horizontal plus lent
+                // ⚡ EXTREME SIMPLIFICATION: Montée directe sans descente
                 const centreX = C.W / 2;
-                const progression = Math.min(1, texte.temps * 1.5); // Ralenti (était 3)
-                texte.x = texte.xDepart + (centreX - texte.xDepart) * progression;
+                texte.x = texte.xDepart + (centreX - texte.xDepart) * texte.temps * 2;
+                texte.y = texte.yDepart - (texte.temps * 120); // Monte directement
+                
+                // Fade simple et rapide
+                texte.alpha = Math.max(0, 1 - texte.temps * 2.5);
+                texte.taille = 14 + texte.temps * 8; // Moins de grossissement
 
-                // Animation en deux phases : descente puis montée
-                if(texte.phase === 'descente') {
-                    // Phase 1 : Le texte descend lentement et plus bas
-                    texte.y = texte.yDepart + (texte.temps * 100); // Ralenti (était 200)
-
-                    // Fondu pendant la descente plus lent
-                    texte.alpha = Math.max(0.3, 1 - texte.temps * 2); // Ralenti (était 4)
-
-                    // Passer à la phase montée plus tard
-                    if(texte.temps > 0.3) { // Plus long (était 0.15)
-                        texte.phase = 'montee';
-                        texte.yTournant = texte.y; // Marquer le point de retournement
-                        texte.tempsRetournement = texte.temps;
-                        texte.alpha = 0.3; // Alpha minimum au tournant
-                    }
-                } else {
-                    // Phase 2 : Le texte remonte vers le haut avec fondu retour
-                    const tempsDepuisRetournement = texte.temps - texte.tempsRetournement;
-                    texte.y = texte.yTournant - (tempsDepuisRetournement * 80); // Ralenti (était 180)
-
-                    // Fondu retour pendant la montée plus lent
-                    texte.alpha = Math.min(1, 0.3 + tempsDepuisRetournement * 2); // Ralenti (était 4)
-                }
-
-                // Grossissement très progressif et doux
-                texte.taille = 12 + texte.temps * 15; // Ralenti (était 20)
-
-                // Disparition finale plus lente
-                if(texte.temps > 0.8) { // Plus long (était 0.4)
-                    texte.alpha = Math.max(0, texte.alpha - (texte.temps - 0.8) * 2); // Ralenti (était 4)
-                }
-
-                // Supprimer si invisible ou trop haut
-                if(texte.alpha <= 0 || texte.y < -50) {
+                // Supprimer rapidement (vie courte)
+                if(texte.temps > 0.5 || texte.alpha <= 0) {
                     textesVolants.splice(i, 1);
                 }
             }
