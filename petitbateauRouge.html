@@ -11752,7 +11752,56 @@ if (!MODE_DEV) {
         function dessinerStarsProjectiles() {
             // Dessiner pendant la phase stars, feux_artifice ET lanterne (pour Poxerstart)
             if (phaseJeu !== 'stars' && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne') return;
+            
+            if (starsProjectiles.length === 0) return;
 
+            // ⚡ OPTIMISATION: Calculer une taille moyenne pour le cache (éviter recréation à chaque frame)
+            const rayonMoyen = starsProjectiles[0]?.taille || 13;
+            
+            // ⚡ CACHE: Créer les gradients et path une seule fois
+            if (!starsGradientsCache.trainee || Math.abs(starsGradientsCache.lastSize - rayonMoyen) > 2) {
+                const longueurTrainee = rayonMoyen * 3;
+                
+                starsGradientsCache.trainee = ctx.createLinearGradient(-longueurTrainee, 0, 0, 0);
+                starsGradientsCache.trainee.addColorStop(0, 'rgba(255, 215, 0, 0)');
+                starsGradientsCache.trainee.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
+                starsGradientsCache.trainee.addColorStop(1, '#FFD700');
+                
+                starsGradientsCache.halo = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonMoyen * 1.5);
+                starsGradientsCache.halo.addColorStop(0, '#FFD700');
+                starsGradientsCache.halo.addColorStop(0.5, 'rgba(255, 215, 0, 0.5)');
+                starsGradientsCache.halo.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                
+                starsGradientsCache.etoile = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonMoyen);
+                starsGradientsCache.etoile.addColorStop(0, '#FFFFFF');
+                starsGradientsCache.etoile.addColorStop(0.3, '#FFD700');
+                starsGradientsCache.etoile.addColorStop(1, 'rgba(255, 215, 0, 0.8)');
+                
+                starsGradientsCache.lastSize = rayonMoyen;
+            }
+            
+            // ⚡ CACHE Path2D: Créer le path d'étoile une seule fois
+            if (!starsGradientsCache.etoilePath) {
+                starsGradientsCache.etoilePath = new Path2D();
+                for(let i = 0; i < 5; i++) {
+                    const angle1 = (i * 2 * Math.PI) / 5;
+                    const angle2 = ((i + 0.5) * 2 * Math.PI) / 5;
+
+                    const x1 = Math.cos(angle1);
+                    const y1 = Math.sin(angle1);
+                    const x2 = Math.cos(angle2) * 0.4;
+                    const y2 = Math.sin(angle2) * 0.4;
+
+                    if(i === 0) starsGradientsCache.etoilePath.moveTo(x1, y1);
+                    else starsGradientsCache.etoilePath.lineTo(x1, y1);
+                    starsGradientsCache.etoilePath.lineTo(x2, y2);
+                }
+                starsGradientsCache.etoilePath.closePath();
+            }
+
+            const rotation = Date.now() * 0.02;
+            
+            // 🚀 BATCHING: Dessiner toutes les étoiles en minimisant les state changes
             starsProjectiles.forEach(projectile => {
                 ctx.save();
 
@@ -11771,15 +11820,7 @@ if (!MODE_DEV) {
                 const longueurTrainee = rayonEtoile * 3;
                 const largeurTrainee = rayonEtoile * 0.3;
 
-                // ⚡ CACHE: Gradient de la traînée (créé 1 fois)
-                if (!starsGradientsCache.trainee || starsGradientsCache.lastSize !== rayonEtoile) {
-                    starsGradientsCache.trainee = ctx.createLinearGradient(-longueurTrainee, 0, 0, 0);
-                    starsGradientsCache.trainee.addColorStop(0, 'rgba(255, 215, 0, 0)');
-                    starsGradientsCache.trainee.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
-                    starsGradientsCache.trainee.addColorStop(1, '#FFD700');
-                }
-
-                // Dessiner la traînée
+                // Dessiner la traînée (path inline simple)
                 ctx.fillStyle = starsGradientsCache.trainee;
                 ctx.beginPath();
                 ctx.moveTo(-longueurTrainee, -largeurTrainee);
@@ -11789,63 +11830,21 @@ if (!MODE_DEV) {
                 ctx.fill();
 
                 // Rotation scintillante pour l'étoile elle-même
-                const rotation = Date.now() * 0.02;
                 ctx.rotate(rotation);
 
-                // Étoile principale avec halo
-                if (isFinite(rayonEtoile) && rayonEtoile > 0) {
-                    // ⚡ CACHE: Halo lumineux (créé 1 fois)
-                    if (!starsGradientsCache.halo || starsGradientsCache.lastSize !== rayonEtoile) {
-                        starsGradientsCache.halo = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile * 1.5);
-                        starsGradientsCache.halo.addColorStop(0, '#FFD700');
-                        starsGradientsCache.halo.addColorStop(0.5, 'rgba(255, 215, 0, 0.5)');
-                        starsGradientsCache.halo.addColorStop(1, 'rgba(255, 215, 0, 0)');
-                    }
+                // Halo lumineux
+                ctx.fillStyle = starsGradientsCache.halo;
+                ctx.beginPath();
+                ctx.arc(0, 0, rayonEtoile * 1.5, 0, Math.PI * 2);
+                ctx.fill();
 
-                    ctx.fillStyle = starsGradientsCache.halo;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, rayonEtoile * 1.5, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // ⚡ CACHE: Étoile centrale brillante (créé 1 fois)
-                    if (!starsGradientsCache.etoile || starsGradientsCache.lastSize !== rayonEtoile) {
-                        starsGradientsCache.etoile = ctx.createRadialGradient(0, 0, 0, 0, 0, rayonEtoile);
-                        starsGradientsCache.etoile.addColorStop(0, '#FFFFFF');
-                        starsGradientsCache.etoile.addColorStop(0.3, '#FFD700');
-                        starsGradientsCache.etoile.addColorStop(1, 'rgba(255, 215, 0, 0.8)');
-                        
-                        // Marquer la taille pour invalider le cache si nécessaire
-                        starsGradientsCache.lastSize = rayonEtoile;
-                    }
-
-                    // ⚡ CACHE Path2D: Créer le path d'étoile une seule fois
-                    if (!starsGradientsCache.etoilePath) {
-                        starsGradientsCache.etoilePath = new Path2D();
-                        for(let i = 0; i < 5; i++) {
-                            const angle1 = (i * 2 * Math.PI) / 5;
-                            const angle2 = ((i + 0.5) * 2 * Math.PI) / 5;
-
-                            const x1 = Math.cos(angle1);
-                            const y1 = Math.sin(angle1);
-                            const x2 = Math.cos(angle2) * 0.4;
-                            const y2 = Math.sin(angle2) * 0.4;
-
-                            if(i === 0) starsGradientsCache.etoilePath.moveTo(x1, y1);
-                            else starsGradientsCache.etoilePath.lineTo(x1, y1);
-                            starsGradientsCache.etoilePath.lineTo(x2, y2);
-                        }
-                        starsGradientsCache.etoilePath.closePath();
-                    }
-
-                    ctx.fillStyle = starsGradientsCache.etoile;
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 1;
-
-                    // ⚡ Dessiner avec Path2D en cache + scale
-                    ctx.scale(rayonEtoile, rayonEtoile);
-                    ctx.fill(starsGradientsCache.etoilePath);
-                    ctx.stroke(starsGradientsCache.etoilePath);
-                }
+                // ⚡ Dessiner avec Path2D en cache + scale
+                ctx.fillStyle = starsGradientsCache.etoile;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 1;
+                ctx.scale(rayonEtoile, rayonEtoile);
+                ctx.fill(starsGradientsCache.etoilePath);
+                ctx.stroke(starsGradientsCache.etoilePath);
 
                 ctx.restore();
             });
