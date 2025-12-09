@@ -22314,9 +22314,12 @@ Elle a besoin de ponts.`
             if(e.key === 'd' || e.key === 'D') {
                 e.preventDefault();
                 if (narrationManager) {
-                    narrationManager.currentPhase++;
-                    console.log('🔧 Phase suivante:', narrationManager.currentPhase);
-                    narrationManager.start();
+                    if (narrationManager.nextPhase()) {
+                        narrationManager.start();
+                        console.log('🔧 Phase suivante:', narrationManager.currentPhase);
+                    } else {
+                        console.log('🔧 Pas de phase suivante disponible');
+                    }
                 }
             }
 
