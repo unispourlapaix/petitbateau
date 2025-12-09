@@ -2420,7 +2420,13 @@ if (!MODE_DEV) {
         // ============================================
 
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        
+        // 🚀 Optimisations canvas pour mobile
+        const ctx = canvas.getContext('2d', {
+            alpha: false,              // Pas de transparence = plus rapide
+            desynchronized: true,      // Désynchronisé pour meilleures perfs
+            willReadFrequently: false  // Optimise pour écriture fréquente
+        });
 
         // Détection mobile et tactile
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
@@ -2631,6 +2637,12 @@ if (!MODE_DEV) {
                 
                 // Scaler le contexte pour compenser le pixel ratio
                 ctx.scale(pixelRatio, pixelRatio);
+                
+                // 🚀 Optimisations de rendu pour mobile
+                if (isMobile) {
+                    ctx.imageSmoothingEnabled = false; // Désactive l'antialiasing pour meilleures perfs
+                    ctx.imageSmoothingQuality = 'low';
+                }
                 
                 // Stocker le niveau de qualité pour autres optimisations
                 window.PERF_QUALITY_LEVEL = quality.level;
@@ -6869,7 +6881,12 @@ if (!MODE_DEV) {
         class DroneFireworksModule {
             constructor(canvas, options = {}) {
                 this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
+                // 🚀 Optimisations canvas pour drones
+                this.ctx = canvas.getContext('2d', {
+                    alpha: false,
+                    desynchronized: true,
+                    willReadFrequently: false
+                });
                 this.options = {
                     droneCount: options.droneCount || 12,
                     size: options.size || 150,
