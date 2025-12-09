@@ -20363,8 +20363,12 @@ Elle a besoin de ponts.`
                     libererVaguesAmour();
                 } else {
                     // En mode secret, utiliser le module
+                    const rect = canvas.getBoundingClientRect();
+                    const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                    const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                    
                     if (secretModeModule && secretModeModule.isActive) {
-                        secretModeModule.createProjectile(x, y);
+                        secretModeModule.createProjectile(mouseX, mouseY);
                     } else if (modeSecret) {
                         // Fallback si le module n'est pas disponible
                         creerProjectile();
