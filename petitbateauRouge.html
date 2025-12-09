@@ -21345,12 +21345,16 @@ Elle a besoin de ponts.`
                     if(modeTirMur === 'projectile') {
                         console.log(`🎯 APPEL tirerProjectile() pour phase mur ${phaseActuelle}`);
                         tirerProjectile(mouseX, mouseY);  // Système progressif phases 17-22
-                    } else if(modeTirMur === 'balle' && balle.enAttente) {
-                        console.log(`🏮 Lancer la balle en mode mur`);
-                        balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
-                        balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
-                        balle.enAttente = false;
-                        afficherMessagePowerupSimple('🧱 Lanterne lancée !');
+                    } else if(modeTirMur === 'balle') {
+                        // Mode balle : seulement lancer si en attente
+                        if(balle.enAttente) {
+                            console.log(`🏮 Lancer la balle en mode mur`);
+                            balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
+                            balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
+                            balle.enAttente = false;
+                            afficherMessagePowerupSimple('🧱 Lanterne lancée !');
+                        }
+                        // Sinon ne rien faire (pas de tir de projectiles en mode balle)
                     }
                 }
                 // Lancer la balle si en attente (phases lanterne normales)
