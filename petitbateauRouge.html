@@ -15728,13 +15728,27 @@ if (!MODE_DEV) {
             ctx.lineWidth = 1.5;
             ctx.lineCap = 'round';
 
+            // ⚡ OPTIMISATION: Grouper les gouttes par niveau d'alpha pour batching
+            // Préserver la beauté en gardant les variations de transparence
+            const gouttesParAlpha = {};
+            
             for (const goutte of gouttesPlui) {
-                ctx.globalAlpha = goutte.alpha;
-                ctx.beginPath();
-                ctx.moveTo(goutte.x, goutte.y);
-                ctx.lineTo(goutte.x, goutte.y + goutte.longueur);
-                ctx.stroke();
+                // Arrondir l'alpha à 0.1 près pour créer des groupes (3 niveaux: 0.3, 0.4, 0.5, 0.6)
+                const alphaKey = Math.round(goutte.alpha * 10) / 10;
+                if (!gouttesParAlpha[alphaKey]) {
+                    gouttesParAlpha[alphaKey] = new Path2D();
+                }
+                
+                // Ajouter la goutte au path de son groupe d'alpha
+                gouttesParAlpha[alphaKey].moveTo(goutte.x, goutte.y);
+                gouttesParAlpha[alphaKey].lineTo(goutte.x, goutte.y + goutte.longueur);
             }
+
+            // Dessiner chaque groupe d'alpha en un seul stroke()
+            Object.keys(gouttesParAlpha).forEach(alphaKey => {
+                ctx.globalAlpha = parseFloat(alphaKey);
+                ctx.stroke(gouttesParAlpha[alphaKey]); // UN SEUL stroke() pour toutes les gouttes de cet alpha
+            });
 
             ctx.restore();
         }
