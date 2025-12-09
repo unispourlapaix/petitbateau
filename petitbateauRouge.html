@@ -18601,7 +18601,7 @@ Elle a besoin de ponts.`
                 ctx.arc(soleilX, soleilY, soleilR, 0, Math.PI * 2);
                 ctx.fill();
 
-                // ⚡ OPTIMISATION: Rayons du soleil avec throttling et cache
+                // ⚡ OPTIMISATION: Rayons du soleil avec throttling et Path2D batching
                 const frameCount = Date.now();
                 if (frameCount - fondAniméCache.lastSunRaysFrame > fondAniméCache.sunRaysThrottle * 16) { // ~30fps
                     const rotationSoleil = frameCount * 0.0005; // Rotation lente cachée
@@ -18615,21 +18615,23 @@ Elle a besoin de ponts.`
                     fondAniméCache.lastSunRaysFrame = frameCount;
                 }
                 
-                // Dessiner les rayons avec les angles cachés
+                // 🚀 BATCHING: Créer UN SEUL Path2D pour tous les rayons
                 ctx.strokeStyle = leverSoleil.active ? ctx.fillStyle : '#FFD700';
-                ctx.lineWidth = leverSoleil.active ? 4 : 3; // ✅ Épaisseur originale restaurée
+                ctx.lineWidth = leverSoleil.active ? 4 : 3;
                 
+                const pathRayons = new Path2D();
                 fondAniméCache.sunRaysAngles.forEach(angle => {
-                    const longueurRayon = leverSoleil.active ? 20 : 12; // Réduit: 25→20, 15→12
+                    const longueurRayon = leverSoleil.active ? 20 : 12;
                     const x1 = soleilX + Math.cos(angle) * (soleilR + 5);
                     const y1 = soleilY + Math.sin(angle) * (soleilR + 5);
                     const x2 = soleilX + Math.cos(angle) * (soleilR + longueurRayon);
                     const y2 = soleilY + Math.sin(angle) * (soleilR + longueurRayon);
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
+                    pathRayons.moveTo(x1, y1);
+                    pathRayons.lineTo(x2, y2);
                 });
+                
+                // UN SEUL stroke() pour tous les rayons !
+                ctx.stroke(pathRayons);
             } else {
                 // CHAPITRE 2: Lune inquiétante
                 luneX = C.W * 0.2;
@@ -18671,90 +18673,83 @@ Elle a besoin de ponts.`
                     soleil.clignotement = false;
                 }
 
+                // 🚀 BATCHING: Créer UN SEUL Path2D pour tout le visage
+                const pathVisage = new Path2D();
+                ctx.fillStyle = '#FF8C00';
+                ctx.strokeStyle = '#FF8C00';
+
                 // Visage du soleil (progresse avec le joueur)
                 if(brises >= VOYAGE.length) {
                     // Soleil paisible et bienveillant à la fin
-                    ctx.fillStyle = '#FF8C00';
-
-                    // Yeux doux et fermés (paix)
-                    ctx.strokeStyle = '#FF8C00';
                     ctx.lineWidth = 3;
-                    ctx.beginPath();
+                    
                     // Yeux fermés paisibles en forme de croissants
-                    ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
-                    ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
-                    ctx.stroke();
-
+                    pathVisage.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
+                    pathVisage.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.15, soleilR*0.15, 0.3, Math.PI - 0.3);
+                    
                     // Sourire doux et modéré
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.arc(soleilX, soleilY + soleilR*0.2, soleilR*0.3, 0.2, Math.PI - 0.2);
-                    ctx.stroke();
+                    pathVisage.arc(soleilX, soleilY + soleilR*0.2, soleilR*0.3, 0.2, Math.PI - 0.2);
+                    
+                    // UN SEUL stroke() pour tout le visage
+                    ctx.stroke(pathVisage);
+                    
                 } else if(brises > 0) {
                     // Soleil qui commence à sourire
-                    ctx.fillStyle = '#FF8C00';
-                    ctx.beginPath();
-
                     if(faitClinOeil) {
                         // Clin d'œil ! Œil gauche fermé, œil droit ouvert
-                        // Œil gauche fermé (clin d'œil)
-                        ctx.strokeStyle = '#FF8C00';
                         ctx.lineWidth = 4;
-                        ctx.beginPath();
-                        ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0.3, Math.PI - 0.3);
-                        ctx.stroke();
-
-                        // Œil droit ouvert (normal)
-                        ctx.fillStyle = '#FF8C00';
-                        ctx.beginPath();
-                        ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
-                        ctx.fill();
-
-                        // Sourire extra large pour le clin d'œil
-                        ctx.strokeStyle = '#FF8C00';
-                        ctx.lineWidth = 4;
-                        ctx.beginPath();
-                        ctx.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.5, 0, Math.PI);
-                        ctx.stroke();
+                        
+                        // Œil gauche fermé (clin d'œil) - path stroke
+                        const pathStroke = new Path2D();
+                        pathStroke.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0.3, Math.PI - 0.3);
+                        pathStroke.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.5, 0, Math.PI);
+                        ctx.stroke(pathStroke);
+                        
+                        // Œil droit ouvert (normal) - path fill
+                        const pathFill = new Path2D();
+                        pathFill.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        ctx.fill(pathFill);
+                        
                     } else {
-                        // Yeux normaux
-                        ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
-                        ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.strokeStyle = '#FF8C00';
+                        // Yeux normaux - UN path pour fill, UN path pour stroke
+                        const pathYeux = new Path2D();
+                        pathYeux.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        pathYeux.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.2, soleilR*0.15, 0, Math.PI * 2);
+                        ctx.fill(pathYeux);
+                        
+                        const pathSourire = new Path2D();
+                        pathSourire.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.4, 0, Math.PI);
                         ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        ctx.arc(soleilX, soleilY + soleilR*0.1, soleilR*0.4, 0, Math.PI);
-                        ctx.stroke();
+                        ctx.stroke(pathSourire);
                     }
                 } else {
-                    // Soleil qui boude au début
-                    ctx.fillStyle = '#FF8C00';
-                    ctx.beginPath();
-                    ctx.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
-                    ctx.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = '#FF8C00';
+                    // Soleil qui boude au début - UN path pour fill, UN path pour stroke
+                    const pathYeuxBoude = new Path2D();
+                    pathYeuxBoude.arc(soleilX - soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
+                    pathYeuxBoude.arc(soleilX + soleilR*0.3, soleilY - soleilR*0.1, soleilR*0.1, 0, Math.PI * 2);
+                    ctx.fill(pathYeuxBoude);
+                    
+                    const pathBoudeStroke = new Path2D();
+                    pathBoudeStroke.arc(soleilX, soleilY + soleilR*0.3, soleilR*0.3, Math.PI, 0, true);
                     ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.arc(soleilX, soleilY + soleilR*0.3, soleilR*0.3, Math.PI, 0, true);
-                    ctx.stroke();
+                    ctx.stroke(pathBoudeStroke);
                 }
             } else {
-                // Visage de la lune inquiétante
+                // Visage de la lune inquiétante - 🚀 BATCHING Path2D
                 ctx.fillStyle = '#8B8B8B';
-                // Yeux sombres et inquiets
-                ctx.beginPath();
-                ctx.arc(luneX - luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
-                ctx.arc(luneX + luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
-                ctx.fill();
+                
+                // Yeux sombres et inquiets - UN seul path
+                const pathYeuxLune = new Path2D();
+                pathYeuxLune.arc(luneX - luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
+                pathYeuxLune.arc(luneX + luneR*0.3, luneY - luneR*0.1, luneR*0.12, 0, Math.PI * 2);
+                ctx.fill(pathYeuxLune);
 
                 // Sourire malsain
                 ctx.strokeStyle = '#696969';
                 ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(luneX, luneY + luneR*0.2, luneR*0.3, 0, Math.PI);
-                ctx.stroke();
+                const pathSourireLune = new Path2D();
+                pathSourireLune.arc(luneX, luneY + luneR*0.2, luneR*0.3, 0, Math.PI);
+                ctx.stroke(pathSourireLune);
             }
 
             // ☁️ CACHE NUAGES: Créer les paths une seule fois
