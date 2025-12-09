@@ -100,6 +100,46 @@
             transform: rotate(180deg);
         }
 
+        /* Bouton retour au jeu */
+        .back-to-game-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .back-to-game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(78, 205, 196, 0.6);
+        }
+
+        .back-to-game-btn:active {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .back-to-game-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                font-size: 0.95em;
+            }
+        }
+
         .lang-menu {
             position: absolute;
             top: calc(100% + 8px);
@@ -1374,6 +1414,7 @@
             fr: {
                 pageTitle: "Emmanuel Payet - Artiste Chrétien",
                 subtitle: "Artiste Chrétien • Créateur • Inspirateur",
+                backToGame: "Retour au Jeu",
                 gamesTitle: "Jeux & Déco",
                 gamesDesc: "Découvre mes créations visuelles, jeux interactifs et décorations artistiques qui célèbrent la foi et la beauté.",
                 booksTitle: "Livres & Art",
@@ -1419,6 +1460,7 @@
             en: {
                 pageTitle: "Emmanuel Payet - Christian Artist",
                 subtitle: "Christian Artist • Creator • Inspirator",
+                backToGame: "Back to Game",
                 gamesTitle: "Games & Deco",
                 gamesDesc: "Discover my visual creations, interactive games and artistic decorations that celebrate faith and beauty.",
                 booksTitle: "Books & Art",
@@ -1464,6 +1506,7 @@
             es: {
                 pageTitle: "Emmanuel Payet - Artista Cristiano",
                 subtitle: "Artista Cristiano • Creador • Inspirador",
+                backToGame: "Volver al Juego",
                 gamesTitle: "Juegos y Decoración",
                 gamesDesc: "Descubre mis creaciones visuales, juegos interactivos y decoraciones artísticas que celebran la fe y la belleza.",
                 booksTitle: "Libros y Arte",
@@ -2081,6 +2124,10 @@
             document.getElementById('inspiring-quote').textContent = t.quote;
             document.getElementById('credits').textContent = t.credits;
             
+            // Bouton retour au jeu
+            const backToGameText = document.querySelector('#back-to-game-text span:last-child');
+            if (backToGameText) backToGameText.textContent = t.backToGame;
+            
             // Traductions du leaderboard
             const leaderboardTitle = document.querySelector('.leaderboard-title');
             const leaderboardSubtitle = document.querySelector('.leaderboard-subtitle');
@@ -2224,7 +2271,29 @@
                 
                 icon.style.transition = 'transform 0.6s ease';
             });
+
+            // 5. Bouton retour au jeu
+            const backBtn = document.querySelector('.back-to-game-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Fermer l'onglet et retourner au jeu
+                    if (window.opener && !window.opener.closed) {
+                        // Si ouvert depuis le jeu, fermer cet onglet
+                        window.close();
+                    } else {
+                        // Sinon, retourner au jeu
+                        window.location.href = '../petitbateauRouge.html';
+                    }
+                });
+            }
         }); // ⚡ FIN DU DOMCONTENTLOADED
     </script>
+
+    <!-- Bouton flottant retour au jeu -->
+    <a href="../petitbateauRouge.html" class="back-to-game-btn" id="back-to-game-text">
+        <span>⛵</span>
+        <span>Retour au Jeu</span>
+    </a>
 </body>
 </html>
