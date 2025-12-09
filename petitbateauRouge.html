@@ -22274,9 +22274,7 @@ Elle a besoin de ponts.`
 
         // Fonctions supprimées
 
-        // === RACCOURCIS CLAVIER (DÉSACTIVÉS EN PRODUCTION) ===
-        /*
-        // Gestionnaire clavier pour mode passe
+        // === RACCOURCIS CLAVIER DEBUG ===
         document.addEventListener('keydown', (e) => {
             // Ne pas intercepter les touches si on est dans un input/textarea/select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
@@ -22309,6 +22307,45 @@ Elle a besoin de ponts.`
                     }
                 } else {
                     afficherMessagePowerupSimple(getTranslatedText('save.not_found', '❌ Aucune sauvegarde trouvée'));
+                }
+            }
+
+            // 🔧 Touche D pour phase suivante
+            if(e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                if (narrationManager) {
+                    narrationManager.currentPhase++;
+                    console.log('🔧 Phase suivante:', narrationManager.currentPhase);
+                    narrationManager.start();
+                }
+            }
+
+            // 🔧 Touche F pour aller à la phase 17
+            if(e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                if (narrationManager) {
+                    narrationManager.currentPhase = 17;
+                    console.log('🔧 Passage à la phase 17');
+                    narrationManager.start();
+                }
+            }
+
+            // 🔧 Touche G pour aller à la phase 23 (fin)
+            if(e.key === 'g' || e.key === 'G') {
+                e.preventDefault();
+                if (narrationManager) {
+                    narrationManager.currentPhase = 23;
+                    console.log('🔧 Passage à la phase 23 (fin)');
+                    narrationManager.start();
+                }
+            }
+
+            // 🔧 Touche H pour afficher la phase actuelle
+            if(e.key === 'h' || e.key === 'H') {
+                e.preventDefault();
+                if (narrationManager) {
+                    console.log('🔧 Phase actuelle:', narrationManager.currentPhase);
+                    afficherMessagePowerupSimple(`Phase ${narrationManager.currentPhase}`);
                 }
             }
 
@@ -22494,7 +22531,6 @@ Elle a besoin de ponts.`
             }
 
         });
-        */
 
         // ======== NIVEAU SECRET : PACMAN ========
         function lancerNiveauSecret() {
