@@ -10900,6 +10900,7 @@ if (!MODE_DEV) {
         
         let starsProjectiles = []; // Projectiles étoiles du mode stars (tir simple)
         let projectiles = [], munitions = 0, rechargement = 0; // Projectiles étoiles (phase briques) - commence à 0
+        let modeTirMur = 'projectile'; // 'projectile' (par défaut) ou 'balle' pour niveaux mur phases 17-22
         let projectilesSecret = []; // Projectiles simples (mode secret)
         let powerUps = [], lanterne = { active: false, intensite: 0 };
         let laserState = { lastFired: 0, active: false, startTime: 0, duration: 1000 }; // État du laser phase 23
@@ -11690,6 +11691,52 @@ if (!MODE_DEV) {
             ctx.textBaseline = 'middle'; // Centrer verticalement
             const coeurs = vies > 0 ? '❤️'.repeat(vies) : '💔';
             ctx.fillText(coeurs, C.W - 15, statsY);
+
+            // Sélecteur de mode de tir pour phases mur 17-22
+            const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
+            if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+                const selectorY = C.H - 80;
+                const selectorX = C.W - 120;
+                const iconSize = 50;
+                const spacing = 10;
+
+                // Fond du sélecteur
+                ctx.fillStyle = 'rgba(30, 58, 138, 0.9)';
+                ctx.fillRect(selectorX - 10, selectorY - 10, iconSize * 2 + spacing + 20, iconSize + 20);
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(selectorX - 10, selectorY - 10, iconSize * 2 + spacing + 20, iconSize + 20);
+
+                // Icône Projectile ⭐
+                const projectileActive = modeTirMur === 'projectile';
+                ctx.fillStyle = projectileActive ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+                ctx.fillRect(selectorX, selectorY, iconSize, iconSize);
+                ctx.strokeStyle = projectileActive ? '#FFD700' : '#ffffff';
+                ctx.lineWidth = projectileActive ? 3 : 1;
+                ctx.strokeRect(selectorX, selectorY, iconSize, iconSize);
+                ctx.font = `${iconSize * 0.6}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('⭐', selectorX + iconSize / 2, selectorY + iconSize / 2);
+
+                // Icône Balle 🏮
+                const balleActive = modeTirMur === 'balle';
+                ctx.fillStyle = balleActive ? 'rgba(255, 99, 71, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+                ctx.fillRect(selectorX + iconSize + spacing, selectorY, iconSize, iconSize);
+                ctx.strokeStyle = balleActive ? '#FF6347' : '#ffffff';
+                ctx.lineWidth = balleActive ? 3 : 1;
+                ctx.strokeRect(selectorX + iconSize + spacing, selectorY, iconSize, iconSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('🏮', selectorX + iconSize + spacing + iconSize / 2, selectorY + iconSize / 2);
+
+                // Enregistrer la zone cliquable
+                if (!window.selecteurTirMur) window.selecteurTirMur = {};
+                window.selecteurTirMur.x = selectorX;
+                window.selecteurTirMur.y = selectorY;
+                window.selecteurTirMur.iconSize = iconSize;
+                window.selecteurTirMur.spacing = spacing;
+            }
 
             // Affichage des commandes mode passe désactivé
             /*
@@ -20933,6 +20980,31 @@ Elle a besoin de ponts.`
                 // Plus besoin d'activer un mode tir spécial
             }
 
+            // Vérifier le clic sur le sélecteur de mode de tir (phases mur 17-22)
+            if (window.selecteurTirMur && phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+                const sel = window.selecteurTirMur;
+                const iconSize = sel.iconSize;
+                const spacing = sel.spacing;
+                
+                // Clic sur icône Projectile ⭐
+                if (x >= sel.x && x <= sel.x + iconSize &&
+                    y >= sel.y && y <= sel.y + iconSize) {
+                    modeTirMur = 'projectile';
+                    AudioSystem.playClick();
+                    afficherMessagePowerupSimple('⭐ Mode projectile');
+                    return;
+                }
+                
+                // Clic sur icône Balle 🏮
+                if (x >= sel.x + iconSize + spacing && x <= sel.x + iconSize + spacing + iconSize &&
+                    y >= sel.y && y <= sel.y + iconSize) {
+                    modeTirMur = 'balle';
+                    AudioSystem.playClick();
+                    afficherMessagePowerupSimple('🏮 Mode balle');
+                    return;
+                }
+            }
+
             // Vérifier le clic sur le bouton Continuer (Phase 16)
             if (window.boutonContinuer && window.boutonContinuer.visible) {
                 const btn = window.boutonContinuer;
@@ -21057,10 +21129,18 @@ Elle a besoin de ponts.`
 
                 console.log(`🖱️ MOUSEDOWN - Phase ${phaseActuelle}, phaseJeu=${phaseJeu}, estPhaseMur17_22=${estPhaseMur17_22}, balle.enAttente=${balle.enAttente}`);
 
-                // Mode MUR en phases 17-22 : tire des projectiles (munitions infinies)
+                // Mode MUR en phases 17-22 : utiliser le mode sélectionné
                 if(estPhaseMur17_22) {
-                    console.log(`🎯 APPEL tirerProjectile() pour phase mur ${phaseActuelle}`);
-                    tirerProjectile(mouseX, mouseY);  // Système progressif phases 17-22
+                    if(modeTirMur === 'projectile') {
+                        console.log(`🎯 APPEL tirerProjectile() pour phase mur ${phaseActuelle}`);
+                        tirerProjectile(mouseX, mouseY);  // Système progressif phases 17-22
+                    } else if(modeTirMur === 'balle' && balle.enAttente) {
+                        console.log(`🏮 Lancer la balle en mode mur`);
+                        balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
+                        balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
+                        balle.enAttente = false;
+                        afficherMessagePowerupSimple('🧱 Lanterne lancée !');
+                    }
                 }
                 // Lancer la balle si en attente (phases lanterne normales)
                 else if(balle.enAttente) {
