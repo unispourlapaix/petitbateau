@@ -1681,6 +1681,10 @@ console.info = function() {}; // Désactiver les infos
         // �🇫🇷 Système de popup élégant bleu-blanc-rouge
         const CustomPopup = {
             show(options) {
+                // 🔍 DEBUG: Tracer tous les appels au popup
+                console.log('📣 CustomPopup.show() appelé avec:', options);
+                console.trace('📍 Stack trace de l\'appel:');
+                
                 return new Promise((resolve) => {
                     const overlay = document.getElementById('customPopupOverlay');
                     const icon = document.getElementById('customPopupIcon');
