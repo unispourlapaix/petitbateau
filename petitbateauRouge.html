@@ -6465,6 +6465,7 @@ if (!MODE_DEV) {
                 phaseJeu = 'mur'; // Définir AVANT initJeu() pour la logique de préservation
                 jeu = true;
                 modeTirMur = 'projectile'; // Réinitialiser le mode de tir à projectile
+                selecteurTirMurCache = false; // Réafficher le sélecteur
 
                 // Initialiser le jeu avec des briques en forme de mur
                 initJeu(); // Maintenant phaseJeu='mur' est déjà défini, préservera les munitions
@@ -10904,6 +10905,7 @@ if (!MODE_DEV) {
         let starsProjectiles = []; // Projectiles étoiles du mode stars (tir simple)
         let projectiles = [], munitions = 0, rechargement = 0; // Projectiles étoiles (phase briques) - commence à 0
         let modeTirMur = 'projectile'; // 'projectile' (par défaut) ou 'balle' pour niveaux mur phases 17-22
+        let selecteurTirMurCache = false; // True = sélecteur caché après sélection
         let projectilesSecret = []; // Projectiles simples (mode secret)
         let powerUps = [], lanterne = { active: false, intensite: 0 };
         let laserState = { lastFired: 0, active: false, startTime: 0, duration: 1000 }; // État du laser phase 23
@@ -11697,7 +11699,7 @@ if (!MODE_DEV) {
 
             // Sélecteur de mode de tir pour phases mur 17-22
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
-            if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+            if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur' && !selecteurTirMurCache) {
                 const iconSize = 50;
                 const spacing = 10;
                 const selectorWidth = iconSize * 2 + spacing + 20;
@@ -20986,7 +20988,7 @@ Elle a besoin de ponts.`
             }
 
             // Vérifier le clic sur le sélecteur de mode de tir (phases mur 17-22)
-            if (window.selecteurTirMur && phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+            if (window.selecteurTirMur && phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur' && !selecteurTirMurCache) {
                 const sel = window.selecteurTirMur;
                 const iconSize = sel.iconSize;
                 const spacing = sel.spacing;
@@ -20994,18 +20996,41 @@ Elle a besoin de ponts.`
                 // Clic sur icône Projectile ⭐
                 if (x >= sel.x && x <= sel.x + iconSize &&
                     y >= sel.y && y <= sel.y + iconSize) {
+                    const ancienMode = modeTirMur;
                     modeTirMur = 'projectile';
                     AudioSystem.playClick();
                     afficherMessagePowerupSimple('⭐ Mode projectile');
+                    selecteurTirMurCache = true; // Cacher le sélecteur
+                    
+                    // Réinitialiser si changement de mode
+                    if (ancienMode !== 'projectile') {
+                        console.log('🔄 Changement de mode : balle → projectile');
+                        initJeu();
+                        creerMurDansLaMer();
+                        munitions = 9999; // Rétablir munitions infinies
+                    }
                     return;
                 }
                 
                 // Clic sur icône Balle 🏮
                 if (x >= sel.x + iconSize + spacing && x <= sel.x + iconSize + spacing + iconSize &&
                     y >= sel.y && y <= sel.y + iconSize) {
+                    const ancienMode = modeTirMur;
                     modeTirMur = 'balle';
                     AudioSystem.playClick();
                     afficherMessagePowerupSimple('🏮 Mode balle');
+                    selecteurTirMurCache = true; // Cacher le sélecteur
+                    
+                    // Réinitialiser si changement de mode
+                    if (ancienMode !== 'balle') {
+                        console.log('🔄 Changement de mode : projectile → balle');
+                        initJeu();
+                        creerMurDansLaMer();
+                        balle.visible = true;
+                        balle.enAttente = true;
+                        balle.dx = 0;
+                        balle.dy = 0;
+                    }
                     return;
                 }
             }
