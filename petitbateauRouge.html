@@ -22312,6 +22312,16 @@ Elle a besoin de ponts.`
                 }
             }
 
+            // 🔧 Touche A pour aller à la phase 3
+            if(e.key === 'a' || e.key === 'A') {
+                e.preventDefault();
+                if (narrationManager) {
+                    narrationManager.currentPhase = 3;
+                    console.log('🔧 Passage à la phase 3');
+                    narrationManager.start();
+                }
+            }
+
             // 🔧 Touche D pour phase suivante
             if(e.key === 'd' || e.key === 'D') {
                 e.preventDefault();
