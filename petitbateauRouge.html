@@ -12784,6 +12784,9 @@ if (!MODE_DEV) {
                 
                 ctx.restore();
             });
+            
+            // 🚀 BATCHING: Dessiner tous les cœurs des briques en une seule fois
+            dessinerCoeursBriquesEnBatch();
         }
 
         // Messages simples centrés pour powerups et narratifs
@@ -15140,9 +15143,20 @@ if (!MODE_DEV) {
             updateInterval: 50, // Mise à jour toutes les 50ms (20fps) au lieu de 60fps
             path: null // Cache du Path2D
         };
+        
+        // 🎨 BATCHING: Collecter les cœurs à dessiner au lieu de les dessiner immédiatement
+        let _coeursBriquesBuffer = [];
 
         function dessinerCoeurPixelArt(x, y, taille, couleur) {
-            const t = taille;
+            // Au lieu de dessiner immédiatement, ajouter au buffer
+            _coeursBriquesBuffer.push({ x, y, taille, couleur });
+        }
+        
+        // 🚀 NOUVELLE FONCTION: Dessiner tous les cœurs des briques en un seul batch
+        function dessinerCoeursBriquesEnBatch() {
+            if (_coeursBriquesBuffer.length === 0) return;
+            
+            const t = _coeursBriquesBuffer[0].taille; // Utiliser la taille du premier
             
             // ⚡ OPTIMISATION: Créer le Path2D une seule fois
             if (!_coeurPixelCache.path) {
@@ -15165,25 +15179,57 @@ if (!MODE_DEV) {
                 _coeurPixelCache.pulsation = 1 + Math.sin(now * 0.003) * 0.1; // Réduit de 0.15 à 0.1
                 _coeurPixelCache.lastUpdate = now;
             }
-
-            // Dessiner avec translate + scale (plus rapide que beginPath)
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(t * _coeurPixelCache.pulsation, t * _coeurPixelCache.pulsation);
-
-            // Style simple et clair
-            ctx.fillStyle = couleur;
-            ctx.fill(_coeurPixelCache.path);
             
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 1 / (t * _coeurPixelCache.pulsation); // Ajuster lineWidth avec le scale
-            ctx.stroke(_coeurPixelCache.path);
-            ctx.stroke();
-
-            // ⚡ OPTIMISATION: Pas de détails intérieurs (trop coûteux pour des briques)
-            // Supprimé: petits cœurs intérieurs et point lumineux
-
-            ctx.restore();
+            // 🎨 BATCHING PAR COULEUR: Grouper les cœurs par couleur
+            const coeursByCouleur = {};
+            _coeursBriquesBuffer.forEach(coeur => {
+                if (!coeursByCouleur[coeur.couleur]) {
+                    coeursByCouleur[coeur.couleur] = [];
+                }
+                coeursByCouleur[coeur.couleur].push(coeur);
+            });
+            
+            // Dessiner chaque groupe de couleur
+            Object.keys(coeursByCouleur).forEach(couleur => {
+                const coeursGroupe = coeursByCouleur[couleur];
+                
+                // Créer des paths pour le fill et le stroke
+                const pathFill = new Path2D();
+                const pathStroke = new Path2D();
+                
+                // Ajouter tous les cœurs de cette couleur au path
+                coeursGroupe.forEach(coeur => {
+                    const scale = coeur.taille * _coeurPixelCache.pulsation;
+                    
+                    // Transformer chaque point du cœur
+                    const points = [
+                        [-0.25, 0], [-0.15, -0.15], [0, -0.05], [0.15, -0.15],
+                        [0.25, 0], [0.1, 0.15], [0, 0.3], [-0.1, 0.15]
+                    ];
+                    
+                    pathFill.moveTo(coeur.x + points[0][0] * scale, coeur.y + points[0][1] * scale);
+                    pathStroke.moveTo(coeur.x + points[0][0] * scale, coeur.y + points[0][1] * scale);
+                    
+                    for (let i = 1; i < points.length; i++) {
+                        pathFill.lineTo(coeur.x + points[i][0] * scale, coeur.y + points[i][1] * scale);
+                        pathStroke.lineTo(coeur.x + points[i][0] * scale, coeur.y + points[i][1] * scale);
+                    }
+                    
+                    pathFill.closePath();
+                    pathStroke.closePath();
+                });
+                
+                // UN SEUL fill() et stroke() pour tous les cœurs de cette couleur !
+                ctx.fillStyle = couleur;
+                ctx.fill(pathFill);
+                
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 1;
+                ctx.stroke(pathStroke);
+            });
+            
+            // Vider le buffer
+            _coeursBriquesBuffer = [];
         }
 
         function dessinerCoeurPolygonal(x, y, taille, couleur, rotation = 0, intensite = 1) {
