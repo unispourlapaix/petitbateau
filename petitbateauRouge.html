@@ -1691,8 +1691,15 @@ console.info = function() {}; // Désactiver les infos
                     // Définir l'icône
                     icon.textContent = options.icon || 'ℹ️';
                     
-                    // Définir le titre
-                    title.textContent = options.title || 'Information';
+                    // Définir le titre (force la conversion en chaîne pour éviter les objets DOM)
+                    const titleText = options.title ? String(options.title) : 'Information';
+                    // Vérifier si c'est un chemin CSS (bug potentiel)
+                    if (titleText.includes('body') && titleText.includes('#customPopupTitle')) {
+                        console.warn('⚠️ BUG DÉTECTÉ: Tentative d\'affichage d\'un sélecteur CSS comme titre!', titleText);
+                        title.textContent = 'Information'; // Fallback sûr
+                    } else {
+                        title.textContent = titleText;
+                    }
                     
                     // Définir le message
                     message.textContent = options.message || '';
