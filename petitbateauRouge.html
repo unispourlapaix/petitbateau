@@ -21666,23 +21666,46 @@ Elle a besoin de ponts.`
         }
 
         function dessinerTextesVolants() {
+            if (textesVolants.length === 0) return;
+
+            // ⚡ OPTIMISATION: Grouper les textes par taille pour éviter de changer font à chaque fois
+            const textesParTaille = {};
             textesVolants.forEach(texte => {
-                ctx.save();
-                ctx.globalAlpha = texte.alpha;
-                ctx.font = `800 ${texte.taille}px monospace`;
-                ctx.textAlign = 'center';
-
-                // Contour blanc
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = Math.max(2, texte.taille * 0.1);
-                ctx.strokeText(texte.texte, texte.x, texte.y);
-
-                // Texte principal
-                ctx.fillStyle = '#2c3e50';
-                ctx.fillText(texte.texte, texte.x, texte.y);
-
-                ctx.restore();
+                const tailleKey = Math.round(texte.taille); // Arrondir pour grouper les tailles similaires
+                if (!textesParTaille[tailleKey]) {
+                    textesParTaille[tailleKey] = [];
+                }
+                textesParTaille[tailleKey].push(texte);
             });
+
+            ctx.save();
+            ctx.textAlign = 'center';
+
+            // Dessiner par groupe de taille (réduire les changements de font)
+            Object.keys(textesParTaille).forEach(tailleKey => {
+                const taille = parseFloat(tailleKey);
+                const groupe = textesParTaille[tailleKey];
+
+                // Configurer font UNE FOIS pour tout le groupe
+                ctx.font = `800 ${taille}px monospace`;
+                ctx.lineWidth = Math.max(2, taille * 0.1);
+
+                // Dessiner tous les contours du groupe
+                ctx.strokeStyle = '#ffffff';
+                groupe.forEach(texte => {
+                    ctx.globalAlpha = texte.alpha;
+                    ctx.strokeText(texte.texte, texte.x, texte.y);
+                });
+
+                // Dessiner tous les textes principaux du groupe
+                ctx.fillStyle = '#2c3e50';
+                groupe.forEach(texte => {
+                    ctx.globalAlpha = texte.alpha;
+                    ctx.fillText(texte.texte, texte.x, texte.y);
+                });
+            });
+
+            ctx.restore();
         }
 
         // Boucle de jeu
