@@ -6464,6 +6464,7 @@ if (!MODE_DEV) {
                 VOYAGE = JOUR;
                 phaseJeu = 'mur'; // Définir AVANT initJeu() pour la logique de préservation
                 jeu = true;
+                modeTirMur = 'projectile'; // Réinitialiser le mode de tir à projectile
 
                 // Initialiser le jeu avec des briques en forme de mur
                 initJeu(); // Maintenant phaseJeu='mur' est déjà défini, préservera les munitions
@@ -6516,6 +6517,8 @@ if (!MODE_DEV) {
                 briques = [];
                 coeursBateau = [];
                 starsProjectiles = [];
+                modeTirMur = 'projectile'; // Réinitialiser le mode de tir
+                window.selecteurTirMur = null; // Nettoyer la zone cliquable
 
                 // Initialiser le bouton canvas
                 if (!window.boutonContinuer) {
@@ -11695,10 +11698,12 @@ if (!MODE_DEV) {
             // Sélecteur de mode de tir pour phases mur 17-22
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
-                const selectorY = C.H - 80;
-                const selectorX = C.W - 120;
                 const iconSize = 50;
                 const spacing = 10;
+                const selectorWidth = iconSize * 2 + spacing + 20;
+                const selectorHeight = iconSize + 20;
+                const selectorX = (C.W - selectorWidth) / 2 + 10; // Centré horizontalement
+                const selectorY = C.H / 2 - selectorHeight / 2; // Centré verticalement
 
                 // Fond du sélecteur
                 ctx.fillStyle = 'rgba(30, 58, 138, 0.9)';
