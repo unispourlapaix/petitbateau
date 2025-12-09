@@ -739,49 +739,158 @@ class SecretModeModule {
         this.ctx.restore();
     }
 
-    // Dessiner le bateau
+    // Dessiner l'OVNI avec cerveau (remplace le bateau en mode secret)
     renderBoat() {
         const raquette = this.gameState.raquette;
         const C = this.gameState.C;
         
         this.ctx.save();
         
-        // Ombre du bateau
-        this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
-        this.ctx.fillRect(raquette.x + 3, raquette.y + 3, C.PW, C.PH);
+        const centerX = raquette.x + C.PW / 2;
+        const centerY = raquette.y + C.PH / 2;
+        const width = C.PW;
+        const height = C.PH * 3; // Plus haut pour le cerveau
         
-        // Coque du bateau (gradient bois)
-        const gradCoque = this.ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH);
-        gradCoque.addColorStop(0, '#8B4513');
-        gradCoque.addColorStop(0.5, '#A0522D');
-        gradCoque.addColorStop(1, '#6B3410');
-        this.ctx.fillStyle = gradCoque;
-        this.ctx.fillRect(raquette.x, raquette.y, C.PW, C.PH);
+        // Animation de lévitation
+        const time = Date.now() * 0.003;
+        const hoverOffset = Math.sin(time) * 5;
+        const cy = centerY + hoverOffset;
         
-        // Bordure
-        this.ctx.strokeStyle = '#4A2810';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(raquette.x, raquette.y, C.PW, C.PH);
-        
-        // Voile simplifiée (triangle blanc)
-        const mastX = raquette.x + C.PW / 2;
-        const mastTop = raquette.y - C.PH * 2;
-        
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        // Ombre de l'OVNI
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.ctx.beginPath();
-        this.ctx.moveTo(mastX, mastTop);
-        this.ctx.lineTo(mastX + C.PW * 0.4, raquette.y);
-        this.ctx.lineTo(mastX, raquette.y);
-        this.ctx.closePath();
+        this.ctx.ellipse(centerX, raquette.y + C.PH + 10, width * 0.4, C.PH * 0.5, 0, 0, Math.PI * 2);
         this.ctx.fill();
         
-        // Mât
-        this.ctx.strokeStyle = '#654321';
-        this.ctx.lineWidth = 3;
+        // === SOUCOUPE VOLANTE (partie basse) ===
+        // Dôme inférieur métallique
+        const gradSoucoupe = this.ctx.createRadialGradient(centerX, cy, 0, centerX, cy, width * 0.6);
+        gradSoucoupe.addColorStop(0, '#B8C5D6');
+        gradSoucoupe.addColorStop(0.5, '#8A9FB5');
+        gradSoucoupe.addColorStop(1, '#5D7A99');
+        
+        this.ctx.fillStyle = gradSoucoupe;
         this.ctx.beginPath();
-        this.ctx.moveTo(mastX, mastTop);
-        this.ctx.lineTo(mastX, raquette.y);
+        this.ctx.ellipse(centerX, cy, width * 0.5, C.PH * 1.5, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Bordure métallique brillante
+        this.ctx.strokeStyle = '#E8F0F8';
+        this.ctx.lineWidth = 2;
         this.ctx.stroke();
+        
+        // Lumières clignotantes autour de la soucoupe
+        const nbLights = 6;
+        for (let i = 0; i < nbLights; i++) {
+            const angle = (i / nbLights) * Math.PI * 2 + time;
+            const lx = centerX + Math.cos(angle) * width * 0.4;
+            const ly = cy + Math.sin(angle) * C.PH * 1.2;
+            
+            const lightColor = i % 2 === 0 ? '#00FFFF' : '#FF00FF';
+            const alpha = 0.5 + 0.5 * Math.sin(time * 2 + i);
+            
+            this.ctx.fillStyle = lightColor;
+            this.ctx.globalAlpha = alpha;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        this.ctx.globalAlpha = 1;
+        
+        // === GROS CERVEAU (partie haute) ===
+        const brainCenterY = cy - C.PH * 2;
+        const brainWidth = width * 0.6;
+        const brainHeight = height * 0.4;
+        
+        // Dôme transparent avec cerveau à l'intérieur
+        // Bulle de verre
+        const gradDome = this.ctx.createRadialGradient(centerX, brainCenterY, 0, centerX, brainCenterY, brainWidth * 0.8);
+        gradDome.addColorStop(0, 'rgba(200, 230, 255, 0.3)');
+        gradDome.addColorStop(0.7, 'rgba(150, 200, 255, 0.2)');
+        gradDome.addColorStop(1, 'rgba(100, 170, 255, 0.4)');
+        
+        this.ctx.fillStyle = gradDome;
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX, brainCenterY, brainWidth, brainHeight, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Reflet sur le dôme
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX - brainWidth * 0.3, brainCenterY - brainHeight * 0.3, brainWidth * 0.3, brainHeight * 0.2, -0.3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Cerveau rose pulsant à l'intérieur
+        const pulse = 0.9 + 0.1 * Math.sin(time * 4);
+        const gradBrain = this.ctx.createRadialGradient(centerX, brainCenterY, 0, centerX, brainCenterY, brainWidth * 0.5);
+        gradBrain.addColorStop(0, '#FFB6C1');
+        gradBrain.addColorStop(0.5, '#FF69B4');
+        gradBrain.addColorStop(1, '#C71585');
+        
+        this.ctx.fillStyle = gradBrain;
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX, brainCenterY, brainWidth * 0.5 * pulse, brainHeight * 0.7 * pulse, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Circonvolutions du cerveau (lignes ondulées)
+        this.ctx.strokeStyle = '#C71585';
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+        
+        for (let i = 0; i < 5; i++) {
+            this.ctx.beginPath();
+            const yOffset = (i - 2) * brainHeight * 0.25;
+            for (let x = -brainWidth * 0.4; x < brainWidth * 0.4; x += 5) {
+                const wave = Math.sin((x + time * 20) * 0.1) * 3;
+                const py = brainCenterY + yOffset + wave;
+                if (x === -brainWidth * 0.4) {
+                    this.ctx.moveTo(centerX + x, py);
+                } else {
+                    this.ctx.lineTo(centerX + x, py);
+                }
+            }
+            this.ctx.stroke();
+        }
+        
+        // Yeux du cerveau (super intelligent!)
+        const eyeSize = 8;
+        const eyeSpacing = brainWidth * 0.3;
+        
+        // Œil gauche
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX - eyeSpacing, brainCenterY, eyeSize, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.fillStyle = '#000000';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX - eyeSpacing + 2, brainCenterY, eyeSize * 0.5, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Œil droit
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX + eyeSpacing, brainCenterY, eyeSize, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.fillStyle = '#000000';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX + eyeSpacing + 2, brainCenterY, eyeSize * 0.5, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Rayon de traction sous l'OVNI (cône de lumière)
+        const gradBeam = this.ctx.createLinearGradient(centerX, cy, centerX, cy + C.PH * 4);
+        gradBeam.addColorStop(0, 'rgba(0, 255, 255, 0.4)');
+        gradBeam.addColorStop(1, 'rgba(0, 255, 255, 0)');
+        
+        this.ctx.fillStyle = gradBeam;
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX - width * 0.2, cy);
+        this.ctx.lineTo(centerX - width * 0.5, cy + C.PH * 4);
+        this.ctx.lineTo(centerX + width * 0.5, cy + C.PH * 4);
+        this.ctx.lineTo(centerX + width * 0.2, cy);
+        this.ctx.closePath();
+        this.ctx.fill();
         
         this.ctx.restore();
     }
