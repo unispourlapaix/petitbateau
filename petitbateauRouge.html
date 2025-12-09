@@ -1693,16 +1693,25 @@ console.info = function() {}; // Désactiver les infos
                     
                     // Définir le titre (force la conversion en chaîne pour éviter les objets DOM)
                     const titleText = options.title ? String(options.title) : 'Information';
-                    // Vérifier si c'est un chemin CSS (bug potentiel)
-                    if (titleText.includes('body') && titleText.includes('#customPopupTitle')) {
-                        console.warn('⚠️ BUG DÉTECTÉ: Tentative d\'affichage d\'un sélecteur CSS comme titre!', titleText);
+                    // Vérifier si c'est un sélecteur CSS ou XPath (bug potentiel)
+                    if ((titleText.includes('body') && titleText.includes('#customPopupTitle')) || 
+                        titleText.startsWith('/html/body/div') || 
+                        titleText.includes('[object HTML')) {
+                        console.warn('⚠️ BUG DÉTECTÉ: Tentative d\'affichage d\'un sélecteur/objet comme titre!', titleText);
+                        console.trace('Stack trace du bug:');
                         title.textContent = 'Information'; // Fallback sûr
                     } else {
                         title.textContent = titleText;
                     }
                     
-                    // Définir le message
-                    message.textContent = options.message || '';
+                    // Définir le message (avec protection similaire)
+                    const messageText = options.message ? String(options.message) : '';
+                    if (messageText.startsWith('/html/body/div') || messageText.includes('[object HTML')) {
+                        console.warn('⚠️ BUG DÉTECTÉ: Tentative d\'affichage d\'un sélecteur/objet comme message!', messageText);
+                        message.textContent = '';
+                    } else {
+                        message.textContent = messageText;
+                    }
 
                     // Créer les boutons
                     buttons.innerHTML = '';
