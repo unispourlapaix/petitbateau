@@ -699,6 +699,17 @@ class SecretModeModule {
     render() {
         if (!this.isActive) return;
 
+        // ⚠️ IMPORTANT: Effacer tout le canvas et dessiner le fond
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Fond bleu mer pour le mode secret
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        gradient.addColorStop(0, '#87CEEB'); // Bleu ciel
+        gradient.addColorStop(0.5, '#4A90E2'); // Bleu moyen
+        gradient.addColorStop(1, '#1E3A8A'); // Bleu foncé
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.ctx.save();
 
         // Si on est en phase de menu, afficher le menu au lieu du jeu
@@ -714,12 +725,64 @@ class SecretModeModule {
         // Dessiner les obstacles
         this.renderObstacles();
 
+        // Dessiner le bateau (raquette) du jeu principal
+        if (this.gameState.raquette) {
+            this.renderBoat();
+        }
+
         // Les objets kawaii DOM sont déjà affichés automatiquement
         // Pas besoin de rendu Canvas
 
         // Dessiner l'interface
         this.renderUI();
 
+        this.ctx.restore();
+    }
+
+    // Dessiner le bateau
+    renderBoat() {
+        const raquette = this.gameState.raquette;
+        const C = this.gameState.C;
+        
+        this.ctx.save();
+        
+        // Ombre du bateau
+        this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        this.ctx.fillRect(raquette.x + 3, raquette.y + 3, C.PW, C.PH);
+        
+        // Coque du bateau (gradient bois)
+        const gradCoque = this.ctx.createLinearGradient(raquette.x, raquette.y, raquette.x, raquette.y + C.PH);
+        gradCoque.addColorStop(0, '#8B4513');
+        gradCoque.addColorStop(0.5, '#A0522D');
+        gradCoque.addColorStop(1, '#6B3410');
+        this.ctx.fillStyle = gradCoque;
+        this.ctx.fillRect(raquette.x, raquette.y, C.PW, C.PH);
+        
+        // Bordure
+        this.ctx.strokeStyle = '#4A2810';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(raquette.x, raquette.y, C.PW, C.PH);
+        
+        // Voile simplifiée (triangle blanc)
+        const mastX = raquette.x + C.PW / 2;
+        const mastTop = raquette.y - C.PH * 2;
+        
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(mastX, mastTop);
+        this.ctx.lineTo(mastX + C.PW * 0.4, raquette.y);
+        this.ctx.lineTo(mastX, raquette.y);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Mât
+        this.ctx.strokeStyle = '#654321';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(mastX, mastTop);
+        this.ctx.lineTo(mastX, raquette.y);
+        this.ctx.stroke();
+        
         this.ctx.restore();
     }
 
