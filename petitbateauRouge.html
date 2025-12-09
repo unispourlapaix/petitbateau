@@ -2591,27 +2591,27 @@ if (!MODE_DEV) {
                     const screenWidth = window.screen.width;
                     
                     // 🟢 HAUTE PERFORMANCE : Flagships récents (iPhone 14+, Galaxy S23+)
-                    // - 8GB+ RAM ET 8+ cores - ratio réduit pour perfs optimales
+                    // ⚡ OPTIMISATIONS Path2D appliquées → ratio augmenté de 0.5 à 0.75
                     if (memory >= 8 && cores >= 8 && screenWidth <= 1440) {
-                        return { level: 'high', ratio: 0.5, name: '🟢 Haute' };
+                        return { level: 'high', ratio: 0.75, name: '🟢 Haute' };
                     }
                     
                     // 🟡 PERFORMANCE ÉQUILIBRÉE : Milieu/haut de gamme (iPhone 11-13, Galaxy A/S)
-                    // - 4GB+ RAM OU 6+ cores - le meilleur compromis perf/qualité
+                    // ⚡ OPTIMISATIONS Path2D appliquées → ratio augmenté de 0.4 à 0.6
                     if (memory >= 4 || cores >= 6 || screenPixels < 2500000) {
-                        return { level: 'medium', ratio: 0.4, name: '🟡 Équilibrée' };
+                        return { level: 'medium', ratio: 0.6, name: '🟡 Équilibrée' };
                     }
                     
                     // 🔴 ÉCONOMIQUE : Entrée de gamme
-                    // - < 4GB RAM, peu de cores - prioriser la fluidité
-                    return { level: 'low', ratio: 0.33, name: '🔴 Économique' };
+                    // ⚡ OPTIMISATIONS Path2D appliquées → ratio augmenté de 0.33 à 0.5
+                    return { level: 'low', ratio: 0.5, name: '🔴 Économique' };
                 };
                 
                 const quality = detectQualityLevel();
-                // Limiter le pixelRatio final - max 1.0 pour éviter surcharge GPU
-                // Sur iPhone 14 (ratio 3×): 3 × 0.5 = 1.5 → limité à 1.0
-                // Résolution finale: 393×852 × 1.0 = 393×852 pixels (au lieu de 1179×2556!)
-                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.0);
+                // ⚡ NOUVELLE LIMITE : max 1.5 au lieu de 1.0 grâce aux optimisations
+                // Sur iPhone 14 (ratio 3×): 3 × 0.75 = 2.25 → limité à 1.5
+                // Résolution finale: 393×852 × 1.5 = 590×1278 pixels (meilleure qualité!)
+                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.5);
                 
                 // console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
                 // console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
@@ -3675,7 +3675,23 @@ if (!MODE_DEV) {
                 languesInactif: null,
                 languesActif: null,
                 initialized: false
-            }
+            },
+            
+            // 📜 SCROLLING CLASSEMENT
+            leaderboardScroll: {
+                offset: 0,              // Position du scroll (index de départ)
+                maxVisible: 10,         // Nombre max de joueurs visibles (adaptif mobile)
+                totalItems: 0,          // Total de joueurs disponibles
+                scrollbarWidth: 8,      // Largeur de la scrollbar
+                scrollbarHover: false,  // Hover sur scrollbar
+                isDragging: false,      // En train de glisser
+                dragStartY: 0,          // Position Y initiale du drag
+                dragStartOffset: 0      // Offset initial du drag
+            },
+            
+            // 🔄 BOUTON REFRESH CLASSEMENT
+            refreshButton: null,        // Zone cliquable du bouton
+            refreshButtonHover: false   // État hover
         };
 
         // Initialiser le module InfoAuteur
@@ -4768,6 +4784,58 @@ if (!MODE_DEV) {
                 ctx.textAlign = 'center';
                 ctx.fillText(titreText, textX, textY);
                 
+                // 🔄 BOUTON REFRESH (petit, discret à droite du titre)
+                const refreshSize = 20;
+                const refreshX = highlightX + highlightWidth + 10;
+                const refreshY = highlightY + (highlightHeight - refreshSize) / 2;
+                
+                // Déterminer si en cours de chargement
+                const isRefreshing = loadingLeaderboard;
+                const cacheAge = Date.now() - leaderboardCache.lastFetch;
+                const cacheAgeMin = Math.floor(cacheAge / 60000);
+                const isCacheOld = cacheAge > 2 * 60 * 1000; // Plus de 2 minutes
+                
+                // Fond du bouton (orange si cache vieux, vert sinon)
+                ctx.fillStyle = isCacheOld ? 'rgba(249, 115, 22, 0.15)' : 'rgba(34, 197, 94, 0.1)';
+                if (menuEnigmesCanvas.refreshButtonHover) {
+                    ctx.fillStyle = isCacheOld ? 'rgba(249, 115, 22, 0.25)' : 'rgba(34, 197, 94, 0.2)';
+                }
+                ctx.beginPath();
+                ctx.arc(refreshX + refreshSize / 2, refreshY + refreshSize / 2, refreshSize / 2 + 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Icône refresh (rotation si en cours)
+                ctx.save();
+                ctx.translate(refreshX + refreshSize / 2, refreshY + refreshSize / 2);
+                if (isRefreshing) {
+                    const rotation = (Date.now() % 1000) / 1000 * Math.PI * 2;
+                    ctx.rotate(rotation);
+                }
+                ctx.font = '16px "Segoe UI"';
+                ctx.fillStyle = isCacheOld ? '#f97316' : '#22c55e';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🔄', 0, 0);
+                ctx.restore();
+                
+                // Stocker zone cliquable
+                menuEnigmesCanvas.refreshButton = {
+                    x: refreshX,
+                    y: refreshY,
+                    width: refreshSize + 6,
+                    height: refreshSize + 6,
+                    centerX: refreshX + refreshSize / 2,
+                    centerY: refreshY + refreshSize / 2
+                };
+                
+                // Afficher l'âge du cache (petit texte discret)
+                if (cacheAgeMin > 0 && !isRefreshing) {
+                    ctx.font = '9px "Segoe UI", system-ui, sans-serif';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`${cacheAgeMin}min`, refreshX + refreshSize + 8, refreshY + refreshSize / 2 + 3);
+                }
+                
                 // ✅ Stocker les coordonnées pour la détection de clic (coordonnées absolues canvas)
                 if (!menuEnigmesCanvas.titleLeaderboard) menuEnigmesCanvas.titleLeaderboard = {};
                 menuEnigmesCanvas.titleLeaderboard = {
@@ -4802,7 +4870,7 @@ if (!MODE_DEV) {
                     ctx.fillStyle = '#94a3b8';
                     ctx.fillText(getTranslatedText('game.quotes.be_first', 'Soyez le premier à terminer le jeu !'), C.W / 2, yPos);
                 } else {
-                    // ✅ AFFICHAGE OPTIMISÉ MOBILE DES SCORES - Layout adaptatif
+                    // ✅ AFFICHAGE OPTIMISÉ MOBILE DES SCORES - Layout adaptatif AVEC SCROLLING
                     ctx.textAlign = 'left';
                     
                     // 📱 OPTIMISATION MOBILE: Adapter l'espacement selon la largeur
@@ -4811,8 +4879,30 @@ if (!MODE_DEV) {
                     const lineHeight = isMobileView ? 48 : 55; // Plus compact sur mobile
                     const fontSize = isMobileView ? 13 : 16; // Texte plus petit sur mobile
                     const pseudoMaxLength = isMobileView ? 10 : 15; // Pseudo plus court sur mobile
+                    
+                    // 📜 SCROLLING: Adapter le nombre de joueurs visibles selon la hauteur disponible
+                    const availableHeight = menuY + menuHeight - yPos - 70; // Hauteur dispo pour la liste
+                    const maxVisiblePlayers = Math.max(5, Math.floor(availableHeight / lineHeight));
+                    menuEnigmesCanvas.leaderboardScroll.maxVisible = maxVisiblePlayers;
+                    menuEnigmesCanvas.leaderboardScroll.totalItems = leaderboardData.length;
+                    
+                    // Calculer le slice à afficher
+                    const startIndex = menuEnigmesCanvas.leaderboardScroll.offset;
+                    const endIndex = Math.min(startIndex + maxVisiblePlayers, leaderboardData.length);
+                    const visibleData = leaderboardData.slice(startIndex, endIndex);
+                    
+                    // Zone de la liste pour le clipping
+                    const listStartY = yPos;
+                    const listHeight = maxVisiblePlayers * lineHeight;
+                    
+                    // Clipping pour éviter débordement
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(menuX, listStartY - 30, menuWidth, listHeight + 5);
+                    ctx.clip();
 
-                    leaderboardData.forEach((entry, index) => {
+                    visibleData.forEach((entry, visibleIndex) => {
+                        const index = startIndex + visibleIndex; // Index réel dans leaderboardData
                         // Position et rang
                         let medal = '';
                         if (index === 0) medal = '🥇';
@@ -4907,6 +4997,53 @@ if (!MODE_DEV) {
 
                         yPos += lineHeight;
                     });
+                    
+                    ctx.restore(); // Fin du clipping
+                    
+                    // 📜 SCROLLBAR si plus de joueurs que visible
+                    if (leaderboardData.length > maxVisiblePlayers) {
+                        const scrollbarX = menuX + menuWidth - 15;
+                        const scrollbarY = listStartY - 25;
+                        const scrollbarHeight = listHeight - 10;
+                        const scrollbarWidth = menuEnigmesCanvas.leaderboardScroll.scrollbarWidth;
+                        
+                        // Fond scrollbar
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+                        ctx.beginPath();
+                        ctx.roundRect(scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight, 4);
+                        ctx.fill();
+                        
+                        // Thumb scrollbar
+                        const scrollRatio = maxVisiblePlayers / leaderboardData.length;
+                        const thumbHeight = Math.max(30, scrollbarHeight * scrollRatio);
+                        const scrollProgress = startIndex / (leaderboardData.length - maxVisiblePlayers);
+                        const thumbY = scrollbarY + (scrollbarHeight - thumbHeight) * scrollProgress;
+                        
+                        ctx.fillStyle = menuEnigmesCanvas.leaderboardScroll.scrollbarHover ? 
+                            'rgba(59, 130, 246, 0.6)' : 'rgba(0, 0, 0, 0.3)';
+                        ctx.beginPath();
+                        ctx.roundRect(scrollbarX, thumbY, scrollbarWidth, thumbHeight, 4);
+                        ctx.fill();
+                        
+                        // Stocker la zone scrollbar pour les interactions
+                        menuEnigmesCanvas.leaderboardScroll.scrollbarArea = {
+                            x: scrollbarX,
+                            y: scrollbarY,
+                            width: scrollbarWidth,
+                            height: scrollbarHeight,
+                            thumbY: thumbY,
+                            thumbHeight: thumbHeight
+                        };
+                        
+                        // Indicateur de défilement
+                        if (startIndex > 0 || endIndex < leaderboardData.length) {
+                            ctx.font = '11px "Segoe UI", system-ui, sans-serif';
+                            ctx.fillStyle = '#94a3b8';
+                            ctx.textAlign = 'center';
+                            const rangeText = `${startIndex + 1}-${endIndex} / ${leaderboardData.length}`;
+                            ctx.fillText(rangeText, C.W / 2, listStartY + listHeight + 15);
+                        }
+                    }
                 }
 
                 // ✅ Message de motivation avec design moderne adaptatif
@@ -8206,6 +8343,23 @@ if (!MODE_DEV) {
         let leaderboardData = null;
         let loadingLeaderboard = false;
         let userBestScore = null; // Meilleur score de l'utilisateur connecté
+        
+        // 🚀 CACHE OPTIMISÉ pour limiter les requêtes DB
+        const leaderboardCache = {
+            data: null,
+            lastFetch: 0,
+            cacheDuration: 5 * 60 * 1000, // 5 minutes de cache
+            isValid() {
+                return this.data && (Date.now() - this.lastFetch < this.cacheDuration);
+            },
+            set(data) {
+                this.data = data;
+                this.lastFetch = Date.now();
+            },
+            invalidate() {
+                this.lastFetch = 0;
+            }
+        };
 
         // Initialiser Supabase au démarrage
         setTimeout(async () => {
@@ -8233,13 +8387,25 @@ if (!MODE_DEV) {
             }
         }, 1000);
 
-        // Fonction pour charger le classement
-        async function chargerClassement() {
+        // Fonction pour charger le classement (avec cache optimisé)
+        async function chargerClassement(forceRefresh = false) {
             if (!supabaseScores) return;
+            
+            // 🚀 CACHE: Utiliser les données en cache si valides
+            if (!forceRefresh && leaderboardCache.isValid()) {
+                console.log('📦 Classement chargé depuis le cache (économie requête DB)');
+                leaderboardData = leaderboardCache.data;
+                return;
+            }
 
             loadingLeaderboard = true;
             try {
-                leaderboardData = await supabaseScores.getLeaderboard(10);
+                // 🎯 OPTIMISATION: Limiter à 50 scores max (au lieu de tout charger)
+                leaderboardData = await supabaseScores.getLeaderboard(50);
+                
+                // Mettre en cache
+                leaderboardCache.set(leaderboardData);
+                console.log(`✅ Classement chargé: ${leaderboardData.length} scores (mis en cache 5min)`);
             } catch (error) {
                 console.error('❌ Erreur chargement classement:', error);
                 leaderboardData = [];
@@ -8684,9 +8850,16 @@ if (!MODE_DEV) {
                         console.log('✅ Score sauvegardé avec succès:', resultat);
                         document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">' + saveMsg + '</span>';
 
-                        // Récupérer le meilleur score de l'utilisateur
-                        userBestScore = await supabaseScores.getBestScore();
-                        await chargerClassement();
+                        // 🚀 OPTIMISATION: Invalider le cache et recharger
+                        leaderboardCache.invalidate();
+                        
+                        // Récupérer le meilleur score de l'utilisateur (si user_id défini)
+                        if (supabaseScores.currentUser?.id) {
+                            userBestScore = await supabaseScores.getBestScore();
+                        }
+                        
+                        // Recharger le classement (force refresh)
+                        await chargerClassement(true);
 
                     } catch (error) {
                         console.error('❌ Erreur sauvegarde:', error);
@@ -8699,9 +8872,9 @@ if (!MODE_DEV) {
                 const overlay = document.getElementById('formulaire-fin-overlay');
                 if (overlay) overlay.remove();
                 
-                // Ouvrir la page artiste
+                // Ouvrir la page artiste dans un nouvel onglet
                 const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
+                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank');
                 
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
@@ -11645,28 +11818,33 @@ if (!MODE_DEV) {
                         starsGradientsCache.lastSize = rayonEtoile;
                     }
 
+                    // ⚡ CACHE Path2D: Créer le path d'étoile une seule fois
+                    if (!starsGradientsCache.etoilePath) {
+                        starsGradientsCache.etoilePath = new Path2D();
+                        for(let i = 0; i < 5; i++) {
+                            const angle1 = (i * 2 * Math.PI) / 5;
+                            const angle2 = ((i + 0.5) * 2 * Math.PI) / 5;
+
+                            const x1 = Math.cos(angle1);
+                            const y1 = Math.sin(angle1);
+                            const x2 = Math.cos(angle2) * 0.4;
+                            const y2 = Math.sin(angle2) * 0.4;
+
+                            if(i === 0) starsGradientsCache.etoilePath.moveTo(x1, y1);
+                            else starsGradientsCache.etoilePath.lineTo(x1, y1);
+                            starsGradientsCache.etoilePath.lineTo(x2, y2);
+                        }
+                        starsGradientsCache.etoilePath.closePath();
+                    }
+
                     ctx.fillStyle = starsGradientsCache.etoile;
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 1;
 
-                    // Étoile à 5 branches
-                    ctx.beginPath();
-                    for(let i = 0; i < 5; i++) {
-                        const angle1 = (i * 2 * Math.PI) / 5;
-                        const angle2 = ((i + 0.5) * 2 * Math.PI) / 5;
-
-                        const x1 = Math.cos(angle1) * rayonEtoile;
-                        const y1 = Math.sin(angle1) * rayonEtoile;
-                        const x2 = Math.cos(angle2) * (rayonEtoile * 0.4);
-                        const y2 = Math.sin(angle2) * (rayonEtoile * 0.4);
-
-                        if(i === 0) ctx.moveTo(x1, y1);
-                        else ctx.lineTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
+                    // ⚡ Dessiner avec Path2D en cache + scale
+                    ctx.scale(rayonEtoile, rayonEtoile);
+                    ctx.fill(starsGradientsCache.etoilePath);
+                    ctx.stroke(starsGradientsCache.etoilePath);
                 }
 
                 ctx.restore();
@@ -12473,21 +12651,43 @@ if (!MODE_DEV) {
                 ctx.strokeStyle = '#FFFFFF';
                 ctx.lineWidth = estBriqueMur ? 4 : 2;
                 
-                // Dessiner toutes les briques du batch en une fois
+                // ⚡ PATH2D: Créer un seul path pour tous les rectangles du batch
+                const pathFill = new Path2D();
+                const pathStroke = new Path2D();
+                const briquesClignote = []; // Briques qui clignotent (à dessiner séparément)
+                
+                batch.forEach((brique, index) => {
+                    // Clignotement si récemment touchée
+                    if (brique.clignotement > 0) {
+                        briquesClignote.push(brique);
+                        brique.clignotement--;
+                    } else {
+                        // ⚡ Ajouter au path commun
+                        pathFill.rect(brique.x, brique.y, brique.w, brique.h);
+                        pathStroke.rect(brique.x, brique.y, brique.w, brique.h);
+                    }
+                });
+                
+                // ⚡ UN SEUL fill() et stroke() pour toutes les briques du batch !
+                ctx.fill(pathFill);
+                ctx.stroke(pathStroke);
+                
+                // Dessiner les briques qui clignotent en blanc
+                if (briquesClignote.length > 0) {
+                    ctx.fillStyle = '#FFFFFF';
+                    const pathWhite = new Path2D();
+                    briquesClignote.forEach(brique => {
+                        pathWhite.rect(brique.x, brique.y, brique.w, brique.h);
+                    });
+                    ctx.fill(pathWhite);
+                    ctx.stroke(pathWhite);
+                }
+                
+                // Maintenant dessiner les effets et textes
                 batch.forEach((brique, index) => {
 
                     const centreX = brique.x + brique.w/2;
                     const centreY = brique.y + brique.h/2;
-                    
-                    // Clignotement si récemment touchée
-                    if (brique.clignotement > 0) {
-                        ctx.fillStyle = '#FFFFFF';
-                        brique.clignotement--;
-                    }
-                    
-                    // Rectangle de brique (batched)
-                    ctx.fillRect(brique.x, brique.y, brique.w, brique.h);
-                    ctx.strokeRect(brique.x, brique.y, brique.w, brique.h);
                     
                     // 🎨 EFFETS VISUELS: Simplifiés sur mobile
                     if (!estBriqueMur) {
@@ -14434,35 +14634,67 @@ if (!MODE_DEV) {
         }
 
         function dessinerCoeursBateau() {
+            if (coeursBateau.length === 0) return;
+
+            // ⚡ BATCHING: Grouper par couleur
+            const batchedCoeurs = {};
             coeursBateau.forEach(coeur => {
-                const couleurCoeur = coeur.couleur || '#FFFFFF';
-                const t = coeur.taille;
-                
-                // Forme de cœur simplifiée (moins de points que l'original)
-                ctx.fillStyle = couleurCoeur;
-                ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = 1; // Contour blanc fin
-                
-                ctx.beginPath();
-                ctx.moveTo(coeur.x, coeur.y + t * 0.3); // Pointe du bas
-                
-                // Côté gauche simplifié
-                ctx.lineTo(coeur.x - t * 0.15, coeur.y);
-                ctx.lineTo(coeur.x - t * 0.2, coeur.y - t * 0.1);
-                ctx.lineTo(coeur.x - t * 0.1, coeur.y - t * 0.15);
-                
-                // Haut centre
-                ctx.lineTo(coeur.x, coeur.y - t * 0.05);
-                
-                // Côté droit simplifié
-                ctx.lineTo(coeur.x + t * 0.1, coeur.y - t * 0.15);
-                ctx.lineTo(coeur.x + t * 0.2, coeur.y - t * 0.1);
-                ctx.lineTo(coeur.x + t * 0.15, coeur.y);
-                
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke(); // Contour blanc fin
+                const couleur = coeur.couleur || '#FFFFFF';
+                if (!batchedCoeurs[couleur]) {
+                    batchedCoeurs[couleur] = [];
+                }
+                batchedCoeurs[couleur].push(coeur);
             });
+
+            // ⚡ Un seul save/restore pour tous
+            ctx.save();
+            ctx.lineWidth = 1;
+
+            // Dessiner par batch de couleur avec Path2D
+            Object.keys(batchedCoeurs).forEach(couleur => {
+                const batch = batchedCoeurs[couleur];
+                
+                // ⚡ Créer un seul Path2D pour tous les cœurs de cette couleur
+                const pathFill = new Path2D();
+                const pathStroke = new Path2D();
+                
+                batch.forEach(coeur => {
+                    const t = coeur.taille;
+                    const x = coeur.x;
+                    const y = coeur.y;
+                    
+                    // Ajouter le cœur au path
+                    pathFill.moveTo(x, y + t * 0.3);
+                    pathFill.lineTo(x - t * 0.15, y);
+                    pathFill.lineTo(x - t * 0.2, y - t * 0.1);
+                    pathFill.lineTo(x - t * 0.1, y - t * 0.15);
+                    pathFill.lineTo(x, y - t * 0.05);
+                    pathFill.lineTo(x + t * 0.1, y - t * 0.15);
+                    pathFill.lineTo(x + t * 0.2, y - t * 0.1);
+                    pathFill.lineTo(x + t * 0.15, y);
+                    pathFill.closePath();
+                    
+                    // Même chose pour le contour
+                    pathStroke.moveTo(x, y + t * 0.3);
+                    pathStroke.lineTo(x - t * 0.15, y);
+                    pathStroke.lineTo(x - t * 0.2, y - t * 0.1);
+                    pathStroke.lineTo(x - t * 0.1, y - t * 0.15);
+                    pathStroke.lineTo(x, y - t * 0.05);
+                    pathStroke.lineTo(x + t * 0.1, y - t * 0.15);
+                    pathStroke.lineTo(x + t * 0.2, y - t * 0.1);
+                    pathStroke.lineTo(x + t * 0.15, y);
+                    pathStroke.closePath();
+                });
+                
+                // ⚡ UN SEUL fill() et stroke() pour tous les cœurs de cette couleur !
+                ctx.fillStyle = couleur;
+                ctx.fill(pathFill);
+                
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.stroke(pathStroke);
+            });
+
+            ctx.restore();
         }
 
         // Petits cœurs décoratifs en haut
@@ -14881,32 +15113,51 @@ if (!MODE_DEV) {
             if (now - _derniereUpdateCoeurs < _intervalUpdateCoeurs) return;
             _derniereUpdateCoeurs = now;
 
+            // ⚡ Détection mobile pour simplification
+            const isMobileDevice = window.PERF_QUALITY_LEVEL !== 'high';
+
             petitsCoeurs.forEach((coeur, index) => {
-                // Animation de scintillement
-                coeur.scintillement += coeur.vitesseScintillement;
+                // Animation de scintillement (réduite sur mobile)
+                coeur.scintillement += isMobileDevice ? coeur.vitesseScintillement * 0.5 : coeur.vitesseScintillement;
 
-                // Animation de rotation
-                coeur.rotation += coeur.vitesseRotation;
+                // Animation de rotation (désactivée sur mobile)
+                if (!isMobileDevice) {
+                    coeur.rotation += coeur.vitesseRotation;
+                }
 
-                // Animation de pulsation (taille)
-                coeur.pulsation += coeur.vitessePulsation;
-
+                // Animation de pulsation (désactivée sur mobile)
+                if (!isMobileDevice) {
+                    coeur.pulsation += coeur.vitessePulsation;
+                }
             });
         }
 
         // Fonction pour dessiner des cœurs avec 20 triangles (pour les briques)
-        // ⚡ CACHE pour optimiser dessinerCoeurPixelArt
+        // ⚡ CACHE Path2D pour optimiser dessinerCoeurPixelArt
         let _coeurPixelCache = {
             lastUpdate: 0,
             pulsation: 1,
-            updateInterval: 50 // Mise à jour toutes les 50ms (20fps) au lieu de 60fps
+            updateInterval: 50, // Mise à jour toutes les 50ms (20fps) au lieu de 60fps
+            path: null // Cache du Path2D
         };
 
         function dessinerCoeurPixelArt(x, y, taille, couleur) {
-            ctx.save();
-            ctx.translate(x, y);
-
             const t = taille;
+            
+            // ⚡ OPTIMISATION: Créer le Path2D une seule fois
+            if (!_coeurPixelCache.path) {
+                _coeurPixelCache.path = new Path2D();
+                // Forme simplifiée avec seulement 8 points (centrée sur 0,0)
+                _coeurPixelCache.path.moveTo(-0.25, 0);
+                _coeurPixelCache.path.lineTo(-0.15, -0.15);
+                _coeurPixelCache.path.lineTo(0, -0.05);
+                _coeurPixelCache.path.lineTo(0.15, -0.15);
+                _coeurPixelCache.path.lineTo(0.25, 0);
+                _coeurPixelCache.path.lineTo(0.1, 0.15);
+                _coeurPixelCache.path.lineTo(0, 0.3);
+                _coeurPixelCache.path.lineTo(-0.1, 0.15);
+                _coeurPixelCache.path.closePath();
+            }
             
             // ⚡ OPTIMISATION: Cache pulsation (20fps au lieu de 60fps)
             const now = Date.now();
@@ -14915,29 +15166,18 @@ if (!MODE_DEV) {
                 _coeurPixelCache.lastUpdate = now;
             }
 
-            // Appliquer la pulsation cachée
-            ctx.scale(_coeurPixelCache.pulsation, _coeurPixelCache.pulsation);
+            // Dessiner avec translate + scale (plus rapide que beginPath)
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(t * _coeurPixelCache.pulsation, t * _coeurPixelCache.pulsation);
 
             // Style simple et clair
             ctx.fillStyle = couleur;
+            ctx.fill(_coeurPixelCache.path);
+            
             ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 1;
-
-            // ⚡ CŒUR SIMPLIFIÉ: Forme basique (moins de points)
-            ctx.beginPath();
-            
-            // Forme simplifiée avec seulement 8 points
-            ctx.moveTo(-t * 0.25, 0);
-            ctx.lineTo(-t * 0.15, -t * 0.15);
-            ctx.lineTo(0, -t * 0.05);
-            ctx.lineTo(t * 0.15, -t * 0.15);
-            ctx.lineTo(t * 0.25, 0);
-            ctx.lineTo(t * 0.1, t * 0.15);
-            ctx.lineTo(0, t * 0.3);
-            ctx.lineTo(-t * 0.1, t * 0.15);
-            
-            ctx.closePath();
-            ctx.fill();
+            ctx.lineWidth = 1 / (t * _coeurPixelCache.pulsation); // Ajuster lineWidth avec le scale
+            ctx.stroke(_coeurPixelCache.path);
             ctx.stroke();
 
             // ⚡ OPTIMISATION: Pas de détails intérieurs (trop coûteux pour des briques)
@@ -15035,22 +15275,128 @@ if (!MODE_DEV) {
             }
         }
 
+        // ⚡ VERSION BATCH Path2D: Ajoute un cœur au Path2D pour rendu ultra-optimisé (1 fill/stroke pour tous)
+        function ajouterCoeurAuPath(pathFill, pathStroke, x, y, taille, rotation = 0) {
+            const t = taille;
+            
+            if (rotation !== 0) {
+                // Si rotation, utiliser transform matrix
+                const cos = Math.cos(rotation);
+                const sin = Math.sin(rotation);
+                
+                // Fonction helper pour transformer un point
+                const transform = (px, py) => ({
+                    x: x + px * cos - py * sin,
+                    y: y + px * sin + py * cos
+                });
+                
+                // Cœur simplifié avec transformation
+                const p1 = transform(-t * 0.3, -t * 0.05);
+                const p2 = transform(-t * 0.2, -t * 0.2);
+                const p3 = transform(-t * 0.05, -t * 0.05);
+                const p4 = transform(t * 0.05, -t * 0.05);
+                const p5 = transform(t * 0.2, -t * 0.2);
+                const p6 = transform(t * 0.3, -t * 0.05);
+                const p7 = transform(t * 0.15, t * 0.1);
+                const p8 = transform(0, t * 0.4);
+                const p9 = transform(-t * 0.15, t * 0.1);
+                
+                pathFill.moveTo(p1.x, p1.y);
+                pathFill.lineTo(p2.x, p2.y);
+                pathFill.lineTo(p3.x, p3.y);
+                pathFill.lineTo(p4.x, p4.y);
+                pathFill.lineTo(p5.x, p5.y);
+                pathFill.lineTo(p6.x, p6.y);
+                pathFill.lineTo(p7.x, p7.y);
+                pathFill.lineTo(p8.x, p8.y);
+                pathFill.lineTo(p9.x, p9.y);
+                pathFill.closePath();
+                
+                // Même chose pour stroke
+                pathStroke.moveTo(p1.x, p1.y);
+                pathStroke.lineTo(p2.x, p2.y);
+                pathStroke.lineTo(p3.x, p3.y);
+                pathStroke.lineTo(p4.x, p4.y);
+                pathStroke.lineTo(p5.x, p5.y);
+                pathStroke.lineTo(p6.x, p6.y);
+                pathStroke.lineTo(p7.x, p7.y);
+                pathStroke.lineTo(p8.x, p8.y);
+                pathStroke.lineTo(p9.x, p9.y);
+                pathStroke.closePath();
+            } else {
+                // Sans rotation, plus simple et rapide
+                pathFill.moveTo(x + -t * 0.3, y + -t * 0.05);
+                pathFill.lineTo(x + -t * 0.2, y + -t * 0.2);
+                pathFill.lineTo(x + -t * 0.05, y + -t * 0.05);
+                pathFill.lineTo(x + t * 0.05, y + -t * 0.05);
+                pathFill.lineTo(x + t * 0.2, y + -t * 0.2);
+                pathFill.lineTo(x + t * 0.3, y + -t * 0.05);
+                pathFill.lineTo(x + t * 0.15, y + t * 0.1);
+                pathFill.lineTo(x + 0, y + t * 0.4);
+                pathFill.lineTo(x + -t * 0.15, y + t * 0.1);
+                pathFill.closePath();
+                
+                pathStroke.moveTo(x + -t * 0.3, y + -t * 0.05);
+                pathStroke.lineTo(x + -t * 0.2, y + -t * 0.2);
+                pathStroke.lineTo(x + -t * 0.05, y + -t * 0.05);
+                pathStroke.lineTo(x + t * 0.05, y + -t * 0.05);
+                pathStroke.lineTo(x + t * 0.2, y + -t * 0.2);
+                pathStroke.lineTo(x + t * 0.3, y + -t * 0.05);
+                pathStroke.lineTo(x + t * 0.15, y + t * 0.1);
+                pathStroke.lineTo(x + 0, y + t * 0.4);
+                pathStroke.lineTo(x + -t * 0.15, y + t * 0.1);
+                pathStroke.closePath();
+            }
+        }
+
         function dessinerPetitsCoeurs() {
             // Ne pas dessiner les petits cœurs pendant l'animation du bateau, la phase lanterne, stars, final ou feux d'artifice
             if(animationBateau.active || phaseJeu === 'lanterne' || phaseJeu === 'stars' || phaseJeu === 'final' || phaseJeu === 'feux_artifice') return;
 
-            // ⚡ OPTIMISATION: Batching - un seul save/restore pour tous les cœurs
+            // ⚡ OPTIMISATION: Détection mobile pour simplification
+            const isMobileDevice = window.PERF_QUALITY_LEVEL !== 'high';
+            const simplifierEffets = isMobileDevice;
+
+            // ⚡ BATCHING: Grouper les cœurs par couleur
+            const batchedCoeurs = {};
+            petitsCoeurs.forEach((coeur, index) => {
+                if (!coeur.visible) return;
+                const key = coeur.couleur;
+                if (!batchedCoeurs[key]) {
+                    batchedCoeurs[key] = [];
+                }
+                batchedCoeurs[key].push({ coeur, index });
+            });
+
+            // ⚡ OPTIMISATION: Un seul save/restore pour tous les cœurs
             ctx.save();
             
-            petitsCoeurs.forEach(coeur => {
-                if(!coeur.visible) return;
-
-                // ⚡ OPTIMISATION: Calculs d'animation simplifiés
-                const intensite = (Math.sin(coeur.scintillement) + 1) * 0.5;
-                const taillePulsee = coeur.taille * (1 + Math.sin(coeur.pulsation) * 0.1);
-
-                // Dessiner le cœur polygonal sans save/restore individuel
-                dessinerCoeurPolygonalOptimise(coeur.x, coeur.y, taillePulsee, coeur.couleur, coeur.rotation, intensite);
+            // Dessiner par batch de couleur avec Path2D
+            Object.keys(batchedCoeurs).forEach(couleurKey => {
+                const batch = batchedCoeurs[couleurKey];
+                const couleur = batch[0].coeur.couleur;
+                
+                // ⚡ Créer un seul Path2D pour tous les cœurs de cette couleur
+                const pathFill = new Path2D();
+                const pathStroke = new Path2D();
+                
+                batch.forEach(({ coeur, index }) => {
+                    // Calculs d'animation fluides à 60fps
+                    const intensite = simplifierEffets ? 1 : (Math.sin(coeur.scintillement) + 1) * 0.5;
+                    const taillePulsee = simplifierEffets ? coeur.taille : coeur.taille * (1 + Math.sin(coeur.pulsation) * 0.1);
+                    const rotation = simplifierEffets ? 0 : coeur.rotation;
+                    
+                    // ⚡ Ajouter le cœur au Path2D commun
+                    ajouterCoeurAuPath(pathFill, pathStroke, coeur.x, coeur.y, taillePulsee, rotation);
+                });
+                
+                // ⚡ UN SEUL fill() et stroke() pour tous les cœurs de cette couleur !
+                ctx.fillStyle = couleur;
+                ctx.fill(pathFill);
+                
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.stroke(pathStroke);
             });
             
             ctx.restore();
@@ -15416,9 +15762,42 @@ if (!MODE_DEV) {
             }
         }
 
+        // ⚡ CACHE Path2D pour particules (créé une seule fois)
+        let _particulesPathCache = {
+            coeur: null,
+            etoile: null
+        };
+
         function dessinerParticules() {
             // Permettre la pluie émotionnelle même pendant l'animation du bateau
             // if(animationBateau.active) return; // SUPPRIMÉ - autoriser les particules
+
+            // ⚡ Initialiser les paths en cache
+            if (!_particulesPathCache.coeur) {
+                // Cœur normalisé (taille 1)
+                _particulesPathCache.coeur = new Path2D();
+                _particulesPathCache.coeur.arc(-0.3, -0.2, 0.4, 0, Math.PI, true);
+                _particulesPathCache.coeur.arc(0.3, -0.2, 0.4, 0, Math.PI, true);
+                _particulesPathCache.coeur.lineTo(0, 0.6);
+                _particulesPathCache.coeur.closePath();
+            }
+            if (!_particulesPathCache.etoile) {
+                // Étoile normalisée (taille 1)
+                _particulesPathCache.etoile = new Path2D();
+                for(let i = 0; i < 5; i++) {
+                    const angleExt = (i * 2 * Math.PI) / 5;
+                    const angleInt = ((i + 0.5) * 2 * Math.PI) / 5;
+                    const xExt = Math.cos(angleExt);
+                    const yExt = Math.sin(angleExt);
+                    const xInt = Math.cos(angleInt) * 0.5;
+                    const yInt = Math.sin(angleInt) * 0.5;
+
+                    if(i === 0) _particulesPathCache.etoile.moveTo(xExt, yExt);
+                    else _particulesPathCache.etoile.lineTo(xExt, yExt);
+                    _particulesPathCache.etoile.lineTo(xInt, yInt);
+                }
+                _particulesPathCache.etoile.closePath();
+            }
 
             particules.forEach(p => {
                 ctx.save();
@@ -15432,35 +15811,15 @@ if (!MODE_DEV) {
                 }
 
                 if(p.type === 'coeur') {
-                    // Dessiner petit cœur
-                    const taille = p.taille;
-                    ctx.beginPath();
-                    // Partie gauche du cœur
-                    ctx.arc(p.x - taille*0.3, p.y - taille*0.2, taille*0.4, 0, Math.PI, true);
-                    // Partie droite du cœur
-                    ctx.arc(p.x + taille*0.3, p.y - taille*0.2, taille*0.4, 0, Math.PI, true);
-                    // Pointe du cœur
-                    ctx.lineTo(p.x, p.y + taille*0.6);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if(p.type === 'etoile') {
-                    // 🌟 Étoile simple sans rotation
+                    // ⚡ Dessiner avec Path2D en cache
                     ctx.translate(p.x, p.y);
-                    ctx.beginPath();
-                    for(let i = 0; i < 5; i++) {
-                        const angleExt = (i * 2 * Math.PI) / 5;
-                        const angleInt = ((i + 0.5) * 2 * Math.PI) / 5;
-                        const xExt = Math.cos(angleExt) * p.taille;
-                        const yExt = Math.sin(angleExt) * p.taille;
-                        const xInt = Math.cos(angleInt) * p.taille * 0.5;
-                        const yInt = Math.sin(angleInt) * p.taille * 0.5;
-
-                        if(i === 0) ctx.moveTo(xExt, yExt);
-                        else ctx.lineTo(xExt, yExt);
-                        ctx.lineTo(xInt, yInt);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
+                    ctx.scale(p.taille, p.taille);
+                    ctx.fill(_particulesPathCache.coeur);
+                } else if(p.type === 'etoile') {
+                    // ⚡ Dessiner avec Path2D en cache
+                    ctx.translate(p.x, p.y);
+                    ctx.scale(p.taille, p.taille);
+                    ctx.fill(_particulesPathCache.etoile);
                 } else if(p.type === 'trait_lumineux') {
                     // ✨ Trait lumineux fin et simple
                     ctx.lineWidth = Math.max(1, p.taille * 0.3); // Plus fin
@@ -19504,6 +19863,29 @@ Elle a besoin de ponts.`
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
             if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // 📜 SCROLL TACTILE CLASSEMENT
+            if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement' && isSwipingMenu) {
+                if (leaderboardData && leaderboardData.length > menuEnigmesCanvas.leaderboardScroll.maxVisible) {
+                    const deltaY = swipeStartY - y;
+                    const swipeSpeed = 0.05; // Sensibilité du swipe (plus petit = plus sensible)
+                    
+                    if (Math.abs(deltaY) > 5) { // Seuil minimum pour déclencher le scroll
+                        const scrollStep = deltaY > 0 ? 1 : -1;
+                        const maxOffset = Math.max(0, leaderboardData.length - menuEnigmesCanvas.leaderboardScroll.maxVisible);
+                        menuEnigmesCanvas.leaderboardScroll.offset = Math.max(0, Math.min(maxOffset, 
+                            menuEnigmesCanvas.leaderboardScroll.offset + scrollStep));
+                        swipeStartY = y; // Réinitialiser pour mouvement continu
+                    }
+                }
+                return; // Ne pas contrôler le bateau
+            }
+            
             const pos = obtenirPosition(e);
             deplacerRaquette(pos.x);
         });
@@ -19569,7 +19951,52 @@ Elle a besoin de ponts.`
                 menuEnigmesCanvas.scrollY += deltaY * 0.5;
                 menuEnigmesCanvas.scrollY = Math.max(0, Math.min(menuEnigmesCanvas.scrollY, menuEnigmesCanvas.maxScrollY));
                 swipeStartY = y;
-            } else {
+            }
+            // 📜 DRAG SCROLLBAR CLASSEMENT
+            else if (menuEnigmesCanvas.leaderboardScroll.isDragging && menuEnigmesCanvas.ongletActif === 'classement') {
+                const scrollData = menuEnigmesCanvas.leaderboardScroll;
+                if (scrollData.scrollbarArea) {
+                    const deltaY = y - scrollData.dragStartY;
+                    const scrollbarHeight = scrollData.scrollbarArea.height;
+                    const thumbHeight = scrollData.scrollbarArea.thumbHeight;
+                    const maxScroll = leaderboardData.length - scrollData.maxVisible;
+                    
+                    // Convertir le déplacement pixel en offset
+                    const scrollableHeight = scrollbarHeight - thumbHeight;
+                    const offsetChange = (deltaY / scrollableHeight) * maxScroll;
+                    
+                    scrollData.offset = Math.max(0, Math.min(maxScroll, 
+                        Math.round(scrollData.dragStartOffset + offsetChange)));
+                }
+            }
+            // 📜 HOVER SCROLLBAR CLASSEMENT
+            else if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement' && 
+                     menuEnigmesCanvas.leaderboardScroll.scrollbarArea) {
+                const scrollArea = menuEnigmesCanvas.leaderboardScroll.scrollbarArea;
+                menuEnigmesCanvas.leaderboardScroll.scrollbarHover = 
+                    (x >= scrollArea.x && x <= scrollArea.x + scrollArea.width &&
+                     y >= scrollArea.y && y <= scrollArea.y + scrollArea.height);
+                
+                // 🔄 HOVER BOUTON REFRESH
+                if (menuEnigmesCanvas.refreshButton) {
+                    const btn = menuEnigmesCanvas.refreshButton;
+                    const dist = Math.sqrt(
+                        Math.pow(x - btn.centerX, 2) + 
+                        Math.pow(y - btn.centerY, 2)
+                    );
+                    menuEnigmesCanvas.refreshButtonHover = dist < (btn.width / 2);
+                } else {
+                    menuEnigmesCanvas.refreshButtonHover = false;
+                }
+                
+                // Changer curseur si hover
+                if (menuEnigmesCanvas.leaderboardScroll.scrollbarHover || menuEnigmesCanvas.refreshButtonHover) {
+                    canvas.style.cursor = 'pointer';
+                } else if (!flagHover) {
+                    canvas.style.cursor = 'default';
+                }
+            }
+            else {
                 deplacerRaquette(e.clientX - rect.left);
 
                 // Tir continu si bouton maintenu
@@ -19652,6 +20079,26 @@ Elle a besoin de ponts.`
             if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement') {
                 console.log('🖱️ MOUSEDOWN - Clic sur onglet classement:', { x, y });
                 
+                // 🔄 CLIC SUR BOUTON REFRESH
+                if (menuEnigmesCanvas.refreshButton) {
+                    const btn = menuEnigmesCanvas.refreshButton;
+                    const dist = Math.sqrt(
+                        Math.pow(x - btn.centerX, 2) + 
+                        Math.pow(y - btn.centerY, 2)
+                    );
+                    
+                    if (dist < (btn.width / 2)) {
+                        console.log('🔄 Clic sur bouton refresh - Rechargement du classement...');
+                        if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
+                        
+                        // Forcer le rechargement
+                        chargerClassement(true).then(() => {
+                            console.log('✅ Classement rafraîchi');
+                        });
+                        return;
+                    }
+                }
+                
                 if (menuEnigmesCanvas.titleLeaderboard) {
                     const title = menuEnigmesCanvas.titleLeaderboard;
                     console.log('🎯 Zone titre (mousedown):', title);
@@ -19674,6 +20121,32 @@ Elle a besoin de ponts.`
             if (menuEnigmesCanvas.visible) {
                 isSwipingMenu = true;
                 swipeStartY = y;
+                
+                // 📜 CLIC SUR SCROLLBAR CLASSEMENT - Démarrer le drag
+                if (menuEnigmesCanvas.ongletActif === 'classement' && 
+                    menuEnigmesCanvas.leaderboardScroll.scrollbarArea) {
+                    const scrollArea = menuEnigmesCanvas.leaderboardScroll.scrollbarArea;
+                    
+                    // Clic sur la scrollbar
+                    if (x >= scrollArea.x && x <= scrollArea.x + scrollArea.width &&
+                        y >= scrollArea.y && y <= scrollArea.y + scrollArea.height) {
+                        
+                        menuEnigmesCanvas.leaderboardScroll.isDragging = true;
+                        menuEnigmesCanvas.leaderboardScroll.dragStartY = y;
+                        menuEnigmesCanvas.leaderboardScroll.dragStartOffset = menuEnigmesCanvas.leaderboardScroll.offset;
+                        isSwipingMenu = false; // Désactiver le swipe du menu
+                        
+                        // Clic direct sur la track (pas le thumb) - jump to position
+                        if (y < scrollArea.thumbY || y > scrollArea.thumbY + scrollArea.thumbHeight) {
+                            const clickRatio = (y - scrollArea.y) / scrollArea.height;
+                            const maxOffset = Math.max(0, leaderboardData.length - menuEnigmesCanvas.leaderboardScroll.maxVisible);
+                            menuEnigmesCanvas.leaderboardScroll.offset = Math.round(clickRatio * maxOffset);
+                            menuEnigmesCanvas.leaderboardScroll.dragStartOffset = menuEnigmesCanvas.leaderboardScroll.offset;
+                        }
+                        
+                        return; // Ne pas traiter comme swipe
+                    }
+                }
             } else {
                 tirEnCours = true;
                 dernierTir = 0; // Reset pour tir immédiat au premier clic
@@ -19683,17 +20156,51 @@ Elle a besoin de ponts.`
         canvas.addEventListener('mouseup', (e) => {
             tirEnCours = false;
             isSwipingMenu = false;
+            
+            // 📜 ARRÊTER LE DRAG SCROLLBAR
+            if (menuEnigmesCanvas.leaderboardScroll.isDragging) {
+                menuEnigmesCanvas.leaderboardScroll.isDragging = false;
+            }
         });
 
         canvas.addEventListener('mouseleave', (e) => {
             tirEnCours = false;
             isSwipingMenu = false;
+            
+            // 📜 ARRÊTER LE DRAG SCROLLBAR
+            if (menuEnigmesCanvas.leaderboardScroll.isDragging) {
+                menuEnigmesCanvas.leaderboardScroll.isDragging = false;
+            }
         });
 
         // Scroll dans le menu énigmes
         canvas.addEventListener('wheel', (e) => {
             if (menuEnigmesCanvas.visible) {
                 e.preventDefault();
+                
+                // 📜 SCROLLING CLASSEMENT: Si onglet classement actif et souris dans la zone de liste
+                if (menuEnigmesCanvas.ongletActif === 'classement' && leaderboardData && leaderboardData.length > 0) {
+                    const rect = canvas.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    // Vérifier si souris dans zone du classement
+                    const menuX = (C.W - (Math.min(C.W - 40, 600))) / 2;
+                    const menuWidth = Math.min(C.W - 40, 600);
+                    const menuY = 100;
+                    const menuHeight = C.H - 200;
+                    
+                    if (mouseX >= menuX && mouseX <= menuX + menuWidth &&
+                        mouseY >= menuY + 100 && mouseY <= menuY + menuHeight - 70) {
+                        
+                        const scrollStep = e.deltaY > 0 ? 1 : -1;
+                        const maxOffset = Math.max(0, leaderboardData.length - menuEnigmesCanvas.leaderboardScroll.maxVisible);
+                        menuEnigmesCanvas.leaderboardScroll.offset = Math.max(0, Math.min(maxOffset, 
+                            menuEnigmesCanvas.leaderboardScroll.offset + scrollStep));
+                        return; // Ne pas scroller le menu principal
+                    }
+                }
+                
                 const scrollAmount = e.deltaY * 0.5; // Vitesse de scroll
                 menuEnigmesCanvas.scrollY += scrollAmount;
 
@@ -21373,14 +21880,20 @@ Elle a besoin de ponts.`
                     ctx.shadowBlur = 8;
                     ctx.fillRect(game.paddle.x, game.paddle.y, game.paddle.width, game.paddle.height);
 
-                    // Dessiner balle
-                    ctx.beginPath();
-                    ctx.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+                    // ⚡ Dessiner balle avec Path2D (réutilisable)
+                    if (!window.ballPath) {
+                        window.ballPath = new Path2D();
+                        window.ballPath.arc(0, 0, game.ball.radius, 0, Math.PI * 2);
+                    }
+                    
+                    ctx.save();
+                    ctx.translate(game.ball.x, game.ball.y);
                     ctx.fillStyle = '#FFD700';
-                    ctx.fill();
+                    ctx.fill(window.ballPath);
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 2;
-                    ctx.stroke();
+                    ctx.stroke(window.ballPath);
+                    ctx.restore();
 
                     // Instructions
                     const instructionOpacity = 0.6 + Math.sin(Date.now() * 0.003) * 0.3;

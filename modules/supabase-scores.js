@@ -707,18 +707,19 @@ class SupabaseScores {
         }
     }
 
-    // Récupérer le classement du jeu actuel (top 10)
+    // Récupérer le classement du jeu actuel (optimisé avec limite)
     async getLeaderboard(limit = 10) {
         if (!this.currentGameId) return [];
 
         try {
-            // Récupérer les scores Supabase
+            console.log(`🔍 Requête DB: getLeaderboard(${limit}) - game_id: ${this.currentGameId}`);
+            
+            // 🎯 OPTIMISATION: Récupérer uniquement les champs nécessaires
             const { data, error } = await this.client
                 .from('scores')
                 .select(`
                     score,
                     niveau_atteint,
-                    temps_jeu,
                     created_at,
                     donnees_extra,
                     users (pseudo, avatar, pays)
