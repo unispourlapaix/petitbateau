@@ -16200,9 +16200,9 @@ if (!MODE_DEV) {
                 }
 
                 // ✨ PAILLETTES MAGIQUES AUTOUR DU PROJECTILE ✨
-                // ⚡ OPTIMISATION: Adaptatif selon qualité device (4→2→1 paillettes)
-                const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0 };
-                const sparkleCount = Math.max(1, Math.floor(4 * effects.particleMultiplier));
+                // ⚡ OPTIMISATION: Adaptatif selon qualité device (3→2→1 paillettes)
+                const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0, shadows: true, shadowBlurMax: 15 };
+                const sparkleCount = Math.max(1, Math.floor(3 * effects.particleMultiplier));
                 const sparkleTime = Date.now() * 0.005;
                 for (let s = 0; s < sparkleCount; s++) {
                     const angle = (s / sparkleCount) * Math.PI * 2 + sparkleTime;
@@ -16231,9 +16231,9 @@ if (!MODE_DEV) {
                     
                     // Phase 22 : Traînée de paillettes arc-en-ciel ✨
                     if (config.trailType === 'sparkle') {
-                        // ⚡ OPTIMISATION: Adaptatif selon qualité device (~8→4→2 paillettes)
-                        const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0 };
-                        const baseSparkleCount = Math.floor(trailLength / 3);
+                        // ⚡ OPTIMISATION: Adaptatif selon qualité device (~6→3→2 paillettes)
+                        const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0, shadows: true, shadowBlurMax: 15 };
+                        const baseSparkleCount = Math.floor(trailLength / 4); // Réduit de /3 à /4
                         const sparkleCount = Math.max(2, Math.floor(baseSparkleCount * effects.particleMultiplier));
                         for (let s = 0; s < sparkleCount; s++) {
                             const sparkleRatio = s / sparkleCount;
@@ -16281,7 +16281,9 @@ if (!MODE_DEV) {
                         }
                     } else {
                         // ✨ Traînée améliorée avec BLUR et dégradé
-                        const trailSteps = 20;
+                        // ⚡ OPTIMISATION: Adaptatif selon qualité (20→12→8 étapes)
+                        const effects = window.getAdaptiveEffectSettings ? window.getAdaptiveEffectSettings() : { particleMultiplier: 1.0, shadows: true, shadowBlurMax: 15 };
+                        const trailSteps = Math.max(8, Math.floor(20 * effects.particleMultiplier));
                         for (let t = 0; t < trailSteps; t++) {
                             const ratio = t / trailSteps;
                             const trailX = posX - projectile.dx * (ratio * trailLength / config.speed);
@@ -16291,8 +16293,10 @@ if (!MODE_DEV) {
                             
                             ctx.save();
                             ctx.globalAlpha = (1 - ratio) * 0.7;
-                            ctx.shadowBlur = 15 * (1 - ratio);
-                            ctx.shadowColor = currentColor;
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(15 * (1 - ratio), effects.shadowBlurMax);
+                                ctx.shadowColor = currentColor;
+                            }
                             ctx.fillStyle = currentColor;
                             ctx.beginPath();
                             ctx.arc(trailX, trailY, rayonEtoile * (1 - ratio * 0.5), 0, Math.PI * 2);
@@ -16319,12 +16323,15 @@ if (!MODE_DEV) {
                             // Dessiner un cœur géométrique vectoriel au lieu de l'emoji
                             const size = rayonEtoile * 2;
                             
-                            // Multi-couches de blur pour effet magique
-                            for (let layer = 3; layer >= 0; layer--) {
+                            // ⚡ OPTIMISATION: 2 couches au lieu de 4 (50% plus rapide)
+                            const layerCount = effects.shadows ? 2 : 1;
+                            for (let layer = layerCount - 1; layer >= 0; layer--) {
                                 ctx.save();
-                                ctx.globalAlpha = 0.3 + (layer * 0.15);
-                                ctx.shadowBlur = 30 - (layer * 7);
-                                ctx.shadowColor = currentColor;
+                                ctx.globalAlpha = 0.4 + (layer * 0.3);
+                                if (effects.shadows) {
+                                    ctx.shadowBlur = Math.min(20 - (layer * 10), effects.shadowBlurMax);
+                                    ctx.shadowColor = currentColor;
+                                }
                                 ctx.fillStyle = currentColor;
                                 
                                 // Cœur géométrique avec courbes de Bézier
@@ -16346,8 +16353,10 @@ if (!MODE_DEV) {
                             ctx.save();
                             ctx.strokeStyle = '#FFFFFF';
                             ctx.lineWidth = 2;
-                            ctx.shadowBlur = 15;
-                            ctx.shadowColor = '#FFFFFF';
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(12, effects.shadowBlurMax);
+                                ctx.shadowColor = '#FFFFFF';
+                            }
                             ctx.beginPath();
                             ctx.moveTo(0, size * 0.3);
                             ctx.bezierCurveTo(-size * 0.5, -size * 0.3, -size * 0.8, size * 0.1, 0, size * 0.9);
@@ -16356,9 +16365,11 @@ if (!MODE_DEV) {
                             ctx.stroke();
                             ctx.restore();
                         } else {
-                            // Autre emoji : glow intense derrière l'emoji pour le rendre bien visible
-                            ctx.shadowBlur = 30;
-                            ctx.shadowColor = currentColor;
+                            // Autre emoji : glow adapté selon device
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(20, effects.shadowBlurMax);
+                                ctx.shadowColor = currentColor;
+                            }
                             
                             ctx.font = `${rayonEtoile * 3}px Arial`;
                             ctx.textAlign = 'center';
@@ -16369,15 +16380,18 @@ if (!MODE_DEV) {
                             ctx.shadowBlur = 0;
                         }
                     } else {
-                        // Pas d'emoji : dessiner un CŒUR GÉOMÉTRIQUE par défaut avec blur intense
+                        // Pas d'emoji : dessiner un CŒUR GÉOMÉTRIQUE par défaut
                         const size = rayonEtoile * 2;
                         
-                        // Multi-couches de blur pour effet magique maximum
-                        for (let layer = 4; layer >= 0; layer--) {
+                        // ⚡ OPTIMISATION: 2 couches au lieu de 5 (60% plus rapide)
+                        const layerCount = effects.shadows ? 2 : 1;
+                        for (let layer = layerCount - 1; layer >= 0; layer--) {
                             ctx.save();
-                            ctx.globalAlpha = 0.25 + (layer * 0.12);
-                            ctx.shadowBlur = 40 - (layer * 8);
-                            ctx.shadowColor = currentColor;
+                            ctx.globalAlpha = 0.4 + (layer * 0.3);
+                            if (effects.shadows) {
+                                ctx.shadowBlur = Math.min(20 - (layer * 10), effects.shadowBlurMax);
+                                ctx.shadowColor = currentColor;
+                            }
                             ctx.fillStyle = currentColor;
                             
                             const scale = 1 + (layer * 0.08);
@@ -16396,8 +16410,10 @@ if (!MODE_DEV) {
                         ctx.save();
                         ctx.globalAlpha = 0.8;
                         ctx.fillStyle = '#FFFFFF';
-                        ctx.shadowBlur = 20;
-                        ctx.shadowColor = '#FFFFFF';
+                        if (effects.shadows) {
+                            ctx.shadowBlur = Math.min(15, effects.shadowBlurMax);
+                            ctx.shadowColor = '#FFFFFF';
+                        }
                         ctx.scale(0.3, 0.3);
                         ctx.beginPath();
                         ctx.moveTo(0, size * 0.3);
@@ -16516,6 +16532,12 @@ if (!MODE_DEV) {
 
         // Tirer un projectile étoile depuis le bateau
         function tirerProjectile(mouseX, mouseY) {
+            // ⚡ LIMITE DE SÉCURITÉ : Max 25 projectiles à l'écran simultanément
+            if (projectiles.length >= 25) {
+                console.log('⚠️ Limite de projectiles atteinte (25) - ignoré pour performances');
+                return;
+            }
+            
             // Ne tirer des projectiles QUE pendant la phase lanterne ou mur (phases 17-22, pas 23 = fin)
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             const isWallPhase = phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur';
