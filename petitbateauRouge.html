@@ -13568,11 +13568,10 @@ if (!MODE_DEV) {
         // Créer un power-up destructeur (5 types simples et efficaces)
         function creerPowerUpDestructeur(x, y) {
             const typesDestructeurs = [
-                'explosion_ligne',    // 💥 Explosion qui détruit une ligne horizontale
-                'boule_feu',          // 🔥 Boule de feu qui détruit en zone 3x3
-                'eclair_vertical',    // ⚡ Éclair qui détruit une colonne verticale
-                'onde_choc',          // 🌊 Onde de choc qui détruit en cercle
-                'laser_croix'         // ✖️ Laser en croix qui détruit ligne + colonne
+                'explosion_ligne',    // 💥 Demi-ligne horizontale
+                'boule_feu',          // 🔥 4 briques en petit cercle
+                'eclair_vertical',    // ⚡ Demi-colonne verticale
+                'laser_croix'         // ✖️ Demi-croix (demi-ligne + demi-colonne)
             ];
             
             const typeFinal = typesDestructeurs[Math.floor(Math.random() * typesDestructeurs.length)];
@@ -13599,9 +13598,9 @@ if (!MODE_DEV) {
             
             switch(type) {
                 case 'explosion_ligne':
-                    // 💥 Détruit toutes les briques sur la même ligne horizontale
+                    // 💥 Détruit les briques sur une demi-ligne horizontale
                     briques.forEach(brique => {
-                        if (brique.visible && Math.abs(brique.y + brique.h/2 - centerY) < 40) {
+                        if (brique.visible && Math.abs(brique.y + brique.h/2 - centerY) < 20) {
                             brique.visible = false;
                             brises++;
                             score += 50;
@@ -13610,18 +13609,18 @@ if (!MODE_DEV) {
                         }
                     });
                     AudioSystem.playBrickBreakCrack();
-                    afficherMessagePowerupSimple('💥 EXPLOSION LIGNE !');
+                    afficherMessagePowerupSimple('💥 BOUM !');
                     break;
                     
                 case 'boule_feu':
-                    // 🔥 Détruit toutes les briques dans un rayon de 100px (zone 3x3)
+                    // 🔥 Détruit environ 4 briques dans un petit rayon (60px)
                     briques.forEach(brique => {
                         if (brique.visible) {
                             const dx = (brique.x + brique.w/2) - centerX;
                             const dy = (brique.y + brique.h/2) - centerY;
                             const distance = Math.sqrt(dx*dx + dy*dy);
                             
-                            if (distance < 100) {
+                            if (distance < 60) {
                                 brique.visible = false;
                                 brises++;
                                 score += 50;
@@ -13631,13 +13630,13 @@ if (!MODE_DEV) {
                         }
                     });
                     AudioSystem.playBrickBreakGlass();
-                    afficherMessagePowerupSimple('🔥 BOULE DE FEU !');
+                    afficherMessagePowerupSimple('🔥 WOOOSH !');
                     break;
                     
                 case 'eclair_vertical':
-                    // ⚡ Détruit toutes les briques sur la même colonne verticale
+                    // ⚡ Détruit les briques sur une demi-colonne verticale
                     briques.forEach(brique => {
-                        if (brique.visible && Math.abs(brique.x + brique.w/2 - centerX) < 40) {
+                        if (brique.visible && Math.abs(brique.x + brique.w/2 - centerX) < 20) {
                             brique.visible = false;
                             brises++;
                             score += 50;
@@ -13646,36 +13645,15 @@ if (!MODE_DEV) {
                         }
                     });
                     AudioSystem.playBrickBreakToc();
-                    afficherMessagePowerupSimple('⚡ ÉCLAIR VERTICAL !');
-                    break;
-                    
-                case 'onde_choc':
-                    // 🌊 Détruit toutes les briques dans un grand rayon de 150px (cercle)
-                    briques.forEach(brique => {
-                        if (brique.visible) {
-                            const dx = (brique.x + brique.w/2) - centerX;
-                            const dy = (brique.y + brique.h/2) - centerY;
-                            const distance = Math.sqrt(dx*dx + dy*dy);
-                            
-                            if (distance < 150) {
-                                brique.visible = false;
-                                brises++;
-                                score += 50;
-                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#00BFFF', 8);
-                                grilleCollision.supprimerBrique(brique);
-                            }
-                        }
-                    });
-                    AudioSystem.playBrickBreakCrack();
-                    afficherMessagePowerupSimple('🌊 ONDE DE CHOC !');
+                    afficherMessagePowerupSimple('⚡ BZZZZT !');
                     break;
                     
                 case 'laser_croix':
-                    // ✖️ Détruit toutes les briques en croix (ligne + colonne)
+                    // ✖️ Détruit les briques en demi-croix (demi-ligne + demi-colonne)
                     briques.forEach(brique => {
                         if (brique.visible) {
-                            const ligneMatch = Math.abs(brique.y + brique.h/2 - centerY) < 40;
-                            const colonneMatch = Math.abs(brique.x + brique.w/2 - centerX) < 40;
+                            const ligneMatch = Math.abs(brique.y + brique.h/2 - centerY) < 20;
+                            const colonneMatch = Math.abs(brique.x + brique.w/2 - centerX) < 20;
                             
                             if (ligneMatch || colonneMatch) {
                                 brique.visible = false;
@@ -13687,7 +13665,7 @@ if (!MODE_DEV) {
                         }
                     });
                     AudioSystem.playBrickBreakGlass();
-                    afficherMessagePowerupSimple('✖️ LASER EN CROIX !');
+                    afficherMessagePowerupSimple('✖️ BAMBAM !');
                     break;
             }
             
