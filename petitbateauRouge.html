@@ -12084,7 +12084,7 @@ if (!MODE_DEV) {
         // Vraie lanterne volante avec halo bougie et nouveaux effets
         function dessinerLanterne() {
             // ⚡ VERSION OPTIMISÉE - Lanterne simplifiée pour performances
-            if (animationBateau.active || !balle.visible || phaseJeu !== 'lanterne') return;
+            if (animationBateau.active || !balle.visible || (phaseJeu !== 'lanterne' && phaseJeu !== 'mur')) return;
 
             ctx.save();
 
@@ -21211,6 +21211,8 @@ Elle a besoin de ponts.`
                         balle.enAttente = true;
                         balle.dx = 0;
                         balle.dy = 0;
+                        lanterne.active = true; // Activer la lanterne pour la rendre visible
+                        lanterne.intensite = 1.0;
                     }
                     return;
                 }
