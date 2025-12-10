@@ -13672,9 +13672,16 @@ if (!MODE_DEV) {
             // Effets visuels communs
             ajouterParticules(centerX, centerY, '#FFD700', 20);
             
-            // Vérifier si le niveau est terminé
+            // Vérifier si le niveau est terminé après destruction
             const briquesRestantes = briques.filter(b => b.visible).length;
-            console.log(`💥 Après power-up destructeur: ${briquesRestantes} briques restantes`);
+            const coeursRestants = petitsCoeurs.filter(c => c.visible).length;
+            console.log(`💥 Après power-up destructeur: ${briquesRestantes} briques, ${coeursRestants} cœurs restants`);
+            
+            // 🎯 DÉTECTER FIN DE NIVEAU si toutes les briques/cœurs sont détruits
+            if (briquesRestantes === 0 || (phaseJeu === 'petits_coeurs' && coeursRestants === 0)) {
+                console.log('🎆 Power-up destructeur a détruit les derniers éléments → Fin de niveau');
+                detecterFinNiveau();
+            }
         }
 
         function dessinerPowerUps() {
