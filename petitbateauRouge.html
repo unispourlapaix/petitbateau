@@ -8898,9 +8898,9 @@ if (!MODE_DEV) {
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
                     if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Recommencer à Phase 2
-                        console.log('✅ Phase 23 complétée - Recommencer à Phase 2');
-                        recommencerDepuisPhase2();
+                        // ✅ Phase 23 terminée → Mode Tir Cœur Libre
+                        console.log('✅ Phase 23 complétée - Activer mode Tir Cœur Libre');
+                        activerModeTirCoeurLibre();
                     } else {
                         // ❌ Game Over → Recréer la phase actuelle
                         console.log('� Game Over - Recréer la phase actuelle');
@@ -8924,9 +8924,9 @@ if (!MODE_DEV) {
                 // 🔄 Comportement selon le contexte
                 setTimeout(() => {
                     if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Recommencer à Phase 2
-                        console.log('✅ Phase 23 complétée - Passer sans enregistrer → Recommencer à Phase 2');
-                        recommencerDepuisPhase2();
+                        // ✅ Phase 23 terminée → Mode Tir Cœur Libre
+                        console.log('✅ Phase 23 complétée - Passer sans enregistrer → Mode Tir Cœur Libre');
+                        activerModeTirCoeurLibre();
                     } else {
                         // ❌ Game Over → Recréer la phase actuelle (sans enregistrer)
                         console.log('� Game Over - Passer sans enregistrer → Recréer phase actuelle');
@@ -14913,6 +14913,45 @@ if (!MODE_DEV) {
             ctx.restore();
         }
 
+        // 💖 Dessiner cœurs flottants (mode libre)
+        function dessinerCoeursFlottants() {
+            if (phaseJeu !== 'tir_coeur_libre') return;
+            if (petitsCoeurs.length === 0) return;
+
+            ctx.save();
+            
+            petitsCoeurs.forEach(coeur => {
+                if (!coeur.visible) return;
+                
+                ctx.save();
+                ctx.translate(coeur.x, coeur.y);
+                ctx.rotate(coeur.rotation);
+                
+                const t = coeur.taille;
+                
+                // Cœur géométrique avec glow
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = coeur.couleur;
+                ctx.fillStyle = coeur.couleur;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, t * 0.3);
+                ctx.bezierCurveTo(-t * 0.5, -t * 0.3, -t * 0.8, t * 0.1, 0, t * 0.9);
+                ctx.bezierCurveTo(t * 0.8, t * 0.1, t * 0.5, -t * 0.3, 0, t * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Contour blanc
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.restore();
+            });
+            
+            ctx.restore();
+        }
+
         // Petits cœurs décoratifs en haut
         function creerPetitsCoeurs() {
             petitsCoeurs = [];
@@ -18325,8 +18364,216 @@ Elle a besoin de ponts.`
             }, 500);
         }
 
-        // 🔄 RECRÉER PHASE ACTUELLE - Sans intro ni narration
-        function recreerPhaseActuelle(redonnerVies = false) {
+        // 💖 MODE TIR CŒUR LIBRE - Après la fin du jeu
+        function activerModeTirCoeurLibre() {
+            console.log('💖 Activation du mode Tir Cœur Libre...');
+            
+            // Configuration du mode libre
+            phaseJeu = 'tir_coeur_libre';
+            jeu = true;
+            vies = 999; // Vies infinies
+            score = window.score || score; // Garder le score
+            munitions = 9999; // Munitions infinies
+            formulaireFinAffiche = false;
+            
+            // Réinitialiser les systèmes visuels
+            animationBateau.active = false;
+            phaseIntro = { active: false, etape: 'complete', tempsDebut: 0 };
+            
+            // Nettoyer les éléments
+            briques = [];
+            projectiles = [];
+            starsProjectiles = [];
+            particules = [];
+            powerUps = [];
+            coeurs = [];
+            petitsCoeurs = [];
+            coeursBateau = [];
+            
+            // Fermer tous les menus/overlays
+            const overlay = document.getElementById('formulaire-fin-overlay');
+            if (overlay) overlay.remove();
+            
+            if (menuEnigmesCanvas) {
+                menuEnigmesCanvas.visible = false;
+            }
+            
+            // Cacher tous les messages
+            cacherMessage();
+            if (messageNarratifActif) {
+                messageNarratifActif = null;
+            }
+            if (messagePowerupActif) {
+                messagePowerupActif = null;
+            }
+            
+            // Créer des cœurs flottants à casser (cibles)
+            creerCoeursFlottants();
+            
+            // Message d'accueil
+            setTimeout(() => {
+                afficherMessageNarratifSimple(
+                    '💖 MODE TIR CŒUR LIBRE 💖\n\n' +
+                    'Tire des cœurs librement !\n' +
+                    'Les cœurs rebondissent sur les bords.\n\n' +
+                    'Clique pour tirer ! ✨',
+                    5000
+                );
+            }, 500);
+            
+            console.log('✅ Mode Tir Cœur Libre activé');
+        }
+
+        // Créer des cœurs flottants à casser (comme des briques mais en cœurs)
+        function creerCoeursFlottants() {
+            petitsCoeurs = [];
+            
+            const nbCoeursHorizontal = 8;
+            const nbCoeursVertical = 5;
+            const espaceX = C.W / (nbCoeursHorizontal + 1);
+            const espaceY = C.H * 0.6 / (nbCoeursVertical + 1);
+            const startY = C.H * 0.1;
+            
+            const couleurs = ['#FF1493', '#FF69B4', '#FFB6C1', '#FFC0CB', '#FF85C1', '#FF007F'];
+            
+            for (let ligne = 0; ligne < nbCoeursVertical; ligne++) {
+                for (let col = 0; col < nbCoeursHorizontal; col++) {
+                    const x = espaceX * (col + 1);
+                    const y = startY + espaceY * (ligne + 1);
+                    
+                    petitsCoeurs.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 2, // Mouvement horizontal aléatoire
+                        vy: (Math.random() - 0.5) * 2, // Mouvement vertical aléatoire
+                        taille: 20 + Math.random() * 15,
+                        couleur: couleurs[Math.floor(Math.random() * couleurs.length)],
+                        visible: true,
+                        vie: 1,
+                        rotation: Math.random() * Math.PI * 2,
+                        vitesseRotation: (Math.random() - 0.5) * 0.05
+                    });
+                }
+            }
+            
+            console.log(`💖 ${petitsCoeurs.length} cœurs flottants créés`);
+        }
+
+        // 💖 Tirer un cœur en mode libre
+        function tirerCoeurLibre(mouseX, mouseY) {
+            if (rechargement > 0) return;
+            
+            const startX = raquette.x + C.PW * 0.7;
+            const startY = raquette.y - 10;
+
+            const dx = mouseX - startX;
+            const dy = mouseY - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const vitesse = 6;
+            const velX = (dx / distance) * vitesse;
+            const velY = (dy / distance) * vitesse;
+
+            const couleurs = ['#FF1493', '#FF69B4', '#FFB6C1', '#FFC0CB', '#FF007F'];
+            
+            coeursBateau.push({
+                x: startX,
+                y: startY,
+                dx: velX,
+                dy: velY,
+                taille: 15,
+                couleur: couleurs[Math.floor(Math.random() * couleurs.length)],
+                rotation: 0,
+                vitesseRotation: 0.1
+            });
+            
+            AudioSystem.playShoot();
+            rechargement = 20; // Cadence de tir
+        }
+
+        // 💖 Mettre à jour les cœurs flottants (rebonds + collisions)
+        function mettreAJourCoeursFlottants() {
+            if (phaseJeu !== 'tir_coeur_libre') return;
+            
+            // Mouvement et rebonds des cœurs flottants
+            petitsCoeurs.forEach(coeur => {
+                if (!coeur.visible) return;
+                
+                coeur.x += coeur.vx;
+                coeur.y += coeur.vy;
+                coeur.rotation += coeur.vitesseRotation;
+                
+                // Rebonds sur les bords
+                if (coeur.x - coeur.taille < 0 || coeur.x + coeur.taille > C.W) {
+                    coeur.vx = -coeur.vx;
+                    coeur.x = Math.max(coeur.taille, Math.min(C.W - coeur.taille, coeur.x));
+                }
+                if (coeur.y - coeur.taille < 0 || coeur.y + coeur.taille > C.H * 0.8) {
+                    coeur.vy = -coeur.vy;
+                    coeur.y = Math.max(coeur.taille, Math.min(C.H * 0.8 - coeur.taille, coeur.y));
+                }
+            });
+            
+            // Mouvement des projectiles cœurs tirés
+            for (let i = coeursBateau.length - 1; i >= 0; i--) {
+                const coeur = coeursBateau[i];
+                coeur.x += coeur.dx;
+                coeur.y += coeur.dy;
+                coeur.rotation += coeur.vitesseRotation;
+                
+                // Supprimer si sort de l'écran
+                if (coeur.x < -50 || coeur.x > C.W + 50 || coeur.y < -50 || coeur.y > C.H + 50) {
+                    coeursBateau.splice(i, 1);
+                    continue;
+                }
+                
+                // Collision avec cœurs flottants
+                petitsCoeurs.forEach(cible => {
+                    if (!cible.visible) return;
+                    
+                    const dx = coeur.x - cible.x;
+                    const dy = coeur.y - cible.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < coeur.taille + cible.taille) {
+                        // Collision détectée !
+                        cible.visible = false;
+                        coeursBateau.splice(i, 1);
+                        
+                        // Particules d'explosion de cœurs
+                        for (let p = 0; p < 10; p++) {
+                            particules.push({
+                                x: cible.x,
+                                y: cible.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8,
+                                couleur: cible.couleur,
+                                vie: 30,
+                                taille: Math.random() * 5 + 3,
+                                type: 'coeur'
+                            });
+                        }
+                        
+                        // Score et son
+                        score += 100;
+                        window.score = score;
+                        AudioSystem.playBrickBreakGlass();
+                        
+                        // Vérifier si tous les cœurs sont cassés
+                        const restants = petitsCoeurs.filter(c => c.visible).length;
+                        if (restants === 0) {
+                            // Recréer des cœurs flottants
+                            setTimeout(() => {
+                                creerCoeursFlottants();
+                                afficherMessagePowerupSimple('💖 Nouveaux cœurs ! 💖');
+                            }, 1000);
+                        }
+                    }
+                });
+            }
+        }
+
+        // 🔥 HARD RESET COMPLET - Efface TOUT
             console.log('🔄 Recréation de la phase actuelle sans intro...');
             
             // Récupérer la phase en cours
@@ -19230,6 +19477,7 @@ Elle a besoin de ponts.`
             dessinerPowerUps();    // ← Power-ups d'abord (cachés derrière)
             dessinerPrejuges();    // ← Briques par-dessus (cachent les power-ups)
             dessinerCoeursBateau();
+            dessinerCoeursFlottants(); // 💖 Mode tir cœur libre
             
             // Désactiver petits cœurs décoratifs pour phases 17-23 (système de projectiles progressifs)
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
@@ -21337,6 +21585,13 @@ Elle a besoin de ponts.`
                 // Munitions infinies en mode stars
                 tirerStarsProjectile(mouseX, mouseY);
                 libererVaguesAmour(); // Libérer les cœurs d'amour en phase stars
+            } else if(phaseJeu === 'tir_coeur_libre') {
+                // 💖 MODE TIR CŒUR LIBRE : Tirer des cœurs géométriques
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                tirerCoeurLibre(mouseX, mouseY);
             } else if(phaseJeu === 'lanterne' || phaseJeu === 'mur') {
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
@@ -22360,6 +22615,7 @@ Elle a besoin de ponts.`
                     mettreAJourProjectiles(); // Nouveau système de projectiles
                     mettreAJourBulle(); // Ancien système pour les autres phases
                     mettreAJourLaser(); // Laser phase 23
+                    mettreAJourCoeursFlottants(); // 💖 Mode tir cœur libre
                     
                     // Activation automatique du laser en phase 23
                     const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
