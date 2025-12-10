@@ -8903,7 +8903,7 @@ if (!MODE_DEV) {
                         activerModeTirCoeurLibre();
                     } else {
                         // ❌ Game Over → Recréer la phase actuelle
-                        console.log('� Game Over - Recréer la phase actuelle');
+                        console.log('❌ Game Over - Recréer la phase actuelle');
                         recreerPhaseActuelle(true);
                     }
                 }, 500);
@@ -8929,7 +8929,7 @@ if (!MODE_DEV) {
                         activerModeTirCoeurLibre();
                     } else {
                         // ❌ Game Over → Recréer la phase actuelle (sans enregistrer)
-                        console.log('� Game Over - Passer sans enregistrer → Recréer phase actuelle');
+                        console.log('❌ Game Over - Passer sans enregistrer → Recréer phase actuelle');
                         recreerPhaseActuelle(true);
                     }
                 }, 500);
@@ -18580,7 +18580,8 @@ Elle a besoin de ponts.`
             }
         }
 
-        // 🔥 HARD RESET COMPLET - Efface TOUT
+        // 🔄 RECRÉER PHASE ACTUELLE - Sans intro ni narration
+        function recreerPhaseActuelle(redonnerVies = false) {
             console.log('🔄 Recréation de la phase actuelle sans intro...');
             
             // Récupérer la phase en cours
@@ -18662,7 +18663,7 @@ Elle a besoin de ponts.`
             }
         }
 
-        // �🔥 HARD RESET COMPLET - Efface TOUT
+        // 🔥 HARD RESET COMPLET - Efface TOUT
         function hardResetGame() {
             console.log('🔥 HARD RESET - Effacement complet du jeu...');
             
