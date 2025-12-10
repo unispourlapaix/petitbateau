@@ -9720,6 +9720,44 @@ if (!MODE_DEV) {
                 });
             },
 
+            // Son de gong aigu pour power-ups destructeurs
+            playGongAigu() {
+                this.ensureInit();
+                if (this.muted) return;
+
+                // Gong aigu cristallin - harmoniques élevées
+                const frequencies = [880, 1320, 1760, 2640]; // Harmoniques aigues
+
+                frequencies.forEach((freq, index) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    const filter = this.ctx.createBiquadFilter();
+
+                    osc.type = 'sine';
+                    filter.type = 'bandpass';
+                    filter.frequency.value = freq;
+                    filter.Q.value = 3; // Résonance pour effet cristallin
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    // Fréquence avec vibrato subtil
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(freq * 1.02, this.ctx.currentTime + 0.3);
+                    osc.frequency.linearRampToValueAtTime(freq * 0.98, this.ctx.currentTime + 0.8);
+
+                    // Volume avec attaque rapide et résonance cristalline
+                    const volume = this.masterVolume * (0.2 - index * 0.04); // Harmoniques décroissantes
+                    gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + 0.005);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.5);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 1.5);
+                });
+            },
+
             // Son "feuuuux" - souffle qui s'éteint (pour le corbeau)
             playCrow() {
                 this.ensureInit();
@@ -14196,18 +14234,23 @@ if (!MODE_DEV) {
 
                         // 💥 POWER-UPS DESTRUCTEURS (Mode Balle uniquement)
                         case 'explosion_ligne':
+                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
                             activerPowerUpDestructeur('explosion_ligne', power);
                             break;
                         case 'boule_feu':
+                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
                             activerPowerUpDestructeur('boule_feu', power);
                             break;
                         case 'eclair_vertical':
+                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
                             activerPowerUpDestructeur('eclair_vertical', power);
                             break;
                         case 'onde_choc':
+                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
                             activerPowerUpDestructeur('onde_choc', power);
                             break;
                         case 'laser_croix':
+                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
                             activerPowerUpDestructeur('laser_croix', power);
                             break;
 
