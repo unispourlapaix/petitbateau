@@ -15800,7 +15800,7 @@ if (!MODE_DEV) {
             }
 
             // Pour les phases de briques : quand toutes les briques sont cassées
-            else if (phaseJeu === 'briques' || phaseJeu === 'lanterne') {
+            else if (phaseJeu === 'briques' || phaseJeu === 'lanterne' || phaseJeu === 'mur') {
                 const briquesVisibles = briques.filter(brique => brique.visible).length;
                 niveauTermine = briquesVisibles === 0;
             }
