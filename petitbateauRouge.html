@@ -14055,8 +14055,8 @@ if (!MODE_DEV) {
         }
 
         function mettreAJourPowerUps() {
-            // Collision avec la balle (seulement en phase lanterne)
-            if (balle && balle.visible && phaseJeu === 'lanterne') {
+            // Collision avec la balle (en phase lanterne ET mur)
+            if (balle && balle.visible && (phaseJeu === 'lanterne' || phaseJeu === 'mur')) {
                 if(powerUps.length > 0) {
                     //console.log(`🔍 Vérif collision balle(${balle.x.toFixed(1)}, ${balle.y.toFixed(1)}) avec ${powerUps.length} power-ups`);
                 }
@@ -15186,6 +15186,12 @@ if (!MODE_DEV) {
                 } else {
                     console.log('🌈 Power-up ESPOIR déjà présent - pas de duplication !');
                 }
+            }
+            
+            // 🚀 IMPORTANT : Reconstruire la grille spatiale avec les nouvelles briques du mur
+            if (typeof grilleCollision !== 'undefined') {
+                grilleCollision.reconstruire();
+                console.log('🚀 Grille spatiale reconstruite pour le mur');
             }
         }
 
