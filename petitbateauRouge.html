@@ -22962,6 +22962,9 @@ Elle a besoin de ponts.`
 
         // === RACCOURCIS TEST (ACTIVÉS POUR DEBUG MODE SECRET) ===
         document.addEventListener('keydown', (e) => {
+            // 🚫 MODE PRODUCTION: Désactiver le raccourci mode secret
+            if (PRODUCTION_MODE) return;
+            
             // Ne pas intercepter les touches si on est dans un input/textarea/select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
@@ -23001,6 +23004,16 @@ Elle a besoin de ponts.`
 
         // === RACCOURCIS CLAVIER DEBUG ===
         document.addEventListener('keydown', (e) => {
+            // 🚫 MODE PRODUCTION: Désactiver tous les raccourcis de test
+            if (PRODUCTION_MODE) {
+                // Garder uniquement ESC pour fermer les menus
+                if (e.key === 'Escape' && menuEnigmesCanvas.visible) {
+                    e.preventDefault();
+                    fermerMenuEnigmesCanvas();
+                }
+                return;
+            }
+            
             // Ne pas intercepter les touches si on est dans un input/textarea/select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
