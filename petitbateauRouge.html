@@ -20205,14 +20205,26 @@ Elle a besoin de ponts.`
         let vitesseBateau = 0; // Vitesse actuelle
         let dernierePositionX = 0; // Dernière position du bateau
         let dernierTemps = 0; // Dernier timestamp
+        let dernierTouchX = null; // Dernière position du touch pour calculer le delta
+
+        // 🎮 MULTIPLICATEUR DE MOUVEMENT - Le bateau bouge plus que le doigt
+        const TOUCH_SENSITIVITY = 1.8; // 1.8x = meilleure ergonomie tactile
 
         function deplacerRaquette(x) {
             if(!jeu) return;
             const ancienX = raquette.x;
             
-            // 📱 CONTRÔLE SIMPLIFIÉ : Le bateau se centre sur le doigt
-            // Centrer le bateau sur la position X du touch
-            raquette.x = x - C.PW / 2;
+            // 📱 CONTRÔLE AMPLIFIÉ : Le bateau bouge plus que le doigt pour meilleure ergonomie
+            if (dernierTouchX === null) {
+                // Premier touch : centrer le bateau
+                raquette.x = x - C.PW / 2;
+            } else {
+                // Touches suivants : amplifier le mouvement
+                const delta = x - dernierTouchX;
+                raquette.x = raquette.x + (delta * TOUCH_SENSITIVITY);
+            }
+            
+            dernierTouchX = x;
             
             // Limites du canvas
             raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
@@ -20622,6 +20634,7 @@ Elle a besoin de ponts.`
             // ⚡ OPTIMISATION: Pas de preventDefault sur touchend pour éviter ralentissement
             // Le preventDefault n'est nécessaire que sur touchstart/touchmove pour éviter le scroll
             tactile = false;
+            dernierTouchX = null; // Réinitialiser pour le prochain touch
         }, { passive: true }); // passive: true = plus performant
 
         // Système de tir continu
