@@ -655,6 +655,18 @@
 
 <!-- 🚀 MODE PRODUCTION ALPHA 1 -->
 <script>
+// 🆔 IDENTIFIANT UNIQUE DE L'APPLICATION (pour multi-jeux sur même domaine)
+window.APP_UNIQUE_ID = 'petit-bateau-rouge-v1';
+window.APP_GAME_NAME = 'Petit Bateau';
+window.APP_VERSION = '1.2.0';
+
+// 🔑 Clés localStorage uniques par application
+window.STORAGE_KEYS = {
+    LANG: `${window.APP_UNIQUE_ID}_lang`,
+    SAVE: `${window.APP_UNIQUE_ID}_save`,
+    ENIGMES: `${window.APP_UNIQUE_ID}_enigmes_collectees`
+};
+
 window.PRODUCTION_MODE = true;
 // ✅ Désactiver seulement les logs non-critiques
 // 🔧 MODE DÉVELOPPEUR - À activer/désactiver selon besoin
@@ -2125,8 +2137,8 @@ if (!MODE_DEV) {
 
         // 💾 === SYSTÈME DE SAUVEGARDE/REPRISE DE JEU ===
         const GameSaveSystem = {
-            SAVE_KEY: 'petit_bateau_save',
-            VERSION: '1.2', // ✅ Fix langue + optimisations
+            SAVE_KEY: window.STORAGE_KEYS.SAVE, // Unique par jeu
+            VERSION: window.APP_VERSION, // Version de l'app
 
             // Sauvegarder l'état du jeu
             save() {
@@ -8399,7 +8411,7 @@ if (!MODE_DEV) {
                 setTimeout(async () => {
                     // Vérifier que le client est bien initialisé
                     if (supabaseScores && supabaseScores.client) {
-                        await supabaseScores.setCurrentGame('Petit Bateau');
+                        await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
 
                         // Charger le classement initial
                         await chargerClassement();
@@ -8407,7 +8419,7 @@ if (!MODE_DEV) {
                         console.warn('⏳ Client Supabase pas encore prêt, nouvelle tentative...');
                         setTimeout(async () => {
                             if (supabaseScores && supabaseScores.client) {
-                                await supabaseScores.setCurrentGame('Petit Bateau');
+                                await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
                                 await chargerClassement();
                             }
                         }, 2000);
@@ -8834,7 +8846,7 @@ if (!MODE_DEV) {
                         // 🔧 S'assurer que le jeu est bien configuré avant de sauvegarder
                         if (!supabaseScores.currentGameId) {
                             console.log('⚠️ currentGameId non défini, configuration du jeu...');
-                            await supabaseScores.setCurrentGame('Petit Bateau');
+                            await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
                         }
 
                         console.log('👤 Création/récupération utilisateur...', { email, pseudo, ville, pays, age, genre, avatar });
