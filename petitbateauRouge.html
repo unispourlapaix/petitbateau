@@ -20183,7 +20183,7 @@ Elle a besoin de ponts.`
 
         // Contrôles tactiles et souris unifiés avec support pixel ratio
         function obtenirPosition(e) {
-            const rect = canvas.getBoundingClientRect();
+            const rect = getCachedCanvasRect(); // ⚡ Utiliser cache au lieu de recalculer
             const touch = e.touches ? e.touches[0] : e;
             
             // Calculer la position relative au canvas
@@ -20207,41 +20207,56 @@ Elle a besoin de ponts.`
         let dernierTemps = 0; // Dernier timestamp
         let dernierTouchX = null; // Dernière position du touch pour calculer le delta
 
+        // ⚡ CACHE POUR PERFORMANCE - getBoundingClientRect() est coûteux
+        let canvasRectCache = null;
+        let canvasRectCacheTime = 0;
+        const CANVAS_RECT_CACHE_DURATION = 100; // 100ms de cache
+
+        function getCachedCanvasRect() {
+            const now = Date.now();
+            if (!canvasRectCache || now - canvasRectCacheTime > CANVAS_RECT_CACHE_DURATION) {
+                canvasRectCache = canvas.getBoundingClientRect();
+                canvasRectCacheTime = now;
+            }
+            return canvasRectCache;
+        }
+
         // 🎮 MULTIPLICATEUR DE MOUVEMENT - Le bateau bouge plus que le doigt
         const TOUCH_SENSITIVITY = 1.8; // 1.8x = meilleure ergonomie tactile
 
-        function deplacerRaquette(x) {
+        function deplacerRaquette(x, isFirstTouch = false) {
             if(!jeu) return;
             const ancienX = raquette.x;
             
             // 📱 CONTRÔLE AMPLIFIÉ : Le bateau bouge plus que le doigt pour meilleure ergonomie
-            if (dernierTouchX === null) {
+            if (isFirstTouch || dernierTouchX === null) {
                 // Premier touch : centrer le bateau
                 raquette.x = x - C.PW / 2;
+                dernierTouchX = x;
             } else {
                 // Touches suivants : amplifier le mouvement
                 const delta = x - dernierTouchX;
                 raquette.x = raquette.x + (delta * TOUCH_SENSITIVITY);
+                dernierTouchX = x;
             }
-            
-            dernierTouchX = x;
             
             // Limites du canvas
             raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
 
+            // ⚡ Un seul Date.now() pour performance
+            const now = Date.now();
+            
             // Calculer la vitesse pour l'inertie (uniquement en tactile)
             if (isTouchDevice) {
-                const maintenant = Date.now();
-                const deltaTemps = maintenant - dernierTemps;
+                const deltaTemps = now - dernierTemps;
                 if (deltaTemps > 0) {
                     vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7; // Inertie réduite pour meilleur contrôle
                 }
                 dernierePositionX = raquette.x;
-                dernierTemps = maintenant;
+                dernierTemps = now;
             }
 
             // 🔊 Son de voile quand le bateau bouge (avec throttle)
-            const now = Date.now();
             if (Math.abs(raquette.x - ancienX) > 5 && now - dernierSonVoile > delaiSonVoile) {
                 AudioSystem.playVoile();
                 dernierSonVoile = now;
@@ -20595,8 +20610,8 @@ Elle a besoin de ponts.`
                 return;
             }
             
-            // Autres phases → déplacer bateau + amour
-            deplacerRaquette(x);
+            // Autres phases → déplacer bateau + amour (premier touch)
+            deplacerRaquette(x, true); // Marquer comme premier touch
             if (typeof libererVaguesAmour === 'function') libererVaguesAmour();
         });
 
@@ -20604,8 +20619,9 @@ Elle a besoin de ponts.`
             if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
             e.preventDefault(); // preventDefault après le return rapide pour optimiser
             
+            // ⚡ Calcul optimisé de position (un seul getBoundingClientRect via cache)
             const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
+            const rect = getCachedCanvasRect();
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
             
@@ -20613,7 +20629,6 @@ Elle a besoin de ponts.`
             if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement' && isSwipingMenu) {
                 if (leaderboardData && leaderboardData.length > menuEnigmesCanvas.leaderboardScroll.maxVisible) {
                     const deltaY = swipeStartY - y;
-                    const swipeSpeed = 0.05; // Sensibilité du swipe (plus petit = plus sensible)
                     
                     if (Math.abs(deltaY) > 5) { // Seuil minimum pour déclencher le scroll
                         const scrollStep = deltaY > 0 ? 1 : -1;
@@ -20626,8 +20641,8 @@ Elle a besoin de ponts.`
                 return; // Ne pas contrôler le bateau
             }
             
-            const pos = obtenirPosition(e);
-            deplacerRaquette(pos.x);
+            // ⚡ Pas besoin d'obtenirPosition ici, on a déjà x calculé
+            deplacerRaquette(x, false); // Mouvement continu, pas le premier touch
         });
 
         canvas.addEventListener('touchend', e => {
