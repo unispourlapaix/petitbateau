@@ -530,6 +530,26 @@
             font-size: 1.1em;
         }
 
+        .cache-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(46, 213, 115, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         @media (max-width: 768px) {
             .module-container {
                 padding: 20px 15px;
@@ -738,6 +758,8 @@
                     <div class="stat-divider"></div>
                     <span class="stat-label">🏆</span>
                     <span class="stat-value" id="topScore">-</span>
+                    <div class="stat-divider"></div>
+                    <button onclick="window.refreshScores()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔄 Actualiser</button>
                 </div>
             </div>
 
@@ -817,6 +839,11 @@
         const initialLoad = 100;
         const loadMoreIncrement = 200;
 
+        // ⚡ CACHE OPTIMISATION
+        const CACHE_KEY = 'emmanuel_artist_cache';
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+        let cacheData = null;
+
         // Niveaux de sagesse
         const niveauxSagesse = [
             { min: 0, max: 499, titre: 'Seeker', icone: '🌱', next: 500 },
@@ -859,115 +886,66 @@
             try {
                 const t = window.translations?.[window.currentLanguage || 'en'] || window.translations.en;
                 document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
-                console.log('📡 Tentative de connexion Supabase:', SUPABASE_URL);
+
+                // ⚡ VÉRIFIER LE CACHE D'ABORD
+                const cached = getCache();
+                if (cached) {
+                    console.log('⚡ Cache valide, chargement instantané');
+                    allScores = cached.scores;
+                    loadedCount = cached.loadedCount;
+                    totalScores = cached.totalScores;
+                    updateStats();
+                    renderPage();
+                    showCacheIndicator(true);
+                    return;
+                }
+                showCacheIndicator(false);
+
+                console.log('📡 Cache expiré, fetch Supabase:', SUPABASE_URL);
 
                 // Charger depuis users + faithchronicles_game_progress
                 let data, error, count;
                 
                 try {
-                    console.log('🔍 Chargement données: users + faithchronicles_game_progress (JOIN par email)...');
+                    console.log('🔍 Chargement optimisé: users + progress (JOIN)...');
                     
-                    // 1. Récupérer TOUS les utilisateurs de la table users
-                    const { data: allUsersData, error: usersError } = await supabase
-                        .from('users')
-                        .select('id, email, pseudo, avatar, created_at')
-                        .order('created_at', { ascending: false });
-                    
-                    if (usersError) throw usersError;
-                    
-                    console.log('✅ Users chargés:', allUsersData?.length || 0);
-                    
-                    // 2. Récupérer TOUTES les progressions (avec email pour JOIN)
-                    const { data: allProgressData, error: progressError } = await supabase
+                    // ⚡ UNE SEULE REQUÊTE AVEC JOIN
+                    const { data: progressData, error: progressError, count: progressCount } = await supabase
                         .from('faithchronicles_game_progress')
-                        .select('*');  // Sélectionner TOUTES les colonnes pour voir ce qui existe
+                        .select(`
+                            wisdom_points,
+                            total_xp,
+                            current_level,
+                            current_grade,
+                            created_at,
+                            user_id,
+                            users!inner(id, email, pseudo, avatar)
+                        `, { count: 'exact' })
+                        .order('wisdom_points', { ascending: false })
+                        .limit(initialLoad);
                     
-                    if (progressError) {
-                        console.error('❌ ERREUR progression:', progressError);
-                        console.error('   Code:', progressError.code);
-                        console.error('   Message:', progressError.message);
-                        console.error('   Détails:', progressError.details);
-                    }
+                    if (progressError) throw progressError;
+
+                    // ⚡ Transformer les données (JOIN déjà fait par Supabase)
+                    data = progressData?.map(progress => ({
+                        score: progress.wisdom_points || progress.total_xp || 0,
+                        wisdom_points: progress.wisdom_points || 0,
+                        total_xp: progress.total_xp || 0,
+                        current_level: progress.current_level || 1,
+                        current_grade: progress.current_grade || 0,
+                        created_at: progress.created_at,
+                        user_id: progress.user_id,
+                        users: {
+                            pseudo: progress.users?.pseudo || 'Joueur',
+                            avatar: progress.users?.avatar || '✨',
+                            email: progress.users?.email
+                        }
+                    })) || [];
                     
-                    console.log('✅ Progressions chargées:', allProgressData?.length || 0);
-                    if (allProgressData && allProgressData.length > 0) {
-                        console.log('🔍 Première progression chargée avec succès');
-                    } else {
-                        console.warn('⚠️ Aucune progression trouvée dans faithchronicles_game_progress');
-                        console.warn('💡 Vérifier: La table existe? Elle contient des données? Permissions RLS?');
-                    }
-                    
-                    // 3. Créer un mapping email -> progression OU user_id -> progression
-                    const progressByEmail = {};
-                    const progressByUserId = {};
-                    if (allProgressData) {
-                        allProgressData.forEach(progress => {
-                            // Mapping par email (prioritaire)
-                            if (progress.email) {
-                                progressByEmail[progress.email] = progress;
-                            }
-                            // Mapping par user_id (fallback)
-                            if (progress.user_id) {
-                                progressByUserId[progress.user_id] = progress;
-                            }
-                        });
-                    }
-                    
-                    console.log('🔗 JOIN ready:', Object.keys(progressByEmail).length, 'progressions avec email,', Object.keys(progressByUserId).length, 'avec user_id');
-                    
-                    // 4. IMPORTANT: Vérifier si on doit mettre à jour les emails manquants
-                    if (Object.keys(progressByEmail).length === 0 && Object.keys(progressByUserId).length > 0) {
-                        console.warn('⚠️ Aucune progression n\'a d\'email! Les progressions utilisent uniquement user_id.');
-                        console.warn('💡 Il faudrait UPDATE la table pour ajouter les emails depuis auth.users');
-                    }
-                    
-                    // 4. Associer chaque utilisateur avec sa progression par EMAIL ou USER_ID
-                    const enrichedData = [];
-                    if (allUsersData) {
-                        allUsersData.forEach(user => {
-                            // ✅ Essayer JOIN par email d'abord, puis par user_id
-                            let userProgress = progressByEmail[user.email];
-                            
-                            // Si pas de progression par email, chercher par user_id depuis auth.users
-                            if (!userProgress && user.id) {
-                                userProgress = progressByUserId[user.id];
-                            }
-                            
-                            // Calculer le vrai score à afficher
-                            let displayScore = 0;
-                            if (userProgress) {
-                                // Priorité: wisdom_points > total_xp > score
-                                displayScore = userProgress.wisdom_points || userProgress.total_xp || userProgress.score || 0;
-                            }
-                            
-                            enrichedData.push({
-                                // Données de progression (ou valeurs par défaut)
-                                score: displayScore,
-                                wisdom_points: userProgress?.wisdom_points || 0,
-                                total_xp: userProgress?.total_xp || 0,
-                                current_level: userProgress?.current_level || 1,
-                                current_grade: userProgress?.current_grade || 0,
-                                created_at: userProgress?.created_at || user.created_at,
-                                user_id: userProgress?.user_id || user.id || null,
-                                // Données utilisateur
-                                users: {
-                                    pseudo: user.pseudo,
-                                    avatar: user.avatar || '✨',
-                                    email: user.email
-                                }
-                            });
-                        });
-                    }
-                    
-                    // Trier par score décroissant
-                    enrichedData.sort((a, b) => (b.score || 0) - (a.score || 0));
-                    
-                    // Limiter aux premiers résultats
-                    data = enrichedData.slice(0, initialLoad);
                     error = null;
-                    count = enrichedData.length;
+                    count = progressCount || data.length;
                     
-                    console.log('✅ Données enrichies:', data.length, '/', count, 'utilisateurs (JOIN par email)');
+                    console.log('✅ Données chargées en 1 requête:', data.length, '/', count);
                     
                 } catch (loadError) {
                     console.warn('⚠️ Erreur chargement données:', loadError.message);
@@ -1012,6 +990,9 @@
                     game: s.game_id,
                     local: s._isLocal || false
                 })));
+
+                // ⚡ SAUVEGARDER EN CACHE
+                setCache({ scores: allScores, loadedCount, totalScores });
 
                 updateStats();
                 renderPage();
@@ -1074,6 +1055,68 @@
             }
         }
 
+        // ⚡ FONCTIONS DE CACHE
+        function getCache() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (!cached) return null;
+                
+                const data = JSON.parse(cached);
+                const age = Date.now() - data.timestamp;
+                
+                if (age > CACHE_DURATION) {
+                    console.log('🕐 Cache expiré (', Math.floor(age / 1000), 's)');
+                    sessionStorage.removeItem(CACHE_KEY);
+                    return null;
+                }
+                
+                console.log('⚡ Cache valide (', Math.floor(age / 1000), 's/', Math.floor(CACHE_DURATION / 1000), 's)');
+                return data;
+            } catch (e) {
+                console.error('❌ Erreur lecture cache:', e);
+                return null;
+            }
+        }
+
+        function setCache(data) {
+            try {
+                const cacheObj = {
+                    ...data,
+                    timestamp: Date.now()
+                };
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
+                console.log('💾 Cache sauvegardé:', data.scores.length, 'scores');
+            } catch (e) {
+                console.error('❌ Erreur écriture cache:', e);
+            }
+        }
+
+        // ⚡ FONCTION REFRESH (exposée globalement)
+        window.refreshScores = async function() {
+            console.log('🔄 Force refresh...');
+            sessionStorage.removeItem(CACHE_KEY);
+            await loadScores();
+        };
+
+        // ⚡ INDICATEUR CACHE
+        function showCacheIndicator(fromCache) {
+            const existing = document.getElementById('cacheIndicator');
+            if (existing) existing.remove();
+
+            if (fromCache) {
+                const indicator = document.createElement('div');
+                indicator.id = 'cacheIndicator';
+                indicator.className = 'cache-indicator';
+                indicator.innerHTML = '⚡ Données en cache (5min)';
+                document.body.appendChild(indicator);
+
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => indicator.remove(), 300);
+                }, 3000);
+            }
+        }
+
         function createTestScores() {
             const pseudos = ['Marie', 'David', 'Sarah', 'Paul', 'Ruth', 'Jean', 'Esther', 'Pierre', 'Déborah', 'André'];
             const avatars = ['�', '�‍�', '💫', '📖', '✨', '🙏', '💎', '⭐', '�', '�'];
@@ -1123,51 +1166,48 @@
                 const start = loadedCount;
                 const end = Math.min(loadedCount + loadMoreIncrement - 1, totalScores - 1);
 
-                let data, error;
+                console.log('📥 LoadMore: range', start, '-', end);
                 
-                try {
-                    // Tentative PRIORITAIRE avec table USERS globale
-                    console.log('🔍 LoadMore - Tentative avec table USERS globale...');
-                    
-                    const progressResult = await supabase
-                        .from('faithchronicles_game_progress')
-                        .select(`
-                            score,
-                            wisdom_points,
-                            total_xp,
-                            current_level,
-                            current_grade,
-                            created_at,
-                            user_id
-                        `)
-                        .order('wisdom_points', { ascending: false })
-                        .range(start, end);
-                    
-                    if (!progressResult.error && progressResult.data) {
-                        // LoadMore SIMPLIFIÉ: Pas d'enrichissement, on utilisera le fallback
-                        data = progressResult.data.map(progress => ({
-                            ...progress,
-                            users: { pseudo: `Joueur${progress.user_id.slice(0, 6)}`, avatar: '🎮' }
-                        }));
-                        error = null;
-                        console.log('✅ LoadMore SIMPLIFIÉ réussi');
-                    } else {
-                        throw new Error('LoadMore: Progressions inaccessibles');
-                    }
-                    
-                } catch (globalUsersError) {
-                    console.error('⚠️ Erreur LoadMore:', globalUsersError.message);
-                    data = null;
-                    error = globalUsersError;
-                }
+                // ⚡ UNE SEULE REQUÊTE AVEC JOIN
+                const { data, error } = await supabase
+                    .from('faithchronicles_game_progress')
+                    .select(`
+                        wisdom_points,
+                        total_xp,
+                        current_level,
+                        current_grade,
+                        created_at,
+                        user_id,
+                        users!inner(id, email, pseudo, avatar)
+                    `)
+                    .order('wisdom_points', { ascending: false })
+                    .range(start, end);
 
                 if (error) throw error;
 
-                const newData = Array.isArray(data) ? data : [];
+                // ⚡ Transformer les données
+                const newData = data?.map(progress => ({
+                    score: progress.wisdom_points || progress.total_xp || 0,
+                    wisdom_points: progress.wisdom_points || 0,
+                    total_xp: progress.total_xp || 0,
+                    current_level: progress.current_level || 1,
+                    current_grade: progress.current_grade || 0,
+                    created_at: progress.created_at,
+                    user_id: progress.user_id,
+                    users: {
+                        pseudo: progress.users?.pseudo || 'Joueur',
+                        avatar: progress.users?.avatar || '✨',
+                        email: progress.users?.email
+                    }
+                })) || [];
+
                 allScores = [...allScores, ...newData];
                 loadedCount = allScores.length;
 
-                console.log('✅ Chargement progressif:', loadedCount, 'scores');
+                // ⚡ METTRE À JOUR LE CACHE
+                setCache({ scores: allScores, loadedCount, totalScores });
+
+                console.log('✅ LoadMore:', newData.length, 'nouveaux (total:', loadedCount, ')');
                 renderPage();
             } catch (error) {
                 console.error('Erreur chargement supplémentaire:', error);

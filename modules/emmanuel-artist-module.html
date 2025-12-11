@@ -926,17 +926,17 @@
     </div>
 
     <script type="module">
-        // Configuration Supabase - UTILISER LE MÊME QUE LE JEU
+        // Configuration Supabase
         const SUPABASE_URL = 'https://dmszyxowetilvsanqsxm.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
         
-        // Import Supabase (optionnel - fallback sur scores locaux si échec)
         let supabase = null;
         
+        // Import Supabase depuis CDN (version stable)
         try {
-            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
             supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log('✅ Supabase chargé avec succès');
+            console.log('✅ Supabase chargé avec succès (esm.sh)');
         } catch (error) {
             console.warn('⚠️ Supabase non disponible, utilisation scores locaux uniquement:', error);
             supabase = null;
@@ -985,10 +985,14 @@
 
                 // 🔥 CACHE CHECK: Vérifier si données récentes en localStorage
                 const CACHE_KEY = 'emmanuel_leaderboard_cache';
-                const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+                const CACHE_DURATION = 30 * 1000; // 30 secondes (scores fréquemment mis à jour)
+                
+                // Vérifier si paramètre URL force le refresh
+                const urlParams = new URLSearchParams(window.location.search);
+                const forceRefresh = urlParams.has('refresh');
                 
                 const cached = localStorage.getItem(CACHE_KEY);
-                if (cached) {
+                if (cached && !forceRefresh) {
                     try {
                         const { data, count, timestamp } = JSON.parse(cached);
                         const age = Date.now() - timestamp;
@@ -1014,6 +1018,23 @@
                 }
 
                 // ⚡ FETCH FROM SUPABASE (cache expiré ou absent)
+                // ⚠️ VÉRIFIER SI SUPABASE EST DISPONIBLE
+                if (!supabase) {
+                    console.warn('⚠️ Supabase non disponible, utilisation scores locaux uniquement');
+                    // 💾 FALLBACK: Utiliser scores locaux + test
+                    const localScores = getLocalScores();
+                    const testScores = createTestScores();
+                    allScores = [...localScores, ...testScores];
+                    allScores.sort((a, b) => b.score - a.score);
+                    
+                    loadedCount = allScores.length;
+                    totalScores = allScores.length;
+                    
+                    updateStats();
+                    renderPage();
+                    return;
+                }
+
                 // Charger seulement les 100 premiers au départ
                 // ⚠️ ON NE FILTRE PAS PAR GAME_ID - PRENDRE TOUS LES SCORES
                 const { data, error, count } = await supabase
@@ -2048,7 +2069,8 @@
 
         // ✨ Fonction pour traduire un niveau de sagesse (APRÈS translations)
         function translateWisdomLevel(key) {
-            return translations[currentLang]?.wisdomLevels?.[key] || key;
+            const lang = currentLang || 'fr'; // Fallback sur 'fr' si currentLang non défini
+            return translations[lang]?.wisdomLevels?.[key] || key;
         }
 
         // ⚡ Fonction de détection de langue (APRÈS translations pour pouvoir l'utiliser)

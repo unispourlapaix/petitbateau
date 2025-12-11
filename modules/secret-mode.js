@@ -25,7 +25,7 @@ class SecretModeModule {
             animals: [],
             lanterns: [],
             lastUpdate: 0,
-            updateInterval: 500 // Rafraîchir toutes les 500ms seulement
+            updateInterval: 1000 // Rafraîchir toutes les 1000ms seulement
         };
 
         // Éléments du jeu secret
@@ -65,11 +65,95 @@ class SecretModeModule {
         // Liste des objets kawaii actifs dans le jeu
         this.activeKawaiiObjects = [];
 
+        // 🔊 Web Audio API pour effets sonores
+        this.audioContext = null;
+        this.initAudio();
+
         this.init();
     }
 
     init() {
         console.log('🎮 Module Mode Secret initialisé');
+    }
+
+    // Initialiser Web Audio API
+    initAudio() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('🔊 Web Audio API initialisé');
+        } catch (e) {
+            console.warn('⚠️ Web Audio API non disponible:', e);
+        }
+    }
+
+    // Son laser Star Wars (pew pew!)
+    playLaserSound() {
+        if (!this.audioContext) return;
+
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+
+        // Oscillateur principal (son laser aigu)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+
+    // Son collision (explosion kawaii)
+    playHitSound(points) {
+        if (!this.audioContext) return;
+
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+
+        // Son différent selon positif/négatif
+        if (points > 0) {
+            // Son positif (ding! success)
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.setValueAtTime(1200, now + 0.05);
+
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else {
+            // Son négatif (erreur)
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
     }
 
     // Créer le conteneur DOM pour les objets kawaii
@@ -81,18 +165,25 @@ class SecretModeModule {
         if (!container) {
             container = document.createElement('div');
             container.id = 'kawaii-secret-container';
+            
+            // Récupérer les dimensions et position du canvas
+            const canvasRect = this.canvas.getBoundingClientRect();
+            
             container.style.cssText = `
                 position: absolute;
-                top: 110px;
+                top: 0;
                 left: 0;
-                width: 100%;
-                height: calc(100vh - 110px);
+                width: ${this.canvas.width}px;
+                height: ${this.canvas.height}px;
                 pointer-events: none;
                 z-index: 30;
                 overflow: visible;
                 background: transparent;
             `;
-            document.querySelector('.game-container').appendChild(container);
+            
+            // Positionner le conteneur exactement sur le canvas
+            this.canvas.parentElement.style.position = 'relative';
+            this.canvas.parentElement.appendChild(container);
         }
 
         this.kawaiiContainer = container;
@@ -118,6 +209,53 @@ class SecretModeModule {
         this.score = 0;
         this.waitingForGameReady = true; // Attendre que le jeu principal soit prêt
 
+        // 🧹 NETTOYER LES ÉLÉMENTS DU JEU NORMAL
+        console.log('🧹 Nettoyage des éléments du jeu normal...');
+        
+        // Vider les briques
+        if (window.briques && Array.isArray(window.briques)) {
+            window.briques = [];
+            console.log('✅ Briques vidées');
+        }
+        
+        // Cacher la balle principale (sauvegarder son état)
+        if (window.balle) {
+            this.previousBalleVisible = window.balle.visible;
+            window.balle.visible = false;
+            console.log('✅ Balle principale cachée');
+        }
+        
+        // Vider les balles multiples
+        if (window.balles && Array.isArray(window.balles)) {
+            window.balles = [];
+            console.log('✅ Balles vidées');
+        }
+        
+        // Cacher les lanternes DOM
+        const lanternes = document.querySelectorAll('.lanterne, .lantern');
+        lanternes.forEach(l => {
+            l.style.display = 'none';
+        });
+        if (lanternes.length > 0) {
+            console.log(`✅ ${lanternes.length} lanternes cachées`);
+        }
+        
+        // Cacher les animaux DOM
+        const animaux = document.querySelectorAll('.animal');
+        animaux.forEach(a => {
+            a.style.display = 'none';
+        });
+        if (animaux.length > 0) {
+            console.log(`✅ ${animaux.length} animaux cachés`);
+        }
+        
+        // Mettre le jeu en mode pause (arrêter la physique normale)
+        if (window.jeuEnPause !== undefined) {
+            this.previousPauseState = window.jeuEnPause;
+            window.jeuEnPause = true;
+            console.log('⏸️ Jeu mis en pause (physique normale désactivée)');
+        }
+
         // FORCER l'injection du CSS kawaii à l'activation
         if (this.kawaiiObjects) {
             const styleId = 'kawaii-objects-styles';
@@ -135,12 +273,37 @@ class SecretModeModule {
             console.log('🎨 CSS kawaii forcé à l\'activation du mode secret');
         }
 
-        // Sauvegarder la phase actuelle
-        this.previousPhase = this.gameState.phaseJeu;
-        console.log(`💾 Mode secret activé - Phase sauvegardée: ${this.previousPhase}`);
+        // Sauvegarder la phase narrative actuelle (pas phaseJeu qui change souvent)
+        const narrationManager = window.narrationManager;
+        
+        // Essayer plusieurs sources pour trouver la phase narrative
+        let phaseNarrative = null;
+        if (narrationManager && typeof narrationManager.currentPhase === 'number') {
+            phaseNarrative = narrationManager.currentPhase;
+        } else if (typeof window.phaseActuelle === 'number') {
+            phaseNarrative = window.phaseActuelle;
+        } else if (typeof this.gameState.phaseActuelle === 'number') {
+            phaseNarrative = this.gameState.phaseActuelle;
+        }
+        
+        if (phaseNarrative !== null && phaseNarrative >= 1) {
+            this.previousPhase = phaseNarrative;
+            console.log(`💾 Mode secret activé - Phase narrative sauvegardée: ${this.previousPhase}`);
+            console.log(`📊 Sources: narrationManager.currentPhase=${narrationManager?.currentPhase}, window.phaseActuelle=${window.phaseActuelle}`);
+        } else {
+            this.previousPhase = this.gameState.phaseJeu;
+            console.log(`💾 Mode secret activé - Phase jeu sauvegardée (fallback): ${this.previousPhase}`);
+            console.log(`⚠️ Aucune phase narrative trouvée:`, { 
+                narrationManager: !!narrationManager,
+                currentPhase: narrationManager?.currentPhase,
+                windowPhaseActuelle: window.phaseActuelle,
+                gameStatePhaseJeu: this.gameState.phaseJeu
+            });
+        }
 
         // Changer la phase vers le mode secret
-        this.gameState.phaseJeu = 'secret_obstacles';
+        // ⚠️ NE PAS CHANGER phaseJeu car ça déclenche initJeu() et réinitialise tout !
+        // this.gameState.phaseJeu = 'secret_obstacles';
 
         // Notifier le jeu principal
         this.gameState.modeSecret = true;
@@ -196,7 +359,7 @@ class SecretModeModule {
                 // Explosion de particules dorées pour la découverte
                 const centerX = this.canvas.width / 2;
                 const centerY = this.canvas.height / 2;
-                this.gameState.ajouterParticules(centerX, centerY, '#FFD700', 15);
+                this.gameState.ajouterParticules(centerX, centerY, '#FFD700', 8);
             }
 
             console.log('🎉 DÉCOUVERTE ! +100 points XP pour avoir trouvé le mode secret !');
@@ -205,6 +368,11 @@ class SecretModeModule {
         // Activer les objets kawaii DOM
         if (this.kawaiiObjects && this.kawaiiContainer) {
             this.clearKawaiiObjects(); // Nettoyer les anciens objets
+            
+            // 🔧 Mettre à jour les dimensions du conteneur pour matcher le canvas
+            this.kawaiiContainer.style.width = `${this.canvas.width}px`;
+            this.kawaiiContainer.style.height = `${this.canvas.height}px`;
+            console.log(`📐 Conteneur kawaii redimensionné: ${this.canvas.width}x${this.canvas.height}`);
         }
 
         console.log('🚀 Mode secret activé - Survie 60s !');
@@ -251,13 +419,70 @@ class SecretModeModule {
         this.gameState.modeSecret = false;
         this.gameState.jeu = true; // Relancer le jeu principal
 
-        // Restaurer la phase de jeu précédente
-        if (this.gameState.phaseJeu && this.previousPhase) {
-            console.log(`🔄 Restauration de la phase: ${this.previousPhase} (phase actuelle: ${this.gameState.phaseJeu})`);
-            this.gameState.phaseJeu = this.previousPhase; // Retour à la phase d'origine
-            console.log(`✅ Phase restaurée vers: ${this.gameState.phaseJeu}`);
+        // 🔓 RESTAURER L'ÉTAT DE PAUSE
+        if (this.previousPauseState !== undefined) {
+            window.jeuEnPause = this.previousPauseState;
+            console.log(`⏯️ État pause restauré: ${this.previousPauseState}`);
         } else {
-            console.warn(`⚠️ Impossible de restaurer la phase - previousPhase: ${this.previousPhase}, phaseJeu actuelle: ${this.gameState.phaseJeu}`);
+            window.jeuEnPause = false; // Par défaut, reprendre le jeu
+            console.log('⏯️ Jeu relancé (pause désactivée)');
+        }
+
+        // 🔓 RESTAURER L'AFFICHAGE DES ÉLÉMENTS
+        console.log('🧹 Restauration des éléments du jeu normal...');
+        
+        // Restaurer la balle principale
+        if (window.balle && this.previousBalleVisible !== undefined) {
+            window.balle.visible = this.previousBalleVisible;
+            console.log(`✅ Balle principale restaurée (visible: ${this.previousBalleVisible})`);
+        } else if (window.balle) {
+            window.balle.visible = true; // Par défaut, visible
+            console.log('✅ Balle principale restaurée (visible par défaut)');
+        }
+        
+        // Restaurer les lanternes DOM
+        const lanternes = document.querySelectorAll('.lanterne, .lantern');
+        lanternes.forEach(l => {
+            l.style.display = '';
+        });
+        if (lanternes.length > 0) {
+            console.log(`✅ ${lanternes.length} lanternes restaurées`);
+        }
+        
+        // Restaurer les animaux DOM
+        const animaux = document.querySelectorAll('.animal');
+        animaux.forEach(a => {
+            a.style.display = '';
+        });
+        if (animaux.length > 0) {
+            console.log(`✅ ${animaux.length} animaux restaurés`);
+        }
+
+        // Restaurer la phase narrative précédente
+        const narrationManager = window.narrationManager;
+        if (this.previousPhase) {
+            console.log(`🔄 Restauration de la phase: ${this.previousPhase}`);
+            
+            // Si c'est un numéro de phase narrative, restaurer via le narrateur
+            if (typeof this.previousPhase === 'number' && narrationManager) {
+                narrationManager.currentPhase = this.previousPhase;
+                console.log(`✅ Phase narrative restaurée: ${this.previousPhase}`);
+                
+                // Recréer la phase actuelle sans intro
+                if (typeof window.recreerPhaseActuelle === 'function') {
+                    console.log(`🔄 Recréation de la phase ${this.previousPhase}...`);
+                    window.recreerPhaseActuelle(true); // true = skipNarration
+                    console.log(`✅ Phase ${this.previousPhase} recréée avec succès`);
+                } else {
+                    console.warn(`⚠️ Fonction recreerPhaseActuelle non trouvée`);
+                }
+            } else {
+                // Sinon restaurer phaseJeu directement (fallback)
+                this.gameState.phaseJeu = this.previousPhase;
+                console.log(`✅ Phase jeu restaurée (fallback): ${this.gameState.phaseJeu}`);
+            }
+        } else {
+            console.warn(`⚠️ Impossible de restaurer la phase - previousPhase: ${this.previousPhase}`);
         }
 
         // Nettoyer les objets kawaii DOM
@@ -274,6 +499,8 @@ class SecretModeModule {
 
         // Réinitialiser
         this.previousPhase = null;
+        this.previousPauseState = undefined;
+        this.previousBalleVisible = undefined;
 
         // 🎵 Relancer la musique en mode aléatoire après le mode secret
         if (typeof window.musicManager !== 'undefined' && window.musicManager && window.musicManager.resumeAfterSecret) {
@@ -299,6 +526,7 @@ class SecretModeModule {
         if (this.waitingForGameReady) {
             // Vérifier si l'animation du bateau est terminée
             if (this.gameState.animationBateau && this.gameState.animationBateau.active) {
+                console.log('⏳ Mode secret en attente - animation bateau active');
                 return; // Attendre que l'animation du bateau soit terminée
             }
 
@@ -306,11 +534,15 @@ class SecretModeModule {
             this.waitingForGameReady = false;
             this.menuStartTime = Date.now();
             console.log('🎮 Jeu principal prêt - Démarrage du timing mode secret');
+            console.log('📊 État animationBateau:', this.gameState.animationBateau);
         }
 
         // Si on est en phase de menu, vérifier si les 10s sont écoulées
         if (this.isMenuPhase) {
-            if (this.menuStartTime === 0) return; // Pas encore démarré
+            if (this.menuStartTime === 0) {
+                console.warn('⚠️ Menu phase active mais menuStartTime = 0, forçage démarrage...');
+                this.menuStartTime = Date.now();
+            }
             const menuElapsed = Date.now() - this.menuStartTime;
             if (menuElapsed >= this.menuDuration) {
                 this.startGame(); // Démarrer automatiquement après 10s
@@ -381,17 +613,16 @@ class SecretModeModule {
 
     // Mettre à jour les projectiles avec oscillation kawaii
     updateProjectiles() {
+        const C = { W: this.canvas.width, H: this.canvas.height };
+        
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
 
-            // Mouvement vertical seulement - tout droit
-            proj.y -= this.config.projectileSpeed;
+            // ⚡ LASER: Mouvement vertical simple
+            proj.y += proj.vy;
 
-            // Garder la position X fixe (pas d'oscillation)
-            proj.x = proj.startX;
-
-            // Supprimer si hors écran
-            if (proj.y < -this.config.projectileSize) {
+            // Supprimer si hors écran (haut)
+            if (proj.y < -50) {
                 this.projectiles.splice(i, 1);
             }
         }
@@ -424,7 +655,7 @@ class SecretModeModule {
 
     // Vérifier les collisions
     checkCollisions() {
-        // ⚡ OPTIMISATION: Mettre à jour le cache DOM seulement toutes les 500ms
+        // ⚡ OPTIMISATION: Mettre à jour le cache DOM seulement toutes les 1000ms
         const now = Date.now();
         if (now - this.domCache.lastUpdate > this.domCache.updateInterval) {
             this.domCache.animals = Array.from(document.querySelectorAll('.crow, .dove, .bat'));
@@ -453,7 +684,7 @@ class SecretModeModule {
 
                     // Particules
                     if (this.gameState.ajouterParticules) {
-                        this.gameState.ajouterParticules(obs.x, obs.y, '#FFD700', 5);
+                        this.gameState.ajouterParticules(obs.x, obs.y, '#FFD700', 3);
                     }
 
                     break;
@@ -548,7 +779,7 @@ class SecretModeModule {
                         const particleX = oiseauRect.left - canvasRect.left + oiseauRect.width / 2;
                         const particleY = oiseauRect.top - canvasRect.top + oiseauRect.height / 2;
 
-                        this.gameState.ajouterParticules(particleX, particleY, '#9400D3', 15); // Particules violettes
+                        this.gameState.ajouterParticules(particleX, particleY, '#9400D3', 6); // Particules violettes
                     }
 
                     break; // Une seule transformation par lanterne
@@ -556,6 +787,9 @@ class SecretModeModule {
             }
         }
 
+        // ⚡ CACHE: canvasRect calculé une seule fois
+        const canvasRect = this.canvas.getBoundingClientRect();
+        
         // Collision projectile-objet kawaii
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
@@ -566,26 +800,21 @@ class SecretModeModule {
 
                 if (!element) continue;
 
-                // ⚡ OPTIMISATION: Lire transform au lieu de left/top
-                const currentTransform = element.style.transform || '';
-                const match = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+                // ⚡ POSITION RÉELLE de l'objet sur le canvas
+                const rect = element.getBoundingClientRect();
                 
-                const objX = match ? parseFloat(match[1]) : (parseFloat(element.style.left) || 0);
-                const objY = match ? parseFloat(match[2]) : (parseFloat(element.style.top) || 0);
+                const objCanvasX = rect.left - canvasRect.left + rect.width / 2;
+                const objCanvasY = rect.top - canvasRect.top + rect.height / 2;
 
-                // Le conteneur kawaii commence à top:110px, donc ajuster
-                const objCanvasX = objX + 30; // Centre X
-                const objCanvasY = objY + 110 + 30; // Centre Y + offset du conteneur
-
-                const dx = proj.x - objCanvasX;
-                const dy = proj.y - objCanvasY;
+                // ⚡ HITBOX LASER: largeur 12px, longueur 40px
+                const laserWidth = 12;
+                const laserLength = 40;
                 
-                // ⚡ OPTIMISATION: Éviter Math.sqrt avec distance au carré
-                const distSquared = dx * dx + dy * dy;
-                const collisionRadius = 40;
-                const collisionRadiusSquared = collisionRadius * collisionRadius;
+                // Vérifier si l'objet est dans la zone du laser (rectangle)
+                const hitX = Math.abs(proj.x - objCanvasX) < (laserWidth / 2 + 30); // 30 = rayon objet
+                const hitY = (objCanvasY >= proj.y - laserLength) && (objCanvasY <= proj.y + 10);
 
-                if (distSquared < collisionRadiusSquared) {
+                if (hitX && hitY) {
                     // Collision détectée !
 
                     // Collision ! Détruire le projectile et l'objet kawaii
@@ -600,8 +829,16 @@ class SecretModeModule {
                     // Points selon le type d'objet
                     const points = this.getKawaiiPoints(kawaiiObj.type);
 
-                    // Tracker les objets détruits
+                    // 🔊 Son collision
+                    this.playHitSound(points);
+
+                    // Tracker les objets détruits et statistiques
                     this.stats.objectsDestroyed++;
+                    if (points > 0) {
+                        this.stats.totalGain += points;
+                    } else {
+                        this.stats.totalLoss += Math.abs(points);
+                    }
 
                     // AJOUTER LES POINTS AU JEU PRINCIPAL - FORCÉ
                     if (this.gameState) {
@@ -627,12 +864,12 @@ class SecretModeModule {
                     if (this.gameState.ajouterParticules) {
                         const color = points > 0 ? '#00FF00' : '#FF0000'; // Vert positif, rouge négatif
 
-                        // Grande explosion de particules
-                        this.gameState.ajouterParticules(objCanvasX, objCanvasY, color, 12);
+                        // Explosion de particules réduite
+                        this.gameState.ajouterParticules(objCanvasX, objCanvasY, color, 5);
 
                         // Explosion supplémentaire en étoiles dorées pour effet kawaii
                         setTimeout(() => {
-                            this.gameState.ajouterParticules(objCanvasX, objCanvasY, '#FFD700', 6);
+                            this.gameState.ajouterParticules(objCanvasX, objCanvasY, '#FFD700', 3);
                         }, 100);
 
                         console.log(`💥 EXPLOSION! ${kawaiiObj.type} - particules ${color} + dorées`);
@@ -708,35 +945,53 @@ class SecretModeModule {
         if (!this.gameState.raquette) return;
 
         const C = this.gameState.C;
+        const centerX = this.gameState.raquette.x + C.PW / 2;
+        const raquetteY = this.gameState.raquette.y;
 
-        // Créer 1 seule étoile dorée
-        const star = { fill: '#FFD700', stroke: '#FFB347', name: 'dorée', glow: 'rgba(255, 215, 0, 0.6)' };
+        // ⚡ TRIPLE LASER: 3 lasers simultanés (gauche, centre, droit)
+        const laserSpacing = 80; // Espacement entre les lasers
+        
+        const lasers = [
+            { x: centerX - laserSpacing, y: raquetteY }, // Gauche
+            { x: centerX, y: raquetteY },                // Centre
+            { x: centerX + laserSpacing, y: raquetteY }  // Droit
+        ];
 
-        this.projectiles.push({
-            x: this.gameState.raquette.x + C.PW / 2, // Au centre de la raquette
-            y: this.gameState.raquette.y,
-            size: this.config.projectileSize,
-            startX: this.gameState.raquette.x + C.PW / 2, // Position fixe, pas d'oscillation
-            time: 0,
-            star: star, // Données de l'étoile
-            type: 'star' // Type projectile
-        });
+        for (let laser of lasers) {
+            this.projectiles.push({
+                x: laser.x,
+                y: laser.y,
+                vy: -8, // Vitesse vers le haut
+                type: 'laser' // Type laser
+            });
+        }
+
+        // 🔊 Son laser
+        this.playLaserSound();
 
     }
 
     // Dessiner tous les éléments du mode secret
     render() {
-        if (!this.isActive) return;
+        if (!this.isActive) {
+            console.log('🚫 render() appelé mais mode secret pas actif');
+            return;
+        }
+
+        console.log('🎨 render() mode secret - isMenuPhase:', this.isMenuPhase, 'waitingForGameReady:', this.waitingForGameReady);
 
         // ⚠️ IMPORTANT: Effacer tout le canvas et dessiner le fond
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Fond bleu mer pour le mode secret
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#87CEEB'); // Bleu ciel
-        gradient.addColorStop(0.5, '#4A90E2'); // Bleu moyen
-        gradient.addColorStop(1, '#1E3A8A'); // Bleu foncé
-        this.ctx.fillStyle = gradient;
+        // ⚡ CACHE: Fond bleu mer
+        if (!this.bgGradientCache || this.bgGradientCache.height !== this.canvas.height) {
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.5, '#4A90E2');
+            gradient.addColorStop(1, '#1E3A8A');
+            this.bgGradientCache = { gradient, height: this.canvas.height };
+        }
+        this.ctx.fillStyle = this.bgGradientCache.gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.save();
@@ -791,22 +1046,36 @@ class SecretModeModule {
         this.ctx.ellipse(centerX, raquette.y + C.PH + 10, width * 0.4, C.PH * 0.5, 0, 0, Math.PI * 2);
         this.ctx.fill();
         
+        // ⚡ CACHE: Gradients du vaisseau
+        if (!this.boatGradients) {
+            this.boatGradients = {};
+        }
+        
         // === SOUCOUPE VOLANTE (partie basse) ===
-        // Dôme inférieur métallique
-        const gradSoucoupe = this.ctx.createRadialGradient(centerX, cy, 0, centerX, cy, width * 0.6);
-        gradSoucoupe.addColorStop(0, '#B8C5D6');
-        gradSoucoupe.addColorStop(0.5, '#8A9FB5');
-        gradSoucoupe.addColorStop(1, '#5D7A99');
+        this.ctx.save();
+        this.ctx.translate(centerX, cy);
+        
+        // Dôme inférieur métallique (gradient caché)
+        if (!this.boatGradients.soucoupe) {
+            const grad = this.ctx.createRadialGradient(0, 0, 0, 0, 0, width * 0.6);
+            grad.addColorStop(0, '#B8C5D6');
+            grad.addColorStop(0.5, '#8A9FB5');
+            grad.addColorStop(1, '#5D7A99');
+            this.boatGradients.soucoupe = grad;
+        }
+        const gradSoucoupe = this.boatGradients.soucoupe;
         
         this.ctx.fillStyle = gradSoucoupe;
         this.ctx.beginPath();
-        this.ctx.ellipse(centerX, cy, width * 0.5, C.PH * 1.5, 0, 0, Math.PI * 2);
+        this.ctx.ellipse(0, 0, width * 0.5, C.PH * 1.5, 0, 0, Math.PI * 2);
         this.ctx.fill();
         
         // Bordure métallique brillante
         this.ctx.strokeStyle = '#E8F0F8';
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
+        
+        this.ctx.restore();
         
         // Lumières clignotantes autour de la soucoupe
         const nbLights = 6;
@@ -851,14 +1120,23 @@ class SecretModeModule {
         
         // Cerveau rose pulsant à l'intérieur
         const pulse = 0.9 + 0.1 * Math.sin(time * 4);
-        const gradBrain = this.ctx.createRadialGradient(centerX, brainCenterY, 0, centerX, brainCenterY, brainWidth * 0.5);
-        gradBrain.addColorStop(0, '#FFB6C1');
-        gradBrain.addColorStop(0.5, '#FF69B4');
-        gradBrain.addColorStop(1, '#C71585');
+        
+        // ⚡ CACHE: Gradient cerveau
+        if (!this.boatGradients.brain) {
+            const grad = this.ctx.createRadialGradient(0, 0, 0, 0, 0, brainWidth * 0.5);
+            grad.addColorStop(0, '#FFB6C1');
+            grad.addColorStop(0.5, '#FF69B4');
+            grad.addColorStop(1, '#C71585');
+            this.boatGradients.brain = grad;
+        }
+        
+        this.ctx.save();
+        this.ctx.translate(centerX, brainCenterY);
+        const gradBrain = this.boatGradients.brain;
         
         this.ctx.fillStyle = gradBrain;
         this.ctx.beginPath();
-        this.ctx.ellipse(centerX, brainCenterY, brainWidth * 0.5 * pulse, brainHeight * 0.7 * pulse, 0, 0, Math.PI * 2);
+        this.ctx.ellipse(0, 0, brainWidth * 0.5 * pulse, brainHeight * 0.7 * pulse, 0, 0, Math.PI * 2);
         this.ctx.fill();
         
         // Circonvolutions du cerveau (lignes ondulées)
@@ -871,11 +1149,11 @@ class SecretModeModule {
             const yOffset = (i - 2) * brainHeight * 0.25;
             for (let x = -brainWidth * 0.4; x < brainWidth * 0.4; x += 5) {
                 const wave = Math.sin((x + time * 20) * 0.1) * 3;
-                const py = brainCenterY + yOffset + wave;
+                const py = yOffset + wave;
                 if (x === -brainWidth * 0.4) {
-                    this.ctx.moveTo(centerX + x, py);
+                    this.ctx.moveTo(x, py);
                 } else {
-                    this.ctx.lineTo(centerX + x, py);
+                    this.ctx.lineTo(x, py);
                 }
             }
             this.ctx.stroke();
@@ -888,24 +1166,26 @@ class SecretModeModule {
         // Œil gauche
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.beginPath();
-        this.ctx.arc(centerX - eyeSpacing, brainCenterY, eyeSize, 0, Math.PI * 2);
+        this.ctx.arc(-eyeSpacing, 0, eyeSize, 0, Math.PI * 2);
         this.ctx.fill();
         
         this.ctx.fillStyle = '#000000';
         this.ctx.beginPath();
-        this.ctx.arc(centerX - eyeSpacing + 2, brainCenterY, eyeSize * 0.5, 0, Math.PI * 2);
+        this.ctx.arc(-eyeSpacing + 2, 0, eyeSize * 0.5, 0, Math.PI * 2);
         this.ctx.fill();
         
         // Œil droit
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.beginPath();
-        this.ctx.arc(centerX + eyeSpacing, brainCenterY, eyeSize, 0, Math.PI * 2);
+        this.ctx.arc(eyeSpacing, 0, eyeSize, 0, Math.PI * 2);
         this.ctx.fill();
         
         this.ctx.fillStyle = '#000000';
         this.ctx.beginPath();
-        this.ctx.arc(centerX + eyeSpacing + 2, brainCenterY, eyeSize * 0.5, 0, Math.PI * 2);
+        this.ctx.arc(eyeSpacing + 2, 0, eyeSize * 0.5, 0, Math.PI * 2);
         this.ctx.fill();
+        
+        this.ctx.restore();
         
         // Rayon de traction sous l'OVNI (cône de lumière)
         const gradBeam = this.ctx.createLinearGradient(centerX, cy, centerX, cy + C.PH * 4);
@@ -924,36 +1204,45 @@ class SecretModeModule {
         this.ctx.restore();
     }
 
-    // Dessiner les projectiles - 3 étoiles brillantes (dorée, argentée, bleue)
+    // Dessiner les projectiles - Laser Star Wars optimisé
     renderProjectiles() {
+        if (this.projectiles.length === 0) return;
+        
+        this.ctx.save();
+        
+        // ⚡ CACHE: Gradient laser créé une seule fois
+        if (!this.laserGradientCache) {
+            const laserWidth = 6;
+            const laserLength = 40;
+            const gradient = this.ctx.createLinearGradient(0, -laserLength, 0, 0);
+            gradient.addColorStop(0, 'rgba(0, 255, 255, 0.8)');
+            gradient.addColorStop(0.5, 'rgba(0, 200, 255, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 1)');
+            this.laserGradientCache = gradient;
+        }
+        
+        const laserWidth = 6;
+        const laserLength = 40;
+        
         for (let proj of this.projectiles) {
             this.ctx.save();
             this.ctx.translate(proj.x, proj.y);
-
-            // Étoile brillante avec effet de lueur
-            const size = proj.size * 1.2; // Taille appropriée pour les étoiles
-            const star = proj.star;
-
-            // Effet de lueur
-            this.ctx.shadowColor = star.glow;
-            this.ctx.shadowBlur = 20;
-
-            // Dessiner l'étoile à 5 branches
-            this.drawStar(0, 0, size, star.fill, star.stroke);
-
-            // Effet scintillant pour le mode hybride
-            const time = Date.now() * 0.01;
-            const sparkleIntensity = 0.5 + 0.5 * Math.sin(time + proj.time);
-
-            if (sparkleIntensity > 0.7) {
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                this.ctx.beginPath();
-                this.ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
+            
+            // Glow externe
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = '#00FFFF';
+            this.ctx.fillStyle = this.laserGradientCache;
+            this.ctx.fillRect(-laserWidth, -laserLength, laserWidth * 2, laserLength);
+            
+            // Cœur du laser (blanc brillant)
+            this.ctx.shadowBlur = 5;
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.fillRect(-laserWidth/3, -laserLength, laserWidth/1.5, laserLength);
+            
             this.ctx.restore();
         }
+        
+        this.ctx.restore();
     }
 
     // Fonction utilitaire pour dessiner une étoile à 5 branches
@@ -1145,59 +1434,60 @@ class SecretModeModule {
         if (!this.kawaiiObjects || !this.kawaiiContainer) {
             return;
         }
-        // Système de colonnes : 5 colonnes sur la largeur
-        const numColumns = 5;
-        const columnWidth = this.canvas.width / numColumns;
 
-        // Vérifier quelles colonnes sont libres
-        const occupiedColumns = new Set();
-        this.activeKawaiiObjects.forEach(obj => {
-            if (obj.element && obj.gameData) {
-                const objX = parseFloat(obj.element.style.left) || 0;
-                const columnIndex = Math.floor(objX / columnWidth);
-                occupiedColumns.add(columnIndex);
-            }
-        });
-
-        // Colonnes disponibles
-        const freeColumns = [];
-        for (let i = 0; i < numColumns; i++) {
-            if (!occupiedColumns.has(i)) {
-                freeColumns.push(i);
-            }
-        }
-
-        // Si toutes les colonnes sont occupées, ne pas créer d'objet
-        if (freeColumns.length === 0) {
+        const C = { W: this.canvas.width, H: this.canvas.height };
+        
+        // ⚡ LIMITE: Maximum 3 objets à l'écran
+        const maxActiveObjects = 3;
+        if (this.activeKawaiiObjects.length >= maxActiveObjects) {
             return;
         }
 
-        // 0.5% de chance de spawn par frame (un peu plus pour avoir de l'action)
-        if (Math.random() > 0.995) {
+        // ⚡ ANTI-SPAM: Cooldown de 3 secondes entre chaque spawn
+        const now = Date.now();
+        if (!this.lastSpawnTime) this.lastSpawnTime = 0;
+        const timeSinceLastSpawn = now - this.lastSpawnTime;
+        const spawnCooldown = 3000; // 3 secondes
+        
+        if (timeSinceLastSpawn < spawnCooldown) {
+            return; // Pas encore le moment de spawner
+        }
+
+        // 15% de chance de spawn par frame (vérifié toutes les frames mais limité par cooldown)
+        if (Math.random() > 0.85) {
+            this.lastSpawnTime = now; // Enregistrer le temps du spawn
             const types = ['baleine', 'asteroide', 'etoile', 'tank', 'lune', 'banane', 'smartphone', 'poubelle', 'avion'];
             const randomType = types[Math.floor(Math.random() * types.length)];
 
-            // Choisir une colonne libre aléatoire
-            const selectedColumn = freeColumns[Math.floor(Math.random() * freeColumns.length)];
-
-            // Position X centrée dans la colonne
-            const x = selectedColumn * columnWidth + columnWidth / 2 - 30; // -30 pour centrer l'objet (60px de large)
-            const y = 0; // En haut du conteneur
+            // ⚡ SPAWN sur 4 LIGNES VERTICALES
+            const lanes = [
+                C.W * 0.25 - 30,  // Ligne 1 (25%)
+                C.W * 0.40 - 30,  // Ligne 2 (40%)
+                C.W * 0.60 - 30,  // Ligne 3 (60%)
+                C.W * 0.75 - 30   // Ligne 4 (75%)
+            ];
+            const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+            const x = randomLane;
+            const y = 50; // Visible en haut (pas au-dessus)
 
             const kawaiiObj = this.kawaiiObjects.createObject(randomType, x, y);
             if (kawaiiObj) {
-                // Ajouter propriétés de jeu
-                const now = Date.now();
+                // ⚡ CHUTE APRÈS 2 SECONDES
+                const fallSpeed = 1.0; // 1 pixel/frame constant (~60px/s)
+                const delayBeforeFall = 2000; // 2 secondes d'attente
+                
                 kawaiiObj.gameData = {
-                    vx: 0, // Pas de mouvement horizontal - chute droite
-                    vy: -(0.05 + Math.random() * 0.1),     // Vitesse ultra lente
-                    life: 60000, // 60 secondes de vie - assez pour tout le mode secret
-                    waitTime: 1000, // 1 seconde d'attente avant de commencer à descendre
-                    startTime: now, // Moment de création
-                    column: selectedColumn // Mémoriser la colonne pour debug
+                    vx: 0, // Pas de mouvement horizontal
+                    vy: 0, // Pas de mouvement au début (attend 2s)
+                    targetVy: fallSpeed, // Vitesse après délai
+                    life: 120000,
+                    spawnX: x,
+                    spawnY: y,
+                    createdAt: Date.now(),
+                    fallStartTime: Date.now() + delayBeforeFall // Tombe après 2s
                 };
 
-                console.log(`🎯 Nouvel objet ${randomType} créé à ${now} dans colonne ${selectedColumn}, commencera à bouger à ${now + 1000}`);
+                console.log(`🎯 ${randomType} spawné au centre - chute: ${fallSpeed}px/frame`);
 
                 this.kawaiiContainer.appendChild(kawaiiObj.element);
                 this.activeKawaiiObjects.push(kawaiiObj);
@@ -1219,62 +1509,73 @@ class SecretModeModule {
                 continue;
             }
 
-            // Vérifier si l'objet doit attendre avant de commencer à descendre
-            const currentTime = Date.now();
-            const timeElapsed = currentTime - gameData.startTime;
+            // Activer la chute après le délai de 2 secondes
+            if (gameData.fallStartTime && Date.now() >= gameData.fallStartTime && gameData.vy === 0) {
+                gameData.vy = gameData.targetVy; // Commencer à tomber
+                console.log(`⏬ ${kawaiiObj.type} commence à tomber après 2s`);
+            }
 
-            // ⚡ OPTIMISATION: Utiliser transform au lieu de left/top (GPU accelerated)
+            // Récupérer position actuelle (utiliser transform si disponible)
             const currentTransform = element.style.transform || '';
             const match = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
             
-            let currentX = match ? parseFloat(match[1]) : (parseFloat(element.style.left) || 0);
-            let currentY = match ? parseFloat(match[2]) : (parseFloat(element.style.top) || 0);
+            let currentX = match ? parseFloat(match[1]) : (parseFloat(element.style.left) || gameData.spawnX);
+            let currentY = match ? parseFloat(match[2]) : (parseFloat(element.style.top) || gameData.spawnY);
 
-            let newX = currentX;
-            let newY = currentY;
+            // ⚡ MAINTENIR position X sur la ligne de spawn (pas de dérive)
+            const newX = gameData.spawnX; // Rester sur la ligne assignée
+            const newY = currentY + gameData.vy; // vy = 0 puis > 0 après délai
 
-            // Commencer à bouger seulement après le temps d'attente
-            if (timeElapsed >= gameData.waitTime) {
-                newX = currentX + gameData.vx;
-                newY = currentY + gameData.vy;
-            }
-
-            // ⚡ OPTIMISATION: Utiliser transform au lieu de left/top
+            // Appliquer la nouvelle position (GPU accelerated avec transform)
             element.style.transform = `translate(${newX}px, ${newY}px)`;
+            element.style.left = '0'; // Reset left/top pour que transform prenne le dessus
+            element.style.top = '0';
 
-            // Diminuer durée de vie
+            // Décrémenter durée de vie
             gameData.life -= 16; // ~60fps
 
-            // Supprimer si hors écran ou mort - ZONES ÉLARGIES
-            if (newX < -100 || newX > C.W + 100 || newY > 800 || gameData.life <= 0) {
-                // Perte de points si un mauvais objet touche le sol (newY > 800)
-                if (newY > 800) {
+            // Vérifier si l'objet doit être supprimé
+            const hasReachedBottom = newY > C.H + 100; // +100px de marge après le bas
+            const isOutOfSides = newX < -100 || newX > C.W + 100;
+            const isDead = gameData.life <= 0;
+            
+            if (hasReachedBottom || isOutOfSides || isDead) {
+                // Pénalité si objet dangereux atteint le bas
+                if (hasReachedBottom && !isDead) { // Seulement si pas détruit par le joueur
                     const objectPoints = this.getKawaiiPoints(kawaiiObj.type);
-                    // Si c'est un objet dangereux (points positifs), on perd des points
+                    
+                    // Objet dangereux non détruit = perte de points
                     if (objectPoints > 0) {
-                        const pointLoss = -objectPoints; // Inverser les points
-                        window.score += pointLoss;
+                        const pointLoss = -Math.floor(objectPoints / 2); // 50% de pénalité
+                        window.score = Math.max(0, window.score + pointLoss);
 
-                        // Tracker les statistiques
+                        // Statistiques
                         this.stats.totalLoss += Math.abs(pointLoss);
                         this.stats.objectsEscaped++;
 
-                        console.log(`💥 Objet dangereux ${kawaiiObj.type} a touché le sol! ${pointLoss} points`);
+                        console.log(`💥 ${kawaiiObj.type} a atteint le sol! Pénalité: ${pointLoss} points`);
 
-                        // Effet visuel de perte
+                        // Effet visuel de perte (particules rouges)
                         if (this.gameState.ajouterParticules) {
-                            this.gameState.ajouterParticules(newX, newY, '#FF0000', 5);
+                            this.gameState.ajouterParticules(newX, C.H - 20, '#FF0000', 5);
+                        }
+                        
+                        // Message d'alerte
+                        if (this.gameState.afficherMessagePowerupSimple) {
+                            this.gameState.afficherMessagePowerupSimple(`⚠️ ${pointLoss} points`);
                         }
                     }
                 }
 
+                // Retirer l'élément du DOM
                 if (element.parentNode) {
                     element.parentNode.removeChild(element);
                 }
                 this.activeKawaiiObjects.splice(i, 1);
 
-                // Debug suppression
-                console.log(`🗑️ Objet ${kawaiiObj.type} supprimé - x=${newX.toFixed(0)} y=${newY.toFixed(0)} life=${gameData.life}`);
+                // Debug
+                const reason = hasReachedBottom ? 'atteint le bas' : isOutOfSides ? 'sorti sur côté' : 'durée de vie écoulée';
+                console.log(`🗑️ ${kawaiiObj.type} supprimé (${reason}) - y=${newY.toFixed(0)}/${C.H}`);
             }
         }
     }

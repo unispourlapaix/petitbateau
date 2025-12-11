@@ -14,6 +14,7 @@
 // 7. smartphone - Téléphone moderne neutre
 // 8. poubelle - Poubelle urbaine neutre
 // 9. avion - Avion rapide destructible
+// 10. brian - Cerveau kawaii sacré 🧠
 
 class KawaiiObjects {
     constructor() {
@@ -26,7 +27,8 @@ class KawaiiObjects {
             banane: { type: 'dangereux', canShoot: true, name: 'Banane dangereuse 🍌' },
             smartphone: { type: 'innocent', canShoot: false, name: 'iPhone kawaii 📱' },
             poubelle: { type: 'innocent', canShoot: false, name: 'Poubelle mignonne 🗑️' },
-            avion: { type: 'dangereux', canShoot: true, name: 'Avion rapide ✈️' }
+            avion: { type: 'dangereux', canShoot: true, name: 'Avion rapide ✈️' },
+            brian: { type: 'sacre', canShoot: false, name: 'Brian le cerveau 🧠' }
         };
     }
 
@@ -845,8 +847,10 @@ class KawaiiObjects {
         const element = document.createElement('div');
         element.id = id;
         element.className = `kawaii-object obj-${type}`;
-        element.style.left = x + 'px';
-        element.style.top = y + 'px';
+        // Utiliser transform au lieu de left/top pour GPU acceleration
+        element.style.transform = `translate(${x}px, ${y}px)`;
+        element.style.left = '0';
+        element.style.top = '0';
         element.dataset.type = type;
         element.dataset.canShoot = objData.canShoot;
 

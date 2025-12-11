@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification Scores Supabase</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #333;
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+        #error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #faa;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Statistiques Petit Bateau - Supabase</h1>
+        
+        <div id="loading">⏳ Chargement des données...</div>
+        <div id="error"></div>
+        
+        <div id="stats" style="display: none;">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Utilisateurs</div>
+                    <div class="stat-number" id="totalUsers">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Scores</div>
+                    <div class="stat-number" id="totalScores">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Utilisateurs avec Scores</div>
+                    <div class="stat-number" id="usersWithScores">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Score Moyen</div>
+                    <div class="stat-number" id="avgScore">-</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn" onclick="refresh()">🔄 Actualiser</button>
+                <button class="btn" onclick="showTopScores()">🏆 Top 10</button>
+            </div>
+
+            <div id="details"></div>
+        </div>
+    </div>
+
+    <!-- Charger le module Supabase local -->
+    <script src="modules/supabase-scores.js"></script>
+
+    <script>
+        let supabaseScores = null;
+        let supabase = null;
+
+        async function init() {
+            try {
+                // Utiliser le module SupabaseScores déjà chargé
+                if (typeof SupabaseScores === 'undefined') {
+                    throw new Error('Module SupabaseScores non chargé');
+                }
+
+                supabaseScores = new SupabaseScores();
+                
+                // ⏳ Attendre que le client Supabase soit initialisé
+                await supabaseScores.waitForReady();
+                console.log('✅ Client Supabase prêt');
+                
+                await supabaseScores.setCurrentGame('Petit Bateau');
+                supabase = supabaseScores.client;
+                console.log('✅ Supabase connecté via module local');
+
+                await loadStats();
+            } catch (error) {
+                showError('Erreur de connexion à Supabase: ' + error.message);
+                console.error('❌ Erreur init:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('stats').style.display = 'none';
+
+                if (!supabaseScores.currentGameId) {
+                    throw new Error('Game ID non configuré');
+                }
+
+                // Récupérer tous les scores du jeu avec count
+                const { data: scores, error: scoresError, count: totalScoresCount } = await supabase
+                    .from('scores')
+                    .select('score, user_id, niveau_atteint, created_at, donnees_extra, users(pseudo, email, pays, ville)', { count: 'exact' })
+                    .eq('game_id', supabaseScores.currentGameId)
+                    .order('score', { ascending: false });
+
+                if (scoresError) {
+                    console.error('❌ Erreur scores:', scoresError);
+                    throw scoresError;
+                }
+
+                console.log('📊 Scores récupérés:', scores);
+
+                // Récupérer le nombre d'utilisateurs uniques (approximation via users distincts dans scores)
+                const userIdsWithScores = new Set(scores?.map(s => s.user_id).filter(Boolean));
+                const usersWithScores = userIdsWithScores.size;
+
+                // Calculer les statistiques
+                const totalScores = totalScoresCount || 0;
+                
+                // Score moyen
+                const avgScore = scores?.length > 0 
+                    ? Math.round(scores.reduce((sum, s) => sum + (s.score || 0), 0) / scores.length)
+                    : 0;
+
+                // Afficher les stats
+                document.getElementById('totalUsers').textContent = usersWithScores; // Utilisateurs ayant ce jeu
+                document.getElementById('totalScores').textContent = totalScores;
+                document.getElementById('usersWithScores').textContent = usersWithScores;
+                document.getElementById('avgScore').textContent = avgScore.toLocaleString();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats').style.display = 'block';
+
+                console.log('📊 Statistiques:', {
+                    totalScores,
+                    usersWithScores,
+                    avgScore,
+                    gameId: supabaseScores.currentGameId,
+                    scoresPreview: scores?.slice(0, 5)
+                });
+
+            } catch (error) {
+                showError('Erreur de chargement: ' + error.message);
+                console.error('❌ Erreur:', error);
+            }
+        }
+
+        async function showTopScores() {
+            try {
+                if (!supabaseScores.currentGameId) {
+                    throw new Error('Game ID non configuré');
+                }
+
+                const { data: scores, error } = await supabase
+                    .from('scores')
+                    .select('score, niveau_atteint, created_at, donnees_extra, users(pseudo, email, pays, ville)')
+                    .eq('game_id', supabaseScores.currentGameId)
+                    .order('score', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                let html = '<h2>🏆 Top 10 Scores</h2>';
+                html += '<table>';
+                html += '<tr><th>Rang</th><th>Pseudo</th><th>Score</th><th>Sagesse</th><th>Niveau</th><th>Pays/Ville</th><th>Date</th></tr>';
+                
+                scores.forEach((score, index) => {
+                    const pseudo = score.users?.pseudo || 'Anonyme';
+                    const sagesse = score.donnees_extra?.sagesse || '-';
+                    const niveau = score.donnees_extra?.niveau || '-';
+                    const pays = score.users?.pays || '-';
+                    const ville = score.users?.ville || '-';
+                    const date = new Date(score.created_at).toLocaleDateString('fr-FR');
+                    
+                    html += `<tr>
+                        <td>${index + 1}</td>
+                        <td>${pseudo}</td>
+                        <td><strong>${score.score.toLocaleString()}</strong></td>
+                        <td>${sagesse}</td>
+                        <td>${niveau}</td>
+                        <td>${ville}, ${pays}</td>
+                        <td>${date}</td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                document.getElementById('details').innerHTML = html;
+
+            } catch (error) {
+                showError('Erreur affichage top scores: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        window.refresh = loadStats;
+        window.showTopScores = showTopScores;
+
+        // Démarrer après chargement DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

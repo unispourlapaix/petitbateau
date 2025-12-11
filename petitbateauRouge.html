@@ -658,7 +658,7 @@
 window.PRODUCTION_MODE = true;
 // ✅ Désactiver seulement les logs non-critiques
 // 🔧 MODE DÉVELOPPEUR - À activer/désactiver selon besoin
-const MODE_DEV = true; // ⚠️ Mettre à false en production!
+const MODE_DEV = false; // 🚫 MODE PRODUCTION
 
 const originalLog = console.log;
 const originalWarn = console.warn;
@@ -2031,7 +2031,7 @@ if (!MODE_DEV) {
     </script>
 
         <script src="modules/kawaii_objects_module.js"></script>
-        <script src="modules/secret-mode.js"></script>
+        <script src="modules/secret-mode.js?v=3.1"></script>
         <script src="modules/info-auteur.js"></script>
         <script src="modules/audio-manager.js"></script>
         <script src="modules/supabase-scores.js"></script>
@@ -2056,7 +2056,7 @@ if (!MODE_DEV) {
     <script>
         // 🚫 MODE PRODUCTION - Désactiver tous les console.log
         // Mettre PRODUCTION_MODE = false pour réactiver les logs en développement
-        const PRODUCTION_MODE = false; // ✅ LOGS RÉACTIVÉS POUR DÉBOGAGE MUSIQUE
+        const PRODUCTION_MODE = true; // 🚫 MODE PRODUCTION - Logs désactivés
         window.PRODUCTION_MODE = PRODUCTION_MODE; // Variable globale pour les modules
         
         if (PRODUCTION_MODE) {
@@ -2134,6 +2134,12 @@ if (!MODE_DEV) {
                     // 🚫 Ne pas sauvegarder si changement de langue en cours
                     if (window.isChangingLanguage) {
                         console.log('🌍 Changement de langue en cours - sauvegarde annulée');
+                        return false;
+                    }
+                    
+                    // 🚫 Ne pas sauvegarder si restart en cours
+                    if (window.isRestarting) {
+                        console.log('🔄 Restart en cours - sauvegarde annulée');
                         return false;
                     }
                     
@@ -6589,7 +6595,11 @@ if (!MODE_DEV) {
                 // Cacher l'indicateur d'étape
                 this.hideStepIndicator();
 
-                C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
+                // Vitesse adaptative : PC vs Mobile
+                const isMobile = size.width < 768 || ('ontouchstart' in window);
+                C.SP = isMobile 
+                    ? Math.max(Math.min(size.width, size.height) * 0.0015, 1.2) // Mobile: vitesse originale
+                    : Math.max(Math.min(size.width, size.height) * 0.001, 0.8);  // PC: vitesse réduite
 
                 // Vider les petits cœurs et briques pour éviter qu'ils réapparaissent
                 petitsCoeurs = [];
@@ -8891,22 +8901,18 @@ if (!MODE_DEV) {
                 const overlay = document.getElementById('formulaire-fin-overlay');
                 if (overlay) overlay.remove();
                 
-                // Ouvrir la page artiste dans un nouvel onglet
+                // Ouvrir la page artiste dans un nouvel onglet avec refresh forcé
                 const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}`, '_blank');
+                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}&refresh=1`, '_blank');
                 
-                // 🔄 Comportement selon le contexte
+                // 🔄 Effacer la sauvegarde et recharger pour un reset complet
                 setTimeout(() => {
-                    if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Mode Tir Cœur Libre
-                        console.log('✅ Phase 23 complétée - Activer mode Tir Cœur Libre');
-                        activerModeTirCoeurLibre();
-                    } else {
-                        // ❌ Game Over → Recréer la phase actuelle
-                        console.log('❌ Game Over - Recréer la phase actuelle');
-                        recreerPhaseActuelle(true);
-                    }
-                }, 500);
+                    console.log('🗑️ Effacement de la sauvegarde...');
+                    window.isRestarting = true;
+                    GameSaveSystem.clear();
+                    console.log('🔄 Rechargement de la page pour recommencer le jeu...');
+                    location.reload();
+                }, 1000);
             };
 
             // Gestionnaire du bouton "Passer & Continuer"
@@ -8917,21 +8923,13 @@ if (!MODE_DEV) {
                 const overlay = document.getElementById('formulaire-fin-overlay');
                 if (overlay) overlay.remove();
                 
-                // Ouvrir la page artiste
-                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
-                
-                // 🔄 Comportement selon le contexte
+                // 🔄 Effacer la sauvegarde et recharger pour un reset complet
                 setTimeout(() => {
-                    if (isPhase23Complete) {
-                        // ✅ Phase 23 terminée → Mode Tir Cœur Libre
-                        console.log('✅ Phase 23 complétée - Passer sans enregistrer → Mode Tir Cœur Libre');
-                        activerModeTirCoeurLibre();
-                    } else {
-                        // ❌ Game Over → Recréer la phase actuelle (sans enregistrer)
-                        console.log('❌ Game Over - Passer sans enregistrer → Recréer phase actuelle');
-                        recreerPhaseActuelle(true);
-                    }
+                    console.log('🗑️ Effacement de la sauvegarde...');
+                    window.isRestarting = true;
+                    GameSaveSystem.clear();
+                    console.log('🔄 Rechargement de la page pour recommencer le jeu...');
+                    location.reload();
                 }, 500);
             };
         }
@@ -9720,41 +9718,38 @@ if (!MODE_DEV) {
                 });
             },
 
-            // Son de gong aigu pour power-ups destructeurs
+            // Son de pack sec court pour power-ups destructeurs
             playGongAigu() {
                 this.ensureInit();
                 if (this.muted) return;
 
-                // Gong aigu cristallin - harmoniques élevées
-                const frequencies = [880, 1320, 1760, 2640]; // Harmoniques aigues
+                // Pack grave sec et percutant - attaque rapide, extinction rapide
+                const frequencies = [65, 130, 195]; // Harmoniques graves C2, C3, G3
 
                 frequencies.forEach((freq, index) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     const filter = this.ctx.createBiquadFilter();
 
-                    osc.type = 'sine';
-                    filter.type = 'bandpass';
-                    filter.frequency.value = freq;
-                    filter.Q.value = 3; // Résonance pour effet cristallin
+                    osc.type = 'square'; // Son carré pour attaque sèche
+                    filter.type = 'lowpass';
+                    filter.frequency.value = freq * 2.5;
+                    filter.Q.value = 1; // Peu de résonance pour son sec
 
                     osc.connect(filter);
                     filter.connect(gain);
                     gain.connect(this.ctx.destination);
 
-                    // Fréquence avec vibrato subtil
+                    // Fréquence stable sans vibrato (son sec)
                     osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    osc.frequency.linearRampToValueAtTime(freq * 1.02, this.ctx.currentTime + 0.3);
-                    osc.frequency.linearRampToValueAtTime(freq * 0.98, this.ctx.currentTime + 0.8);
 
-                    // Volume avec attaque rapide et résonance cristalline
-                    const volume = this.masterVolume * (0.2 - index * 0.04); // Harmoniques décroissantes
-                    gain.gain.setValueAtTime(0, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + 0.005);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.5);
+                    // Volume avec attaque instantanée et chute rapide (pack sec)
+                    const volume = this.masterVolume * (0.35 - index * 0.08);
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime); // Attaque immédiate
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15); // Chute très rapide (150ms)
 
                     osc.start();
-                    osc.stop(this.ctx.currentTime + 1.5);
+                    osc.stop(this.ctx.currentTime + 0.15);
                 });
             },
 
@@ -11258,7 +11253,12 @@ if (!MODE_DEV) {
             powerUps = [];
             // Garder l'état de la lanterne pendant initJeu() - ne pas la remettre à zéro
             // lanterne conserve son état précédent
+            
+            // ✅ IMPORTANT: Vider complètement les cœurs dans initJeu
+            petitsCoeurs = [];
             coeursBateau = [];
+            coeurs = [];
+            
             derniereCreeRafale = 0;
             pauseBalle = { active: false, fin: 0 };
             textesVolants = [];
@@ -12118,6 +12118,13 @@ if (!MODE_DEV) {
         // ⚡ CACHE: Gradient du halo de la lanterne (créé 1 fois au lieu de 60fps)
         let lantherneHaloGradientCache = null;
         let lantherneHaloGradientCacheSize = 0;
+        
+        // ⚡ CACHE: Couleurs traînée orange précalculées (évite création string à chaque frame)
+        const traineeVerteColors = [
+            'rgba(255, 140, 0, 0.5)',   // Orange foncé - Alpha 1.0 * 0.5
+            'rgba(255, 165, 0, 0.33)',  // Orange moyen - Alpha 0.66 * 0.5
+            'rgba(255, 200, 0, 0.17)'   // Orange clair - Alpha 0.33 * 0.5
+        ];
 
         // Vraie lanterne volante avec halo bougie et nouveaux effets
         function dessinerLanterne() {
@@ -12128,7 +12135,6 @@ if (!MODE_DEV) {
 
             const posX = balle.x || 0;
             const posY = balle.y || 0;
-            const temps = Date.now() * 0.001;
 
             if (!isFinite(posX) || !isFinite(posY) || !isFinite(C.BS)) {
                 ctx.restore();
@@ -12142,33 +12148,41 @@ if (!MODE_DEV) {
                 shadowBlurMax: 20
             };
 
-            // EFFET TRAÎNÉE VERTE (power-up vitesse) - ADAPTATIF
+            // EFFET TRAÎNÉE ORANGE (power-up vitesse) - ADAPTATIF
             if(balle.traineeVerte && balle.vitesseActive) {
                 // ⚡ Traînée adaptative selon device (3→2→1)
                 const traineeCount = Math.max(1, Math.floor(3 * effects.particleMultiplier));
+                const dx = balle.dx || 0;
+                const dy = balle.dy || 0;
+                
                 for(let i = 0; i < traineeCount; i++) {
-                    const alpha = (traineeCount - i) / traineeCount * 0.5;
                     const size = C.BS * (1 - i * 0.2);
-                    const offsetX = (balle.dx || 0) * -i * 2;
-                    const offsetY = (balle.dy || 0) * -i * 2;
+                    const offsetX = dx * -i * 2;
+                    const offsetY = dy * -i * 2;
 
-                    ctx.fillStyle = `rgba(0, 255, 0, ${alpha})`;
+                    // ⚡ OPTIMISATION: Utiliser couleur précalculée au lieu de créer string
+                    ctx.fillStyle = traineeVerteColors[i] || traineeVerteColors[0];
                     ctx.beginPath();
                     ctx.arc(posX + offsetX, posY + offsetY, size, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            // Dimensions simplifiées
+            // ⚡ OPTIMISATION: Précalculer toutes les dimensions une seule fois
             const multiplTaille = balle.multiplicateurTaille || 1;
             const rayon = C.BS * 0.5 * multiplTaille;
+            const isActive = lanterne.active;
+            const showHalo = isActive && effects.particleMultiplier >= 0.5;
 
             // 1. HALO SIMPLE - ⚡ GRADIENT CACHÉ (créé 1 fois, pas 60fps)
-            if(lanterne.active && effects.particleMultiplier >= 0.5) { // Pas de halo sur mobiles low
-                const haloSize = rayon * 2;
+            if(showHalo) { // Pas de halo sur mobiles low
+                // ⚡ OPTIMISATION: Utiliser intensite pour animer la taille (subtil)
+                const intensite = lanterne.intensite || 1.0;
+                const haloSize = rayon * 2 * intensite;
                 
-                // ⚡ CACHE: Vérifier si le gradient existe et a la bonne taille
-                if (!lantherneHaloGradientCache || lantherneHaloGradientCacheSize !== haloSize) {
+                // ⚡ CACHE: Vérifier si le gradient existe et a la bonne taille (tolérance ±2px)
+                const sizeDiff = Math.abs((lantherneHaloGradientCacheSize || 0) - haloSize);
+                if (!lantherneHaloGradientCache || sizeDiff > 2) {
                     lantherneHaloGradientCache = ctx.createRadialGradient(0, 0, 0, 0, 0, haloSize);
                     lantherneHaloGradientCache.addColorStop(0, 'rgba(255, 220, 150, 0.4)');
                     lantherneHaloGradientCache.addColorStop(1, 'rgba(255, 100, 30, 0)');
@@ -12178,6 +12192,7 @@ if (!MODE_DEV) {
                 ctx.save();
                 ctx.translate(posX, posY);
                 ctx.fillStyle = lantherneHaloGradientCache;
+                ctx.globalAlpha = intensite; // ⚡ Pulsation d'opacité (très léger impact)
                 ctx.beginPath();
                 ctx.arc(0, 0, haloSize, 0, Math.PI * 2);
                 ctx.fill();
@@ -12185,24 +12200,19 @@ if (!MODE_DEV) {
             }
 
             // 2. CORPS DE LA LANTERNE - CERCLE SIMPLE
-            if(lanterne.active) {
-                // Corps doré simple
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
-            } else {
-                // Corps éteint
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-            }
+            // ⚡ OPTIMISATION: Précalculer couleur corps
+            ctx.fillStyle = isActive ? 'rgba(255, 215, 0, 0.7)' : 'rgba(255, 215, 0, 0.3)';
             ctx.beginPath();
             ctx.arc(posX, posY, rayon, 0, Math.PI * 2);
             ctx.fill();
 
-            // Contour simple
-            ctx.strokeStyle = lanterne.active ? '#B8860B' : '#654321';
+            // Contour et croix centrale - ⚡ COMBINÉS en un seul path
+            ctx.strokeStyle = isActive ? '#B8860B' : '#654321';
             ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Croix centrale simple
             ctx.beginPath();
+            // Arc du contour
+            ctx.arc(posX, posY, rayon, 0, Math.PI * 2);
+            // Croix centrale
             ctx.moveTo(posX, posY - rayon);
             ctx.lineTo(posX, posY + rayon);
             ctx.moveTo(posX - rayon, posY);
@@ -12210,22 +12220,22 @@ if (!MODE_DEV) {
             ctx.stroke();
 
             // 3. FLAMME SIMPLIFIÉE
-            if(lanterne.active) {
-                // Flamme simple sans animation complexe
-                const flammeX = posX;
+            if(isActive) {
+                // ⚡ OPTIMISATION: Précalculer toutes les dimensions flamme
                 const flammeY = posY - rayon * 0.3;
                 const flammeSize = rayon * 0.4;
+                const flammeSizeHalf = flammeSize * 0.5;
 
-                // Flamme simple - cercle doré
+                // Flamme externe dorée + cœur blanc - ⚡ COMBINÉS
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
-                ctx.arc(flammeX, flammeY, flammeSize, 0, Math.PI * 2);
+                ctx.arc(posX, flammeY, flammeSize, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Cœur blanc simple
+                // Cœur blanc
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.beginPath();
-                ctx.arc(flammeX, flammeY, flammeSize * 0.5, 0, Math.PI * 2);
+                ctx.arc(posX, flammeY, flammeSizeHalf, 0, Math.PI * 2);
                 ctx.fill();
             } else {
                 // Cœur rouge simple quand éteint
@@ -12482,6 +12492,11 @@ if (!MODE_DEV) {
                     ctx.lineTo(matX + C.PW*0.2 * (1 - i/3), y);
                     ctx.stroke();
                 }
+                
+                // ⚡ Restaurer transform après dessin voile mode secret
+                if (isFinite(matX) && isFinite(matY) && isValid) {
+                    ctx.restore();
+                }
 
                 // Hublots géométriques
                 ctx.fillStyle = '#457b9d';
@@ -12568,18 +12583,23 @@ if (!MODE_DEV) {
                     [matX + C.PW*0.25, raquette.y - C.PH*0.1] // Bas droite plus haut
                 ];
 
-                // Gradient blanc pour la voile
-                const voileGrad = ctx.createLinearGradient(matX - C.PW*0.4, matY, matX + C.PW*0.25, raquette.y);
-                voileGrad.addColorStop(0, '#ffffff');
-                voileGrad.addColorStop(0.6, '#f8f9fa');
-                voileGrad.addColorStop(1, '#e9ecef');
-
-                ctx.fillStyle = voileGrad;
-                ctx.beginPath();
-                ctx.moveTo(voilePoints[0][0], voilePoints[0][1]);
-                for(let i = 1; i < voilePoints.length; i++) {
-                    ctx.lineTo(voilePoints[i][0], voilePoints[i][1]);
+                // ⚡ OPTIMISATION: Cache gradient voile (créé 1 fois au lieu de 60fps)
+                if (!window.bateauGradientsCache.voileRouge || window.bateauGradientsCache.lastHeight !== C.PH) {
+                    window.bateauGradientsCache.voileRouge = ctx.createLinearGradient(-C.PW*0.4, 0, C.PW*0.25, C.PH*4.5);
+                    window.bateauGradientsCache.voileRouge.addColorStop(0, '#ffffff');
+                    window.bateauGradientsCache.voileRouge.addColorStop(0.6, '#f8f9fa');
+                    window.bateauGradientsCache.voileRouge.addColorStop(1, '#e9ecef');
+                    window.bateauGradientsCache.lastHeight = C.PH;
                 }
+
+                ctx.save();
+                ctx.translate(matX, matY);
+                ctx.fillStyle = window.bateauGradientsCache.voileRouge;
+                ctx.beginPath();
+                // Coordonnées relatives après translate
+                ctx.moveTo(0, 0); // Haut du mât (origine)
+                ctx.lineTo(-C.PW*0.4, raquette.y - C.PH*0.5 - matY); // Bas gauche
+                ctx.lineTo(C.PW*0.25, raquette.y - C.PH*0.1 - matY); // Bas droite
                 ctx.closePath();
                 ctx.fill();
 
@@ -12588,16 +12608,17 @@ if (!MODE_DEV) {
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Lignes de contrainte de la voile
+                // Lignes de contrainte de la voile (coordonnées relatives)
                 ctx.strokeStyle = '#adb5bd';
                 ctx.lineWidth = 1;
                 for(let i = 0; i < 3; i++) {
-                    const y = matY + (raquette.y - C.PH*0.5 - matY) * (i + 1) / 4;
+                    const relativeY = (raquette.y - C.PH*0.5 - matY) * (i + 1) / 4;
                     ctx.beginPath();
-                    ctx.moveTo(matX - C.PW*0.3 * (1 - i/3), y);
-                    ctx.lineTo(matX + C.PW*0.2 * (1 - i/3), y);
+                    ctx.moveTo(-C.PW*0.3 * (1 - i/3), relativeY);
+                    ctx.lineTo(C.PW*0.2 * (1 - i/3), relativeY);
                     ctx.stroke();
                 }
+                ctx.restore(); // ⚡ Restaurer transform après voile
 
                 // Hublots géométriques
                 ctx.fillStyle = '#457b9d';
@@ -13642,7 +13663,7 @@ if (!MODE_DEV) {
                             brique.visible = false;
                             brises++;
                             score += 50;
-                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF4500', 8);
+                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF4500', 3);
                             grilleCollision.supprimerBrique(brique);
                         }
                     });
@@ -13662,7 +13683,7 @@ if (!MODE_DEV) {
                                 brique.visible = false;
                                 brises++;
                                 score += 50;
-                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF0000', 8);
+                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF0000', 3);
                                 grilleCollision.supprimerBrique(brique);
                             }
                         }
@@ -13678,7 +13699,7 @@ if (!MODE_DEV) {
                             brique.visible = false;
                             brises++;
                             score += 50;
-                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FFFF00', 8);
+                            ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FFFF00', 3);
                             grilleCollision.supprimerBrique(brique);
                         }
                     });
@@ -13697,7 +13718,7 @@ if (!MODE_DEV) {
                                 brique.visible = false;
                                 brises++;
                                 score += 50;
-                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF00FF', 8);
+                                ajouterParticules(brique.x + brique.w/2, brique.y + brique.h/2, '#FF00FF', 3);
                                 grilleCollision.supprimerBrique(brique);
                             }
                         }
@@ -14234,23 +14255,28 @@ if (!MODE_DEV) {
 
                         // 💥 POWER-UPS DESTRUCTEURS (Mode Balle uniquement)
                         case 'explosion_ligne':
-                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
+                            ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF4500', 20); // Orange explosif
+                            AudioSystem.playGongAigu(); // 🥁 Pack sec court
                             activerPowerUpDestructeur('explosion_ligne', power);
                             break;
                         case 'boule_feu':
-                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
+                            ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF0000', 20); // Rouge feu
+                            AudioSystem.playGongAigu(); // 🥁 Pack sec court
                             activerPowerUpDestructeur('boule_feu', power);
                             break;
                         case 'eclair_vertical':
-                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
+                            ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFFF00', 20); // Jaune éclair
+                            AudioSystem.playGongAigu(); // 🥁 Pack sec court
                             activerPowerUpDestructeur('eclair_vertical', power);
                             break;
                         case 'onde_choc':
-                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
+                            ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#00FFFF', 20); // Cyan onde
+                            AudioSystem.playGongAigu(); // 🥁 Pack sec court
                             activerPowerUpDestructeur('onde_choc', power);
                             break;
                         case 'laser_croix':
-                            AudioSystem.playGongAigu(); // 🔔 Son de gong aigu cristallin
+                            ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF00FF', 20); // Magenta laser
+                            AudioSystem.playGongAigu(); // 🥁 Pack sec court
                             activerPowerUpDestructeur('laser_croix', power);
                             break;
 
@@ -14446,6 +14472,7 @@ if (!MODE_DEV) {
 
         function mettreAJourLanterne() {
             if(animationBateau.active) return; // Pas de mise à jour pendant l'animation
+            if(modeSecret || (secretModeModule && secretModeModule.isActive)) return; // Bloquer en mode secret
             if(lanterne.active && phaseJeu === 'lanterne') {
                 // Effet de pulsation encore plus douce
                 lanterne.intensite = 0.7 + 0.3 * Math.sin(Date.now() * 0.001);
@@ -15004,10 +15031,13 @@ if (!MODE_DEV) {
 
         // Petits cœurs décoratifs en haut
         function creerPetitsCoeurs() {
+            // ✅ VIDAGE COMPLET avec réassignation
             petitsCoeurs = [];
+            coeursBateau = [];
 
             // Vérifier que VOYAGE est initialisé
-            if (!VOYAGE || VOYAGE.length === 0) {console.log('⏳ creerPetitsCoeurs() - Attente initialisation tableaux (VOYAGE:', VOYAGE.length, 'JOUR:', JOUR.length, 'NUIT:', NUIT.length, ')');
+            if (!VOYAGE || VOYAGE.length === 0) {
+                console.log('⏳ creerPetitsCoeurs() - Attente initialisation tableaux (VOYAGE:', VOYAGE.length, 'JOUR:', JOUR.length, 'NUIT:', NUIT.length, ')');
                 return;
             }
 
@@ -15905,7 +15935,7 @@ if (!MODE_DEV) {
             }
             
             // Limite stricte pour éviter les bugs de performance
-            const maxParticules = phaseJeu === 'lanterne' ? 60 : 120; // Encore plus strict en mode lanterne
+            const maxParticules = 60; // Limite unique pour toutes les phases
             if(particules.length + nombre > maxParticules) {
                 const aSupprimer = (particules.length + nombre) - maxParticules;
                 particules.splice(0, aSupprimer); // Supprimer les plus anciennes
@@ -16057,7 +16087,7 @@ if (!MODE_DEV) {
             }
             
             // Limiter le nombre total de particules pour les performances
-            const maxParticules = phaseJeu === 'lanterne' ? 100 : 200;
+            const maxParticules = 60;
             if(particules.length >= maxParticules) {
                 particules.splice(0, nombre); // Supprimer les plus anciennes
             }
@@ -17257,9 +17287,9 @@ if (!MODE_DEV) {
             // Appliquer le multiplicateur de vitesse s'il existe
             let vitesseMulti = balle.multiplicateurVitesse || 1;
             
-            // 🔥 Mode lanterne : vitesse × 1.5
+            // 🔥 Mode lanterne : vitesse × 1.3 (réduit de 1.5 pour PC)
             if(phaseJeu === 'lanterne') {
-                vitesseMulti *= 1.5;
+                vitesseMulti *= 1.3;
             }
             
             // Mouvement de la balle (vitesse fixe classique casse-briques)
@@ -17537,6 +17567,12 @@ if (!MODE_DEV) {
 
         // Événements
         function perdreVie() {
+            // 🚫 Bloquer la perte de vie pendant le mode secret
+            if(modeSecret || (secretModeModule && secretModeModule.isActive)) {
+                console.log('🛡️ Perte de vie bloquée (mode secret actif)');
+                return;
+            }
+            
             vies--;
             
             // En phase mur, perdre 1000 points quand la balle est perdue
@@ -17617,6 +17653,14 @@ if (!MODE_DEV) {
         }
 
         function recommencerJeuGameOver() {
+            console.log('🔄 Recommencer après Game Over - Rechargement de la page...');
+            window.isRestarting = true;
+            GameSaveSystem.clear();
+            location.reload();
+        }
+        
+        // Version legacy (non utilisée)
+        function recommencerJeuGameOverOLD() {
             cacherMessage();
             
             // Redémarrage à la phase actuelle (pas depuis le début)
@@ -18368,6 +18412,7 @@ Elle a besoin de ponts.`
             powerUps = [];
             coeurs = [];
             petitsCoeurs = [];
+            coeursBateau = [];
             
             // Réinitialiser le narration manager
             if (narrationManager) {
@@ -18393,6 +18438,11 @@ Elle a besoin de ponts.`
             
             // Relancer l'initialisation
             initJeu();
+            
+            // ✅ IMPORTANT: Vider complètement les cœurs AVANT les briques
+            petitsCoeurs = [];
+            coeursBateau = [];
+            
             dedoublerCoeursEnBriques(); // ✅ Créer les briques pour la phase 2
             
             // ✅ Démarrer directement à la phase 2
@@ -18430,7 +18480,7 @@ Elle a besoin de ponts.`
             animationBateau.active = false;
             phaseIntro = { active: false, etape: 'complete', tempsDebut: 0 };
             
-            // Nettoyer les éléments
+            // Nettoyer les éléments (TOUS les tableaux)
             briques = [];
             projectiles = [];
             starsProjectiles = [];
@@ -18439,6 +18489,7 @@ Elle a besoin de ponts.`
             coeurs = [];
             petitsCoeurs = [];
             coeursBateau = [];
+            balles = [];
             
             // Fermer tous les menus/overlays
             const overlay = document.getElementById('formulaire-fin-overlay');
@@ -18767,6 +18818,8 @@ Elle a besoin de ponts.`
             particules = [];
             powerUps = [];
             coeurs = [];
+            petitsCoeurs = [];
+            coeursBateau = [];
             
             // 8. Réinitialiser le narration manager
             if (narrationManager) {
@@ -18798,6 +18851,11 @@ Elle a besoin de ponts.`
             
             // 12. Relancer l'initialisation complète
             initJeu();
+            
+            // ✅ IMPORTANT: Vider complètement les cœurs AVANT de les recréer
+            petitsCoeurs = [];
+            coeursBateau = [];
+            
             creerPetitsCoeurs();
             
             // 13. Redémarrer la narration depuis le début
@@ -20519,8 +20577,8 @@ Elle a besoin de ponts.`
         });
 
         canvas.addEventListener('touchmove', e => {
-            e.preventDefault();
             if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
+            e.preventDefault(); // preventDefault après le return rapide pour optimiser
             
             const touch = e.touches[0];
             const rect = canvas.getBoundingClientRect();
@@ -20549,8 +20607,10 @@ Elle a besoin de ponts.`
         });
 
         canvas.addEventListener('touchend', e => {
-            e.preventDefault(); tactile = false;
-        });
+            // ⚡ OPTIMISATION: Pas de preventDefault sur touchend pour éviter ralentissement
+            // Le preventDefault n'est nécessaire que sur touchstart/touchmove pour éviter le scroll
+            tactile = false;
+        }, { passive: true }); // passive: true = plus performant
 
         // Système de tir continu
         let tirEnCours = false;
@@ -21446,9 +21506,19 @@ Elle a besoin de ponts.`
                 const zone = messageNarratifActif.restartZone;
                 if (x >= zone.x && x <= zone.x + zone.w &&
                     y >= zone.y && y <= zone.y + zone.h) {
-                    console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle avec 3 vies');
-                    // ✅ Recréer la phase sans refaire l'intro, avec 3 vies
-                    recreerPhaseActuelle(true);
+                    // 🔄 RECOMMENCER : Recharger simplement la page
+                    console.log('🔄 Bouton [Recommencer] cliqué - Rechargement de la page...');
+                    window.isRestarting = true;
+                    GameSaveSystem.clear();
+                    location.reload();
+                    return; // Éviter l'exécution du reste
+                    
+                    // Code legacy (non exécuté)
+                    if (false) {
+                        console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle avec 3 vies');
+                        // ✅ Recréer la phase sans refaire l'intro, avec 3 vies
+                        recreerPhaseActuelle(true);
+                    }
                     return;
                 }
             }
@@ -21625,6 +21695,28 @@ Elle a besoin de ponts.`
 
             if(animationBateau.active || narrationManager.isTransitioning) { return; } // Bloquer pendant l'animation et la narration
             
+            // 🎮 PRIORITÉ ABSOLUE : MODE SECRET
+            if (secretModeModule && secretModeModule.isActive) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                secretModeModule.createProjectile(mouseX, mouseY);
+                console.log('🎯 Tir laser mode secret (triple laser)');
+                return; // Bloquer tout le reste
+            } else if (modeSecret) {
+                // Fallback variable globale
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                if (typeof creerProjectile === 'function') {
+                    creerProjectile();
+                    console.log('🎯 Tir mode secret (fallback)');
+                }
+                return; // Bloquer tout le reste
+            }
+            
             // Redémarrage automatique supprimé - utiliser le bouton dans le message de Game Over
             
             if(phaseJeu === 'stars') {
@@ -21674,9 +21766,11 @@ Elle a besoin de ponts.`
                 // Lancer la balle si en attente (phases lanterne normales)
                 else if(balle.enAttente) {
                     console.log(`⚽ Lancer la balle`);
-                    // Lancer la balle vers le haut
-                    balle.dx = C.SP * 1.5 * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
-                    balle.dy = -C.SP * 1.5 * multiplicateurPuissance;
+                    // Multiplicateur adaptatif: 1.5x mobile (rapide), 1.3x PC (modéré)
+                    const isMobile = C.W < 768 || ('ontouchstart' in window);
+                    const launchMulti = isMobile ? 1.5 : 1.3;
+                    balle.dx = C.SP * launchMulti * (Math.random() > 0.5 ? 1 : -1) * multiplicateurPuissance;
+                    balle.dy = -C.SP * launchMulti * multiplicateurPuissance;
                     balle.enAttente = false;
                     afficherMessagePowerupSimple(phaseJeu === 'mur' ? getTranslatedText('game.messages.attack_launched', '🧱 Attaque lancée !') : getTranslatedText('game.messages.lantern_launched', '🏮 Lanterne lancée !'));
                 }
@@ -21728,7 +21822,11 @@ Elle a besoin de ponts.`
                 C.PW = Math.max(size.width * 0.3, 100);
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-                C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
+                // Vitesse adaptative PC/Mobile
+                const isMobile = size.width < 768 || ('ontouchstart' in window);
+                C.SP = isMobile 
+                    ? Math.max(Math.min(size.width, size.height) * 0.0015, 1.2)
+                    : Math.max(Math.min(size.width, size.height) * 0.001, 0.8);
                 
                 // ⚡ OPTIMISATION: Invalider cache gradients pour recréer avec nouvelles dimensions
                 fondAniméCache.gradients.fondFinale = null;
@@ -21783,7 +21881,11 @@ Elle a besoin de ponts.`
                     C.PW = Math.max(size.width * 0.3, 100);
                     C.PH = Math.max(size.height * 0.025, 15);
                     C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
-                    C.SP = Math.max(Math.min(size.width, size.height) * 0.0015, 1.2); // Vitesse balle réduite PC
+                    // Vitesse adaptative PC/Mobile
+                    const isMobile = size.width < 768 || ('ontouchstart' in window);
+                    C.SP = isMobile 
+                        ? Math.max(Math.min(size.width, size.height) * 0.0015, 1.2)
+                        : Math.max(Math.min(size.width, size.height) * 0.001, 0.8);
                     if(!jeu) initJeu();
                 }, 300); // Délai pour laisser le temps au navigateur de se repositionner
             });
@@ -21798,6 +21900,12 @@ Elle a besoin de ponts.`
         function initSecretModeModule() {
             if (!canvas || !ctx) {
                 console.error('Canvas ou contexte non disponible pour le module secret');
+                return;
+            }
+
+            // ⚠️ NE PAS réinstancier le module s'il existe déjà (évite 3 appels initJeu)
+            if (secretModeModule) {
+                console.log('✅ Module secret déjà initialisé - conservation instance');
                 return;
             }
 
@@ -21821,6 +21929,7 @@ Elle a besoin de ponts.`
                     get C() { return C; },
                     get phaseJeu() { return phaseJeu; },
                     set phaseJeu(val) { phaseJeu = val; },
+                    get phaseActuelle() { return narrationManager ? narrationManager.currentPhase : null; },
                     get animationBateau() { return animationBateau; },
                     afficherMessage: (msg, duree) => afficherMessage(msg, duree),
                     afficherMessagePowerupSimple: (msg) => afficherMessagePowerupSimple(msg),
@@ -21912,7 +22021,7 @@ Elle a besoin de ponts.`
             // Afficher l'étoile avec le compteur de clics
             afficherEtoileCompteur();
 
-            if (corbeau.touches >= 3 && corbeau.type === 'corbeau') {
+            if (corbeau.touches >= 7 && corbeau.type === 'corbeau') {
                 // Vérifier si on est en phases 1 ou 2 - pas de transformation
                 const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
                 if (phaseActuelle === 1 || phaseActuelle === 2) {
@@ -22661,7 +22770,7 @@ Elle a besoin de ponts.`
             if (phaseJeu === 'bonus_livre') {
                 dessinerLivreBonus();
             } else if(jeu || (phaseIntro && phaseIntro.active)) {
-                if(jeu) {
+                if(jeu && !modeSecret && !(secretModeModule && secretModeModule.isActive)) {
                     mettreAJourStarsProjectiles(); // Système projectiles stars
                     mettreAJourProjectiles(); // Nouveau système de projectiles
                     mettreAJourBulle(); // Ancien système pour les autres phases
@@ -22861,12 +22970,16 @@ Elle a besoin de ponts.`
             // Touche S pour lancer le mode secret directement
             if (e.key === 's' || e.key === 'S') {
                 e.preventDefault();
+                e.stopImmediatePropagation(); // ⚠️ CRITIQUE: Empêcher autres handlers S (restart)
                 console.log('🎮 Activation MODE SECRET via touche S');
-                if (typeof lancerNiveauSecret === 'function') {
-                    lancerNiveauSecret();
+                if (secretModeModule) {
+                    secretModeModule.activate();
+                } else if (typeof lancerNiveauSecret === 'function') {
+                    lancerNiveauSecret(); // Fallback
                 } else {
-                    console.error('❌ Fonction lancerNiveauSecret non trouvée');
+                    console.error('❌ Module secret et fonction lancerNiveauSecret non trouvés');
                 }
+                return; // ⚠️ IMPORTANT: Sortir immédiatement
             }
         });
 
@@ -22928,7 +23041,7 @@ Elle a besoin de ponts.`
                 if (narrationManager) {
                     narrationManager.currentPhase = 3;
                     console.log('🔧 Passage à la phase 3');
-                    narrationManager.start();
+                    recreerPhaseActuelle(true);
                 }
             }
 
@@ -22951,7 +23064,7 @@ Elle a besoin de ponts.`
                 if (narrationManager) {
                     narrationManager.currentPhase = 17;
                     console.log('🔧 Passage à la phase 17');
-                    narrationManager.start();
+                    recreerPhaseActuelle(true);
                 }
             }
 
@@ -22961,7 +23074,17 @@ Elle a besoin de ponts.`
                 if (narrationManager) {
                     narrationManager.currentPhase = 23;
                     console.log('🔧 Passage à la phase 23 (fin)');
-                    narrationManager.start();
+                    recreerPhaseActuelle(true);
+                }
+            }
+
+            // 🔧 Touche J pour aller à la phase 22
+            if(e.key === 'j' || e.key === 'J') {
+                e.preventDefault();
+                if (narrationManager) {
+                    narrationManager.currentPhase = 22;
+                    console.log('🔧 Passage à la phase 22');
+                    recreerPhaseActuelle(true);
                 }
             }
 
@@ -23003,6 +23126,12 @@ Elle a besoin de ponts.`
 
             // Touche S pour recommencer la phase
             if(e.key === 's' || e.key === 'S') {
+                // ⚠️ NE PAS redémarrer si le mode secret est actif ou va être activé
+                if (modeSecret || (secretModeModule && secretModeModule.isActive)) {
+                    console.log('🚫 Touche S ignorée - Mode secret actif');
+                    return;
+                }
+                
                 e.preventDefault();
                 if (narrationManager) {
                     narrationManager.restart();
@@ -23167,7 +23296,19 @@ Elle a besoin de ponts.`
                 return;
             }
             
-            // 🧪 TEST: Forcer phase 3 minimum pour le mode secret
+            // Utiliser le module si disponible, sinon le système intégré
+            if (secretModeModule) {
+                // Désactiver les objets kawaii pendant le mode secret
+                desactiverObjetsKawaii();
+                
+                secretModeModule.activate();
+                return; // ⚠️ IMPORTANT: Ne rien faire d'autre après activate()
+            }
+
+            // === FALLBACK : ancien système (si module pas disponible) ===
+            console.log('⚠️ Module secret non disponible, utilisation du fallback');
+            
+            // 🧪 TEST: Forcer phase 3 minimum pour le mode secret (fallback uniquement)
             if (phaseActuelle < 3) {
                 console.log('🧪 TEST: Passage automatique en phase 3 pour mode secret');
                 phaseJeu = 3;
@@ -23176,12 +23317,6 @@ Elle a besoin de ponts.`
 
             // Désactiver les objets kawaii pendant le mode secret
             desactiverObjetsKawaii();
-
-            // Utiliser le module si disponible, sinon le système intégré
-            if (secretModeModule) {
-                secretModeModule.activate();
-                return;
-            }
 
             // Fallback vers l'ancien système
             // Sauvegarder la phase actuelle

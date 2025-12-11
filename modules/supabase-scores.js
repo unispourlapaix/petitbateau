@@ -33,9 +33,20 @@ class SupabaseScores {
         // ID du jeu actuel (sera défini par le jeu)
         this.currentGameId = null;
 
+        // Promise pour attendre l'initialisation
+        this.readyPromise = new Promise((resolve, reject) => {
+            this._resolveReady = resolve;
+            this._rejectReady = reject;
+        });
+
         if (!window.PRODUCTION_MODE) {
             console.log('🎮 SupabaseScores initialisé avec fallback localStorage');
         }
+    }
+
+    // Attendre que le client soit prêt
+    async waitForReady() {
+        return this.readyPromise;
     }
 
     log(...args) {
@@ -70,6 +81,7 @@ class SupabaseScores {
                 console.error('❌ Erreur chargement Supabase - Mode hors ligne activé');
             }
             this.isOffline = true;
+            this._rejectReady(new Error('Impossible de charger Supabase'));
         };
         document.head.appendChild(script);
     }
@@ -83,6 +95,11 @@ class SupabaseScores {
         if (!window.PRODUCTION_MODE) {
             console.log('🔧 [DEBUG] Client créé:', !!this.client);
             console.log('✅ Client Supabase initialisé');
+        }
+        
+        // Résoudre la Promise pour signaler que le client est prêt
+        if (this._resolveReady) {
+            this._resolveReady();
         }
         
         // Test de connexion immédiat
@@ -440,44 +457,90 @@ class SupabaseScores {
                 }
             }
 
-            // 2. Appeler la fonction PostgreSQL qui garde le meilleur score
-            this.log('💾 Sauvegarde meilleur score pour user_id:', userId);
-            console.log('💾 Sauvegarde meilleur score pour user_id:', userId);
+            // 2. Vérifier si un score existe déjà pour cet utilisateur et ce jeu
+            this.log('🔍 Vérification score existant...');
+            console.log('🔍 Vérification score existant pour user_id:', userId, 'game_id:', this.currentGameId);
 
-            const { data, error } = await this.client
-                .rpc('save_best_score', {
-                    p_user_id: userId,
-                    p_game_id: this.currentGameId,
-                    p_score: score,
-                    p_niveau_atteint: options.niveau_atteint || null,
-                    p_temps_jeu: options.temps_jeu || null,
-                    p_donnees_extra: options.donnees_extra || null
-                });
+            const { data: existingScore, error: checkError } = await this.client
+                .from('scores')
+                .select('id, score')
+                .eq('user_id', userId)
+                .eq('game_id', this.currentGameId)
+                .maybeSingle();
 
-            if (error) {
-                this.error('Erreur save_best_score:', error);
-                throw error;
+            if (checkError) {
+                this.error('Erreur vérification score:', checkError);
+                throw checkError;
             }
 
-            // La fonction retourne un objet JSONB
-            const result = data;
+            let result = {
+                is_best: false,
+                old_score: null,
+                new_score: score
+            };
 
-            // ✅ Vérifier que result existe et est valide
-            if (!result) {
-                this.error('Résultat null de save_best_score');
-                throw new Error('La fonction save_best_score n\'a pas retourné de résultat');
-            }
+            if (existingScore) {
+                // Un score existe déjà
+                this.log('📊 Score existant trouvé:', existingScore.score);
+                console.log('📊 Score existant:', existingScore.score, 'Nouveau:', score);
+                
+                if (score > existingScore.score) {
+                    // Le nouveau score est meilleur, on met à jour
+                    this.log('🏆 Nouveau record ! Mise à jour...');
+                    console.log('🏆 Nouveau record ! Mise à jour de', existingScore.score, 'vers', score);
+                    
+                    const { error: updateError } = await this.client
+                        .from('scores')
+                        .update({
+                            score: score,
+                            niveau_atteint: options.niveau_atteint || null,
+                            temps_jeu: options.temps_jeu || null,
+                            donnees_extra: options.donnees_extra || null,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', existingScore.id);
 
-            if (result.is_best) {
-                this.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
-                console.log('🏆 Nouveau record !', score, '(ancien:', result.old_score, ')');
+                    if (updateError) {
+                        this.error('Erreur mise à jour score:', updateError);
+                        throw updateError;
+                    }
+
+                    result.is_best = true;
+                    result.old_score = existingScore.score;
+                    console.log('✅ Score mis à jour avec succès');
+                } else {
+                    // Le score existant est meilleur ou égal
+                    this.log('ℹ️ Score existant meilleur ou égal');
+                    console.log('ℹ️ Score existant', existingScore.score, 'reste le meilleur');
+                    result.old_score = existingScore.score;
+                }
             } else {
-                this.log('ℹ️ Score existant meilleur:', result.old_score, '(nouveau:', score, ')');
-                console.log('ℹ️ Score existant meilleur:', result.old_score, '(nouveau:', score, ')');
+                // Aucun score existant, on insère
+                this.log('➕ Aucun score existant, insertion...');
+                console.log('➕ Premier score pour cet utilisateur, insertion...');
+                
+                const { error: insertError } = await this.client
+                    .from('scores')
+                    .insert({
+                        user_id: userId,
+                        game_id: this.currentGameId,
+                        score: score,
+                        niveau_atteint: options.niveau_atteint || null,
+                        temps_jeu: options.temps_jeu || null,
+                        donnees_extra: options.donnees_extra || null
+                    });
+
+                if (insertError) {
+                    this.error('Erreur insertion score:', insertError);
+                    throw insertError;
+                }
+
+                result.is_best = true;
+                console.log('✅ Premier score inséré avec succès');
             }
 
             return {
-                success: true, // ✅ Si on arrive ici, la sauvegarde a fonctionné (record ou pas)
+                success: true,
                 is_best: result.is_best,
                 old_score: result.old_score,
                 new_score: result.new_score,
