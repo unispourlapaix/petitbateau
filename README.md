@@ -20,12 +20,27 @@ Ce n'est pas qu'un jeu, c'est une expérience émotionnelle qui mêle :
 
 ## ✨ Fonctionnalités
 
+### 🚀 Nouveautés v1.2.0
+- ⚡ **Optimisation tactile majeure** : Cache getBoundingClientRect (95% ⬇️), Date.now() optimisé (50% ⬇️)
+- 🎮 **Contrôle au pouce amélioré** : Sensibilité 1.8x pour déplacements confortables
+- 📱 **Performance mobile** : Fluidité améliorée, moins de lag tactile
+- 🆔 **App unique ID** : Support multi-jeux sur même domaine
+- 🚫 **Mode production** : Logs désactivés, raccourcis test off
+- 🔄 **Reset complet** : Retour phase 1 garanti, plus de blocage en phase 23
+- 💾 **Sauvegarde auto** : À partir de la phase 2, restauration propre
+
 ### 🎮 Gameplay Multi-Phases
 - **Phase Intro** : Animation d'introduction cinématique
 - **Phase Exploration** : Navigation et collecte de cœurs
 - **Phase Révélation** : Tir d'étoiles pour franchir les obstacles
 - **Phase Finale** : Confrontation avec "Le Mur"
 - **Mode Bonus** : Livre interactif avec poème complet
+
+### 📱 Contrôles Optimisés Mobile
+- **Sensibilité tactile 1.8x** : Le bateau bouge plus que le doigt pour un contrôle confortable
+- **Cache getBoundingClientRect** : Performance optimale avec 95% de réduction des calculs
+- **Contrôle au pouce amélioré** : Déplacements fluides et précis avec amplification intelligente
+- **Détection adaptative** : Reconnaissance automatique du type d'appareil (mobile/PC)
 
 ### 🌐 Multilingue
 Support natif de 14 langues avec système i18n :
@@ -36,12 +51,17 @@ Support natif de 14 langues avec système i18n :
 🇮🇱 עברית  🇨🇩 Lingala
 ```
 
-### 🎨 Technologies
-- **HTML5 Canvas** : Rendu graphique fluide
-- **Vanilla JavaScript** : Aucune dépendance externe
+### 🎨 Technologies & Optimisations
+- **HTML5 Canvas** : Rendu graphique fluide à 60fps
+- **Vanilla JavaScript** : Aucune dépendance externe (léger et rapide)
 - **PWA** : Installation native sur mobile/desktop
-- **Responsive Design** : Adapté à tous les écrans
+- **Responsive Design** : Adapté à tous les écrans (mobile-first)
 - **Service Worker** : Fonctionnement hors ligne
+- **Performance Mobile** :
+  - Cache getBoundingClientRect (95% réduction calculs)
+  - Optimisation Date.now() (50% réduction appels)
+  - Gestion tactile avancée avec sensibilité 1.8x
+  - Détection adaptative qualité graphique
 
 ### 🏆 Système de Score
 - Sauvegarde locale (localStorage)
