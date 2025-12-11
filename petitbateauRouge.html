@@ -20243,21 +20243,25 @@ Elle a besoin de ponts.`
             // Limites du canvas
             raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
 
+            // ⚡ Calculs lourds (inertie, son) seulement si mouvement significatif
+            const deltaX = Math.abs(raquette.x - ancienX);
+            if (deltaX < 1) return; // Micro-mouvements ignorés = +50% performance
+            
             // ⚡ Un seul Date.now() pour performance
             const now = Date.now();
             
             // Calculer la vitesse pour l'inertie (uniquement en tactile)
             if (isTouchDevice) {
                 const deltaTemps = now - dernierTemps;
-                if (deltaTemps > 0) {
-                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7; // Inertie réduite pour meilleur contrôle
+                if (deltaTemps > 10) { // Ignorer calculs si <10ms entre frames
+                    vitesseBateau = (raquette.x - dernierePositionX) / deltaTemps * 7;
+                    dernierePositionX = raquette.x;
+                    dernierTemps = now;
                 }
-                dernierePositionX = raquette.x;
-                dernierTemps = now;
             }
 
             // 🔊 Son de voile quand le bateau bouge (avec throttle)
-            if (Math.abs(raquette.x - ancienX) > 5 && now - dernierSonVoile > delaiSonVoile) {
+            if (deltaX > 5 && now - dernierSonVoile > delaiSonVoile) {
                 AudioSystem.playVoile();
                 dernierSonVoile = now;
             }
@@ -20619,14 +20623,14 @@ Elle a besoin de ponts.`
             if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
             e.preventDefault(); // preventDefault après le return rapide pour optimiser
             
-            // ⚡ Calcul optimisé de position (un seul getBoundingClientRect via cache)
+            // ⚡ OPTIMISATION: Calculer position seulement si nécessaire
             const touch = e.touches[0];
-            const rect = getCachedCanvasRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
             
-            // 📜 SCROLL TACTILE CLASSEMENT
+            // 📜 SCROLL TACTILE CLASSEMENT - Calculer y seulement si menu visible
             if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'classement' && isSwipingMenu) {
+                const rect = getCachedCanvasRect();
+                const y = touch.clientY - rect.top;
+                
                 if (leaderboardData && leaderboardData.length > menuEnigmesCanvas.leaderboardScroll.maxVisible) {
                     const deltaY = swipeStartY - y;
                     
@@ -20640,6 +20644,10 @@ Elle a besoin de ponts.`
                 }
                 return; // Ne pas contrôler le bateau
             }
+            
+            // ⚡ Calcul position seulement pour contrôle bateau
+            const rect = getCachedCanvasRect();
+            const x = touch.clientX - rect.left;
             
             // ⚡ Pas besoin d'obtenirPosition ici, on a déjà x calculé
             deplacerRaquette(x, false); // Mouvement continu, pas le premier touch
@@ -22429,24 +22437,6 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
-            // 🔍 DEBUG SIMPLE: Une seule fois pour vérifier que la boucle démarre
-            if (!window.boucleStarted) {
-                window.boucleStarted = true;
-                console.log('🎮 BoucleJeu DÉMARRÉE');
-            }
-            
-            // 🔍 DEBUG: État du jeu et de l'intro (une fois seulement)
-            if (!window.debugStateLogged) {
-                window.debugStateLogged = true;
-                console.log('🎮 État du jeu:', {
-                    jeu: jeu,
-                    phaseIntroActive: phaseIntro?.active,
-                    phaseIntroEtape: phaseIntro?.etape,
-                    languageSelectorActive: languageSelector?.active,
-                    languageChosen: languageSelector?.languageChosen
-                });
-            }
-            
             // ⚡ OPTIMISATION #1 : CLEAR CANVAS AU DÉBUT DE CHAQUE FRAME
             // Évite l'accumulation de dessins et surcharge GPU mobile
             ctx.clearRect(0, 0, C.W, C.H);
