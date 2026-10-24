@@ -203,7 +203,7 @@
       "subtitle": "Escape the borders"
     },
     "canvas": {
-      "objective": "Goal: 33 million! 🌍",
+      "objective": "30 million reasons to love",
       "click_info": "(Click for more info)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universal",
       "voyage_origin": "Journey's origin",
       "continue_button": "➜ Continue",
-      "next_button": "➜ Next"
+      "next_button": "➜ Next",
+      "love_objective": "30 million reasons to love",
+      "love_message": "Show love, share peace."
     },
     "projects": {
       "games_deco": "Games & Deco",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Are you sure?",
     "loaded": "📂 Game loaded!",
     "not_found": "❌ No save found"
+  },
+  "score_share": {
+    "tab": "Share",
+    "menu_title": "My journey in a picture",
+    "total": "MY SCORE",
+    "create": "Create my share card",
+    "menu_hint": "A boat, a lighthouse, your score.",
+    "brand": "THE LITTLE RED BOAT",
+    "heading": "MY TRAVEL JOURNAL",
+    "completed": "A journey completed, a light shared.",
+    "journey": "Every journey leaves a light.",
+    "game_score": "Game score",
+    "xp": "Knowledge · XP",
+    "wisdom": "Wisdom",
+    "quote": "Follow the light. Share the peace.",
+    "close": "Close",
+    "souvenir": "A KEEPSAKE TO TAKE AWAY",
+    "title": "Share your light",
+    "intro": "Your score, a little boat and a lighthouse. A new destination in every picture.",
+    "image_alt": "Pixel art score card with a red boat and a lighthouse",
+    "share": "Share the picture",
+    "download": "Download PNG",
+    "change": "Another scene",
+    "replay": "Play again",
+    "creating": "Creating your card…",
+    "ready": "Your card is ready.",
+    "saved": "Image downloaded. You can attach it to your message.",
+    "share_text": "My journey in The Little Red Boat",
+    "shared": "Your card has been shared.",
+    "cancelled": "Sharing cancelled. Your card is still available.",
+    "share_error": "Sharing is unavailable. Use “Download PNG”.",
+    "export_error": "Unable to create the image.",
+    "themes": {
+      "dawn": "Pearl dawn",
+      "lagoon": "Lagoon of light",
+      "stars": "Lighthouse of the stars",
+      "sunset": "Last rays",
+      "dreams": "Bay of dreams",
+      "peace": "A peaceful morning"
+    }
   }
 }

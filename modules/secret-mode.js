@@ -993,6 +993,11 @@ class SecretModeModule {
         }
         this.ctx.fillStyle = this.bgGradientCache.gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        if (window.PixelArt) {
+            PixelArt.background(this.ctx, this.gameState.C, 'nuit', false);
+            PixelArt.sea(this.ctx, this.gameState.C, 'nuit');
+        }
+
 
         this.ctx.save();
 
@@ -1025,6 +1030,12 @@ class SecretModeModule {
 
     // Dessiner l'OVNI avec cerveau (remplace le bateau en mode secret)
     renderBoat() {
+        if (window.PixelSprites) {
+            const r = this.gameState.raquette, C = this.gameState.C;
+            PixelSprites.draw(this.ctx, 'ufo', r.x + C.PW / 2, r.y - C.PH, C.PW);
+            return;
+        }
+
         const raquette = this.gameState.raquette;
         const C = this.gameState.C;
         

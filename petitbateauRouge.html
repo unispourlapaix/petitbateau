@@ -1657,7 +1657,9 @@ if (!MODE_DEV) {
     }
 }
 
-        </style></head>
+        </style>    <link rel="stylesheet" href="modules/styles/navigation-menu.css">
+    <link rel="stylesheet" href="modules/styles/score-share.css">
+</head>
 <body>
     <!-- 🇫🇷 Popup Élégant Bleu-Blanc-Rouge -->
     <div class="custom-popup-overlay" id="customPopupOverlay">
@@ -2045,8 +2047,11 @@ if (!MODE_DEV) {
         <script src="modules/kawaii_objects_module.js"></script>
         <script src="modules/secret-mode.js?v=3.1"></script>
         <script src="modules/info-auteur.js"></script>
+        <script src="modules/graphics/pixel-art.js"></script>
+        <script src="modules/graphics/pixel-sprites.js"></script>
+        <script src="modules/graphics/navigation-menu.js"></script>
         <script src="modules/audio-manager.js"></script>
-        <script src="modules/supabase-scores.js"></script>
+        <script src="modules/score-share.js"></script>
 
         <!-- MODULE OISEAUX VOLANTS CSS -->
         <div class="flying-birds-overlay">
@@ -2635,17 +2640,19 @@ if (!MODE_DEV) {
                 // console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
                 
                 // Dimensions physiques de l'écran
-                width = window.innerWidth || 449;
-                height = window.innerHeight || 799;
+                width = Math.min(container?.clientWidth || window.innerWidth || 449,
+                    window.visualViewport?.width || window.innerWidth || 449);
+                height = Math.min(container?.clientHeight || window.innerHeight || 799,
+                    window.visualViewport?.height || window.innerHeight || 799);
                 
                 // Sur iOS, corriger pour la barre d'adresse
                 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    height = window.innerHeight || 799;
+                    height = Math.min(height, window.innerHeight || height);
                 }
                 
                 // Sécurité: valeurs minimales
-                width = Math.max(width, 320);
-                height = Math.max(height, 480);
+                width = Math.max(width, 1);
+                height = Math.max(height, 1);
                 
                 // Optimiser le canvas pour le pixel ratio adaptatif
                 canvas.width = width * pixelRatio;
@@ -3476,6 +3483,12 @@ if (!MODE_DEV) {
 
         // Dessiner la chauve-souris
         function dessinerChauveSouris() {
+            if (window.PixelSprites) {
+                if (!chauveSouris.active) return;
+                PixelSprites.draw(ctx, 'bat', chauveSouris.x, chauveSouris.y, 44, undefined, Math.floor(Date.now() / 180) % 2);
+                return;
+            }
+
             if(!chauveSouris.active) return;
 
             // ⚡ Créer les Path2D une seule fois
@@ -3945,11 +3958,11 @@ if (!MODE_DEV) {
 
             // Arrière-plan du bouton
             const gradient = ctx.createLinearGradient(-25, -25, 25, 25);
-            gradient.addColorStop(0, '#1a2d4a');
-            gradient.addColorStop(1, '#0a1428');
+            gradient.addColorStop(0, '#f2e5c9');
+            gradient.addColorStop(1, '#d9c298');
 
             ctx.fillStyle = gradient;
-            ctx.strokeStyle = '#64ffda';
+            ctx.strokeStyle = '#8b7049';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(0, 0, 25, 0, Math.PI * 2);
@@ -3960,8 +3973,8 @@ if (!MODE_DEV) {
             ctx.font = '20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#64ffda';
-            ctx.fillText('🧩', 0, 0);
+            ctx.fillStyle = '#8b7049';
+            NavigationMenu.icon(ctx, 'compass', -14, -14, 28);
 
             // Indicateur du nombre d'énigmes collectées
             if (enigmaCollector) {
@@ -3970,13 +3983,13 @@ if (!MODE_DEV) {
 
                 if (collected > 0) {
                     // Badge de notification
-                    ctx.fillStyle = '#10d9c4';
+                    ctx.fillStyle = '#344f58';
                     ctx.beginPath();
                     ctx.arc(15, -15, 8, 0, Math.PI * 2);
                     ctx.fill();
 
                     ctx.font = '12px Arial';
-                    ctx.fillStyle = '#0a1428';
+                    ctx.fillStyle = '#fff0d1';
                     ctx.fillText(collected, 15, -15);
                 }
             }
@@ -4158,9 +4171,21 @@ if (!MODE_DEV) {
             genererPositionsCartesEnigmes();
         }
 
+        function reinitialiserDepuisMenu() {
+            window.isRestarting = true;
+            localStorage.setItem('gameResetInProgress', 'true');
+            GameSaveSystem.clear();
+            for (const key of ['vdv_enigmes_collectees', 'petit_bateau_progression', 'vdv_gameState']) {
+                localStorage.removeItem(key);
+            }
+            NavigationMenu.hideReset();
+            location.reload();
+        }
+
         // Fermer le menu énigmes canvas
         function fermerMenuEnigmesCanvas() {
             menuEnigmesCanvas.visible = false;
+            NavigationMenu.hideReset();
             menuEnigmesCanvas.animation = 0;
             menuEnigmesCanvas.hoveredCard = null;
             menuEnigmesCanvas.expandedCard = null; // Refermer toutes les cartes dépliées
@@ -4221,10 +4246,12 @@ if (!MODE_DEV) {
             // Cacher le menu pendant les phases 17-22 (murs) UNIQUEMENT en mode 'mur'
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
+                NavigationMenu.hideReset();
                 return; // Ne pas afficher le menu pendant les phases de mur actives
             }
 
             if (!menuEnigmesCanvas.visible) {
+                NavigationMenu.hideReset();
                 return;
             }
 
@@ -4244,22 +4271,7 @@ if (!MODE_DEV) {
             const menuX = (C.W - menuWidth) / 2;
             const menuY = (C.H - menuHeight) / 2;
 
-            // Fond blanc lumineux transparent
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            
-            // 📱 Adapter shadowBlur selon qualité
-            const effects = window.getAdaptiveEffectSettings();
-            if (effects.shadows) {
-                ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-                ctx.shadowBlur = effects.shadowBlurMax;
-            }
-            
-            ctx.beginPath();
-            ctx.roundRect(menuX, menuY, menuWidth, menuHeight, 15);
-            ctx.fill();
-            ctx.stroke();
+            NavigationMenu.paper(ctx, menuX, menuY, menuWidth, menuHeight);
 
             // Onglets modernes et élégants - style minimaliste - 4 onglets ADAPTATIFS
             const ongletHeight = 45;
@@ -4271,9 +4283,9 @@ if (!MODE_DEV) {
             // OPTIMISATION: Cache des calculs de largeur d'onglets (recalculer seulement si changement de langue ou onglet)
             const now = Date.now();
             if (menuEnigmesCanvas.needsRecalculation || !menuEnigmesCanvas.cachedTabWidths || (now - menuEnigmesCanvas.lastCalculationTime) > 1000) {
-                ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
+                ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
                 const texteEnigmes = getTranslatedText('interface.tabs.enigmas', 'Énigmes');
-                const texteScores = getTranslatedText('interface.tabs.scores', 'Scores');
+                const texteScores = getTranslatedText('score_share.tab', 'Partager');
                 const texteLangue = getTranslatedText('interface.tabs.language', 'Langue');
                 const texteInfo = getTranslatedText('interface.tabs.info', 'Info');
                 
@@ -4332,13 +4344,13 @@ if (!MODE_DEV) {
             // Onglet Énigmes - Style minimaliste
             if (enigmesActif) {
                 // Onglet actif : fond blanc pur avec légère élévation
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 2;
             } else {
                 // Onglet inactif : transparent avec bordure subtile
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
             }
@@ -4362,14 +4374,14 @@ if (!MODE_DEV) {
             ctx.shadowOffsetY = 0;
 
             // Texte élégant - police adaptée - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-            ctx.fillStyle = enigmesActif ? '#1e293b' : '#64748b';
+            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
+            ctx.fillStyle = enigmesActif ? '#293f48' : '#6e6655';
             ctx.textAlign = 'center';
             ctx.fillText(texteEnigmes, ongletEnigmesX + ongletWidthEnigmes / 2, ongletY + 28);
 
             // Indicateur actif sous le texte - ajusté dynamiquement
             if (enigmesActif) {
-                ctx.fillStyle = '#3b82f6';
+                ctx.fillStyle = '#365e6a';
                 const indicateurWidth = Math.min(40, ongletWidthEnigmes * 0.6);
                 ctx.fillRect(ongletEnigmesX + ongletWidthEnigmes / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
             }
@@ -4385,12 +4397,12 @@ if (!MODE_DEV) {
 
             // Onglet Classement - Style minimaliste
             if (classementActif) {
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 2;
             } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
             }
@@ -4414,8 +4426,8 @@ if (!MODE_DEV) {
             ctx.shadowOffsetY = 0;
 
             // Texte élégant - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-            ctx.fillStyle = classementActif ? '#1e293b' : '#64748b';
+            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
+            ctx.fillStyle = classementActif ? '#293f48' : '#6e6655';
             ctx.fillText(texteScores, ongletClassementX + ongletWidthScores / 2, ongletY + 28);
 
             // Indicateur actif - ajusté dynamiquement
@@ -4436,12 +4448,12 @@ if (!MODE_DEV) {
 
             // Onglet Langues - Style minimaliste
             if (languesActif) {
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 2;
             } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
             }
@@ -4465,14 +4477,14 @@ if (!MODE_DEV) {
             ctx.shadowOffsetY = 0;
 
             // Texte - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-            ctx.fillStyle = languesActif ? '#1e293b' : '#64748b';
+            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
+            ctx.fillStyle = languesActif ? '#293f48' : '#6e6655';
             const currentFlag = getCurrentLanguageFlag();
             ctx.fillText(`${currentFlag} ${texteLangue}`, ongletLanguesX + ongletWidthLangue / 2, ongletY + 28);
 
             // Indicateur actif - ajusté dynamiquement
             if (languesActif) {
-                ctx.fillStyle = '#10b981';
+                ctx.fillStyle = '#58705b';
                 const indicateurWidth = Math.min(50, ongletWidthLangue * 0.6);
                 ctx.fillRect(ongletLanguesX + ongletWidthLangue / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
             }
@@ -4488,12 +4500,12 @@ if (!MODE_DEV) {
 
             // Onglet Info - Style minimaliste
             if (infoActif) {
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 2;
             } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
             }
@@ -4517,23 +4529,29 @@ if (!MODE_DEV) {
             ctx.shadowOffsetY = 0;
 
             // Texte élégant - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
-            ctx.fillStyle = infoActif ? '#1e293b' : '#64748b';
+            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
+            ctx.fillStyle = infoActif ? '#293f48' : '#6e6655';
             ctx.fillText(texteInfo, ongletInfoX + ongletWidthInfo / 2, ongletY + 28);
 
             // Indicateur actif - ajusté dynamiquement
             if (infoActif) {
-                ctx.fillStyle = '#3b82f6';
+                ctx.fillStyle = '#365e6a';
                 const indicateurWidth = Math.min(50, ongletWidthInfo * 0.6);
                 ctx.fillRect(ongletInfoX + ongletWidthInfo / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
             }
 
             ctx.restore();
 
+            ctx.save();
+            ctx.globalAlpha = containerAlpha * .55;
+            NavigationMenu.icon(ctx, 'quill', menuX + 15, menuY + 70, 17);
+            NavigationMenu.icon(ctx, 'ink', menuX + menuWidth - 32, menuY + 70, 17);
+            ctx.restore();
+
             // Titre moderne - plus petit et positionné sous les onglets - PLUS GROS
             if (enigmesActif) {
-                ctx.font = '600 30px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#1e293b';
+                ctx.font = `600 ${menuWidth < 380 ? 23 : 28}px Georgia, serif`;
+                ctx.fillStyle = '#293f48';
                 ctx.textAlign = 'center';
                 ctx.fillText(getTranslatedText('interface.menus.voyage_enigmas', 'Voyage — Énigmes'), C.W / 2, menuY + 100);
             } else if (infoActif) {
@@ -4546,8 +4564,8 @@ if (!MODE_DEV) {
                 const total = Object.keys(ENIGMES_DATABASE).length;
                 const percent = Math.round((collected / total) * 100);
 
-                ctx.font = '20px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#64748b';
+                ctx.font = '20px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#6e6655';
                 const progressText = getTranslatedText('interface.menus.collected_progress', `Collectées: ${collected}/${total} (${percent}%)`)
                     .replace('{collected}', collected)
                     .replace('{total}', total)
@@ -4557,8 +4575,8 @@ if (!MODE_DEV) {
                 // Afficher le score - PLUS GROS
                 const xp = pointsConnaissance || 0;
                 const scoreJeu = window.score || score;
-                ctx.font = '20px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#3b82f6';
+                ctx.font = '20px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#365e6a';
                 const scoreText = getTranslatedText('interface.menus.score_xp', `🕊️ ${scoreJeu} | ⭐ XP: ${xp}`)
                     .replace('{score}', scoreJeu)
                     .replace('{xp}', xp);
@@ -4574,7 +4592,7 @@ if (!MODE_DEV) {
             menuEnigmesCanvas.closeButton.height = buttonHeight;
 
             // Rectangle arrondi pour le bouton
-            ctx.fillStyle = menuEnigmesCanvas.closeButton.hover ? '#ff6b6b' : '#666';
+            ctx.fillStyle = menuEnigmesCanvas.closeButton.hover ? '#a65547' : '#344f58';
             ctx.beginPath();
             ctx.roundRect(menuEnigmesCanvas.closeButton.x, menuEnigmesCanvas.closeButton.y, buttonWidth, buttonHeight, 8);
             ctx.fill();
@@ -4584,6 +4602,11 @@ if (!MODE_DEV) {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(getTranslatedText('interface.buttons.close', 'Fermer'), menuEnigmesCanvas.closeButton.x + buttonWidth/2, menuEnigmesCanvas.closeButton.y + buttonHeight/2);
+
+            NavigationMenu.showReset(canvas, C, {
+                x: menuX + menuWidth - 56,
+                y: menuEnigmesCanvas.closeButton.y - 2
+            }, reinitialiserDepuisMenu, getTranslatedText('save.confirm_reset_title', 'Recommencer à zéro'));
 
             // Afficher le contenu selon l'onglet actif
             if (menuEnigmesCanvas.ongletActif === 'enigmes') {
@@ -4603,8 +4626,10 @@ if (!MODE_DEV) {
                 //     dessinerInfoBulleEnigme();
                 // }
             } else if (menuEnigmesCanvas.ongletActif === 'info') {
-                // Afficher l'icône et le message à 33 millions + projets d'Emmanuel
+                // Présenter les raisons d’aimer et les projets d’Emmanuel
                 ctx.save();
+                const infoFont = ScoreShare.fontFamily();
+                ctx.direction = ['ar', 'he'].includes(window.i18n?.getCurrentLanguage()) ? 'rtl' : 'ltr';
                 ctx.textAlign = 'center';
 
                 let yPos = menuY + 100;
@@ -4616,38 +4641,38 @@ if (!MODE_DEV) {
                 }
                 yPos += 45;
 
-                // Message humoristique - PLUS GROS
-                ctx.font = 'bold 22px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillText(getTranslatedText('game.canvas.objective', 'Objectif : 33 millions ! 🌍'), C.W / 2, yPos);
+                // Message central : donner à voir et partager l’amour
+                ctx.font = `bold 22px ${infoFont}`;
+                ctx.fillStyle = '#365e6a';
+                ctx.fillText(getTranslatedText('game.canvas.love_objective', '30 millions de raisons d’aimer'), C.W / 2, yPos, menuWidth - 32);
                 yPos += 25;
 
-                ctx.font = '18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#64748b';
-                ctx.fillText(getTranslatedText('game.canvas.click_info', '(Clic pour en savoir plus)'), C.W / 2, yPos);
+                ctx.font = `18px ${infoFont}`;
+                ctx.fillStyle = '#6e6655';
+                ctx.fillText(getTranslatedText('game.canvas.love_message', 'Exposer l’amour, partager la paix.'), C.W / 2, yPos, menuWidth - 32);
                 yPos += 40;
 
                 // Citation philosophique - PLUS GROSSE
-                ctx.font = 'italic 17px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#7c3aed';
+                ctx.font = `italic 17px ${infoFont}`;
+                ctx.fillStyle = '#845746';
                 ctx.fillText(getTranslatedText('game.quotes.enigma_truth', 'Dans chaque énigme se cache une vérité,'), C.W / 2, yPos);
                 yPos += 22;
                 ctx.fillText(getTranslatedText('game.quotes.truth_humanity', 'dans chaque vérité se révèle notre humanité.'), C.W / 2, yPos);
                 yPos += 30;
 
-                ctx.font = '18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#1e293b';
+                ctx.font = `18px ${infoFont}`;
+                ctx.fillStyle = '#293f48';
                 ctx.fillText(getTranslatedText('game.canvas.author', '🎨 Emmanuel Payet'), C.W / 2, yPos);
                 yPos += 20;
 
-                ctx.font = '17px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#64748b';
+                ctx.font = `17px ${infoFont}`;
+                ctx.fillStyle = '#6e6655';
                 ctx.fillText(getTranslatedText('game.canvas.dreamer', 'Dreamer Unisona'), C.W / 2, yPos);
                 yPos += 35;
 
                 // Section des projets - PLUS GROS
-                ctx.font = 'bold 20px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#1e293b';
+                ctx.font = `bold 20px ${infoFont}`;
+                ctx.fillStyle = '#293f48';
                 ctx.fillText(getTranslatedText('game.canvas.projects', '📂 Projets'), C.W / 2, yPos);
                 yPos += 25;
 
@@ -4660,7 +4685,7 @@ if (!MODE_DEV) {
                             titleKey: 'game.projects.games_deco',
                             titleFallback: 'Jeux & Déco',
                             link: 'https://emmanuel.gallery',
-                            color: '#7c3aed'
+                            color: '#845746'
                         },
                         {
                             titleKey: 'game.projects.unispourlapaix',
@@ -4672,7 +4697,7 @@ if (!MODE_DEV) {
                             titleKey: 'game.projects.free_gospel',
                             titleFallback: 'Free Gospel',
                             link: 'https://audiomack.com/emmanuelpayet888',
-                            color: '#dc2626'
+                            color: '#98483f'
                         },
                         {
                             titleKey: 'game.projects.books_art',
@@ -4707,7 +4732,7 @@ if (!MODE_DEV) {
                 // Dessiner les boutons des projets (compacts)
                 menuEnigmesCanvas.projectButtons.forEach((btn, index) => {
                     // Style du bouton simple et élégant
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#f8edd6';
                     ctx.strokeStyle = btn.color;
                     ctx.lineWidth = 2;
 
@@ -4717,7 +4742,7 @@ if (!MODE_DEV) {
                     ctx.stroke();
 
                     // Titre du projet centré - PLUS GROS
-                    ctx.font = 'bold 17px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
+                    ctx.font = `bold 17px ${infoFont}`;
                     ctx.fillStyle = btn.color;
                     ctx.textAlign = 'center';
                     const projectTitle = getTranslatedText(btn.titleKey, btn.titleFallback);
@@ -4726,392 +4751,27 @@ if (!MODE_DEV) {
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'classement') {
-                // Afficher le classement des scores
-                ctx.save();
-                ctx.textAlign = 'center';
-
-                let yPos = menuY + 100;
-
-                // ✅ Affichage mobile optimisé du meilleur score utilisateur
-                if (userBestScore) {
-                    // 📱 Détection mobile
-                    const isMobileView = C.W < 500;
-                    
-                    ctx.font = `bold ${isMobileView ? 14 : 16}px "Segoe UI", system-ui, sans-serif`;
-                    ctx.fillStyle = '#3b82f6';
-                    ctx.fillText(getTranslatedText('game.your_best', '✨ Votre meilleur score'), C.W / 2, yPos);
-                    yPos += isMobileView ? 22 : 25;
-
-                    // ✅ Fond amélioré avec coins arrondis - adaptatif
-                    const donnees = userBestScore.donnees_extra;
-                    let bgColor = 'rgba(59, 130, 246, 0.08)';
-                    if (donnees && donnees.sagesse) {
-                        const niveau = getNiveauSagesse(donnees.sagesse);
-                        const hex = niveau.couleur.replace('#', '');
-                        const r = parseInt(hex.substr(0, 2), 16);
-                        const g = parseInt(hex.substr(2, 2), 16);
-                        const b = parseInt(hex.substr(4, 2), 16);
-                        bgColor = `rgba(${r}, ${g}, ${b}, 0.12)`;
-                    }
-                    
-                    const userBoxWidth = isMobileView ? Math.min(C.W - 60, 260) : 320;
-                    const userBoxHeight = isMobileView ? 45 : 50;
-                    const userBoxX = C.W / 2 - userBoxWidth / 2;
-                    
-                    ctx.fillStyle = bgColor;
-                    ctx.beginPath();
-                    ctx.roundRect(userBoxX, yPos - 25, userBoxWidth, userBoxHeight, 8);
-                    ctx.fill();
-
-                    // Score utilisateur - adaptatif
-                    ctx.font = `bold ${isMobileView ? 16 : 18}px "Segoe UI", system-ui, sans-serif`;
-                    ctx.fillStyle = '#1e293b';
-                    ctx.fillText(userBestScore.score.toLocaleString() + ' pts', C.W / 2, yPos - 5);
-
-                    // ✅ Niveau et énigmes - version mobile simplifiée
-                    if (donnees && donnees.sagesse) {
-                        const niveau = getNiveauSagesse(donnees.sagesse);
-                        ctx.font = `${isMobileView ? 11 : 13}px "Segoe UI", system-ui, sans-serif`;
-                        ctx.fillStyle = '#64748b';
-                        
-                        if (isMobileView) {
-                            // Mobile: version compacte sans sagesse en nombre
-                            const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                            ctx.fillText(niveau.icone + ' ' + niveau.titre + enigmesInfo, C.W / 2, yPos + 12);
-                        } else {
-                            // Desktop: version complète
-                            const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                            ctx.fillText(niveau.icone + ' ' + niveau.titre + ' • ' + donnees.sagesse + '💎' + enigmesInfo, C.W / 2, yPos + 12);
-                        }
-                    }
-
-                    yPos += isMobileView ? 48 : 55;
-                }
-
-                // ✅ Texte cliquable surligné "🏆 Scores Mondial" (lien vers emmanuel-artist-module.html)
-                const titreText = getTranslatedText('ui.scores_title', '🏆 Scores Mondial');
-                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
-                const titreMetrics = ctx.measureText(titreText);
-                const titreWidth = titreMetrics.width;
-                
-                // Position du texte
-                const textX = C.W / 2;
-                const textY = yPos;
-                
-                // ✅ Fond surligné derrière le texte (comme un surlignage)
-                const highlightPadding = 8;
-                const highlightWidth = titreWidth + (highlightPadding * 2);
-                const highlightHeight = 24;
-                const highlightX = textX - highlightWidth / 2;
-                const highlightY = textY - 18;
-                
-                ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; // Surlignage bleu léger
-                ctx.beginPath();
-                ctx.roundRect(highlightX, highlightY, highlightWidth, highlightHeight, 4);
-                ctx.fill();
-                
-                // ✅ Texte bleu
-                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#3b82f6';
-                ctx.textAlign = 'center';
-                ctx.fillText(titreText, textX, textY);
-                
-                // 🔄 BOUTON REFRESH (petit, discret à droite du titre)
-                const refreshSize = 20;
-                const refreshX = highlightX + highlightWidth + 10;
-                const refreshY = highlightY + (highlightHeight - refreshSize) / 2;
-                
-                // Déterminer si en cours de chargement
-                const isRefreshing = loadingLeaderboard;
-                const cacheAge = Date.now() - leaderboardCache.lastFetch;
-                const cacheAgeMin = Math.floor(cacheAge / 60000);
-                const isCacheOld = cacheAge > 2 * 60 * 1000; // Plus de 2 minutes
-                
-                // Fond du bouton (orange si cache vieux, vert sinon)
-                ctx.fillStyle = isCacheOld ? 'rgba(249, 115, 22, 0.15)' : 'rgba(34, 197, 94, 0.1)';
-                if (menuEnigmesCanvas.refreshButtonHover) {
-                    ctx.fillStyle = isCacheOld ? 'rgba(249, 115, 22, 0.25)' : 'rgba(34, 197, 94, 0.2)';
-                }
-                ctx.beginPath();
-                ctx.arc(refreshX + refreshSize / 2, refreshY + refreshSize / 2, refreshSize / 2 + 3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Icône refresh (rotation si en cours)
-                ctx.save();
-                ctx.translate(refreshX + refreshSize / 2, refreshY + refreshSize / 2);
-                if (isRefreshing) {
-                    const rotation = (Date.now() % 1000) / 1000 * Math.PI * 2;
-                    ctx.rotate(rotation);
-                }
-                ctx.font = '16px "Segoe UI"';
-                ctx.fillStyle = isCacheOld ? '#f97316' : '#22c55e';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('🔄', 0, 0);
-                ctx.restore();
-                
-                // Stocker zone cliquable
-                menuEnigmesCanvas.refreshButton = {
-                    x: refreshX,
-                    y: refreshY,
-                    width: refreshSize + 6,
-                    height: refreshSize + 6,
-                    centerX: refreshX + refreshSize / 2,
-                    centerY: refreshY + refreshSize / 2
-                };
-                
-                // Afficher l'âge du cache (petit texte discret)
-                if (cacheAgeMin > 0 && !isRefreshing) {
-                    ctx.font = '9px "Segoe UI", system-ui, sans-serif';
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`${cacheAgeMin}min`, refreshX + refreshSize + 8, refreshY + refreshSize / 2 + 3);
-                }
-                
-                // ✅ Stocker les coordonnées pour la détection de clic (coordonnées absolues canvas)
-                if (!menuEnigmesCanvas.titleLeaderboard) menuEnigmesCanvas.titleLeaderboard = {};
-                menuEnigmesCanvas.titleLeaderboard = {
-                    x: highlightX,
-                    y: highlightY, 
-                    width: highlightWidth,
-                    height: highlightHeight,
-                    centerY: yPos
-                };
-                
-                // 🔧 LOG DE DEBUG PERMANENT
-                console.log('📝 Titre créé:', {
-                    titre: titreText,
-                    zone: menuEnigmesCanvas.titleLeaderboard,
-                    canvas: { menuX, menuY, C_W: C.W, C_H: C.H }
-                });
-                
-                // Ajuster yPos après le texte surligné
-                yPos += 30;
-
-                // Vérifier si les données sont chargées
-                if (loadingLeaderboard) {
-                    ctx.font = '16px "Segoe UI", system-ui, sans-serif';
-                    ctx.fillStyle = '#64748b';
-                    ctx.fillText(getTranslatedText('interface.system.loading', '⏳ Chargement...'), C.W / 2, yPos + 60);
-                } else if (!leaderboardData || leaderboardData.length === 0) {
-                    ctx.font = '16px "Segoe UI", system-ui, sans-serif';
-                    ctx.fillStyle = '#64748b';
-                    ctx.fillText(getTranslatedText('interface.menus.no_score_recorded', 'Aucun score enregistré'), C.W / 2, yPos + 40);
-                    yPos += 70;
-                    ctx.font = '18px "Segoe UI", system-ui, sans-serif';
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.fillText(getTranslatedText('game.quotes.be_first', 'Soyez le premier à terminer le jeu !'), C.W / 2, yPos);
-                } else {
-                    // ✅ AFFICHAGE OPTIMISÉ MOBILE DES SCORES - Layout adaptatif AVEC SCROLLING
-                    ctx.textAlign = 'left';
-                    
-                    // 📱 OPTIMISATION MOBILE: Adapter l'espacement selon la largeur
-                    const isMobileView = C.W < 500;
-                    const startX = menuX + (isMobileView ? 15 : 40);
-                    const lineHeight = isMobileView ? 48 : 55; // Plus compact sur mobile
-                    const fontSize = isMobileView ? 13 : 16; // Texte plus petit sur mobile
-                    const pseudoMaxLength = isMobileView ? 10 : 15; // Pseudo plus court sur mobile
-                    
-                    // 📜 SCROLLING: Adapter le nombre de joueurs visibles selon la hauteur disponible
-                    const availableHeight = menuY + menuHeight - yPos - 70; // Hauteur dispo pour la liste
-                    const maxVisiblePlayers = Math.max(5, Math.floor(availableHeight / lineHeight));
-                    menuEnigmesCanvas.leaderboardScroll.maxVisible = maxVisiblePlayers;
-                    menuEnigmesCanvas.leaderboardScroll.totalItems = leaderboardData.length;
-                    
-                    // Calculer le slice à afficher
-                    const startIndex = menuEnigmesCanvas.leaderboardScroll.offset;
-                    const endIndex = Math.min(startIndex + maxVisiblePlayers, leaderboardData.length);
-                    const visibleData = leaderboardData.slice(startIndex, endIndex);
-                    
-                    // Zone de la liste pour le clipping
-                    const listStartY = yPos;
-                    const listHeight = maxVisiblePlayers * lineHeight;
-                    
-                    // Clipping pour éviter débordement
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(menuX, listStartY - 30, menuWidth, listHeight + 5);
-                    ctx.clip();
-
-                    visibleData.forEach((entry, visibleIndex) => {
-                        const index = startIndex + visibleIndex; // Index réel dans leaderboardData
-                        // Position et rang
-                        let medal = '';
-                        if (index === 0) medal = '🥇';
-                        else if (index === 1) medal = '🥈';
-                        else if (index === 2) medal = '🥉';
-                        else medal = `${index + 1}.`;
-
-                        // ✅ Fond coloré amélioré selon le niveau de sagesse
-                        const donnees = entry.donnees_extra;
-                        let bgColor = index % 2 === 0 ? 'rgba(0, 0, 0, 0.03)' : 'rgba(0, 0, 0, 0.01)';
-                        if (donnees && donnees.sagesse) {
-                            const niveau = getNiveauSagesse(donnees.sagesse);
-                            const hex = niveau.couleur.replace('#', '');
-                            const r = parseInt(hex.substr(0, 2), 16);
-                            const g = parseInt(hex.substr(2, 2), 16);
-                            const b = parseInt(hex.substr(4, 2), 16);
-                            bgColor = `rgba(${r}, ${g}, ${b}, 0.08)`;
-                        }
-                        ctx.fillStyle = bgColor;
-                        
-                        // ✅ Rectangle arrondi pour chaque entrée
-                        const entryX = menuX + (isMobileView ? 10 : 25);
-                        const entryWidth = menuWidth - (isMobileView ? 20 : 50);
-                        const entryHeight = lineHeight - 5;
-                        const entryY = yPos - (isMobileView ? 24 : 28);
-                        
-                        ctx.beginPath();
-                        ctx.roundRect(entryX, entryY, entryWidth, entryHeight, 6);
-                        ctx.fill();
-
-                        // Médaille/Rang - plus petit sur mobile
-                        ctx.font = `bold ${isMobileView ? 13 : 16}px "Segoe UI", system-ui, sans-serif`;
-                        ctx.fillStyle = '#1e293b';
-                        ctx.fillText(medal, startX, yPos);
-
-                        // Avatar (si présent) - plus petit sur mobile
-                        const avatar = entry.users?.avatar || donnees?.avatar;
-                        let pseudoX = startX + (isMobileView ? 28 : 35);
-                        if (avatar) {
-                            ctx.font = `${isMobileView ? 15 : 18}px "Segoe UI", system-ui, sans-serif`;
-                            ctx.fillText(avatar, startX + (isMobileView ? 25 : 35), yPos);
-                            pseudoX = startX + (isMobileView ? 45 : 58);
-                        }
-
-                        // Pseudo (tronqué adaptatif selon taille écran)
-                        ctx.font = `${isMobileView ? 13 : 15}px "Segoe UI", system-ui, sans-serif`;
-                        ctx.fillStyle = '#475569';
-                        const pseudo = entry.users?.pseudo || donnees?.pseudo || 'Anonyme';
-                        const displayPseudo = pseudo.length > pseudoMaxLength ? pseudo.substring(0, pseudoMaxLength) + '...' : pseudo;
-                        ctx.fillText(displayPseudo, pseudoX, yPos);
-
-                        // ✅ Niveau de sagesse - Conditionnel sur mobile
-                        if (donnees && donnees.sagesse) {
-                            const niveau = getNiveauSagesse(donnees.sagesse);
-                            
-                            if (!isMobileView) {
-                                // Version desktop complète
-                                ctx.font = '11px "Segoe UI", system-ui, sans-serif';
-                                ctx.fillStyle = '#94a3b8';
-                                const enigmesInfo = donnees.enigmes ? ` • ${donnees.enigmes}/18🧩` : '';
-                                const infoText = `${niveau.icone} ${niveau.titre}${enigmesInfo}`;
-                                ctx.fillText(infoText, pseudoX, yPos + 18);
-
-                                // Badges spéciaux
-                                const badges = getBadges(donnees, index === 0, donnees.enigmes);
-                                if (badges.length > 0) {
-                                    let badgeX = menuX + menuWidth - 140;
-                                    badges.forEach((badge, badgeIndex) => {
-                                        if (badgeIndex < 3) {
-                                            ctx.font = '12px "Segoe UI", system-ui, sans-serif';
-                                            ctx.fillStyle = '#f39c12';
-                                            ctx.fillText(badge.icone, badgeX, yPos + 18);
-                                            badgeX += 16;
-                                        }
-                                    });
-                                }
-                            } else {
-                                // 📱 Version mobile simplifiée - juste icône niveau
-                                ctx.font = '9px "Segoe UI", system-ui, sans-serif';
-                                ctx.fillStyle = '#94a3b8';
-                                ctx.fillText(`${niveau.icone}`, pseudoX, yPos + 14);
-                            }
-                        }
-
-                        // ✅ Score positionné adaptatif
-                        ctx.font = `bold ${isMobileView ? 13 : 16}px "Segoe UI", system-ui, sans-serif`;
-                        ctx.fillStyle = '#3b82f6';
-                        ctx.textAlign = 'right';
-                        const scoreText = isMobileView ? entry.score.toLocaleString() : entry.score.toLocaleString() + ' pts';
-                        ctx.fillText(scoreText, menuX + menuWidth - (isMobileView ? 15 : 30), yPos - (isMobileView ? 2 : 5));
-                        ctx.textAlign = 'left';
-
-                        yPos += lineHeight;
-                    });
-                    
-                    ctx.restore(); // Fin du clipping
-                    
-                    // 📜 SCROLLBAR si plus de joueurs que visible
-                    if (leaderboardData.length > maxVisiblePlayers) {
-                        const scrollbarX = menuX + menuWidth - 15;
-                        const scrollbarY = listStartY - 25;
-                        const scrollbarHeight = listHeight - 10;
-                        const scrollbarWidth = menuEnigmesCanvas.leaderboardScroll.scrollbarWidth;
-                        
-                        // Fond scrollbar
-                        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-                        ctx.beginPath();
-                        ctx.roundRect(scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight, 4);
-                        ctx.fill();
-                        
-                        // Thumb scrollbar
-                        const scrollRatio = maxVisiblePlayers / leaderboardData.length;
-                        const thumbHeight = Math.max(30, scrollbarHeight * scrollRatio);
-                        const scrollProgress = startIndex / (leaderboardData.length - maxVisiblePlayers);
-                        const thumbY = scrollbarY + (scrollbarHeight - thumbHeight) * scrollProgress;
-                        
-                        ctx.fillStyle = menuEnigmesCanvas.leaderboardScroll.scrollbarHover ? 
-                            'rgba(59, 130, 246, 0.6)' : 'rgba(0, 0, 0, 0.3)';
-                        ctx.beginPath();
-                        ctx.roundRect(scrollbarX, thumbY, scrollbarWidth, thumbHeight, 4);
-                        ctx.fill();
-                        
-                        // Stocker la zone scrollbar pour les interactions
-                        menuEnigmesCanvas.leaderboardScroll.scrollbarArea = {
-                            x: scrollbarX,
-                            y: scrollbarY,
-                            width: scrollbarWidth,
-                            height: scrollbarHeight,
-                            thumbY: thumbY,
-                            thumbHeight: thumbHeight
-                        };
-                        
-                        // Indicateur de défilement
-                        if (startIndex > 0 || endIndex < leaderboardData.length) {
-                            ctx.font = '11px "Segoe UI", system-ui, sans-serif';
-                            ctx.fillStyle = '#94a3b8';
-                            ctx.textAlign = 'center';
-                            const rangeText = `${startIndex + 1}-${endIndex} / ${leaderboardData.length}`;
-                            ctx.fillText(rangeText, C.W / 2, listStartY + listHeight + 15);
-                        }
-                    }
-                }
-
-                // ✅ Message de motivation avec design moderne adaptatif
-                yPos = menuY + menuHeight - 50;
-                ctx.textAlign = 'center';
-                
-                // 📱 Adapter la taille selon l'écran
-                const isMobileView = C.W < 500;
-                ctx.font = `${isMobileView ? 11 : 13}px "Segoe UI", system-ui, sans-serif`;
-                
-                const motivationText = getTranslatedText('ui.complete_game_save_score', 
-                    'Terminez le jeu pour enregistrer votre score !');
-                const textMetrics = ctx.measureText(motivationText);
-                const textWidth = textMetrics.width;
-                const padding = isMobileView ? 8 : 12;
-                const boxHeight = isMobileView ? 24 : 28;
-                
-                const boxX = C.W / 2 - textWidth / 2 - padding;
-                const boxY = yPos - boxHeight / 2;
-                const boxW = textWidth + padding * 2;
-                
-                // ✅ Fond rose moderne avec roundRect
-                ctx.fillStyle = 'rgba(255, 182, 193, 0.25)';
-                ctx.beginPath();
-                ctx.roundRect(boxX, boxY, boxW, boxHeight, isMobileView ? 10 : 14);
-                ctx.fill();
-                
-                // Bordure
-                ctx.strokeStyle = 'rgba(255, 105, 180, 0.4)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // Texte
-                ctx.fillStyle = '#6b7280';
-                ctx.fillText(motivationText, C.W / 2, yPos + 4);
-
+                // L'ancien onglet de classement devient l'atelier de cartes de score.
+                menuEnigmesCanvas.titleLeaderboard = null;
+                menuEnigmesCanvas.refreshButton = null;
+                menuEnigmesCanvas.leaderboardScroll.scrollbarArea = null;
+                const cx = menuX + menuWidth / 2;
+                const start = menuY + Math.min(90, menuHeight * .2);
+                ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#294653'; ctx.font = `bold ${menuWidth < 350 ? 22 : 27}px Georgia`;
+                ctx.fillText(getTranslatedText('score_share.menu_title', 'Mon voyage en image'), cx, start, menuWidth - 30);
+                PixelSprites.draw(ctx, 'boat', cx - 37, start + 58, 64);
+                NavigationMenu.icon(ctx, 'compass', cx + 18, start + 35, 40);
+                ctx.font = '18px Georgia';
+                const total = (Number.isFinite(score) ? score : 0) + (pointsConnaissance || 0);
+                ctx.fillText(getTranslatedText('score_share.total', 'MON SCORE') + ' : ' + total.toLocaleString(), cx, start + 116, menuWidth - 30);
+                const button = {x: menuX + 20, y: Math.min(start + 149, menuY + menuHeight - 100), width: menuWidth - 40, height: 48};
+                menuEnigmesCanvas.shareButton = button;
+                ctx.fillStyle = '#294a55'; ctx.fillRect(button.x, button.y, button.width, button.height);
+                ctx.font = 'bold 17px Georgia'; ctx.fillStyle = '#fff0d1';
+                ctx.fillText(getTranslatedText('score_share.create', 'Créer ma carte à partager'), cx, button.y + 24, button.width - 20);
+                ctx.fillStyle = '#6e6655'; ctx.font = '14px Georgia';
+                ctx.fillText(getTranslatedText('score_share.menu_hint', 'Un bateau, un phare, ton score.'), cx, button.y + button.height + 18, menuWidth - 28);
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'langues') {
                 // Nouvel design : boutons sur les bords reliés par des phrases d'amour
@@ -5121,14 +4781,14 @@ if (!MODE_DEV) {
                 let yPos = menuY + 80;
 
                 // Titre avec cœur
-                ctx.font = 'bold 24px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 24px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#98483f';
                 ctx.fillText(getTranslatedText('game.canvas.languages_heart', '💝 Langues du Cœur 💝'), C.W / 2, yPos);
                 yPos += 35;
 
                 // Phrase d'introduction
-                ctx.font = '16px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#64748b';
+                ctx.font = '16px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#6e6655';
                 ctx.fillText(getTranslatedText('game.canvas.languages_message', 'Chaque langue porte l\'amour et la paix du monde'), C.W / 2, yPos);
                 yPos += 55;
 
@@ -5158,13 +4818,13 @@ if (!MODE_DEV) {
                 const currentLangData = languagesWithLove[currentLang] || languagesWithLove['fr'];
 
                 // Afficher la langue actuelle au centre
-                ctx.font = 'bold 18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 18px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#98483f';
                 ctx.fillText(`💖 ${currentFlag} ${currentLangData.name} 💖`, C.W / 2, yPos);
                 yPos += 30;
                 
-                ctx.font = 'italic 15px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#e11d48';
+                ctx.font = 'italic 15px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#98483f';
                 ctx.fillText(`"${currentLangData.love}"`, C.W / 2, yPos);
                 yPos += 65;
 
@@ -5205,13 +4865,13 @@ if (!MODE_DEV) {
                 ctx.setLineDash([]);
 
                 // Dessiner le cœur central
-                ctx.font = '48px "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#dc2626';
-                ctx.fillText('💗', centerX, centerY + 15);
+                ctx.font = '48px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#98483f';
+                PixelSprites.text(ctx, '💗', centerX, centerY + 15);
 
                 // Texte central "Amour Universel" AU-DESSUS du cœur
-                ctx.font = 'bold 18px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 18px Georgia, "Times New Roman", serif';
+                ctx.fillStyle = '#293f48';
                 ctx.fillText(getTranslatedText('game.canvas.love', 'Amour'), centerX, centerY - 30);
                 ctx.fillText(getTranslatedText('game.canvas.universal', 'Universel'), centerX, centerY - 12);
 
@@ -5238,7 +4898,7 @@ if (!MODE_DEV) {
                         : menuEnigmesCanvas.gradientsCache.languesInactif;
                     
                     ctx.fillStyle = gradient;
-                    ctx.strokeStyle = btn.isActive ? '#3b82f6' : '#d1d5db'; // Bleu moderne ou gris
+                    ctx.strokeStyle = btn.isActive ? '#365e6a' : '#d1d5db'; // Bleu moderne ou gris
                     ctx.lineWidth = btn.isActive ? 3 : 2;
 
                     // Ombre moderne subtile
@@ -5283,7 +4943,7 @@ if (!MODE_DEV) {
 
                     // Drapeau ENCORE PLUS GRAND et parfaitement centré dans le cercle
                     const flag = flags[btn.code] || '🌍';
-                    ctx.font = '26px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif'; // Encore plus grand
+                    ctx.font = '26px Georgia, "Times New Roman", serif'; // Encore plus grand
                     ctx.fillStyle = btn.isActive ? '#1f2937' : '#4b5563'; // Gris foncé moderne
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -5292,7 +4952,7 @@ if (!MODE_DEV) {
                     ctx.fillText(`${flag}`, centerX, centerY);
                     
                     // Nom de la langue sous le cercle (externe)
-                    ctx.font = 'bold 11px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif'; // Plus grand
+                    ctx.font = 'bold 11px Georgia, "Times New Roman", serif'; // Plus grand
                     ctx.fillStyle = btn.isActive ? '#1f2937' : '#6b7280';
                     ctx.textBaseline = 'top';
                     
@@ -5308,7 +4968,7 @@ if (!MODE_DEV) {
                         const textY = centerY - radius - 35;
                         
                         // Fond moderne blanc pour la phrase
-                        ctx.font = 'italic 13px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif'; // Plus grand
+                        ctx.font = 'italic 13px Georgia, "Times New Roman", serif'; // Plus grand
                         const textMetrics = ctx.measureText(`"${btn.love}"`);
                         const textWidth = textMetrics.width + 24; // Plus d'espace
                         const textHeight = 28; // Plus haut
@@ -5318,11 +4978,11 @@ if (!MODE_DEV) {
                             textX - textWidth/2, textY - textHeight/2,
                             textX + textWidth/2, textY + textHeight/2
                         );
-                        phraseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+                        phraseGradient.addColorStop(0, '#f2e5c9');
                         phraseGradient.addColorStop(1, 'rgba(248, 250, 252, 0.95)');
                         
                         ctx.fillStyle = phraseGradient;
-                        ctx.strokeStyle = '#3b82f6'; // Bordure bleue moderne
+                        ctx.strokeStyle = '#365e6a'; // Bordure bleue moderne
                         ctx.lineWidth = 2;
                         
                         // Ombre moderne pour la bulle
@@ -5355,13 +5015,13 @@ if (!MODE_DEV) {
                         ctx.roundRect(textX - textWidth/2, textY - textHeight/2, textWidth/2, textHeight/2, 12);
                         ctx.fill();
                         
-                        ctx.font = 'italic 13px "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif'; // Police moderne cohérente
+                        ctx.font = 'italic 13px Georgia, "Times New Roman", serif'; // Police moderne cohérente
                         ctx.fillStyle = '#374151'; // Gris foncé moderne
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         
                         // Contour blanc subtil pour la phrase
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.strokeStyle = 'rgba(212, 191, 151, 0.42)';
                         ctx.lineWidth = 1;
                         ctx.strokeText(`"${btn.love}"`, textX, textY);
                         ctx.fillText(`"${btn.love}"`, textX, textY);
@@ -5389,11 +5049,11 @@ if (!MODE_DEV) {
 
                 // Arrière-plan de la ligne - style blanc lumineux
                 if (isCollected) {
-                    ctx.fillStyle = card.hover ? 'rgba(100, 200, 100, 0.15)' : 'rgba(100, 200, 100, 0.08)';
-                    ctx.strokeStyle = '#4CAF50';
+                    ctx.fillStyle = card.hover ? 'rgba(73, 105, 89, 0.16)' : 'rgba(73, 105, 89, 0.08)';
+                    ctx.strokeStyle = '#58705b';
                 } else {
-                    ctx.fillStyle = card.hover ? 'rgba(200, 200, 200, 0.3)' : 'rgba(230, 230, 230, 0.5)';
-                    ctx.strokeStyle = '#ccc';
+                    ctx.fillStyle = card.hover ? 'rgba(176, 143, 94, 0.22)' : 'rgba(176, 143, 94, 0.10)';
+                    ctx.strokeStyle = '#bca37a';
                 }
 
                 ctx.lineWidth = 1;
@@ -5406,21 +5066,21 @@ if (!MODE_DEV) {
                 ctx.font = '56px Arial';
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
-                ctx.fillStyle = isCollected ? '#333' : '#aaa';
+                ctx.fillStyle = isCollected ? '#344d55' : '#857966';
                 // ⚡ OPTIMISATION: Utiliser cache icône
                 const cachedEnigme = menuEnigmesCanvas.enigmeTextesCache[card.id] || card.enigme;
-                ctx.fillText(cachedEnigme.icone, card.x + 15, y + card.height/2);
+                PixelSprites.text(ctx, cachedEnigme.icone, card.x + 15, y + card.height/2);
 
                 // Nom au centre - PLUS GROS ET GRAS
-                ctx.font = 'bold 26px Arial';
-                ctx.fillStyle = isCollected ? '#222' : '#999';
+                ctx.font = 'bold 22px Georgia';
+                ctx.fillStyle = isCollected ? '#293f48' : '#776e5e';
                 // ⚡ OPTIMISATION: Utiliser cache nom (évite appel function)
                 ctx.fillText(cachedEnigme.nom, card.x + 90, y + card.height/2 - 10);
 
                 // Description en dessous (si collectée) - PLUS GROSSE
                 if (isCollected) {
-                    ctx.font = '18px Arial';
-                    ctx.fillStyle = '#666';
+                    ctx.font = '18px Georgia';
+                    ctx.fillStyle = '#675f51';
                     const maxWidth = card.width - 140; // Réduit pour laisser place à la flèche
                     // ⚡ OPTIMISATION: Utiliser cache description (évite appel function)
                     const description = cachedEnigme.description;
@@ -5441,7 +5101,7 @@ if (!MODE_DEV) {
                     const arrowY = y + card.height/2;
                     ctx.font = '28px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillStyle = '#58705b';
                     ctx.fillText(isExpanded ? '▲' : '▼', arrowX, arrowY);
                 }
 
@@ -5465,15 +5125,15 @@ if (!MODE_DEV) {
                         const cachedTexts = menuEnigmesCanvas.enigmeTextesCache[expandedCard.id] || enigme;
                         
                         // Préparer les textes - AJUSTÉ POUR MEILLEURE LISIBILITÉ
-                        ctx.font = 'italic 17px Arial';
+                        ctx.font = 'italic 17px Georgia';
                         const mystereText = `💭 ${cachedTexts.mystere}`;
                         menuEnigmesCanvas.expandedCardCache.mystereLines = wrapText(ctx, mystereText, maxWidth);
                         
-                        ctx.font = '17px Arial';
+                        ctx.font = '17px Georgia';
                         const revelationText = `✨ ${cachedTexts.revelation}`;
                         menuEnigmesCanvas.expandedCardCache.revelationLines = wrapText(ctx, revelationText, maxWidth);
                         
-                        ctx.font = 'italic 15px Arial';
+                        ctx.font = 'italic 15px Georgia';
                         const sagesseText = `📖 ${cachedTexts.sagesse}`;
                         menuEnigmesCanvas.expandedCardCache.sagesseLines = wrapText(ctx, sagesseText, maxWidth);
                         
@@ -5499,7 +5159,7 @@ if (!MODE_DEV) {
                     // Dessiner le fond du panneau déroulant avec HAUTEUR DYNAMIQUE
                     ctx.save();
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
-                    ctx.strokeStyle = '#4CAF50';
+                    ctx.strokeStyle = '#58705b';
                     ctx.lineWidth = 2;
                     
                     // Ombre pour effet "par-dessus"
@@ -5522,8 +5182,8 @@ if (!MODE_DEV) {
                     let currentY = y + padding + 20;
                     
                     // Mystère - AJUSTÉ
-                    ctx.font = 'italic 17px Arial';
-                    ctx.fillStyle = '#555';
+                    ctx.font = 'italic 17px Georgia';
+                    ctx.fillStyle = '#615847';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'top';
                     mystereLines.forEach(line => {
@@ -5533,7 +5193,7 @@ if (!MODE_DEV) {
                     currentY += sectionSpacing;
                     
                     // Révélation - AJUSTÉ
-                    ctx.font = '17px Arial';
+                    ctx.font = '17px Georgia';
                     ctx.fillStyle = '#2d5016';
                     revelationLines.forEach(line => {
                         ctx.fillText(line, expandedCard.x + padding, currentY);
@@ -5542,7 +5202,7 @@ if (!MODE_DEV) {
                     currentY += sectionSpacing;
                     
                     // Sagesse - AJUSTÉ
-                    ctx.font = 'italic 15px Arial';
+                    ctx.font = 'italic 15px Georgia';
                     ctx.fillStyle = '#777';
                     sagesseLines.forEach(line => {
                         ctx.fillText(line, expandedCard.x + padding, currentY);
@@ -6601,6 +6261,7 @@ if (!MODE_DEV) {
                 C.PW = Math.max(size.width * 0.3, 100);
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
+                recalerBateauApresResize();
                 // Effacer le message narratif de la phase 23
                 messageNarratifActif = null;
 
@@ -6743,7 +6404,7 @@ if (!MODE_DEV) {
                                     const random = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0'); // Random en hex
                                     const idUnique = `PB${timestamp}${random}`.toUpperCase();
 
-                                    // Afficher le formulaire Supabase avec callback
+                                    // Afficher la carte de score à partager
                                     if (typeof afficherFormulaireFinDeJeuAvecResume === 'function') {
                                         afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique, true); // ✅ Phase 23 = true
                                     } else {
@@ -8378,81 +8039,30 @@ if (!MODE_DEV) {
         let droneModule = null;
 
         // ===============================================
-        // INITIALISATION SUPABASE
-        // ===============================================
-        let supabaseScores = null;
-        let leaderboardData = null;
-        let loadingLeaderboard = false;
-        let userBestScore = null; // Meilleur score de l'utilisateur connecté
-        
-        // 🚀 CACHE OPTIMISÉ pour limiter les requêtes DB
-        const leaderboardCache = {
-            data: null,
-            lastFetch: 0,
-            cacheDuration: 5 * 60 * 1000, // 5 minutes de cache
-            isValid() {
-                return this.data && (Date.now() - this.lastFetch < this.cacheDuration);
-            },
-            set(data) {
-                this.data = data;
-                this.lastFetch = Date.now();
-            },
-            invalidate() {
-                this.lastFetch = 0;
-            }
-        };
-
-        // Initialiser Supabase au démarrage
-        setTimeout(async () => {
-            if (typeof SupabaseScores !== 'undefined') {
-                supabaseScores = new SupabaseScores();
-
-                // Attendre que le client soit prêt (augmentation du délai)
-                setTimeout(async () => {
-                    // Vérifier que le client est bien initialisé
-                    if (supabaseScores && supabaseScores.client) {
-                        await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
-
-                        // Charger le classement initial
-                        await chargerClassement();
-                    } else {
-                        console.warn('⏳ Client Supabase pas encore prêt, nouvelle tentative...');
-                        setTimeout(async () => {
-                            if (supabaseScores && supabaseScores.client) {
-                                await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
-                                await chargerClassement();
-                            }
-                        }, 2000);
-                    }
-                }, 3000);
-            }
-        }, 1000);
-
-        // Fonction pour charger le classement (avec cache optimisé)
-        async function chargerClassement(forceRefresh = false) {
-            if (!supabaseScores) return;
-            
-            // 🚀 CACHE: Utiliser les données en cache si valides
-            if (!forceRefresh && leaderboardCache.isValid()) {
-                console.log('📦 Classement chargé depuis le cache (économie requête DB)');
-                leaderboardData = leaderboardCache.data;
-                return;
-            }
-
-            loadingLeaderboard = true;
-            try {
-                // 🎯 OPTIMISATION: Limiter à 50 scores max (au lieu de tout charger)
-                leaderboardData = await supabaseScores.getLeaderboard(50);
-                
-                // Mettre en cache
-                leaderboardCache.set(leaderboardData);
-                console.log(`✅ Classement chargé: ${leaderboardData.length} scores (mis en cache 5min)`);
-            } catch (error) {
-                console.error('❌ Erreur chargement classement:', error);
-                leaderboardData = [];
-            }
-            loadingLeaderboard = false;
+        // PARTAGE LOCAL DES SCORES — aucune connexion à une base de données.
+        // Compatibilité avec les anciens gestionnaires de défilement, désormais inactifs.
+        const leaderboardData = [];
+        function partagerScoreActuel() {
+            const xp = pointsConnaissance || 0;
+            const scoreJeu = Number.isFinite(score) ? score : 0;
+            ScoreShare.open({xp, score: scoreJeu, total: xp + scoreJeu,
+                wisdom: Math.round((xp + scoreJeu) / 100)});
         }
+
+        function activerCarteScore(event) {
+            if (!menuEnigmesCanvas.visible || menuEnigmesCanvas.ongletActif !== 'classement') return;
+            const point = event.changedTouches ? event.changedTouches[0] : event;
+            if (!point || !menuEnigmesCanvas.shareButton) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (point.clientX - rect.left) * C.W / rect.width;
+            const y = (point.clientY - rect.top) * C.H / rect.height;
+            const b = menuEnigmesCanvas.shareButton;
+            if (x < b.x || x > b.x + b.width || y < b.y || y > b.y + b.height) return;
+            event.preventDefault(); event.stopImmediatePropagation();
+            partagerScoreActuel();
+        }
+        canvas.addEventListener('click', activerCarteScore, {capture: true});
+        canvas.addEventListener('touchend', activerCarteScore, {capture: true, passive: false});
 
         // Système de niveaux de sagesse (15 niveaux thématiques)
         function getNiveauSagesse(scoreSagesse) {
@@ -8502,448 +8112,13 @@ if (!MODE_DEV) {
         // isPhase23Complete = true → Victoire Phase 23 (recommence Phase 2)
         // isPhase23Complete = false → Game Over (peut reprendre sauvegarde)
         function afficherFormulaireFinDeJeuAvecResume(xp, scoreJeu, scoreTotal, scoreSagesse, idUnique, isPhase23Complete = false) {
-            console.log('📝 afficherFormulaireFinDeJeuAvecResume appelée', { xp, scoreJeu, scoreTotal, scoreSagesse, idUnique, isPhase23Complete });
-            if (formulaireFinAffiche) {
-                console.warn('⚠️ Formulaire déjà affiché, on ne l\'affiche pas deux fois');
-                return;
-            }
+            if (formulaireFinAffiche) return;
             formulaireFinAffiche = true;
-            console.log('✅ Affichage du formulaire de fin de jeu...');
-
-            // Récupérer les dimensions du canvas avec fallback
-            let canvasWidth, canvasHeight, canvasLeft, canvasTop;
-            
-            const canvas = document.getElementById('gameCanvas');
-            if (canvas) {
-                const canvasRect = canvas.getBoundingClientRect();
-                canvasWidth = canvasRect.width;
-                canvasHeight = canvasRect.height;
-                canvasLeft = canvasRect.left;
-                canvasTop = canvasRect.top;
-            } else {
-                // Fallback si le canvas n'est pas disponible
-                canvasWidth = window.innerWidth;
-                canvasHeight = window.innerHeight;
-                canvasLeft = 0;
-                canvasTop = 0;
-            }
-
-            const html = `
-                <div id="formulaire-fin-overlay" style="position: fixed; top: ${canvasTop}px; left: ${canvasLeft}px; width: ${canvasWidth}px; height: ${canvasHeight}px; background: rgba(0,0,0,0.95); z-index: 20000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 10px;">
-                    <div style="background: white; padding: 20px; border-radius: 12px; max-width: 95%; width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin: auto; color: #1e293b;">
-                        <h2 style="margin: 0 0 12px 0; text-align: center; color: #1e293b; font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: 700;">
-                            ${isPhase23Complete ? getTranslatedText('ui.journey_completed_title', '🎉 Voyage terminé !') : getTranslatedText('ui.game_over_title', '⚓ Fin du voyage')}
-                        </h2>
-
-                        <!-- Résumé des scores - Version compacte -->
-                        <div style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; color: white;">
-                            <div style="display: flex; justify-content: space-around; gap: 8px; margin-bottom: 10px;">
-                                <div style="text-align: center; flex: 1;">
-                                    <div style="font-size: 20px;">💡</div>
-                                    <div style="font-size: 18px; font-weight: bold;">${xp}</div>
-                                    <div style="font-size: 10px; opacity: 0.9;">XP</div>
-                                </div>
-                                <div style="text-align: center; flex: 1;">
-                                    <div style="font-size: 20px;">🎯</div>
-                                    <div style="font-size: 18px; font-weight: bold;">${scoreJeu}</div>
-                                    <div style="font-size: 10px; opacity: 0.9;">${getTranslatedText('game.score_label', 'Score')}</div>
-                                </div>
-                                <div style="text-align: center; flex: 1;">
-                                    <div style="font-size: 20px;">💎</div>
-                                    <div style="font-size: 18px; font-weight: bold; color: #FFD700;">${scoreSagesse}</div>
-                                    <div style="font-size: 10px; opacity: 0.9;">${getTranslatedText('end_form.wisdom_score', 'Sagesse')}</div>
-                                </div>
-                            </div>
-                            <div style="text-align: center; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                                <div style="font-size: 11px; opacity: 0.9; margin-bottom: 3px;">${getTranslatedText('end_form.total_label', 'Total')}</div>
-                                <div style="font-size: 28px; font-weight: bold;">${scoreTotal}</div>
-                                <div style="font-size: 20px; margin-top: 5px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.icone; })()}</div>
-                                <div style="font-size: 12px; font-weight: 600; margin-top: 2px;">${(() => { const n = getNiveauSagesse(scoreSagesse); return n.titre; })()}</div>
-                            </div>
-                        </div>
-
-                        <p style="text-align: center; color: #64748b; margin-bottom: 12px; font-size: 13px;">${getTranslatedText('ui.save_score_ranking')}</p>
-
-                        <div style="margin: 10px 0;">
-                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.email_label">Email *</label>
-                            <input type="email" id="fin-email" data-i18n-placeholder="ui.form.email_placeholder" placeholder="votre@email.com" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; font-size: 15px; pointer-events: auto; touch-action: auto; user-select: text;" required>
-                        </div>
-
-                        <div style="margin: 10px 0;">
-                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.pseudo_label">Pseudo *</label>
-                            <input type="text" id="fin-pseudo" data-i18n-placeholder="ui.form.pseudo_placeholder" placeholder="Votre pseudo" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; font-size: 15px; pointer-events: auto; touch-action: auto; user-select: text;" required>
-                        </div>
-
-                        <div style="margin: 10px 0;">
-                            <label style="display: block; margin-bottom: 4px; color: #475569; font-size: 13px; font-weight: 600;" data-i18n="ui.form.avatar_label">Avatar</label>
-                            <div id="avatar-selector" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; padding: 8px; background: #f8fafc; border-radius: 8px; max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0;">
-                                <div class="avatar-option" data-avatar="⛵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⛵</div>
-                                <div class="avatar-option" data-avatar="✝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">✝️</div>
-                                <div class="avatar-option" data-avatar="☮️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">☮️</div>
-                                <div class="avatar-option" data-avatar="❤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">❤️</div>
-                                <div class="avatar-option" data-avatar="🌈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌈</div>
-                                <div class="avatar-option" data-avatar="⭐" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">⭐</div>
-                                <div class="avatar-option" data-avatar="🌙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">🌙</div>
-                                <div class="avatar-option" data-avatar="☀️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent;">☀️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🕊️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕊️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="👼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">👼</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦁" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦁</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦅" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦅</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦋</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌸" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌸</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌻" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌻</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🍀" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🍀</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌊" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌊</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛰️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛰️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🏝️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏝️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐱" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐱</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐶" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐶</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐼</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦊" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦊</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐢" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐢</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦉" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦉</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐉" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐉</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐯" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐯</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌹" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌹</div>
-                                <div class="avatar-option avatar-extra" data-avatar="💚" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💚</div>
-                                <div class="avatar-option avatar-extra" data-avatar="💙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💙</div>
-                                <div class="avatar-option avatar-extra" data-avatar="💛" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💛</div>
-                                <div class="avatar-option avatar-extra" data-avatar="💜" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💜</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🖤" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🖤</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🤍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🤍</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦄" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦄</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐙" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐙</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐝" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐝</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐠" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐠</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦈" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦈</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐬" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐬</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🐳" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🐳</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦀" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦀</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦞" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦞</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🦐" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🦐</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛪</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🕌" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕌</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🛕" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🛕</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🕍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🕍</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛩️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛩️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🚢" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🚢</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🛟" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🛟</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⚓" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⚓</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🧭" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🧭</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🗿" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🗿</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🗻" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🗻</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🏔️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏔️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌋</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🏖️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏖️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🏜️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🏜️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌺" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌺</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌷" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌷</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌼" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌼</div>
-                                <div class="avatar-option avatar-extra" data-avatar="☘️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☘️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌿" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌿</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🍃" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🍃</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌴" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌴</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌵" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌵</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌾" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌾</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎋" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎋</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎍" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎍</div>
-                                <div class="avatar-option avatar-extra" data-avatar="✨" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">✨</div>
-                                <div class="avatar-option avatar-extra" data-avatar="💫" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">💫</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌟" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌟</div>
-                                <div class="avatar-option avatar-extra" data-avatar="☄️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☄️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="☁️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☁️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛅" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛅</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌤️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌤️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛈️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛈️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🌩️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🌩️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⚡" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⚡</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🔥" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🔥</div>
-                                <div class="avatar-option avatar-extra" data-avatar="❄️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">❄️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="☃️" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">☃️</div>
-                                <div class="avatar-option avatar-extra" data-avatar="⛄" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">⛄</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎨" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎨</div>
-                                <div class="avatar-option avatar-extra" data-avatar="📖" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">📖</div>
-                                <div class="avatar-option avatar-extra" data-avatar="📚" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">📚</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎭" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎭</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎪" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎪</div>
-                                <div class="avatar-option avatar-extra" data-avatar="🎬" style="font-size: 24px; text-align: center; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; border: 2px solid transparent; display: none;">🎬</div>
-                            </div>
-                            <button id="btn-more-avatars" style="width: 100%; margin-top: 6px; padding: 6px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;">+ Plus d'avatars (64)</button>
-                            <input type="hidden" id="fin-avatar" value="">
-                        </div>
-
-                        <details style="margin: 10px 0; cursor: pointer; pointer-events: auto; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <summary style="color: #64748b; font-size: 12px; user-select: none; pointer-events: auto; cursor: pointer; font-weight: 600;" data-i18n="ui.form.optional_info">+ Infos optionnelles</summary>
-                            <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <input type="text" id="fin-ville" data-i18n-placeholder="ui.form.city_placeholder" placeholder="Ville" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
-                                <input type="text" id="fin-pays" data-i18n-placeholder="ui.form.country_placeholder" placeholder="Pays" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
-                                <input type="number" id="fin-age" data-i18n-placeholder="ui.form.age_placeholder" placeholder="Âge" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;" min="1" max="150">
-                                <select id="fin-genre" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 13px;">
-                                    <option value="">Genre</option>
-                                    <option value="Homme">Homme</option>
-                                    <option value="Femme">Femme</option>
-                                    <option value="Autre">Autre</option>
-                                </select>
-                            </div>
-                        </details>
-
-                        <div style="margin-top: 15px;">
-                            <button id="fin-enregistrer" data-i18n="ui.buttons.save_and_discover" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
-                                Enregistrer
-                            </button>
-                        </div>
-
-                        <div style="margin-top: 10px;">
-                            <button id="fin-passer" data-i18n="ui.buttons.skip_and_continue" style="width: 100%; padding: 12px; background: transparent; color: #94a3b8; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
-                                Passer
-                            </button>
-                        </div>
-
-                        <div id="fin-message" style="margin-top: 10px; text-align: center; font-size: 13px; font-weight: 600;"></div>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', html);
-
-            // 🌍 Appliquer les traductions aux nouveaux éléments DOM
-            if (window.i18n && typeof window.i18n.updateDOM === 'function') {
-                window.i18n.updateDOM();
-            }
-
-            // ❌ DÉSACTIVÉ : Ne pas permettre de fermer en cliquant sur le fond
-            // L'utilisateur doit cliquer sur "Enregistrer" ou "Passer" pour continuer
-            // (sinon il ne pourrait pas rouvrir le formulaire)
-
-            // Gestion de la sélection d'avatar
-            const avatarOptions = document.querySelectorAll('.avatar-option');
-            avatarOptions.forEach(option => {
-                option.addEventListener('click', async () => {
-                    // Retirer la sélection des autres
-                    avatarOptions.forEach(opt => {
-                        opt.style.background = 'transparent';
-                        opt.style.borderColor = 'transparent';
-                        opt.style.transform = 'scale(1)';
-                    });
-
-                    // Sélectionner celui-ci (rose)
-                    option.style.background = '#ec4899';
-                    option.style.borderColor = '#ec4899';
-                    option.style.transform = 'scale(1.1)';
-
-                    // Enregistrer la valeur
-                    document.getElementById('fin-avatar').value = option.getAttribute('data-avatar');
-                });
-
-                // Effet hover
-                option.addEventListener('mouseenter', () => {
-                    if (!option.style.background || option.style.background === 'transparent') {
-                        option.style.background = '#fce7f3';
-                    }
-                });
-
-                option.addEventListener('mouseleave', () => {
-                    if (option.style.borderColor !== 'rgb(236, 72, 153)') { // Pas sélectionné (rose)
-                        option.style.background = 'transparent';
-                    }
-                });
+            ScoreShare.open({xp, score: scoreJeu, total: scoreTotal,
+                wisdom: scoreSagesse, completed: isPhase23Complete}, {
+                onClose: () => { formulaireFinAffiche = false; },
+                onRestart: () => isPhase23Complete ? recommencerDepuisPhase2() : recommencerJeuGameOver()
             });
-
-            // Bouton "Plus d'avatars"
-            const btnMoreAvatars = document.getElementById('btn-more-avatars');
-            let avatarsExpanded = false;
-            if (btnMoreAvatars) {
-                btnMoreAvatars.addEventListener('click', async () => {
-                    const extraAvatars = document.querySelectorAll('.avatar-extra');
-                    avatarsExpanded = !avatarsExpanded;
-
-                    extraAvatars.forEach(avatar => {
-                        avatar.style.display = avatarsExpanded ? 'block' : 'none';
-                    });
-
-                    btnMoreAvatars.textContent = avatarsExpanded ? '- Moins d\'avatars' : '+ Plus d\'avatars';
-                    btnMoreAvatars.style.background = avatarsExpanded ? '#fce7f3' : '#f8fafc';
-                    btnMoreAvatars.style.color = avatarsExpanded ? '#ec4899' : '#64748b';
-                });
-            }
-
-            // Fonction pour afficher le message final (closure pour accéder aux variables du parent)
-            function afficherMessageFinal(nom, ville, pays) {
-                document.getElementById('formulaire-fin-overlay').remove();
-
-                // Les variables xp, scoreJeu, scoreTotal, scoreSagesse, idUnique sont accessibles via closure
-                afficherMessageNarratifSimple(getTranslatedText('narrative.final_message', 
-                    'L\'humanité n\'a pas besoin de murs pour se protéger,\nmais de ponts pour se rencontrer.\n\nConstruisons avec amour, pas avec peur.\nUn monde uni vaut mieux qu\'un monde cloisonné.\n\n- Emmanuel.gallery') + 
-                    '\n\n[' + getTranslatedText('game.origin_journey', 'Origine : Le voyage d\'une vie') + ']\n\n' + nom + ' - ' + ville + ', ' + pays + '\n' + xp + ' XP + ' + scoreJeu + ' Score = ' + scoreTotal + '\n' + getTranslatedText('game.knowledge_given', 'Connaissance donnée') + '\n' + getTranslatedText('game.wisdom_score', 'Score de Sagesse') + ' : ' + scoreSagesse + '\nID: ' + idUnique + '\n\n[🌍 ' + getTranslatedText('game.share_journey', 'Partager mon voyage') + ']\n\n[' + getTranslatedText('game.restart', 'Recommencer') + ']\n\n#PETITBATEAUROUGE #UnisPourLaPaix', 999999);
-
-                // Marquer le message comme contenant un bouton restart + lien + partage
-                setTimeout(() => {
-                    if (messageNarratifActif) {
-                        messageNarratifActif.avecRestart = true;
-                        messageNarratifActif.lienLivre = 'https://play.google.com/store/books/details?id=VW42EQAAQBAJ';
-                        messageNarratifActif.avecPartage = true;
-
-                        // 4 textes de partage différents
-                        const textesPartage = [
-                            `${getTranslatedText('game.share_texts.text1_title', "🌟 J'ai voyagé à travers les frontières de l'humanité !")}\n\n"${getTranslatedText('game.share_texts.text1_quote', "De l'obscurité vers la lumière, j'ai appris que l'amour unit au-delà des différences.")}"\n\n${nom} - ${ville}, ${pays}\n${getTranslatedText('game.wisdom_label', '💎 Sagesse')} : ${scoreSagesse}\n${getTranslatedText('game.score_label', '🎯 Score')} : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n${getTranslatedText('game.share_texts.play_text', 'Jouez à ⛵ PETIT BATEAU 👁️')}`,
-                            `${getTranslatedText('game.share_texts.text2_title', '🕊️ Un voyage vers la vérité...')}\n\n"${getTranslatedText('game.share_texts.text2_quote', "J'ai brisé les murs de la peur pour construire des ponts d'amour.")}"\n\n${nom} - ${ville}, ${pays}\n${getTranslatedText('game.wisdom_label', '💎 Sagesse')} : ${scoreSagesse}\n${getTranslatedText('game.score_label', '🎯 Score')} : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n${getTranslatedText('game.share_texts.play_text', 'Jouez à ⛵ PETIT BATEAU 👁️')}`,
-                            `${getTranslatedText('game.share_texts.text3_title', "🌍 De mur en pont, j'ai découvert l'humanité...")}\n\n"${getTranslatedText('game.share_texts.text3_quote', 'Au-delà des frontières, nos cœurs battent à l\'unisson.')}"\n\n${nom} - ${ville}, ${pays}\n${getTranslatedText('game.wisdom_label', '💎 Sagesse')} : ${scoreSagesse}\n${getTranslatedText('game.score_label', '🎯 Score')} : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n${getTranslatedText('game.share_texts.play_text', 'Jouez à ⛵ PETIT BATEAU 👁️')}`,
-                            `${getTranslatedText('game.share_texts.text4_title', "👁️ J'ai vu la vérité au-delà des préjugés...")}\n\n"${getTranslatedText('game.share_texts.text4_quote', "Nous construisons des murs par peur, mais l'amour les transforme en refuges.")}"\n\n${nom} - ${ville}, ${pays}\n${getTranslatedText('game.wisdom_label', '💎 Sagesse')} : ${scoreSagesse}\n${getTranslatedText('game.score_label', '🎯 Score')} : ${scoreTotal}\n\n#UnisPourLaPaix #PETITBATEAU #Emmanuel.gallery\n\n${getTranslatedText('game.share_texts.play_text', 'Jouez à ⛵ PETIT BATEAU 👁️')}`
-                        ];
-
-                        const texteChoisi = textesPartage[Math.floor(Math.random() * textesPartage.length)];
-                        messageNarratifActif.textePartage = texteChoisi;
-                    }
-                }, 100);
-            }
-
-            // Gestionnaire d'enregistrement ET ouverture emmanuel-artist-module
-            document.getElementById('fin-enregistrer').onclick = async () => {
-                console.log('🔘 Bouton Enregistrer & Découvrir cliqué');
-                const emailInput = document.getElementById('fin-email');
-                const pseudoInput = document.getElementById('fin-pseudo');
-                
-                const email = emailInput ? emailInput.value.trim() : '';
-                const pseudo = pseudoInput ? pseudoInput.value.trim() : '';
-
-                // Vérifier que les champs obligatoires sont remplis
-                if (!email || !pseudo) {
-                    console.log('❌ Champs obligatoires manquants');
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.required_fields', 'Email et pseudo sont obligatoires') + '</span>';
-                    
-                    // Mettre en évidence les champs vides
-                    if (!email) emailInput.style.border = '2px solid #ef4444';
-                    if (!pseudo) pseudoInput.style.border = '2px solid #ef4444';
-                    
-                    return;
-                }
-
-                // Valider le format de l'email
-                if (!email.includes('@')) {
-                    console.log('❌ Email invalide');
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">⚠️ ' + getTranslatedText('database_form.invalid_email', 'Email invalide') + '</span>';
-                    emailInput.style.border = '2px solid #ef4444';
-                    return;
-                }
-
-                // Si email et pseudo remplis, enregistrer le score
-                if (email && pseudo) {
-                    document.getElementById('fin-message').innerHTML = '<span style="color: #3b82f6;">' + getTranslatedText('interface.system.saving', '💾 Enregistrement...') + '</span>';
-
-                    try {
-                        // ✅ Vérifier que supabaseScores existe
-                        if (!supabaseScores) {
-                            throw new Error('Système de sauvegarde non disponible');
-                        }
-
-                        console.log('💾 Début enregistrement...');
-                        const ville = document.getElementById('fin-ville').value.trim() || 'Inconnue';
-                        const pays = document.getElementById('fin-pays').value.trim() || 'Inconnu';
-                        const age = parseInt(document.getElementById('fin-age').value) || null;
-                        const genre = document.getElementById('fin-genre').value || null;
-                        const avatar = document.getElementById('fin-avatar').value || null;
-
-                        // 🔧 S'assurer que le jeu est bien configuré avant de sauvegarder
-                        if (!supabaseScores.currentGameId) {
-                            console.log('⚠️ currentGameId non défini, configuration du jeu...');
-                            await supabaseScores.setCurrentGame(window.APP_GAME_NAME);
-                        }
-
-                        console.log('👤 Création/récupération utilisateur...', { email, pseudo, ville, pays, age, genre, avatar });
-                        await supabaseScores.getOrCreateUser(email, pseudo, { ville, pays, age, genre, avatar });
-
-                        // Calculer le niveau de sagesse
-                        const niveauSagesse = getNiveauSagesse(scoreSagesse);
-
-                        // ✅ Utiliser la phase actuelle (pas hardcodé à 23)
-                        const niveauAtteint = narrationManager.currentPhase || 1;
-                        console.log('💾 Envoi du score à Supabase (méthode directe)...', { scoreTotal, xp, scoreJeu, scoreSagesse, niveauAtteint });
-                        const resultat = await supabaseScores.saveScoreDirect(scoreTotal, {
-                            niveau_atteint: niveauAtteint,  // ✅ Phase réelle atteinte
-                            temps_jeu: Math.floor(Date.now() / 1000),
-                            donnees_extra: {
-                                pseudo: pseudo,
-                                avatar: avatar,
-                                xp,
-                                score: scoreJeu,
-                                sagesse: scoreSagesse,
-                                niveau: niveauSagesse.titre,
-                                niveau_icone: niveauSagesse.icone,
-                                enigmes: enigmaCollector ? enigmaCollector.enigmesCollectees.size : 0,
-                                id: idUnique
-                            }
-                        });
-
-                        // ✅ Considérer la sauvegarde réussie si on a un user_id (même si success=false)
-                        const saveSuccess = resultat && (resultat.success || resultat.user_id);
-                        
-                        if (!saveSuccess) {
-                            const errorMsg = resultat?.error || 'Échec de la sauvegarde du score';
-                            console.error('❌ Échec sauvegarde:', errorMsg, resultat);
-                            throw new Error(errorMsg);
-                        }
-
-                        // ✅ Afficher si sauvegarde locale ou en ligne
-                        const saveMsg = resultat.local 
-                            ? '💾 ' + (resultat.message || 'Score sauvegardé localement')
-                            : '✅ ' + getTranslatedText('database_form.score_saved', 'Score enregistré !');
-                        
-                        console.log('✅ Score sauvegardé avec succès:', resultat);
-                        document.getElementById('fin-message').innerHTML = '<span style="color: #10b981;">' + saveMsg + '</span>';
-
-                        // 🚀 OPTIMISATION: Invalider le cache et recharger
-                        leaderboardCache.invalidate();
-                        
-                        // Récupérer le meilleur score de l'utilisateur (si user_id défini)
-                        if (supabaseScores.currentUser?.id) {
-                            userBestScore = await supabaseScores.getBestScore();
-                        }
-                        
-                        // Recharger le classement (force refresh)
-                        await chargerClassement(true);
-
-                    } catch (error) {
-                        console.error('❌ Erreur sauvegarde:', error);
-                        document.getElementById('fin-message').innerHTML = '<span style="color: #ef4444;">❌ ' + getTranslatedText('interface.system.error', 'Erreur') + ' : ' + error.message + '</span>';
-                        return; // Ne pas continuer si erreur
-                    }
-                }
-
-                // Fermer le formulaire
-                const overlay = document.getElementById('formulaire-fin-overlay');
-                if (overlay) overlay.remove();
-                
-                // Ouvrir la page artiste dans un nouvel onglet avec refresh forcé
-                const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-                window.open(`modules/emmanuel-artist-module.html?lang=${currentLang}&refresh=1`, '_blank');
-                
-                // 🔄 Effacer la sauvegarde et recharger pour un reset complet
-                setTimeout(() => {
-                    console.log('🗑️ Effacement de la sauvegarde...');
-                    window.isRestarting = true;
-                    GameSaveSystem.clear();
-                    console.log('🔄 Rechargement de la page pour recommencer le jeu...');
-                    location.reload();
-                }, 1000);
-            };
-
-            // Gestionnaire du bouton "Passer & Continuer"
-            document.getElementById('fin-passer').onclick = () => {
-                console.log('⏭️ Bouton Passer & Continuer cliqué - on saute l\'enregistrement');
-                
-                // Fermer le formulaire immédiatement
-                const overlay = document.getElementById('formulaire-fin-overlay');
-                if (overlay) overlay.remove();
-                
-                // 🔄 Effacer la sauvegarde et recharger pour un reset complet
-                setTimeout(() => {
-                    console.log('🗑️ Effacement de la sauvegarde...');
-                    window.isRestarting = true;
-                    GameSaveSystem.clear();
-                    console.log('🔄 Rechargement de la page pour recommencer le jeu...');
-                    location.reload();
-                }, 500);
-            };
         }
 
         // ===============================================
@@ -11534,12 +10709,18 @@ if (!MODE_DEV) {
         }
 
         // Interface intégrée complète
+        function getStatsBarLayout() {
+            const top = Math.max(C.H * 0.045, 32);
+            const height = Math.max(C.H * 0.025, 26);
+            return {top, height, y: top + height / 2};
+        }
+
         function dessinerInterface() {
             ctx.save();
 
             // Header optimisé très compact - bleu roi
             const headerH = Math.max(C.H * 0.045, 32);
-            ctx.fillStyle = '#1e3a8a'; // Bleu roi
+            ctx.fillStyle = '#1e3a8a'; // Fond du titre bleu roi
             ctx.fillRect(0, 0, C.W, headerH);
 
             // Lignes ondulées en fond transparent blanc
@@ -11559,14 +10740,17 @@ if (!MODE_DEV) {
             }
             ctx.restore();
 
+            ctx.fillStyle = 'rgba(226,211,169,.12)';
+            for (let px = 2; px < C.W; px += 7) ctx.fillRect(px, 2, 2, 1);
+
             // Bordure header
-            ctx.strokeStyle = '#3b82f6'; // Bordure bleu plus clair
+            ctx.strokeStyle = '#ad9160'; // Bordure bleu plus clair
             ctx.lineWidth = 1;
             ctx.strokeRect(0, 0, C.W, headerH);
 
             // Titre centré en hauteur
             const titleY = headerH / 2 + 4; // Centré verticalement dans le header
-            const iconSize = Math.max(C.H * 0.008, 8); // Très petits bateaux
+            const iconSize = Math.min(36, Math.max(28, headerH - 4)); // Bateaux lisibles en pixel art
 
             ctx.save();
             // Titre moderne et plus gros
@@ -11576,17 +10760,21 @@ if (!MODE_DEV) {
             ctx.letterSpacing = '2px';
             
             const titleText = getTranslatedText('ui.game_title', 'PETIT BATEAU');
-            ctx.fillText(titleText, C.W/2, titleY);
-
-            // Calculer la largeur du texte pour positionner les bateaux
-            const titleWidth = ctx.measureText(titleText).width;
-            const boatPadding = 15; // Espace entre le texte et les bateaux
-            
-            // Très petits bateaux discrets - positionnés selon la largeur du texte
-            const leftBoatX = C.W/2 - titleWidth/2 - boatPadding;
-            const rightBoatX = C.W/2 + titleWidth/2 + boatPadding;
-            drawBoatIcon(ctx, leftBoatX, titleY - iconSize, iconSize, 'red');
-            drawBoatIcon(ctx, rightBoatX, titleY - iconSize, iconSize, 'blue');
+            const boatGap = 9;
+            const availableTitleWidth = Math.max(40, C.W - 2 * (iconSize + boatGap + 12));
+            // Adapter le titre traduit avant de placer les deux bateaux.
+            const measuredTitleWidth = ctx.measureText(titleText).width;
+            if (measuredTitleWidth > availableTitleWidth) {
+                const fontSize = Math.max(C.H * 0.022, 20) * availableTitleWidth / measuredTitleWidth;
+                ctx.font = `800 ${fontSize}px 'Segoe UI', Arial, sans-serif`;
+            }
+            ctx.fillText(titleText, C.W / 2, titleY, availableTitleWidth);
+            const titleWidth = Math.min(ctx.measureText(titleText).width, availableTitleWidth);
+            const leftBoatX = C.W / 2 - titleWidth / 2 - boatGap - iconSize;
+            const rightBoatX = C.W / 2 + titleWidth / 2 + boatGap;
+            const boatY = (headerH - iconSize) / 2;
+            drawBoatIcon(ctx, leftBoatX, boatY, iconSize, 'red');
+            drawBoatIcon(ctx, rightBoatX, boatY, iconSize, 'blue');
 
             // Menu HOME supprimé
 
@@ -11642,18 +10830,23 @@ if (!MODE_DEV) {
             }
 
             // Stats ligne avec fond blanc plus près du header
-            const statsY = Math.max(C.H * 0.045, 30); // Beaucoup plus près du header
+            const {y: statsY, height: bgHeight} = getStatsBarLayout();
             const padding = 8;
-            const bgHeight = Math.max(C.H * 0.025, 20);
 
-            // Fond blanc pour toute la barre de stats
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(0, statsY - bgHeight/2, C.W, bgHeight);
-
-            // Bordure subtile
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(0, statsY - bgHeight/2, C.W, bgHeight);
+            // Blanc pur et opaque, indépendant des effets de la scène.
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, statsY - bgHeight / 2, C.W, bgHeight);
+            // Une seule séparation claire, sans encadrement gris.
+            ctx.fillStyle = '#e8edf5';
+            ctx.fillRect(0, statsY + bgHeight / 2 - 1, C.W, 1);
+            ctx.restore();
 
             ctx.font = `600 ${Math.max(C.H * 0.02, 12)}px sans-serif`;
             ctx.fillStyle = '#2c3e50';
@@ -11762,7 +10955,7 @@ if (!MODE_DEV) {
                 // Fond du sélecteur
                 ctx.fillStyle = 'rgba(30, 58, 138, 0.9)';
                 ctx.fillRect(selectorX - 10, selectorY - 10, iconSize * 2 + spacing + 20, iconSize + 20);
-                ctx.strokeStyle = '#3b82f6';
+                ctx.strokeStyle = '#ad9160';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(selectorX - 10, selectorY - 10, iconSize * 2 + spacing + 20, iconSize + 20);
 
@@ -11787,7 +10980,7 @@ if (!MODE_DEV) {
                 ctx.lineWidth = balleActive ? 3 : 1;
                 ctx.strokeRect(selectorX + iconSize + spacing, selectorY, iconSize, iconSize);
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText('🏮', selectorX + iconSize + spacing + iconSize / 2, selectorY + iconSize / 2);
+                PixelSprites.text(ctx, '🏮', selectorX + iconSize + spacing + iconSize / 2, selectorY + iconSize / 2);
 
                 // Enregistrer la zone cliquable
                 if (!window.selecteurTirMur) window.selecteurTirMur = {};
@@ -11870,6 +11063,12 @@ if (!MODE_DEV) {
 
         // Dessiner les projectiles stars
         function dessinerStarsProjectiles() {
+            if (window.PixelSprites) {
+                if (!['stars', 'feux_artifice', 'lanterne'].includes(phaseJeu)) return;
+                starsProjectiles.forEach(p => PixelSprites.projectile(ctx, p, 'star', (p.taille || 13) * 2));
+                return;
+            }
+
             // Dessiner pendant la phase stars, feux_artifice ET lanterne (pour Poxerstart)
             if (phaseJeu !== 'stars' && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne') return;
             
@@ -12143,6 +11342,12 @@ if (!MODE_DEV) {
             // ⚡ VERSION OPTIMISÉE - Lanterne simplifiée pour performances
             if (animationBateau.active || !balle.visible || (phaseJeu !== 'lanterne' && phaseJeu !== 'mur')) return;
 
+            if (window.PixelSprites) {
+                if (balle.traineeVerte && balle.vitesseActive) PixelSprites.projectile(ctx, balle, 'lantern', C.BS * 2);
+                else PixelSprites.draw(ctx, 'lantern', balle.x, balle.y, C.BS * 2);
+                return;
+            }
+
             ctx.save();
 
             const posX = balle.x || 0;
@@ -12262,6 +11467,11 @@ if (!MODE_DEV) {
 
         // Fonction pour dessiner les icônes de bateaux miniatures
         function drawBoatIcon(ctx, x, y, size, color) {
+            if (window.PixelSprites) {
+                PixelSprites.draw(ctx, 'boat', x + size / 2, y + size / 2, size, color === 'blue' ? '#739eaf' : '#c95350');
+                return;
+            }
+
             ctx.save();
 
             // Couleurs selon le type
@@ -12357,6 +11567,12 @@ if (!MODE_DEV) {
             } else if(raquette.poxerstart) {
                 // Nettoyer l'effet quand fini
                 raquette.poxerstart = false;
+            }
+
+            if (window.PixelArt) {
+                PixelArt.boat(ctx, raquette, C, modeSecret);
+                ctx.restore();
+                return;
             }
 
             // Ombre du bateau
@@ -12829,35 +12045,8 @@ if (!MODE_DEV) {
                     const centreX = brique.x + brique.w/2;
                     const centreY = brique.y + brique.h/2;
                     
-                    // 🎨 EFFETS VISUELS: Simplifiés sur mobile
-                    if (!estBriqueMur) {
-                        // Effet 3D seulement si non-mobile et non-lanterne
-                        if (!simplifierEffets && !modeLanterne) {
-                            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                            ctx.fillRect(brique.x, brique.y, brique.w, brique.h * 0.25);
-                        } else if (estBriqueMur && !simplifierEffets) {
-                            // Effet poncé mur (desktop uniquement)
-                            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-                            ctx.fillRect(brique.x + 2, brique.y + 2, brique.w - 4, brique.h * 0.3);
-                        }
-                    }
-
-                    // ⚡ FISSURES: Simplifiées (seulement sur desktop pour économiser)
-                    if (!estBriqueMur && !simplifierEffets && ((brique.vieMax === 2 && brique.vie <= 1) || (brique.vieMax === 3 && brique.vie <= 2))) {
-                        ctx.strokeStyle = '#FFFFFF';
-                        ctx.lineWidth = 2;
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(brique.x + brique.w * 0.3, brique.y);
-                        ctx.lineTo(brique.x + brique.w * 0.2, brique.y + brique.h);
-                        ctx.stroke();
-                        
-                        if (brique.vie <= 1) {
-                            ctx.beginPath();
-                            ctx.moveTo(brique.x + brique.w * 0.7, brique.y);
-                            ctx.lineTo(brique.x + brique.w * 0.8, brique.y + brique.h);
-                            ctx.stroke();
-                        }
+                    if (window.PixelSprites && !briquesClignote.includes(brique)) {
+                        PixelSprites.brick(ctx, brique, couleur, estBriqueMur);
                     }
 
                     // Dessiner le cœur à l'intérieur de la brique
@@ -13810,6 +12999,31 @@ if (!MODE_DEV) {
                     }
                 }
                 
+                if (window.PixelSprites) {
+                    const types = {
+                        vitesse: ['bolt', '#80a47a'], bonus_points: ['star', '#a28aba'],
+                        allume_lanterne: ['lantern', '#d98d4b'], red_cross: ['cross', '#db655e'],
+                        gray_heart: ['heart', '#939d9e'], red_heart: ['heart', '#db655e'],
+                        open_hands: ['hands', '#cda079'], vibrant_heart: ['heart', '#d384a5'],
+                        barbed_wire: ['chain', '#91a9ae'],
+                        etoile_montante: ['star', '#e6b453'], poxerstart: ['star', '#b894c2'],
+                        broken_heart: ['heart', '#a76a78'], white_heart: ['heart', '#e6dfcb'],
+                        black_heart: ['heart', '#52606b'], chain: ['chain', '#91a9ae'],
+                        barrier: ['shield', '#b69875'], heart: ['heart', '#db655e'],
+                        respect: ['hands', '#cda079'], green_heart: ['heart', '#80a47a'],
+                        yellow_heart: ['heart', '#dfba6c'], blue_heart: ['heart', '#739eaf'],
+                        purple_heart: ['heart', '#a28aba'], smile: ['smile', '#dfba6c'],
+                        lanterne: ['lantern', '#d98d4b'], rainbow_hope: ['rainbow', '#9ab2aa'],
+                        explosion_ligne: ['bolt', '#d98d4b'], boule_feu: ['star', '#db655e'],
+                        eclair_vertical: ['bolt', '#efcb69'], onde_choc: ['shield', '#739eaf'],
+                        laser_croix: ['cross', '#a28aba']
+                    };
+                    const style = types[power.type] || [PixelSprites.kindFor(power.emoji), undefined];
+                    PixelSprites.draw(ctx, style[0], power.x + power.w / 2, power.y + power.h / 2,
+                        Math.min(power.w, power.h) * (1 + Math.sin((power.temps || 0) * .1) * .05), style[1]);
+                    return;
+                }
+
                 ctx.save();
 
                 // ⚡ ANIMATION SIMPLE: Pulsation légère optimisée (même en mode lanterne)
@@ -13974,85 +13188,85 @@ if (!MODE_DEV) {
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💔', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💔', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'gray_heart') {
                     // Dessiner un cœur gris (crise) 🤍
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🤍', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🤍', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'black_heart') {
                     // Dessiner un cœur noir 🖤
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🖤', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🖤', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'chain') {
                     // Dessiner des chaînes 🔗
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🔗', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🔗', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'barbed_wire') {
                     // Dessiner des barbelés 🚧
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🚧', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🚧', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'red_heart') {
                     // Dessiner un cœur rouge ❤️
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('❤️', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '❤️', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'open_hands') {
                     // Dessiner des mains tendues 🤲
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🤲', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🤲', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'green_heart') {
                     // Dessiner un cœur vert 💚
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💚', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💚', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'yellow_heart') {
                     // Dessiner un cœur jaune 💛
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💛', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💛', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'blue_heart') {
                     // Dessiner un cœur bleu 💙
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💙', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💙', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'purple_heart') {
                     // Dessiner un cœur violet 💜
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💜', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💜', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'vibrant_heart') {
                     // Dessiner un cœur vibrant 💗
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('💗', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '💗', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'smile') {
                     // Dessiner un sourire 😊
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.7}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('😊', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '😊', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'allume_lanterne') {
                     // Icône lanterne 🏮
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${power.h * 0.6}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('🏮', power.x + power.w/2, power.y + power.h*0.7);
+                    PixelSprites.text(ctx, '🏮', power.x + power.w/2, power.y + power.h*0.7);
                 } else if (power.type === 'rainbow_hope') {
                     // 🌈 Power-up Espoir arc-en-ciel (Phase 22)
                     // ⚡ OPTIMISATION: Animation simplifiée en mode lanterne
@@ -14061,7 +13275,7 @@ if (!MODE_DEV) {
                         ctx.font = `${power.h * 1.2}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(power.emoji, power.x + power.w/2, power.y + power.h/2);
+                        PixelSprites.text(ctx, power.emoji, power.x + power.w/2, power.y + power.h/2);
                     } else {
                         // Version complète avec animations
                         const colorIndex = Math.floor((power.temps / 5) % power.colors.length);
@@ -14077,7 +13291,7 @@ if (!MODE_DEV) {
                         ctx.font = `${power.h * 1.2}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(power.emoji, 0, 0);
+                        PixelSprites.text(ctx, power.emoji, 0, 0);
                         ctx.restore();
                         
                         ctx.shadowBlur = 0;
@@ -14469,7 +13683,7 @@ if (!MODE_DEV) {
                     ctx.globalAlpha = etoile.alpha * (1 - i * 0.3);
                     ctx.fillStyle = `hsl(45, 100%, ${70 - i * 10}%)`;
                     ctx.font = `${etoile.taille * (1 - i * 0.2)}px serif`;
-                    ctx.fillText('✨', particuleX, particuleY);
+                    PixelSprites.text(ctx, '✨', particuleX, particuleY);
                 }
                 ctx.restore();
 
@@ -14939,6 +14153,11 @@ if (!MODE_DEV) {
         }
 
         function dessinerCoeursBateau() {
+            if (window.PixelSprites) {
+                coeursBateau.forEach(p => PixelSprites.draw(ctx, 'heart', p.x, p.y, p.taille * .55, p.couleur));
+                return;
+            }
+
             if (coeursBateau.length === 0) return;
 
             // ⚡ BATCHING: Grouper par couleur
@@ -15004,6 +14223,12 @@ if (!MODE_DEV) {
 
         // 💖 Dessiner cœurs flottants (mode libre)
         function dessinerCoeursFlottants() {
+            if (window.PixelSprites) {
+                if (phaseJeu !== 'tir_coeur_libre') return;
+                petitsCoeurs.forEach(p => { if (p.visible) PixelSprites.draw(ctx, 'heart', p.x, p.y + p.taille * .3, p.taille, p.couleur); });
+                return;
+            }
+
             if (phaseJeu !== 'tir_coeur_libre') return;
             if (petitsCoeurs.length === 0) return;
 
@@ -15503,6 +14728,12 @@ if (!MODE_DEV) {
         
         // 🚀 NOUVELLE FONCTION: Dessiner tous les cœurs des briques en un seul batch
         function dessinerCoeursBriquesEnBatch() {
+            if (window.PixelSprites) {
+                _coeursBriquesBuffer.forEach(p => PixelSprites.draw(ctx, 'heart', p.x, p.y, p.taille * .6, p.couleur));
+                _coeursBriquesBuffer.length = 0;
+                return;
+            }
+
             if (_coeursBriquesBuffer.length === 0) return;
             
             const t = _coeursBriquesBuffer[0].taille; // Utiliser la taille du premier
@@ -15582,6 +14813,11 @@ if (!MODE_DEV) {
         }
 
         function dessinerCoeurPolygonal(x, y, taille, couleur, rotation = 0, intensite = 1) {
+            if (window.PixelSprites) {
+                PixelSprites.draw(ctx, 'heart', x, y + taille * .1, taille * .65, couleur);
+                return;
+            }
+
             ctx.save();
             ctx.translate(x, y);
             if(rotation) ctx.rotate(rotation);
@@ -15622,6 +14858,11 @@ if (!MODE_DEV) {
 
         // ⚡ VERSION OPTIMISÉE sans save/restore individuel (appelée dans un batch)
         function dessinerCoeurPolygonalOptimise(x, y, taille, couleur, rotation = 0, intensite = 1) {
+            if (window.PixelSprites) {
+                PixelSprites.draw(ctx, 'heart', x, y + taille * .1, taille * .65, couleur);
+                return;
+            }
+
             const t = taille;
 
             // ⚡ Sauvegarder l'état seulement si rotation nécessaire
@@ -15745,6 +14986,13 @@ if (!MODE_DEV) {
         }
 
         function dessinerPetitsCoeurs() {
+            if (window.PixelSprites) {
+                if (animationBateau.active || ['lanterne', 'stars', 'final', 'feux_artifice'].includes(phaseJeu)) return;
+                petitsCoeurs.forEach(p => { if (p.visible) PixelSprites.draw(ctx, 'heart', p.x, p.y, p.taille * .65, p.couleur); });
+                dessinerIconeThematique();
+                return;
+            }
+
             // Ne pas dessiner les petits cœurs pendant l'animation du bateau, la phase lanterne, stars, final ou feux d'artifice
             if(animationBateau.active || phaseJeu === 'lanterne' || phaseJeu === 'stars' || phaseJeu === 'final' || phaseJeu === 'feux_artifice') return;
 
@@ -15884,7 +15132,7 @@ if (!MODE_DEV) {
             ctx.fillStyle = '#ffffff';
             
             // Effet de lueur simplifié (sans shadowBlur)
-            ctx.fillText(_iconeCache.icone, 0, 0);
+            PixelSprites.text(ctx, _iconeCache.icone, 0, 0);
 
             ctx.restore();
         }
@@ -16070,6 +15318,14 @@ if (!MODE_DEV) {
 
         // Dessiner les gouttes de pluie
         function dessinerPluie() {
+            if (window.PixelSprites) {
+                if (!pluieActive || gouttesPlui.length === 0) return;
+                ctx.save(); ctx.globalAlpha = .5; ctx.fillStyle = '#a7c6cb';
+                for (const drop of gouttesPlui) ctx.fillRect(Math.round(drop.x / 2) * 2, Math.round(drop.y / 2) * 2, 2, Math.max(2, Math.round(drop.longueur / 2) * 2));
+                ctx.restore();
+                return;
+            }
+
             if (!pluieActive || gouttesPlui.length === 0) return;
 
             // ⚡ EXTREME OPTIMISATION: Dessiner DIRECTEMENT sans Path2D
@@ -16166,6 +15422,25 @@ if (!MODE_DEV) {
         };
 
         function dessinerParticules() {
+            if (window.PixelSprites) {
+                ctx.save();
+                for (const p of particules) {
+                    ctx.globalAlpha = Math.max(.1, Math.min(1, p.vie * .8));
+                    if (p.type === 'coeur' || p.type === 'etoile') {
+                        PixelSprites.draw(ctx, p.type === 'coeur' ? 'heart' : 'star', p.x, p.y, Math.max(4, p.taille * 2), p.couleur);
+                    } else if (p.type === 'emoji') {
+                        ctx.save(); ctx.font = `${p.taille}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        PixelSprites.text(ctx, p.emoji, p.x, p.y); ctx.restore();
+                    } else {
+                        ctx.fillStyle = p.couleur;
+                        const size = Math.max(2, Math.round(p.taille || 2));
+                        ctx.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, size, p.longueur || size);
+                    }
+                }
+                ctx.restore();
+                return;
+            }
+
             // Permettre la pluie émotionnelle même pendant l'animation du bateau
             // if(animationBateau.active) return; // SUPPRIMÉ - autoriser les particules
 
@@ -16268,7 +15543,7 @@ if (!MODE_DEV) {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.shadowBlur = 0; // Pas de flou pour les emojis (performance)
-                    ctx.fillText(p.emoji, 0, 0);
+                    PixelSprites.text(ctx, p.emoji, 0, 0);
                     
                     ctx.globalAlpha = 1; // Reset opacity
                     // ⚡ Rotation gérée dans mettreAJourParticules() (ligne 15262)
@@ -16291,6 +15566,17 @@ if (!MODE_DEV) {
 
         // Dessiner les projectiles étoiles
         function dessinerProjectiles() {
+            if (window.PixelSprites) {
+                const phase = narrationManager ? narrationManager.currentPhase : 0;
+                if (!['stars', 'lanterne'].includes(phaseJeu) && !(phaseJeu === 'mur' && phase >= 17 && phase <= 23)) return;
+                projectiles.forEach(p => {
+                    const config = p.config || getProjectileConfig(18);
+                    const color = Array.isArray(config.color) ? config.color[0] : config.color;
+                    PixelSprites.projectile(ctx, p, PixelSprites.kindFor(config.emoji), config.size || 16, color);
+                });
+                return;
+            }
+
             // Dessiner les projectiles étoiles pendant la phase stars, lanterne ET mur (phases 17-23)
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
             const isWallPhase = phaseActuelle >= 17 && phaseActuelle <= 23 && phaseJeu === 'mur';
@@ -17625,7 +16911,7 @@ if (!MODE_DEV) {
             // Réinitialiser le flag pour permettre l'affichage du formulaire
             formulaireFinAffiche = false;
 
-            // Afficher le formulaire de sauvegarde du score
+            // Proposer la carte de score à partager
             if (typeof afficherFormulaireFinDeJeuAvecResume === 'function') {
                 console.log('✅ Fonction afficherFormulaireFinDeJeuAvecResume trouvée');
                 // Calculer les scores
@@ -18168,46 +17454,13 @@ Elle a besoin de ponts.`
         function dessinerLivreBonus() {
             livreBonus.animation += 0.02;
 
-            // Fond blanc moderne avec subtil gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, C.H);
-            gradient.addColorStop(0, '#ffffff');
-            gradient.addColorStop(0.5, '#f8f9fa');
-            gradient.addColorStop(1, '#ffffff');
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = '#294653';
             ctx.fillRect(0, 0, C.W, C.H);
-
-            // Dimensions de la page
             const pageWidth = C.W * 0.88;
             const pageHeight = C.H * 0.80;
             const pageX = (C.W - pageWidth) / 2;
             const pageY = (C.H - pageHeight) / 2;
-
-            // Ombre subtile de la page
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
-            ctx.shadowBlur = 25;
-            ctx.shadowOffsetY = 10;
-
-            // Page unique blanche avec coins arrondis
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.moveTo(pageX + 8, pageY);
-            ctx.lineTo(pageX + pageWidth - 8, pageY);
-            ctx.quadraticCurveTo(pageX + pageWidth, pageY, pageX + pageWidth, pageY + 8);
-            ctx.lineTo(pageX + pageWidth, pageY + pageHeight - 8);
-            ctx.quadraticCurveTo(pageX + pageWidth, pageY + pageHeight, pageX + pageWidth - 8, pageY + pageHeight);
-            ctx.lineTo(pageX + 8, pageY + pageHeight);
-            ctx.quadraticCurveTo(pageX, pageY + pageHeight, pageX, pageY + pageHeight - 8);
-            ctx.lineTo(pageX, pageY + 8);
-            ctx.quadraticCurveTo(pageX, pageY, pageX + 8, pageY);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.shadowBlur = 0;
-
-            // Bordure subtile grise
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            NavigationMenu.paper(ctx, pageX, pageY, pageWidth, pageHeight);
 
             // Page actuelle
             const page = livreBonus.pages[livreBonus.currentPage];
@@ -19070,20 +18323,10 @@ Elle a besoin de ponts.`
             // Créer le contenu avec boutons
             const boutonsHTML = `
                 <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="cacherMessage(); (${onRejouer})()"
-                            style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-                                   color: white; border: none; padding: 12px 24px;
-                                   border-radius: 25px; font-size: 16px; font-weight: bold;
-                                   cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,107,0.4);
-                                   transition: all 0.3s ease;">
+                    <button onclick="cacherMessage(); (${onRejouer})()" class="message-button">
                         ${getTranslatedText('ui.replay_button')}
                     </button>
-                    <button onclick="cacherMessage(); (${onContinuer})()"
-                            style="background: linear-gradient(45deg, #00b894, #00a085);
-                                   color: white; border: none; padding: 12px 24px;
-                                   border-radius: 25px; font-size: 16px; font-weight: bold;
-                                   cursor: pointer; box-shadow: 0 4px 15px rgba(0,184,148,0.4);
-                                   transition: all 0.3s ease;">
+                    <button onclick="cacherMessage(); (${onContinuer})()" class="message-button">
                         ➡️ Continuer
                     </button>
                 </div>
@@ -19127,45 +18370,7 @@ Elle a besoin de ponts.`
                 initGradientsMer();
             }
 
-            // ⚡ OPTIMISATION: Utiliser le gradient en cache
-            ctx.fillStyle = periode === 'jour' ? fondAniméCache.gradients.merJour : fondAniméCache.gradients.merNuit;
-            ctx.fillRect(0, merY, C.W, C.H - merY);
-
-            // ✨ VAGUES FLUIDES: Calculer chaque frame avec interpolation optimisée
-            // Vagues selon le chapitre
-            if(periode === 'jour') {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.lineWidth = 2;
-            } else {
-                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-                ctx.lineWidth = 3;
-            }
-
-            // Lignes de vagues - rendu fluide avec interpolation quadratique
-            for(let ligne = 0; ligne < 3; ligne++) {
-                const y = merY + ligne * 15;
-                const amplitude = periode === 'jour' ? (8 - ligne * 2) : (12 - ligne * 3);
-                const fréquence = 0.01 + ligne * 0.005;
-                const vitesse = periode === 'jour' ? 1 : 1.5;
-                const offset = temps * vitesse * (1 + ligne * 0.3);
-
-                ctx.beginPath();
-                // ⚡ Pas de 15 (compromis fluidité/performance) avec courbes de Bézier
-                let prevX = 0;
-                let prevY = y + Math.sin(0 * fréquence + offset) * amplitude;
-                ctx.moveTo(prevX, prevY);
-                
-                for(let x = 15; x <= C.W; x += 15) {
-                    const currentY = y + Math.sin(x * fréquence + offset) * amplitude;
-                    // Interpolation quadratique pour courbes lisses
-                    const cpX = prevX + 7.5; // Point de contrôle au milieu
-                    const cpY = (prevY + currentY) / 2;
-                    ctx.quadraticCurveTo(cpX, cpY, x, currentY);
-                    prevX = x;
-                    prevY = currentY;
-                }
-                ctx.stroke();
-            }
+            PixelArt.sea(ctx, C, periode);
 
             // ⚡ OPTIMISATION: Mettre à jour les requins tous les N frames
             if(periode === 'nuit' && !leverSoleil.active && phaseJeu !== 'final' && phaseJeu !== 'feux_artifice') {
@@ -19234,6 +18439,11 @@ Elle a besoin de ponts.`
 
             // Ne pas dessiner le soleil pendant l'animation du bateau
             if(animationBateau.active) return;
+            if (window.PixelArt) {
+                PixelArt.sky(ctx, C, periode, leverSoleil, soleil, brises, VOYAGE.length);
+                return;
+            }
+
 
             // Déclarer les variables pour éviter les erreurs
             let soleilX, soleilY, soleilR, luneX, luneY, luneR;
@@ -19539,6 +18749,7 @@ Elle a besoin de ponts.`
                 ctx.fillStyle = fondAniméCache.gradients.fondNuit;
             }
             ctx.fillRect(0, 0, C.W, C.H);
+            PixelArt.background(ctx, C, periode, phaseJeu === 'final' || phaseJeu === 'feux_artifice');
 
             // Phase finale : soleil couchant derrière la mer
             if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
@@ -19594,7 +18805,6 @@ Elle a besoin de ponts.`
                 dessinerEclairNuit();
             }
 
-            dessinerInterface();
             dessinerPowerUps();    // ← Power-ups d'abord (cachés derrière)
             dessinerPrejuges();    // ← Briques par-dessus (cachent les power-ups)
             dessinerCoeursBateau();
@@ -19607,7 +18817,6 @@ Elle a besoin de ponts.`
             }
             
             dessinerBateau();
-            afficherMunitions();
             dessinerStarsProjectiles(); // Étoiles mode stars (phases tir coeurs)
             dessinerProjectiles(); // Étoiles (phase briques)
             // Mode secret - désactivé en phase finale
@@ -19633,6 +18842,10 @@ Elle a besoin de ponts.`
             dessinerParticules();
             dessinerPluie(); // Dessiner la pluie (phase 5)
 
+            PixelSprites.finish(ctx, canvas);
+            dessinerInterface();
+            afficherMunitions();
+
             dessinerTextesVolants();
             dessinerMessageCorbeauBas(); // Messages discrets du corbeau
             dessinerEtoileCompteur(); // Étoile avec compteur de clics corbeau
@@ -19643,6 +18856,8 @@ Elle a besoin de ponts.`
             // ⚡ OPTIMISATION: Menu énigmes - N'appeler que si visible
             if (menuEnigmesCanvas.visible) {
                 dessinerMenuEnigmesCanvas();
+            } else {
+                NavigationMenu.hideReset();
             }
 
             // Bouton plein écran retiré - Plein écran automatique sur mobile
@@ -20145,7 +19360,7 @@ Elle a besoin de ponts.`
                     ctx.font = '24px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText('🏮', 0, 0);
+                    PixelSprites.text(ctx, '🏮', 0, 0);
 
                     ctx.restore();
                 });
@@ -20160,7 +19375,7 @@ Elle a besoin de ponts.`
                 ctx.textBaseline = 'middle';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                 ctx.shadowBlur = 10;
-                ctx.fillText('⛵', 0, 0);
+                PixelSprites.text(ctx, '⛵', 0, 0);
                 ctx.shadowBlur = 0;
 
                 ctx.restore();
@@ -20550,7 +19765,7 @@ Elle a besoin de ponts.`
             // ═══════════════════════════════════════════════════════════════
             
             // Zone drapeau (en haut à gauche) → ouvre menu langues
-            const statsY = Math.max(C.H * 0.045, 30);
+            const statsY = getStatsBarLayout().y;
             const flagZone = { x: 10, y: statsY - 15, width: 130, height: 30 };
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
@@ -20677,7 +19892,7 @@ Elle a besoin de ponts.`
             const y = e.clientY - rect.top;
 
             // 🌍 Vérifier le survol du drapeau en haut
-            const statsY = Math.max(canvas.height * 0.045, 30);
+            const statsY = getStatsBarLayout().y;
             const flagZone = {
                 x: 10,
                 y: statsY - 15,
@@ -20827,7 +20042,7 @@ Elle a besoin de ponts.`
             }
 
             // 🌍 Vérifier le clic sur le drapeau en haut (priorité absolue)
-            const statsY = Math.max(canvas.height * 0.045, 30);
+            const statsY = getStatsBarLayout().y;
             const flagZone = {
                 x: 10,
                 y: statsY - 15,
@@ -20858,9 +20073,7 @@ Elle a besoin de ponts.`
                         if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
                         
                         // Forcer le rechargement
-                        chargerClassement(true).then(() => {
-                            console.log('✅ Classement rafraîchi');
-                        });
+                        partagerScoreActuel();
                         return;
                     }
                 }
@@ -21080,7 +20293,7 @@ Elle a besoin de ponts.`
             const y = e.clientY - rect.top;
 
             // 🌍 Zone du drapeau - priorité absolue
-            const statsY = Math.max(canvas.height * 0.045, 30);
+            const statsY = getStatsBarLayout().y;
             const flagZone = {
                 x: 10,
                 y: statsY - 15,
@@ -21857,6 +21070,20 @@ Elle a besoin de ponts.`
             }
         });
 
+        // Replacer le bateau dans le terrain après un changement de taille.
+        function recalerBateauApresResize() {
+            if (!Number.isFinite(raquette.x) || !Number.isFinite(raquette.y)) return;
+            raquette.y = C.H - C.PH - 25;
+            const enTransit = animationBateau.active &&
+                (animationBateau.phase === 'arrivee' || animationBateau.phase === 'depart');
+            if (!enTransit) raquette.x = Math.max(0, Math.min(raquette.x, C.W - C.PW));
+            animationBateau.positionCible = (C.W - C.PW) / 2;
+            if (balle.enAttente) {
+                balle.x = raquette.x + C.PW * 0.7;
+                balle.y = raquette.y - C.BS - 12;
+            }
+        }
+
         // Redimensionnement responsive avec gestion orientation mobile
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -21870,6 +21097,7 @@ Elle a besoin de ponts.`
                 C.PW = Math.max(size.width * 0.3, 100);
                 C.PH = Math.max(size.height * 0.025, 15);
                 C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
+                recalerBateauApresResize();
                 // Vitesse adaptative PC/Mobile
                 const isMobile = size.width < 768 || ('ontouchstart' in window);
                 C.SP = isMobile 
@@ -21929,6 +21157,7 @@ Elle a besoin de ponts.`
                     C.PW = Math.max(size.width * 0.3, 100);
                     C.PH = Math.max(size.height * 0.025, 15);
                     C.BS = Math.max(Math.min(size.width, size.height) * 0.025, 10);
+                recalerBateauApresResize();
                     // Vitesse adaptative PC/Mobile
                     const isMobile = size.width < 768 || ('ontouchstart' in window);
                     C.SP = isMobile 

@@ -203,7 +203,7 @@
       "subtitle": "逃离边界"
     },
     "canvas": {
-      "objective": "目标：3300万！🌍",
+      "objective": "三千万个去爱的理由",
       "click_info": "（点击了解更多）",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "梦想家 Unisona",
@@ -214,7 +214,9 @@
       "universal": "普世",
       "voyage_origin": "旅程起源",
       "continue_button": "➜ 继续",
-      "next_button": "➜ 下一个"
+      "next_button": "➜ 下一个",
+      "love_objective": "三千万个去爱的理由",
+      "love_message": "展现爱，分享和平。"
     },
     "projects": {
       "games_deco": "游戏与装饰",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "您确定吗？",
     "loaded": "📂 游戏已加载！",
     "not_found": "❌ 未找到存档"
+  },
+  "score_share": {
+    "tab": "分享",
+    "menu_title": "我的旅程画卷",
+    "total": "我的得分",
+    "create": "制作分享卡片",
+    "menu_hint": "小船、灯塔，还有你的得分。",
+    "brand": "小红船",
+    "heading": "我的航海日记",
+    "completed": "旅程已完成，光芒已分享。",
+    "journey": "每一段旅程都会留下光。",
+    "game_score": "游戏得分",
+    "xp": "知识 · XP",
+    "wisdom": "智慧",
+    "quote": "追随光芒，分享和平。",
+    "close": "关闭",
+    "souvenir": "带走一份回忆",
+    "title": "分享你的光芒",
+    "intro": "你的得分、一艘小船和一座灯塔。每张图片都是一次新的停靠。",
+    "image_alt": "包含得分、红色小船和灯塔的像素风卡片",
+    "share": "分享图片",
+    "download": "下载 PNG",
+    "change": "换个风景",
+    "replay": "再玩一次",
+    "creating": "正在制作卡片…",
+    "ready": "你的卡片已准备好。",
+    "saved": "图片已下载，可以附在消息中。",
+    "share_text": "我在《小红船》中的旅程",
+    "shared": "卡片已分享。",
+    "cancelled": "分享已取消，卡片仍可使用。",
+    "share_error": "无法分享，请使用“下载 PNG”。",
+    "export_error": "无法生成图片。",
+    "themes": {
+      "dawn": "珍珠色黎明",
+      "lagoon": "光之泻湖",
+      "stars": "星光灯塔",
+      "sunset": "最后的霞光",
+      "dreams": "梦之海湾",
+      "peace": "和平的清晨"
+    }
   }
 }

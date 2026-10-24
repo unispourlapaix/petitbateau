@@ -203,7 +203,7 @@
       "subtitle": "境界から逃れる"
     },
     "canvas": {
-      "objective": "目標:3300万人! 🌍",
+      "objective": "愛する理由は3,000万通り",
       "click_info": "(詳細はクリック)",
       "author": "🎨 エマニュエル・パイエ",
       "dreamer": "夢想家ユニソナ",
@@ -214,7 +214,9 @@
       "universal": "普遍的",
       "voyage_origin": "旅の起源",
       "continue_button": "➜ 続ける",
-      "next_button": "➜ 次へ"
+      "next_button": "➜ 次へ",
+      "love_objective": "愛する理由は3,000万通り",
+      "love_message": "愛を示し、平和を分かち合おう。"
     },
     "projects": {
       "games_deco": "ゲーム & デコ",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "よろしいですか？",
     "loaded": "📂 ゲームがロードされました！",
     "not_found": "❌ セーブデータが見つかりません"
+  },
+  "score_share": {
+    "tab": "シェア",
+    "menu_title": "旅の思い出を一枚に",
+    "total": "私のスコア",
+    "create": "シェアカードを作る",
+    "menu_hint": "小舟と灯台、そしてあなたのスコア。",
+    "brand": "小さな赤い船",
+    "heading": "私の航海日誌",
+    "completed": "旅を終えて、光を分かち合う。",
+    "journey": "どんな旅も光を残す。",
+    "game_score": "ゲームスコア",
+    "xp": "知識 · XP",
+    "wisdom": "知恵",
+    "quote": "光を追い、平和を分かち合おう。",
+    "close": "閉じる",
+    "souvenir": "持ち帰る旅の思い出",
+    "title": "あなたの光を届けよう",
+    "intro": "スコアと小舟と灯台。一枚ごとに新しい寄港地へ。",
+    "image_alt": "赤い小舟と灯台が描かれたピクセルアートのスコアカード",
+    "share": "画像をシェア",
+    "download": "PNGをダウンロード",
+    "change": "別の風景",
+    "replay": "もう一度遊ぶ",
+    "creating": "カードを作成中…",
+    "ready": "カードができました。",
+    "saved": "画像を保存しました。メッセージに添付できます。",
+    "share_text": "『小さな赤い船』での私の旅",
+    "shared": "カードをシェアしました。",
+    "cancelled": "シェアをキャンセルしました。カードは引き続き使えます。",
+    "share_error": "シェアできません。「PNGをダウンロード」をお使いください。",
+    "export_error": "画像を作成できませんでした。",
+    "themes": {
+      "dawn": "真珠色の夜明け",
+      "lagoon": "光のラグーン",
+      "stars": "星の灯台",
+      "sunset": "最後の光",
+      "dreams": "夢の入り江",
+      "peace": "平和な朝"
+    }
   }
 }

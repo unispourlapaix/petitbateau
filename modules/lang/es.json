@@ -203,7 +203,7 @@
       "subtitle": "Escapar de las fronteras"
     },
     "canvas": {
-      "objective": "Objetivo: ¡33 millones! 🌍",
+      "objective": "30 millones de razones para amar",
       "click_info": "(Clic para más información)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universal",
       "voyage_origin": "Origen del viaje",
       "continue_button": "➜ Continuar",
-      "next_button": "➜ Siguiente"
+      "next_button": "➜ Siguiente",
+      "love_objective": "30 millones de razones para amar",
+      "love_message": "Mostrar el amor, compartir la paz."
     },
     "projects": {
       "games_deco": "Juegos y Decoración",
@@ -906,5 +908,45 @@
     "confirm_reset_question": "¿Estás seguro?",
     "loaded": "📂 ¡Partida cargada!",
     "not_found": "❌ No se encontró guardado"
+  },
+  "score_share": {
+    "tab": "Compartir",
+    "menu_title": "Mi viaje en una imagen",
+    "total": "MI PUNTUACIÓN",
+    "create": "Crear mi tarjeta",
+    "menu_hint": "Un barco, un faro, tu puntuación.",
+    "brand": "EL PEQUEÑO BARCO ROJO",
+    "heading": "MI CUADERNO DE VIAJE",
+    "completed": "Un viaje completado, una luz compartida.",
+    "journey": "Cada viaje deja una luz.",
+    "game_score": "Puntos del juego",
+    "xp": "Conocimiento · XP",
+    "wisdom": "Sabiduría",
+    "quote": "Seguir la luz. Compartir la paz.",
+    "close": "Cerrar",
+    "souvenir": "UN RECUERDO PARA LLEVAR",
+    "title": "Comparte tu luz",
+    "intro": "Tu puntuación, un pequeño barco y un faro. Una nueva escala en cada imagen.",
+    "image_alt": "Tarjeta de puntuación en pixel art con un barco rojo y un faro",
+    "share": "Compartir imagen",
+    "download": "Descargar PNG",
+    "change": "Otro paisaje",
+    "replay": "Volver a jugar",
+    "creating": "Creando tu tarjeta…",
+    "ready": "Tu tarjeta está lista.",
+    "saved": "Imagen descargada. Puedes adjuntarla a tu mensaje.",
+    "share_text": "Mi viaje en El Pequeño Barco Rojo",
+    "shared": "Tu tarjeta se ha compartido.",
+    "cancelled": "Se ha cancelado el envío. Tu tarjeta sigue disponible.",
+    "share_error": "No se puede compartir. Usa «Descargar PNG».",
+    "export_error": "No se ha podido crear la imagen.",
+    "themes": {
+      "dawn": "Amanecer nacarado",
+      "lagoon": "Laguna de luz",
+      "stars": "El faro de las estrellas",
+      "sunset": "Últimos rayos",
+      "dreams": "La bahía de los sueños",
+      "peace": "Una mañana de paz"
+    }
   }
 }

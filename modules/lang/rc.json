@@ -203,7 +203,7 @@
       "subtitle": "Résapé bann frontiér"
     },
     "canvas": {
-      "objective": "Obyéktif : 33 milion ! 🌍",
+      "objective": "30 milyon rézon pou aimé",
       "click_info": "(Klik pou ansavwar pli)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Inivèrsèl",
       "voyage_origin": "Orijin lo voyaz",
       "continue_button": "➜ Kontinié",
-      "next_button": "➜ Suivan"
+      "next_button": "➜ Suivan",
+      "love_objective": "30 milyon rézon pou aimé",
+      "love_message": "Montr l’amour, partaz la pé."
     },
     "projects": {
       "games_deco": "Zé & Déko",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Ou lé sir?",
     "loaded": "📂 Zé lé sarzé!",
     "not_found": "❌ Nana pwin souvgard"
+  },
+  "score_share": {
+    "tab": "Partazé",
+    "menu_title": "Mon voyaz dann in zimaz",
+    "total": "MON SKOR",
+    "create": "Fé mon kart pou partazé",
+    "menu_hint": "In bato, in far, out skor.",
+    "brand": "TI BATO ROUZ",
+    "heading": "MON KARNÉ VOYAZ",
+    "completed": "In voyaz fini, in limièr partazé.",
+    "journey": "Shak voyaz i lès in limièr.",
+    "game_score": "Skor lo zé",
+    "xp": "Konesans · XP",
+    "wisdom": "Sazès",
+    "quote": "Swiv la limièr. Partaz la pé.",
+    "close": "Fermé",
+    "souvenir": "IN SOUVENIR POU ANPORTÉ",
+    "title": "Partaz out limièr",
+    "intro": "Out skor, in ti bato é in far. In nouvel éskal dann shak zimaz.",
+    "image_alt": "Kart skor an piksel art avèk in bato rouz é in far",
+    "share": "Partaz zimaz la",
+    "download": "Télésharz PNG",
+    "change": "In ot dékor",
+    "replay": "Rézoué",
+    "creating": "Nou fé out kart…",
+    "ready": "Out kart lé paré.",
+    "saved": "Zimaz la lé télésharzé. Ou pé azout ali dann out mésaz.",
+    "share_text": "Mon voyaz dann Ti Bato Rouz",
+    "shared": "Out kart la été partazé.",
+    "cancelled": "Partaz la lé anilé. Out kart i rèst disponib.",
+    "share_error": "Partaz la i marsh pa. Serv « Télésharz PNG ».",
+    "export_error": "Nou pé pa fé zimaz la.",
+    "themes": {
+      "dawn": "Lob an nak",
+      "lagoon": "Lagon limièr",
+      "stars": "Lo far zétwal",
+      "sunset": "Dernyé réyon",
+      "dreams": "La bé bann rèv",
+      "peace": "In matin la pé"
+    }
   }
 }

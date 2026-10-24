@@ -203,7 +203,7 @@
       "subtitle": "Escapar das fronteiras"
     },
     "canvas": {
-      "objective": "Objetivo: 33 milhões! 🌍",
+      "objective": "30 milhões de razões para amar",
       "click_info": "(Clique para saber mais)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universal",
       "voyage_origin": "Origem da viagem",
       "continue_button": "➜ Continuar",
-      "next_button": "➜ Próximo"
+      "next_button": "➜ Próximo",
+      "love_objective": "30 milhões de razões para amar",
+      "love_message": "Mostrar o amor, partilhar a paz."
     },
     "projects": {
       "games_deco": "Jogos & Deco",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Tem certeza?",
     "loaded": "📂 Jogo carregado!",
     "not_found": "❌ Nenhum salvamento encontrado"
+  },
+  "score_share": {
+    "tab": "Partilhar",
+    "menu_title": "A minha viagem numa imagem",
+    "total": "A MINHA PONTUAÇÃO",
+    "create": "Criar o meu cartão",
+    "menu_hint": "Um barco, um farol, a tua pontuação.",
+    "brand": "O PEQUENO BARCO VERMELHO",
+    "heading": "O MEU DIÁRIO DE VIAGEM",
+    "completed": "Uma viagem concluída, uma luz partilhada.",
+    "journey": "Cada viagem deixa uma luz.",
+    "game_score": "Pontos do jogo",
+    "xp": "Conhecimento · XP",
+    "wisdom": "Sabedoria",
+    "quote": "Seguir a luz. Partilhar a paz.",
+    "close": "Fechar",
+    "souvenir": "UMA RECORDAÇÃO PARA LEVAR",
+    "title": "Partilha a tua luz",
+    "intro": "A tua pontuação, um pequeno barco e um farol. Uma nova escala em cada imagem.",
+    "image_alt": "Cartão de pontuação em pixel art com um barco vermelho e um farol",
+    "share": "Partilhar a imagem",
+    "download": "Descarregar PNG",
+    "change": "Outra paisagem",
+    "replay": "Jogar novamente",
+    "creating": "A criar o teu cartão…",
+    "ready": "O teu cartão está pronto.",
+    "saved": "Imagem descarregada. Podes anexá-la à tua mensagem.",
+    "share_text": "A minha viagem no Pequeno Barco Vermelho",
+    "shared": "O teu cartão foi partilhado.",
+    "cancelled": "Partilha cancelada. O teu cartão continua disponível.",
+    "share_error": "Não é possível partilhar. Usa «Descarregar PNG».",
+    "export_error": "Não foi possível criar a imagem.",
+    "themes": {
+      "dawn": "Alvorada de nácar",
+      "lagoon": "Lagoa de luz",
+      "stars": "O farol das estrelas",
+      "sunset": "Últimos raios",
+      "dreams": "A baía dos sonhos",
+      "peace": "Uma manhã de paz"
+    }
   }
 }

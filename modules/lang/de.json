@@ -203,7 +203,7 @@
       "subtitle": "Den Grenzen entkommen"
     },
     "canvas": {
-      "objective": "Ziel: 33 Millionen! 🌍",
+      "objective": "30 Millionen Gründe zu lieben",
       "click_info": "(Klicken für mehr Info)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Träumer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universell",
       "voyage_origin": "Ursprung der Reise",
       "continue_button": "➜ Weiter",
-      "next_button": "➜ Nächstes"
+      "next_button": "➜ Nächstes",
+      "love_objective": "30 Millionen Gründe zu lieben",
+      "love_message": "Liebe zeigen, Frieden teilen."
     },
     "projects": {
       "games_deco": "Spiele & Deko",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Sind Sie sicher?",
     "loaded": "📂 Spiel geladen!",
     "not_found": "❌ Kein Spielstand gefunden"
+  },
+  "score_share": {
+    "tab": "Teilen",
+    "menu_title": "Meine Reise in einem Bild",
+    "total": "MEIN PUNKTESTAND",
+    "create": "Meine Karte erstellen",
+    "menu_hint": "Ein Boot, ein Leuchtturm, deine Punkte.",
+    "brand": "DAS KLEINE ROTE BOOT",
+    "heading": "MEIN REISETAGEBUCH",
+    "completed": "Eine Reise vollendet, ein Licht geteilt.",
+    "journey": "Jede Reise hinterlässt ein Licht.",
+    "game_score": "Spielpunkte",
+    "xp": "Wissen · XP",
+    "wisdom": "Weisheit",
+    "quote": "Dem Licht folgen. Frieden teilen.",
+    "close": "Schließen",
+    "souvenir": "EIN ANDENKEN ZUM MITNEHMEN",
+    "title": "Teile dein Licht",
+    "intro": "Deine Punkte, ein kleines Boot und ein Leuchtturm. Mit jedem Bild ein neues Reiseziel.",
+    "image_alt": "Pixel-Art-Punktekarte mit rotem Boot und Leuchtturm",
+    "share": "Bild teilen",
+    "download": "PNG herunterladen",
+    "change": "Andere Landschaft",
+    "replay": "Erneut spielen",
+    "creating": "Deine Karte wird erstellt…",
+    "ready": "Deine Karte ist fertig.",
+    "saved": "Bild heruntergeladen. Du kannst es deiner Nachricht anhängen.",
+    "share_text": "Meine Reise im Kleinen Roten Boot",
+    "shared": "Deine Karte wurde geteilt.",
+    "cancelled": "Teilen abgebrochen. Deine Karte bleibt verfügbar.",
+    "share_error": "Teilen ist nicht verfügbar. Nutze „PNG herunterladen“.",
+    "export_error": "Das Bild konnte nicht erstellt werden.",
+    "themes": {
+      "dawn": "Perlmuttmorgen",
+      "lagoon": "Lagune des Lichts",
+      "stars": "Leuchtturm der Sterne",
+      "sunset": "Letzte Strahlen",
+      "dreams": "Bucht der Träume",
+      "peace": "Ein friedlicher Morgen"
+    }
   }
 }

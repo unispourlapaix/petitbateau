@@ -203,7 +203,7 @@
       "subtitle": "Kobuka bandelo"
     },
     "canvas": {
-      "objective": "Mokano: 33 million! 🌍",
+      "objective": "Bamilio 30 ya bantina ya kolinga",
       "click_info": "(Fina mpo na koyeba mingi)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Ya Mokili Mobimba",
       "voyage_origin": "Ebandeli ya Mobembo",
       "continue_button": "➜ Kokoba",
-      "next_button": "➜ Oyo elandi"
+      "next_button": "➜ Oyo elandi",
+      "love_objective": "Bamilio 30 ya bantina ya kolinga",
+      "love_message": "Kolakisa bolingo, kokabola kimya."
     },
     "projects": {
       "games_deco": "Masano & Kobongisa",
@@ -906,5 +908,45 @@
     "confirm_reset_question": "Ozali na yango mpenza?",
     "loaded": "📂 Lisano ebimisami!",
     "not_found": "❌ Bomba ezali te"
+  },
+  "score_share": {
+    "tab": "Kokabola",
+    "menu_title": "Mobembo na ngai na elilingi",
+    "total": "BAPWƐ YA NGAI",
+    "create": "Kosala karte ya kokabola",
+    "menu_hint": "Masuwa, mwinda ya bokambi mpe bapwɛ na yo.",
+    "brand": "MASUWA YA MOKE YA MOTANE",
+    "heading": "BUKU YA MOBEMBO NA NGAI",
+    "completed": "Mobembo esili, pole ekabolami.",
+    "journey": "Mobembo nyonso etikalaka na pole.",
+    "game_score": "Bapwɛ ya lisano",
+    "xp": "Boyebi · XP",
+    "wisdom": "Bwanya",
+    "quote": "Kolanda pole. Kokabola kimya.",
+    "close": "Kokanga",
+    "souvenir": "EKANISELI YA KOMEMA",
+    "title": "Kabola pole na yo",
+    "intro": "Bapwɛ na yo, masuwa ya moke mpe mwinda ya bokambi. Elilingi nyonso ezali esika ya sika ya kotelema.",
+    "image_alt": "Karte ya bapwɛ na bililingi ya piksel, masuwa ya motane mpe mwinda ya bokambi",
+    "share": "Kokabola elilingi",
+    "download": "Kozwa PNG",
+    "change": "Esika mosusu",
+    "replay": "Kosakana lisusu",
+    "creating": "Kosala karte na yo…",
+    "ready": "Karte na yo esili.",
+    "saved": "Elilingi ezwami. Okoki kobakisa yango na nsango na yo.",
+    "share_text": "Mobembo na ngai na Masuwa ya Moke ya Motane",
+    "shared": "Karte na yo ekabolami.",
+    "cancelled": "Kokabola ebomisami. Karte na yo ezali kaka.",
+    "share_error": "Kokabola ekoki kosalema te. Salela « Kozwa PNG ».",
+    "export_error": "Elilingi ekoki kosalema te.",
+    "themes": {
+      "dawn": "Tongo ya kongɛnga",
+      "lagoon": "Lago ya pole",
+      "stars": "Mwinda ya minzoto",
+      "sunset": "Mishua ya nsuka",
+      "dreams": "Libongo ya bandɔtɔ",
+      "peace": "Tongo ya kimya"
+    }
   }
 }

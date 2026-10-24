@@ -203,7 +203,7 @@
       "subtitle": "Fuggire dalle frontiere"
     },
     "canvas": {
-      "objective": "Obiettivo: 33 milioni! 🌍",
+      "objective": "30 milioni di ragioni per amare",
       "click_info": "(Clic per saperne di più)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universale",
       "voyage_origin": "Origine del viaggio",
       "continue_button": "➜ Continua",
-      "next_button": "➜ Prossimo"
+      "next_button": "➜ Prossimo",
+      "love_objective": "30 milioni di ragioni per amare",
+      "love_message": "Mostrare l’amore, condividere la pace."
     },
     "projects": {
       "games_deco": "Giochi & Deco",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Sei sicuro?",
     "loaded": "📂 Partita caricata!",
     "not_found": "❌ Nessun salvataggio trovato"
+  },
+  "score_share": {
+    "tab": "Condividi",
+    "menu_title": "Il mio viaggio in un’immagine",
+    "total": "IL MIO PUNTEGGIO",
+    "create": "Crea la mia cartolina",
+    "menu_hint": "Una barca, un faro, il tuo punteggio.",
+    "brand": "LA PICCOLA BARCA ROSSA",
+    "heading": "IL MIO DIARIO DI VIAGGIO",
+    "completed": "Un viaggio compiuto, una luce condivisa.",
+    "journey": "Ogni viaggio lascia una luce.",
+    "game_score": "Punteggio di gioco",
+    "xp": "Conoscenza · XP",
+    "wisdom": "Saggezza",
+    "quote": "Seguire la luce. Condividere la pace.",
+    "close": "Chiudi",
+    "souvenir": "UN RICORDO DA PORTARE CON SÉ",
+    "title": "Condividi la tua luce",
+    "intro": "Il tuo punteggio, una piccola barca e un faro. Una nuova tappa in ogni immagine.",
+    "image_alt": "Cartolina del punteggio in pixel art con una barca rossa e un faro",
+    "share": "Condividi l’immagine",
+    "download": "Scarica PNG",
+    "change": "Un altro paesaggio",
+    "replay": "Gioca ancora",
+    "creating": "Creazione della cartolina…",
+    "ready": "La tua cartolina è pronta.",
+    "saved": "Immagine scaricata. Puoi allegarla al tuo messaggio.",
+    "share_text": "Il mio viaggio nella Piccola Barca Rossa",
+    "shared": "La tua cartolina è stata condivisa.",
+    "cancelled": "Condivisione annullata. La cartolina resta disponibile.",
+    "share_error": "Condivisione non disponibile. Usa «Scarica PNG».",
+    "export_error": "Impossibile creare l’immagine.",
+    "themes": {
+      "dawn": "Alba di madreperla",
+      "lagoon": "Laguna di luce",
+      "stars": "Il faro delle stelle",
+      "sunset": "Ultimi raggi",
+      "dreams": "La baia dei sogni",
+      "peace": "Un mattino di pace"
+    }
   }
 }

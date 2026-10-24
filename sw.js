@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.5.2'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.7.6-reset-menu'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petitbateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
@@ -33,9 +33,14 @@ const urlsToCache = [
   './modules/phase3-revelation.js',
   './modules/saisonefect.js',
   './modules/secret-mode.js',
-  './modules/supabase-scores.js',
+  './modules/score-share.js',
+  './modules/styles/score-share.css',
   // Configuration
   './modules/config/game-config.js',
+  './modules/graphics/pixel-art.js',
+  './modules/graphics/pixel-sprites.js',
+  './modules/graphics/navigation-menu.js',
+  './modules/styles/navigation-menu.css',
   // Graphiques
   './modules/graphics/boat-renderer.js',
   './modules/graphics/environment-renderer.js',

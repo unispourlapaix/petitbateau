@@ -64,10 +64,12 @@ Support natif de 14 langues avec système i18n :
   - Détection adaptative qualité graphique
 
 ### 🏆 Système de Score
-- Sauvegarde locale (localStorage)
-- Classement mondial via Supabase
-- Partage social intégré
-- Statistiques détaillées
+- Carte de score illustrée en pixel art : bateau rouge et phare
+- Décors aléatoires (aube, lagon, nuit étoilée…)
+- Partage natif de l’image ou téléchargement PNG, sans compte ni e-mail
+- Score du jeu, XP et sagesse sur une carte portrait 1080 × 1350
+- Le jeu ne charge plus le client Supabase et n’envoie plus les scores en base
+- La sauvegarde locale de progression reste indépendante du partage
 
 ## 🚀 Installation
 

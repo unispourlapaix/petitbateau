@@ -203,7 +203,7 @@
       "subtitle": "Échapper aux frontières"
     },
     "canvas": {
-      "objective": "Objectif : 33 millions ! 🌍",
+      "objective": "30 millions de raisons d’aimer",
       "click_info": "(Clic pour en savoir plus)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "Universel",
       "voyage_origin": "Origine du voyage",
       "continue_button": "➜ Continuer",
-      "next_button": "➜ Suivant"
+      "next_button": "➜ Suivant",
+      "love_objective": "30 millions de raisons d’aimer",
+      "love_message": "Exposer l’amour, partager la paix."
     },
     "projects": {
       "games_deco": "Jeux & Déco",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "Êtes-vous sûr ?",
     "loaded": "📂 Partie chargée !",
     "not_found": "❌ Aucune sauvegarde trouvée"
+  },
+  "score_share": {
+    "tab": "Partager",
+    "menu_title": "Mon voyage en image",
+    "total": "MON SCORE",
+    "create": "Créer ma carte à partager",
+    "menu_hint": "Un bateau, un phare, ton score.",
+    "brand": "LE PETIT BATEAU ROUGE",
+    "heading": "MON CARNET DE VOYAGE",
+    "completed": "Un voyage accompli, une lumière partagée.",
+    "journey": "Chaque voyage laisse une lumière.",
+    "game_score": "Score du jeu",
+    "xp": "Connaissance · XP",
+    "wisdom": "Sagesse",
+    "quote": "Suivre la lumière. Partager la paix.",
+    "close": "Fermer",
+    "souvenir": "UN SOUVENIR À EMPORTER",
+    "title": "Partage ta lumière",
+    "intro": "Ton score, un petit bateau et un phare. Une nouvelle escale à chaque image.",
+    "image_alt": "Carte illustrée du score : bateau rouge et phare en pixel art",
+    "share": "Partager l’image",
+    "download": "Télécharger le PNG",
+    "change": "Un autre décor",
+    "replay": "Rejouer",
+    "creating": "Création de ta carte…",
+    "ready": "Ta carte est prête.",
+    "saved": "Image téléchargée. Tu peux la joindre à ton message.",
+    "share_text": "Mon voyage dans Le Petit Bateau Rouge",
+    "shared": "Ta carte a été partagée.",
+    "cancelled": "Partage annulé. Ta carte reste disponible.",
+    "share_error": "Le partage est indisponible. Utilise « Télécharger le PNG ».",
+    "export_error": "Impossible de créer l’image.",
+    "themes": {
+      "dawn": "Aube de nacre",
+      "lagoon": "Lagon de lumière",
+      "stars": "Le phare des étoiles",
+      "sunset": "Derniers rayons",
+      "dreams": "La baie des songes",
+      "peace": "Un matin de paix"
+    }
   }
 }

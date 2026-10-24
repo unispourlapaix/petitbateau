@@ -203,7 +203,7 @@
       "subtitle": "국경을 탈출하기"
     },
     "canvas": {
-      "objective": "목표: 3천3백만! 🌍",
+      "objective": "사랑해야 할 3천만 가지 이유",
       "click_info": "(자세한 정보는 클릭)",
       "author": "🎨 Emmanuel Payet",
       "dreamer": "Dreamer Unisona",
@@ -214,7 +214,9 @@
       "universal": "보편적",
       "voyage_origin": "여행의 기원",
       "continue_button": "➜ 계속",
-      "next_button": "➜ 다음"
+      "next_button": "➜ 다음",
+      "love_objective": "사랑해야 할 3천만 가지 이유",
+      "love_message": "사랑을 보여 주고 평화를 나누어요."
     },
     "projects": {
       "games_deco": "게임 & 장식",
@@ -905,5 +907,45 @@
     "confirm_reset_question": "확실합니까?",
     "loaded": "📂 게임이 로드되었습니다!",
     "not_found": "❌ 저장을 찾을 수 없습니다"
+  },
+  "score_share": {
+    "tab": "공유",
+    "menu_title": "한 장에 담은 나의 여행",
+    "total": "내 점수",
+    "create": "공유 카드 만들기",
+    "menu_hint": "작은 배와 등대, 그리고 내 점수.",
+    "brand": "작은 빨간 배",
+    "heading": "나의 항해 일지",
+    "completed": "여행을 마치고 빛을 나누어요.",
+    "journey": "모든 여행은 빛을 남겨요.",
+    "game_score": "게임 점수",
+    "xp": "지식 · XP",
+    "wisdom": "지혜",
+    "quote": "빛을 따라가고 평화를 나누어요.",
+    "close": "닫기",
+    "souvenir": "간직할 여행의 추억",
+    "title": "당신의 빛을 나눠요",
+    "intro": "내 점수와 작은 배, 그리고 등대. 그림마다 새로운 기항지가 펼쳐져요.",
+    "image_alt": "빨간 배와 등대가 그려진 픽셀 아트 점수 카드",
+    "share": "이미지 공유",
+    "download": "PNG 다운로드",
+    "change": "다른 풍경",
+    "replay": "다시 플레이",
+    "creating": "카드를 만드는 중…",
+    "ready": "카드가 준비됐어요.",
+    "saved": "이미지를 다운로드했어요. 메시지에 첨부할 수 있어요.",
+    "share_text": "『작은 빨간 배』에서의 나의 여행",
+    "shared": "카드를 공유했어요.",
+    "cancelled": "공유를 취소했어요. 카드는 계속 사용할 수 있어요.",
+    "share_error": "공유할 수 없어요. ‘PNG 다운로드’를 이용해 주세요.",
+    "export_error": "이미지를 만들 수 없어요.",
+    "themes": {
+      "dawn": "진주빛 새벽",
+      "lagoon": "빛의 석호",
+      "stars": "별빛 등대",
+      "sunset": "마지막 햇살",
+      "dreams": "꿈의 만",
+      "peace": "평화로운 아침"
+    }
   }
 }
