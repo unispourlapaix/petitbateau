@@ -10848,6 +10848,7 @@ if (!MODE_DEV) {
 
         // Tirer un projectile étoile dans le mode stars
         function tirerStarsProjectile(mouseX, mouseY) {
+            if (starsProjectiles.length >= 40) return;
             const bonusActif = window.modeTirStars?.actif && Date.now() < window.modeTirStars.fin;
             if (phaseJeu !== 'stars' && !(['lanterne', 'mur'].includes(phaseJeu) && bonusActif)) return;
 
@@ -11025,7 +11026,7 @@ if (!MODE_DEV) {
                 // Collision avec les briques en phase stars
                 if(['stars', 'lanterne', 'mur'].includes(phaseJeu)) {
                     let briqueTouchee = false;
-                    briques.forEach(brique => {
+                    grilleCollision.obtenirCandidates(proj.x, proj.y, 0).forEach(brique => {
                         if(briqueTouchee) return;
                         if(!brique.visible) return;
                         if(proj.x >= brique.x && proj.x <= brique.x + brique.w &&
@@ -15868,7 +15869,7 @@ if (!MODE_DEV) {
                 AudioSystem.playShoot();
                 
                 // Double tir pour phase 21 (si activé)
-                if (config.doubleShot && window.doubleShotActive) {
+                if (config.doubleShot && window.doubleShotActive && projectiles.length < 25) {
                     const angle = Math.atan2(velY, velX);
                     const offset = 0.3; // 30 degrés de décalage
                     
@@ -15992,7 +15993,7 @@ if (!MODE_DEV) {
 
                 // Collision avec les briques
                 let briqueTouchee = false;
-                briques.forEach(brique => {
+                grilleCollision.obtenirCandidates(proj.x, proj.y, 0).forEach(brique => {
                     if(briqueTouchee) return;
                     if(!brique.visible) return;
 
@@ -16066,6 +16067,7 @@ if (!MODE_DEV) {
                             // Si la brique est détruite
                             if (brique.vie <= 0) {
                                 brique.visible = false;
+                                grilleCollision.supprimerBrique(brique);
                                 brises++;
 
                                 // Son thématique selon la phase
