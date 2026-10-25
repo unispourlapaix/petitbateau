@@ -2049,6 +2049,7 @@ if (!MODE_DEV) {
         <script src="modules/info-auteur.js"></script>
         <script src="modules/graphics/pixel-art.js"></script>
         <script src="modules/graphics/pixel-sprites.js"></script>
+        <script src="modules/graphics/pixel-hud.js"></script>
         <script src="modules/graphics/navigation-menu.js"></script>
         <script src="modules/audio-manager.js"></script>
         <script src="modules/score-share.js"></script>
@@ -2455,6 +2456,7 @@ if (!MODE_DEV) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
                          || (window.innerWidth < 500);
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        window.PERF_IS_MOBILE = isMobile;
 
         // 🔒 FORCER MODE PORTRAIT SUR MOBILE
         if (isMobile) {
@@ -2634,7 +2636,7 @@ if (!MODE_DEV) {
                 // ⚡ NOUVELLE LIMITE : max 1.5 au lieu de 1.0 grâce aux optimisations
                 // Sur iPhone 14 (ratio 3×): 3 × 0.75 = 2.25 → limité à 1.5
                 // Résolution finale: 393×852 × 1.5 = 590×1278 pixels (meilleure qualité!)
-                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1.5);
+                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1);
                 
                 // console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
                 // console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
@@ -2695,14 +2697,15 @@ if (!MODE_DEV) {
         // 🎨 Helper: Adapter les effets visuels selon le niveau de qualité
         window.getAdaptiveEffectSettings = () => {
             const level = window.PERF_QUALITY_LEVEL || 'high';
+            const mobile = window.PERF_IS_MOBILE;
             
             return {
                 // Ombres (shadowBlur coûteux sur mobile)
-                shadows: level === 'high',
-                shadowBlurMax: level === 'high' ? 15 : (level === 'medium' ? 8 : 0),
+                shadows: !mobile && level === 'high',
+                shadowBlurMax: mobile ? 0 : (level === 'high' ? 15 : (level === 'medium' ? 8 : 0)),
                 
                 // Particules (réduire en mode économique)
-                particleMultiplier: level === 'high' ? 1.0 : (level === 'medium' ? 0.6 : 0.3),
+                particleMultiplier: mobile ? (level === 'low' ? 0.25 : 0.5) : (level === 'high' ? 1.0 : (level === 'medium' ? 0.6 : 0.3)),
                 
                 // Blur et filtres CSS (très coûteux - désactiver sauf haute qualité)
                 useBlur: level === 'high',
@@ -4346,7 +4349,7 @@ if (!MODE_DEV) {
                 // Onglet actif : fond blanc pur avec légère élévation
                 ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 2;
             } else {
                 // Onglet inactif : transparent avec bordure subtile
@@ -4399,7 +4402,7 @@ if (!MODE_DEV) {
             if (classementActif) {
                 ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 2;
             } else {
                 ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
@@ -4450,7 +4453,7 @@ if (!MODE_DEV) {
             if (languesActif) {
                 ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 2;
             } else {
                 ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
@@ -4502,7 +4505,7 @@ if (!MODE_DEV) {
             if (infoActif) {
                 ctx.fillStyle = '#f8edd6';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 2;
             } else {
                 ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
@@ -4547,6 +4550,10 @@ if (!MODE_DEV) {
             NavigationMenu.icon(ctx, 'quill', menuX + 15, menuY + 70, 17);
             NavigationMenu.icon(ctx, 'ink', menuX + menuWidth - 32, menuY + 70, 17);
             ctx.restore();
+
+            PixelHUD.tabs(ctx, menuEnigmesCanvas, {
+                enigmes: texteEnigmes, classement: texteScores, langues: texteLangue, info: texteInfo
+            });
 
             // Titre moderne - plus petit et positionné sous les onglets - PLUS GROS
             if (enigmesActif) {
@@ -7535,6 +7542,17 @@ if (!MODE_DEV) {
             }
 
             render() {
+                // Ne pas peindre les drones ni leurs halos lorsqu'ils sont hors champ.
+                const ratio = window.PERF_PIXEL_RATIO || 1;
+                const width = this.canvas.width / ratio, height = this.canvas.height / ratio;
+                const visibleDrones = this.drones.filter(drone => {
+                    if (drone.life <= 0) return false;
+                    const inView = point => point.x >= -48 && point.x <= width + 48 &&
+                        point.y >= -48 && point.y <= height + 48;
+                    return inView(drone) || (drone.trail && drone.trail.some(inView));
+                });
+                if (visibleDrones.length === 0) return;
+
                 // ⚡ OPTIMISATION: Mettre à jour le cache temporel une seule fois par frame
                 const now = Date.now();
                 if (now - this._lastCacheUpdate > 16) { // Throttle à 60fps
@@ -7554,18 +7572,18 @@ if (!MODE_DEV) {
                 
                 // ⚡ OPTIMISATION: Rendu avec batching des traînées
                 if (this.options.showTrails && this.options.batchTrails) {
-                    this.renderTrailsBatched();
+                    this.renderTrailsBatched(visibleDrones);
                 }
                 
                 // Dessiner les drones (corps seulement)
-                this.drones.forEach(drone => {
+                visibleDrones.forEach(drone => {
                     if (drone.life > 0) {
                         drone.draw(this.ctx, this.options, this._cachedFrameTime, this._cachedHeartPulse, this._cachedClockPulse, this._cachedBrightnessPulse);
                     }
                 });
             }
             
-            renderTrailsBatched() {
+            renderTrailsBatched(drones = this.drones) {
                 // ⚡ SUPER OPTIMISATION: Dessiner TOUTES les traînées en un seul batch
                 const ctx = this.ctx;
                 const maxTrailLength = this.options.trailLength || 8;
@@ -7573,7 +7591,7 @@ if (!MODE_DEV) {
                 // Grouper par couleur pour minimiser les changements de state
                 const trailsByColor = new Map();
                 
-                this.drones.forEach(drone => {
+                drones.forEach(drone => {
                     if (drone.life > 0 && drone.trail && drone.trail.length > 1) {
                         if (!trailsByColor.has(drone.color)) {
                             trailsByColor.set(drone.color, []);
@@ -7876,6 +7894,17 @@ if (!MODE_DEV) {
             }
 
             draw(ctx, options, cachedFrameTime, cachedHeartPulse, cachedClockPulse, cachedBrightnessPulse) {
+                if (window.PERF_IS_MOBILE) {
+                    if (this.life <= 0) return;
+                    const x = Math.round(this.x / 2) * 2, y = Math.round(this.y / 2) * 2;
+                    ctx.save(); ctx.shadowBlur = 0; ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.life * .16; ctx.fillRect(x - 4, y - 4, 10, 10);
+                    ctx.globalAlpha = this.life * .65; ctx.fillRect(x - 2, y - 2, 6, 6);
+                    ctx.globalAlpha = this.life; ctx.fillRect(x, y, 2, 2);
+                    ctx.restore();
+                    return;
+                }
+
                 if (this.life <= 0) return;
 
                 // ⚡ OPTIMISATION: Traînées gérées par renderTrailsBatched() si batchTrails actif
@@ -8116,7 +8145,10 @@ if (!MODE_DEV) {
             formulaireFinAffiche = true;
             ScoreShare.open({xp, score: scoreJeu, total: scoreTotal,
                 wisdom: scoreSagesse, completed: isPhase23Complete}, {
-                onClose: () => { formulaireFinAffiche = false; },
+                onClose: (reason) => {
+                    formulaireFinAffiche = false;
+                    if (!isPhase23Complete && reason !== 'restart') recommencerJeuGameOver();
+                },
                 onRestart: () => isPhase23Complete ? recommencerDepuisPhase2() : recommencerJeuGameOver()
             });
         }
@@ -10709,238 +10741,31 @@ if (!MODE_DEV) {
         }
 
         // Interface intégrée complète
-        function getStatsBarLayout() {
-            const top = Math.max(C.H * 0.045, 32);
-            const height = Math.max(C.H * 0.025, 26);
-            return {top, height, y: top + height / 2};
-        }
+        function getStatsBarLayout() { return PixelHUD.layout(C); }
 
         function dessinerInterface() {
             ctx.save();
-
-            // Header optimisé très compact - bleu roi
-            const headerH = Math.max(C.H * 0.045, 32);
-            ctx.fillStyle = '#1e3a8a'; // Fond du titre bleu roi
-            ctx.fillRect(0, 0, C.W, headerH);
-
-            // Lignes ondulées en fond transparent blanc
-            ctx.save();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            for(let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                const waveY = headerH * (0.2 + i * 0.3);
-                const waveLength = C.W / 8;
-                for(let x = 0; x <= C.W; x += 10) {
-                    const y = waveY + Math.sin((x / waveLength) * Math.PI * 2) * 3;
-                    if(x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
+            const currentLang = window.i18n?.getCurrentLanguage() || 'fr';
+            const hud = PixelHUD.render(ctx, C, {
+                title: getTranslatedText('ui.game_title', 'PETIT BATEAU'),
+                lang: currentLang,
+                score: phaseJeu === 'tir_coeurs_haut' ? pointsConnaissance : score,
+                phase: narrationManager?.currentPhase || 0,
+                bricks: brises, brickTotal: VOYAGE.length,
+                lives: vies, hover: flagHoverAnimation > 0
+            });
+            window.prevSongZone = hud.minus;
+            window.nextSongZone = hud.plus;
+            if (titreVoyage.active) {
+                if (Date.now() >= titreVoyage.fin) titreVoyage.active = false;
+                else {
+                    ctx.save(); ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+                    ctx.font = `bold 17px ${ScoreShare.fontFamily()}`;
+                    ctx.fillStyle = '#fff2ce'; ctx.shadowColor = '#26384c'; ctx.shadowBlur = 2;
+                    ctx.fillText(titreVoyage.texte.split('\n')[0], C.W / 2, hud.total + 22, C.W - 24);
+                    ctx.restore();
                 }
-                ctx.stroke();
             }
-            ctx.restore();
-
-            ctx.fillStyle = 'rgba(226,211,169,.12)';
-            for (let px = 2; px < C.W; px += 7) ctx.fillRect(px, 2, 2, 1);
-
-            // Bordure header
-            ctx.strokeStyle = '#ad9160'; // Bordure bleu plus clair
-            ctx.lineWidth = 1;
-            ctx.strokeRect(0, 0, C.W, headerH);
-
-            // Titre centré en hauteur
-            const titleY = headerH / 2 + 4; // Centré verticalement dans le header
-            const iconSize = Math.min(36, Math.max(28, headerH - 4)); // Bateaux lisibles en pixel art
-
-            ctx.save();
-            // Titre moderne et plus gros
-            ctx.fillStyle = '#ffffff';
-            ctx.font = `800 ${Math.max(C.H * 0.022, 20)}px 'Segoe UI', Arial, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.letterSpacing = '2px';
-            
-            const titleText = getTranslatedText('ui.game_title', 'PETIT BATEAU');
-            const boatGap = 9;
-            const availableTitleWidth = Math.max(40, C.W - 2 * (iconSize + boatGap + 12));
-            // Adapter le titre traduit avant de placer les deux bateaux.
-            const measuredTitleWidth = ctx.measureText(titleText).width;
-            if (measuredTitleWidth > availableTitleWidth) {
-                const fontSize = Math.max(C.H * 0.022, 20) * availableTitleWidth / measuredTitleWidth;
-                ctx.font = `800 ${fontSize}px 'Segoe UI', Arial, sans-serif`;
-            }
-            ctx.fillText(titleText, C.W / 2, titleY, availableTitleWidth);
-            const titleWidth = Math.min(ctx.measureText(titleText).width, availableTitleWidth);
-            const leftBoatX = C.W / 2 - titleWidth / 2 - boatGap - iconSize;
-            const rightBoatX = C.W / 2 + titleWidth / 2 + boatGap;
-            const boatY = (headerH - iconSize) / 2;
-            drawBoatIcon(ctx, leftBoatX, boatY, iconSize, 'red');
-            drawBoatIcon(ctx, rightBoatX, boatY, iconSize, 'blue');
-
-            // Menu HOME supprimé
-
-            ctx.restore();
-
-            // Afficher le titre du voyage si actif
-            if (titreVoyage.active && Date.now() < titreVoyage.fin) {
-                const voyageY = Math.max(C.H * 0.10, 70); // Très légèrement plus bas
-                ctx.save();
-
-                // Style moderne avec blanc et ombres
-                ctx.fillStyle = '#ffffff';
-                ctx.font = `700 ${Math.max(C.H * 0.022, 20)}px 'Segoe UI', system-ui, sans-serif`;
-                ctx.textAlign = 'center';
-
-                // Ombres multiples pour effet profondeur
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-                ctx.shadowBlur = 8;
-
-                // Séparer le nom du voyage et la phase
-                const lignes = titreVoyage.texte.split('\n');
-                const voyageNom = lignes[0];
-                const phaseTexte = lignes[1] || '';
-
-                const voyageLabel = getTranslatedText('game.phase_display.voyage', 'Voyage');
-
-                // Première ombre (arrière) pour le titre voyage
-                ctx.fillText(`🗺️ ${voyageLabel} — ${voyageNom}`, C.W/2, voyageY);
-
-                // Deuxième couche avec ombre plus subtile pour le titre
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-                ctx.shadowBlur = 4;
-                ctx.fillText(`🗺️ ${voyageLabel} — ${voyageNom}`, C.W/2, voyageY);
-
-                // Sous-titre phase masqué - déjà affiché dans le header
-                // if (phaseTexte) {
-                //     ctx.font = `600 ${Math.max(C.H * 0.018, 16)}px 'Segoe UI', system-ui, sans-serif`;
-                //     ctx.fillStyle = '#ffffff';
-                //     ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                //     ctx.shadowOffsetX = 2;
-                //     ctx.shadowOffsetY = 2;
-                //     ctx.shadowBlur = 6;
-                //     ctx.fillText(phaseTexte, C.W/2, voyageY + Math.max(C.H * 0.035, 28));
-                // }
-
-                ctx.restore();
-            } else if (titreVoyage.active && Date.now() >= titreVoyage.fin) {
-                titreVoyage.active = false; // Désactiver après 4 secondes
-            }
-
-            // Stats ligne avec fond blanc plus près du header
-            const {y: statsY, height: bgHeight} = getStatsBarLayout();
-            const padding = 8;
-
-            // Blanc pur et opaque, indépendant des effets de la scène.
-            ctx.save();
-            ctx.globalAlpha = 1;
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, statsY - bgHeight / 2, C.W, bgHeight);
-            // Une seule séparation claire, sans encadrement gris.
-            ctx.fillStyle = '#e8edf5';
-            ctx.fillRect(0, statsY + bgHeight / 2 - 1, C.W, 1);
-            ctx.restore();
-
-            ctx.font = `600 ${Math.max(C.H * 0.02, 12)}px sans-serif`;
-            ctx.fillStyle = '#2c3e50';
-
-            // Score et Points XP avec indicateur de langue - centré verticalement dans la barre
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle'; // Centrer verticalement
-            const languageFlag = getCurrentLanguageFlag();
-            
-            // Effet de survol simple et sûr sur le drapeau
-            if (flagHoverAnimation > 0) {
-                // Interpolation pour l'animation
-                const alpha = flagHoverAnimation;
-                
-                const x = 8, y = statsY - 16, w = 134, h = 32;
-                const radius = 6;
-                
-                // Rectangle de fond simple avec transparence animée
-                ctx.fillStyle = `rgba(74, 144, 226, ${alpha * 0.2})`;
-                ctx.beginPath();
-                ctx.roundRect(x, y, w, h, radius);
-                ctx.fill();
-                
-                // Bordure subtile
-                ctx.strokeStyle = `rgba(74, 144, 226, ${alpha * 0.4})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // Texte avec transition de couleur simple
-                const r = Math.round(44 + (74 - 44) * alpha);  // Vers un bleu foncé
-                const g = Math.round(62 + (144 - 62) * alpha);
-                const b = Math.round(80 + (226 - 80) * alpha);
-                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-            } else {
-                // État normal
-                ctx.fillStyle = '#2c3e50';
-            }
-            
-            if(phaseJeu === 'tir_coeurs_haut') {
-                ctx.fillText(`${languageFlag} | ⭐ XP: ${pointsConnaissance}`, 15, statsY);
-            } else {
-                ctx.fillText(`${languageFlag} | 🕊️ ${score}`, 15, statsY);
-            }
-            
-            // IMPORTANT : Réinitialiser immédiatement l'ombre après le texte du drapeau
-            ctx.shadowColor = 'transparent';
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            ctx.shadowBlur = 0;
-
-            // Progression avec voyage et phase
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle'; // Centrer verticalement
-            ctx.fillStyle = '#2c3e50'; // S'assurer que la couleur est correcte pour la phase
-            let phaseInfo = '';
-            if (narrationManager && narrationManager.currentPhase) {
-                const phase = narrationManager.currentPhase; // Phase 1 = intro simple
-                let voyageIcon = '';
-                let voyageName = '';
-
-                if (phase === 1) {
-                    voyageIcon = '🌅'; voyageName = getTranslatedText('game.voyage_names.dawn_of_doubts', 'L\'aube des doutes');
-                } else if (phase === 2) {
-                    voyageIcon = '☀️'; voyageName = getTranslatedText('game.voyage_names.light', 'La lumière');
-                } else if (phase >= 3 && phase <= 4) {
-                    voyageIcon = '☁️'; voyageName = getTranslatedText('game.voyage_names.shadow_of_clouds', 'L\'ombre des nuages');
-                } else if (phase >= 5 && phase <= 6) {
-                    voyageIcon = '🤫'; voyageName = getTranslatedText('game.voyage_names.silence_of_soul', 'Le silence de l\'âme');
-                } else if (phase >= 7 && phase <= 9) {
-                    voyageIcon = '❤️'; voyageName = getTranslatedText('game.voyage_names.humanity_of_hearts', 'L\'humanité des cœurs');
-                } else if (phase >= 10 && phase <= 12) {
-                    voyageIcon = '🧠'; voyageName = getTranslatedText('game.voyage_names.wisdom_of_differences', 'La sagesse des différences');
-                } else if (phase >= 13 && phase <= 15) {
-                    voyageIcon = '🌍'; voyageName = getTranslatedText('game.voyage_names.unity', 'L\'unité');
-                } else if (phase === 16) {
-                    voyageIcon = '🎆'; voyageName = getTranslatedText('game.voyage_names.unity_of_humanity', 'L\'Unité de l\'Humanité');
-                } else if (phase >= 17 && phase <= 22) {
-                    voyageIcon = '🧱'; voyageName = getTranslatedText('game.voyage_names.wall_of_greed', 'Le Mur d\'avarice');
-                } else {
-                    voyageIcon = '🗺️'; voyageName = getTranslatedText('game.voyage_names.default', 'Voyage');
-                }
-
-                const phaseLabel = getTranslatedText('game.phase_display.phase_counter', 'Phase');
-                phaseInfo = `🗺️ ${phaseLabel} ${phase}/23`;
-            } else {
-                phaseInfo = `🧱 ${brises}/${VOYAGE.length}`;
-            }
-            ctx.fillText(phaseInfo, C.W/2, statsY);
-
-            // Vies
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle'; // Centrer verticalement
-            const coeurs = vies > 0 ? '❤️'.repeat(vies) : '💔';
-            ctx.fillText(coeurs, C.W - 15, statsY);
 
             // Sélecteur de mode de tir pour phases mur 17-22
             const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
@@ -10970,7 +10795,7 @@ if (!MODE_DEV) {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText('⭐', selectorX + iconSize / 2, selectorY + iconSize / 2);
+                PixelSprites.draw(ctx, 'star', selectorX + iconSize / 2, selectorY + iconSize / 2, 30);
 
                 // Icône Balle 🏮
                 const balleActive = modeTirMur === 'balle';
@@ -11023,8 +10848,8 @@ if (!MODE_DEV) {
 
         // Tirer un projectile étoile dans le mode stars
         function tirerStarsProjectile(mouseX, mouseY) {
-            // Ne tirer que dans la phase stars (phase 3)
-            if (phaseJeu !== 'stars') return;
+            const bonusActif = window.modeTirStars?.actif && Date.now() < window.modeTirStars.fin;
+            if (phaseJeu !== 'stars' && !(['lanterne', 'mur'].includes(phaseJeu) && bonusActif)) return;
 
             const startX = raquette.x + C.PW/2;
             const startY = raquette.y;
@@ -11064,13 +10889,13 @@ if (!MODE_DEV) {
         // Dessiner les projectiles stars
         function dessinerStarsProjectiles() {
             if (window.PixelSprites) {
-                if (!['stars', 'feux_artifice', 'lanterne'].includes(phaseJeu)) return;
+                if (!['stars', 'feux_artifice', 'lanterne', 'mur'].includes(phaseJeu)) return;
                 starsProjectiles.forEach(p => PixelSprites.projectile(ctx, p, 'star', (p.taille || 13) * 2));
                 return;
             }
 
             // Dessiner pendant la phase stars, feux_artifice ET lanterne (pour Poxerstart)
-            if (phaseJeu !== 'stars' && phaseJeu !== 'feux_artifice' && phaseJeu !== 'lanterne') return;
+            if (!['stars', 'feux_artifice', 'lanterne', 'mur'].includes(phaseJeu)) return;
             
             if (starsProjectiles.length === 0) return;
 
@@ -11171,7 +10996,11 @@ if (!MODE_DEV) {
 
         // Mettre à jour les projectiles stars
         function mettreAJourStarsProjectiles() {
-            if (phaseJeu !== 'stars' && phaseJeu !== 'feux_artifice') {
+            if (window.modeTirStars?.actif && Date.now() >= window.modeTirStars.fin) {
+                window.modeTirStars.actif = false;
+                raquette.poxerstart = false;
+            }
+            if (!['stars', 'feux_artifice', 'lanterne', 'mur'].includes(phaseJeu)) {
                 // Nettoyer les projectiles si on n'est pas dans la bonne phase
                 if (starsProjectiles.length > 0) {
                     starsProjectiles = [];
@@ -11185,6 +11014,8 @@ if (!MODE_DEV) {
                 proj.x += proj.dx;
                 proj.y += proj.dy;
 
+                if (powerUps.length && (phaseJeu === 'lanterne' || phaseJeu === 'mur')) mettreAJourPowerUps(proj);
+
                 // Supprimer les projectiles qui sortent de l'écran
                 if(proj.x < 0 || proj.x > C.W || proj.y < 0 || proj.y > C.H) {
                     starsProjectiles.splice(i, 1);
@@ -11192,7 +11023,7 @@ if (!MODE_DEV) {
                 }
 
                 // Collision avec les briques en phase stars
-                if(phaseJeu === 'stars') {
+                if(['stars', 'lanterne', 'mur'].includes(phaseJeu)) {
                     let briqueTouchee = false;
                     briques.forEach(brique => {
                         if(briqueTouchee) return;
@@ -11224,6 +11055,7 @@ if (!MODE_DEV) {
 
                                 if(brique.vie <= 0) {
                                     brique.visible = false;
+                                    grilleCollision.supprimerBrique(brique);
                                     brises++;
                                     //
                                     // Phases 17-22 : un mot sur deux s'envole (visible)
@@ -12008,8 +11840,8 @@ if (!MODE_DEV) {
                 ctx.lineWidth = estBriqueMur ? 4 : 2;
                 
                 // ⚡ PATH2D: Créer un seul path pour tous les rectangles du batch
-                const pathFill = new Path2D();
-                const pathStroke = new Path2D();
+                const pathFill = window.PixelSprites ? null : new Path2D();
+                const pathStroke = window.PixelSprites ? null : new Path2D();
                 const briquesClignote = []; // Briques qui clignotent (à dessiner séparément)
                 
                 batch.forEach((brique, index) => {
@@ -12019,14 +11851,14 @@ if (!MODE_DEV) {
                         brique.clignotement--;
                     } else {
                         // ⚡ Ajouter au path commun
-                        pathFill.rect(brique.x, brique.y, brique.w, brique.h);
-                        pathStroke.rect(brique.x, brique.y, brique.w, brique.h);
+                        pathFill?.rect(brique.x, brique.y, brique.w, brique.h);
+                        pathStroke?.rect(brique.x, brique.y, brique.w, brique.h);
                     }
                 });
                 
                 // ⚡ UN SEUL fill() et stroke() pour toutes les briques du batch !
-                ctx.fill(pathFill);
-                ctx.stroke(pathStroke);
+                if (pathFill) ctx.fill(pathFill);
+                if (pathStroke) ctx.stroke(pathStroke);
                 
                 // Dessiner les briques qui clignotent en blanc
                 if (briquesClignote.length > 0) {
@@ -13324,16 +13156,18 @@ if (!MODE_DEV) {
             });
         }
 
-        function mettreAJourPowerUps() {
+        function mettreAJourPowerUps(source = balle) {
             // Collision avec la balle (en phase lanterne ET mur)
-            if (balle && balle.visible && (phaseJeu === 'lanterne' || phaseJeu === 'mur')) {
+            if (source && source.visible !== false && (phaseJeu === 'lanterne' || phaseJeu === 'mur')) {
                 if(powerUps.length > 0) {
                     //console.log(`🔍 Vérif collision balle(${balle.x.toFixed(1)}, ${balle.y.toFixed(1)}) avec ${powerUps.length} power-ups`);
                 }
                 for(let i = powerUps.length - 1; i >= 0; i--) {
                     const power = powerUps[i];
-                    if(balle.x + C.BS >= power.x && balle.x - C.BS <= power.x + power.w &&
-                       balle.y + C.BS >= power.y && balle.y - C.BS <= power.y + power.h) {
+                    if (power.type === 'rainbow_hope') continue; // Collecte spéciale conservée.
+                    const rayon = source === balle ? C.BS : (source.taille || 4);
+                    if(source.x + rayon >= power.x && source.x - rayon <= power.x + power.w &&
+                       source.y + rayon >= power.y && source.y - rayon <= power.y + power.h) {
 
                     // Effets selon le type de power-up
                     switch(power.type) {
@@ -13354,7 +13188,7 @@ if (!MODE_DEV) {
                         case 'poxerstart':
                             // Active le mode tir étoiles POXERSTART pendant 7 secondes
                             // Système séparé du mode tir MUR (phases 17-22)
-                            if(!window.modeTirStars || !window.modeTirStars.actif) {
+                            if(!window.modeTirStars?.actif || Date.now() >= window.modeTirStars.fin) {
                                 const finTirStars = Date.now() + 7000;
                                 window.modeTirStars = { actif: true, fin: finTirStars };
                                 ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF69B4', 8);
@@ -13403,6 +13237,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'red_cross':
+                            score += 100;
                             // Croix rouge : Frontières (sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF0000', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13410,6 +13245,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'broken_heart':
+                            score += 100;
                             // Cœur brisé : Refus et espoir brisé (sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#8B0000', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13417,6 +13253,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'gray_heart':
+                            score += 100;
                             // Cœur gris : Liberté vs Prison (sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#A9A9A9', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13424,6 +13261,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'black_heart':
+                            score += 100;
                             // Cœur noir : Enfermement (très sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#2C2C2C', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13431,6 +13269,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'chain':
+                            score += 100;
                             // Chaînes : Pauvreté emprisonne (sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#708090', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13438,6 +13277,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'barbed_wire':
+                            score += 100;
                             // Barbelés : Frontières blessent (sombre)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#C0C0C0', 15);
                             AudioSystem.playDarkCollect(); // 🔊 Son sombre
@@ -13445,6 +13285,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'green_heart':
+                            score += 100;
                             // Cœur vert : Nature, vie, espoir (joyeux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#00FF00', 15);
                             AudioSystem.playJoyfulCollect(); // 🔊 Son joyeux
@@ -13452,6 +13293,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'yellow_heart':
+                            score += 100;
                             // Cœur jaune : Joie, lumière, amitié (joyeux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFFF00', 15);
                             AudioSystem.playJoyfulCollect(); // 🔊 Son joyeux
@@ -13459,6 +13301,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'blue_heart':
+                            score += 100;
                             // Cœur bleu : Paix, confiance, sérénité (joyeux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#0000FF', 15);
                             AudioSystem.playJoyfulCollect(); // 🔊 Son joyeux
@@ -13466,6 +13309,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'purple_heart':
+                            score += 100;
                             // Cœur violet : Spiritualité, sagesse, unité (doux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#9400D3', 15);
                             AudioSystem.playSoftCollect(); // 🔊 Son doux
@@ -13473,6 +13317,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'vibrant_heart':
+                            score += 100;
                             // Cœur vibrant : Espoir qui bat (doux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF1493', 15);
                             AudioSystem.playSoftCollect(); // 🔊 Son doux
@@ -13507,6 +13352,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'smile':
+                            score += 100;
                             // Sourire : Joie et liberté retrouvée (pétillant)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFD700', 15);
                             AudioSystem.playSparkleCollect(); // 🔊 Son pétillant
@@ -13514,6 +13360,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'red_heart':
+                            score += 100;
                             // Cœur rouge : Compassion refusée (doux)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FF0000', 15);
                             AudioSystem.playSoftCollect(); // 🔊 Son doux
@@ -13521,6 +13368,7 @@ if (!MODE_DEV) {
                             break;
 
                         case 'open_hands':
+                            score += 100;
                             // Mains transaction : Argent et privilèges (pièce)
                             ajouterParticules(power.x + power.w/2, power.y + power.h/2, '#FFD700', 15);
                             AudioSystem.playCoin(); // 🔊 Son de pièce (argent)
@@ -13582,6 +13430,9 @@ if (!MODE_DEV) {
                     }
                 }
             }
+
+            // Les tirs activent les mêmes effets sans traiter plusieurs fois l'expiration.
+            if (source !== balle) return;
 
             // Vérifier l'expiration des power-ups (4 secondes = 240 frames à 60fps)
             for(let i = powerUps.length - 1; i >= 0; i--) {
@@ -15356,8 +15207,8 @@ if (!MODE_DEV) {
             
             // Limiter le nombre total de particules pour les performances
             const maxParticules = 60;
-            if(particules.length >= maxParticules) {
-                particules.splice(0, nombre); // Supprimer les plus anciennes
+            if(particules.length + nombre > maxParticules) {
+                particules.splice(0, particules.length + nombre - maxParticules); // Supprimer les plus anciennes
             }
 
             for(let i = 0; i < nombre; i++) {
@@ -15365,7 +15216,7 @@ if (!MODE_DEV) {
                     x, y,
                     vx: (Math.random() - 0.5) * 2, // Dispersion horizontale réduite
                     vy: -(Math.random() * 3 + 2),  // Vitesse verticale réduite
-                    couleur, vie: 1,
+                    couleur, vie: 36,
                     taille: Math.random() * 3 + 2,
                     type: 'coeur'
                 });
@@ -15425,7 +15276,8 @@ if (!MODE_DEV) {
             if (window.PixelSprites) {
                 ctx.save();
                 for (const p of particules) {
-                    ctx.globalAlpha = Math.max(.1, Math.min(1, p.vie * .8));
+                    // Fondu final commun, sans maintenir un résidu opaque.
+                    ctx.globalAlpha = Math.max(0, Math.min(1, p.vie / 12)) * (p.opacity ?? 1);
                     if (p.type === 'coeur' || p.type === 'etoile') {
                         PixelSprites.draw(ctx, p.type === 'coeur' ? 'heart' : 'star', p.x, p.y, Math.max(4, p.taille * 2), p.couleur);
                     } else if (p.type === 'emoji') {
@@ -15433,8 +15285,9 @@ if (!MODE_DEV) {
                         PixelSprites.text(ctx, p.emoji, p.x, p.y); ctx.restore();
                     } else {
                         ctx.fillStyle = p.couleur;
-                        const size = Math.max(2, Math.round(p.taille || 2));
-                        ctx.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, size, p.longueur || size);
+                        const size = Math.max(2, Math.round((p.taille || 2) / 2) * 2);
+                        const height = p.type === 'trait_lumineux' ? Math.max(2, Math.round((p.longueur || size) / 2) * 2) : size;
+                        ctx.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, size, height);
                     }
                 }
                 ctx.restore();
@@ -16068,6 +15921,8 @@ if (!MODE_DEV) {
                 proj.x += proj.dx;
                 proj.y += proj.dy;
                 
+                if (powerUps.length) mettreAJourPowerUps(proj);
+
                 // Mettre à jour les effets spéciaux
                 if (proj.config) {
                     // Rotation pour phase 23 - ⚡ Simplifiée (0.1 → 0.05)
@@ -16950,11 +16805,27 @@ if (!MODE_DEV) {
             }
         }
 
+        function palierRecommencement(phase) {
+            const paliers = [2, 5, 9, 13, 17, 20, 22];
+            return paliers.filter(p => p <= phase).pop() || 2;
+        }
+
         function recommencerJeuGameOver() {
-            console.log('🔄 Recommencer après Game Over - Rechargement de la page...');
-            window.isRestarting = true;
-            GameSaveSystem.clear();
-            location.reload();
+            if (!narrationManager) return;
+            const palier = palierRecommencement(narrationManager.currentPhase);
+            formulaireFinAffiche = false;
+            narrationManager.currentPhase = palier;
+            narrationManager.isTransitioning = false;
+            window.narrationStarted = true;
+            window.skipNarrationIntro = true;
+            if (menuEnigmesCanvas) menuEnigmesCanvas.visible = false;
+            messagePowerupActif = null;
+            balle.vitesseActive = false;
+            balle.multiplicateurVitesse = 1;
+            balle.traineeVerte = false;
+            // Reconfigure le palier et ses cibles, conserve score et énigmes.
+            recreerPhaseActuelle(true);
+            GameSaveSystem.save();
         }
         
         // Version legacy (non utilisée)
@@ -18365,11 +18236,6 @@ Elle a besoin de ponts.`
             // ⚡ OPTIMISATION: Incrémenter le compteur de frames
             fondAniméCache.frameCount++;
 
-            // ⚡ OPTIMISATION: Initialiser les gradients si nécessaire
-            if (!fondAniméCache.gradients.merJour || !fondAniméCache.gradients.merNuit) {
-                initGradientsMer();
-            }
-
             PixelArt.sea(ctx, C, periode);
 
             // ⚡ OPTIMISATION: Mettre à jour les requins tous les N frames
@@ -18391,45 +18257,9 @@ Elle a besoin de ponts.`
                     });
                 }
                 
-                // ⚡ OPTIMISATION: Dessiner tous les requins en batch avec Path2D
-                // Créer les paths pour tous les ailerons
-                const pathAileronsFill = new Path2D();
-                const pathAileronsStroke = new Path2D();
-                const pathVaguesBlanches = new Path2D();
-                
-                fondAniméCache.sharkPositions.forEach(({reqX, reqY, taille}) => {
-                    // Aileron principal - ajouter au path de remplissage
-                    pathAileronsFill.moveTo(reqX - taille*0.5, reqY + taille*0.8);
-                    pathAileronsFill.lineTo(reqX, reqY - taille);
-                    pathAileronsFill.lineTo(reqX + taille*0.3, reqY + taille*0.5);
-                    pathAileronsFill.lineTo(reqX - taille*0.2, reqY + taille*0.8);
-                    pathAileronsFill.closePath();
-                    
-                    // Contour aileron - ajouter au path de contour
-                    pathAileronsStroke.moveTo(reqX - taille*0.5, reqY + taille*0.8);
-                    pathAileronsStroke.lineTo(reqX, reqY - taille);
-                    pathAileronsStroke.lineTo(reqX + taille*0.3, reqY + taille*0.5);
-                    pathAileronsStroke.lineTo(reqX - taille*0.2, reqY + taille*0.8);
-                    pathAileronsStroke.closePath();
-                    
-                    // Vague blanche - ajouter au path de vagues
-                    pathVaguesBlanches.moveTo(reqX - taille, reqY + taille*0.5);
-                    pathVaguesBlanches.lineTo(reqX - taille*2, reqY + taille*0.3);
-                });
-                
-                // UN SEUL fill() pour tous les ailerons
-                ctx.fillStyle = '#2F4F4F';
-                ctx.fill(pathAileronsFill);
-                
-                // UN SEUL stroke() pour tous les contours d'ailerons
-                ctx.strokeStyle = '#1C1C1C';
-                ctx.lineWidth = 2;
-                ctx.stroke(pathAileronsStroke);
-                
-                // UN SEUL stroke() pour toutes les vagues blanches
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 1;
-                ctx.stroke(pathVaguesBlanches);
+                for (const {reqX, reqY, taille} of fondAniméCache.sharkPositions) {
+                    PixelArt.shark(ctx, reqX, reqY, taille);
+                }
             }
         }
 
@@ -18720,10 +18550,8 @@ Elle a besoin de ponts.`
 
         // Rendu principal
         function dessiner() {
-            // ⚡ OPTIMISATION #6 : Clear canvas au début du rendu principal
-            // Évite accumulation et ghosting des éléments dessinés
-            // (Note: boucleJeu() fait aussi un clear, mais dessiner() peut être appelé seul)
-            ctx.clearRect(0, 0, C.W, C.H);
+            // Le fond pixel opaque efface la scène en un seul dessin.
+
 
             // 📱 Appliquer l'inertie du bateau (après touch)
             appliquerInertieBateau();
@@ -18740,15 +18568,6 @@ Elle a besoin de ponts.`
                 return;
             }
 
-            // ⚡ OPTIMISATION: Utiliser gradients en cache au lieu de les recréer
-            if(phaseJeu === 'feux_artifice' || phaseJeu === 'final') {
-                ctx.fillStyle = fondAniméCache.gradients.fondFinale;
-            } else if(periode === 'jour') {
-                ctx.fillStyle = fondAniméCache.gradients.fondJour;
-            } else {
-                ctx.fillStyle = fondAniméCache.gradients.fondNuit;
-            }
-            ctx.fillRect(0, 0, C.W, C.H);
             PixelArt.background(ctx, C, periode, phaseJeu === 'final' || phaseJeu === 'feux_artifice');
 
             // Phase finale : soleil couchant derrière la mer
@@ -18841,6 +18660,16 @@ Elle a besoin de ponts.`
 
             dessinerParticules();
             dessinerPluie(); // Dessiner la pluie (phase 5)
+
+            // Effets de drones derrière le bandeau et les menus
+            if (droneModule) {
+                try {
+                    droneModule.render();
+                } catch (error) {
+                    console.error('❌ Erreur rendu drones:', error);
+                }
+            }
+
 
             PixelSprites.finish(ctx, canvas);
             dessinerInterface();
@@ -18951,39 +18780,6 @@ Elle a besoin de ponts.`
 
             // Bouton Suivant simple pour phase 16
             dessinerBoutonSuivantP16();
-
-            // 🔊 Menu audio en haut à droite : volume +/-
-            const menuX = C.W - 50; // 50px du bord droit
-            const menuY = 8;
-
-            ctx.save();
-            ctx.font = '18px Arial';
-            ctx.textBaseline = 'top';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 3;
-
-            // Volume − (diminuer)
-            const prevBtn = { x: menuX - 10, y: menuY - 5, w: 26, h: 30 };
-            window.prevSongZone = prevBtn;
-            ctx.fillText('−', menuX, menuY);
-
-            // Volume + (augmenter)
-            const nextBtn = { x: menuX + 10, y: menuY - 5, w: 26, h: 30 };
-            window.nextSongZone = nextBtn;
-            ctx.fillText('+', menuX + 20, menuY);
-
-            ctx.restore();
-
-            // Rendu des drones feux d'artifice EN DERNIER pour être visible
-            if (droneModule) {
-                try {
-                    droneModule.render();
-                } catch (error) {
-                    console.error('❌ Erreur rendu drones:', error);
-                }
-            }
 
             // Menu de langue en jeu (désactivé - ce code n'est plus utilisé)
             // Le sélecteur de langue s'affiche uniquement au premier démarrage (voir plus bas)
@@ -19503,6 +19299,61 @@ Elle a besoin de ponts.`
         }
 
         // Événements tactiles - REFONTE SIMPLIFIÉE
+        function reglerAudioHud(x, y) {
+            const hud = PixelHUD.layout(C);
+            for (const [button, delta] of [[hud.minus, -0.25], [hud.plus, 0.25]]) {
+                if (x < button.x || x > button.x + button.w || y < button.y || y > button.y + button.h) continue;
+                if (musicManager) {
+                    if (delta > 0 && musicManager.isMuted) musicManager.toggleMute();
+                    musicManager.setVolume(Math.max(0, Math.min(1, musicManager.volume.master + delta)));
+                    AudioSystem.playClick();
+                }
+                return true;
+            }
+            return false;
+        }
+
+        let tirSecretTactileTimer = null;
+        function positionLogiqueSecret(event) {
+            const point = event.touches?.[0] || event.changedTouches?.[0] || event;
+            const rect = getCachedCanvasRect();
+            return {x: (point.clientX - rect.left) * C.W / rect.width,
+                y: (point.clientY - rect.top) * C.H / rect.height};
+        }
+        function arreterTirSecretTactile() {
+            if (tirSecretTactileTimer !== null) clearInterval(tirSecretTactileTimer);
+            tirSecretTactileTimer = null;
+        }
+        function demarrerTirSecretTactile(event) {
+            if (!(secretModeModule && secretModeModule.isActive)) return false;
+            const module = secretModeModule;
+            const point = positionLogiqueSecret(event);
+            if (module.waitingForGameReady) return true;
+            arreterTirSecretTactile();
+            const menuInitial = module.isMenuPhase;
+            module.createProjectile(point.x, point.y);
+            if (menuInitial) return true; // Le toucher sur GO ne déplace pas le bateau.
+            deplacerRaquette(point.x, true);
+            tirSecretTactileTimer = setInterval(() => {
+                if (!module.isActive || module !== secretModeModule || module.isMenuPhase ||
+                    menuEnigmesCanvas.visible || document.hidden || !tactile) {
+                    arreterTirSecretTactile();
+                    return;
+                }
+                module.createProjectile();
+            }, 150);
+            return true;
+        }
+        canvas.addEventListener('touchcancel', () => {
+            tactile = false;
+            dernierTouchX = null;
+            arreterTirSecretTactile();
+        }, {passive: true});
+        window.addEventListener('blur', arreterTirSecretTactile);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) arreterTirSecretTactile();
+        });
+
         canvas.addEventListener('touchstart', async e => {
             e.preventDefault();
             tactile = true;
@@ -19764,9 +19615,12 @@ Elle a besoin de ponts.`
             // 🎯 PRIORITÉ 2: BOUTONS D'INTERFACE (menu fermé)
             // ═══════════════════════════════════════════════════════════════
             
+            const hudTouch = positionLogiqueSecret(e);
+            if (reglerAudioHud(hudTouch.x, hudTouch.y)) return;
+
             // Zone drapeau (en haut à gauche) → ouvre menu langues
             const statsY = getStatsBarLayout().y;
-            const flagZone = { x: 10, y: statsY - 15, width: 130, height: 30 };
+            const flagZone = getStatsBarLayout().language;
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
@@ -19792,6 +19646,14 @@ Elle a besoin de ponts.`
             // 🎯 PRIORITÉ 4: INTERACTIONS DE JEU
             // ═══════════════════════════════════════════════════════════════
             
+            // Le mode secret a ses propres états et ne dépend pas de la narration normale.
+            if (demarrerTirSecretTactile(e)) return;
+            if (modeSecret) {
+                const point = positionLogiqueSecret(e);
+                creerProjectile(point.x, point.y);
+                return;
+            }
+
             // Bloquer si animation ou transition
             if (animationBateau.active || narrationManager.isTransitioning) {
                 return;
@@ -19835,7 +19697,7 @@ Elle a besoin de ponts.`
         });
 
         canvas.addEventListener('touchmove', e => {
-            if(animationBateau.active || !tactile) return; // Bloquer pendant l'animation
+            if (!tactile || (animationBateau.active && !(secretModeModule && secretModeModule.isActive))) return; // Bloquer pendant l'animation
             e.preventDefault(); // preventDefault après le return rapide pour optimiser
             
             // ⚡ OPTIMISATION: Calculer position seulement si nécessaire
@@ -19871,6 +19733,8 @@ Elle a besoin de ponts.`
         canvas.addEventListener('touchend', e => {
             // ⚡ OPTIMISATION: Pas de preventDefault sur touchend pour éviter ralentissement
             // Le preventDefault n'est nécessaire que sur touchstart/touchmove pour éviter le scroll
+            if (e.touches && e.touches.length > 0) return;
+            arreterTirSecretTactile();
             tactile = false;
             dernierTouchX = null; // Réinitialiser pour le prochain touch
         }, { passive: true }); // passive: true = plus performant
@@ -19893,12 +19757,7 @@ Elle a besoin de ponts.`
 
             // 🌍 Vérifier le survol du drapeau en haut
             const statsY = getStatsBarLayout().y;
-            const flagZone = {
-                x: 10,
-                y: statsY - 15,
-                width: 130,
-                height: 30
-            };
+            const flagZone = getStatsBarLayout().language;
             
             const wasHovering = flagHover;
             flagHover = (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
@@ -20043,12 +19902,7 @@ Elle a besoin de ponts.`
 
             // 🌍 Vérifier le clic sur le drapeau en haut (priorité absolue)
             const statsY = getStatsBarLayout().y;
-            const flagZone = {
-                x: 10,
-                y: statsY - 15,
-                width: 130,
-                height: 30
-            };
+            const flagZone = getStatsBarLayout().language;
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
@@ -20294,12 +20148,7 @@ Elle a besoin de ponts.`
 
             // 🌍 Zone du drapeau - priorité absolue
             const statsY = getStatsBarLayout().y;
-            const flagZone = {
-                x: 10,
-                y: statsY - 15,
-                width: 130,
-                height: 30
-            };
+            const flagZone = getStatsBarLayout().language;
             
             if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
                 y >= flagZone.y && y <= flagZone.y + flagZone.height) {
@@ -20959,8 +20808,8 @@ Elle a besoin de ponts.`
             // 🎮 PRIORITÉ ABSOLUE : MODE SECRET
             if (secretModeModule && secretModeModule.isActive) {
                 const rect = canvas.getBoundingClientRect();
-                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
                 
                 secretModeModule.createProjectile(mouseX, mouseY);
                 console.log('🎯 Tir laser mode secret (triple laser)');
@@ -20968,8 +20817,8 @@ Elle a besoin de ponts.`
             } else if (modeSecret) {
                 // Fallback variable globale
                 const rect = canvas.getBoundingClientRect();
-                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
                 
                 if (typeof creerProjectile === 'function') {
                     creerProjectile();
@@ -20983,8 +20832,8 @@ Elle a besoin de ponts.`
             if(phaseJeu === 'stars') {
                 // Phase stars : tir d'étoiles en mode nuit
                 const rect = canvas.getBoundingClientRect();
-                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
 
                 // Munitions infinies en mode stars
                 tirerStarsProjectile(mouseX, mouseY);
@@ -20992,14 +20841,14 @@ Elle a besoin de ponts.`
             } else if(phaseJeu === 'tir_coeur_libre') {
                 // 💖 MODE TIR CŒUR LIBRE : Tirer des cœurs géométriques
                 const rect = canvas.getBoundingClientRect();
-                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
                 
                 tirerCoeurLibre(mouseX, mouseY);
             } else if(phaseJeu === 'lanterne' || phaseJeu === 'mur') {
                 const rect = canvas.getBoundingClientRect();
-                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
                 
                 // PRIORITÉ : Mode mur phases 17-22 tire des projectiles, phase 23 fin
                 const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
@@ -21057,8 +20906,8 @@ Elle a besoin de ponts.`
                 } else {
                     // En mode secret, utiliser le module
                     const rect = canvas.getBoundingClientRect();
-                    const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-                    const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                    const mouseX = (e.clientX - rect.left) * (C.W / rect.width);
+                    const mouseY = (e.clientY - rect.top) * (C.H / rect.height);
                     
                     if (secretModeModule && secretModeModule.isActive) {
                         secretModeModule.createProjectile(mouseX, mouseY);
@@ -21535,46 +21384,41 @@ Elle a besoin de ponts.`
 
         // ========== MODULE OISEAUX CSS - FONCTION MODIFIÉE ==========
         function dessinerCorbeau() {
-            const crowElement = document.getElementById('crow');
-            const doveElement = document.getElementById('dove');
-
-            if (!corbeau.actif || (phaseIntro && phaseIntro.active)) {
-                // Masquer tous les oiseaux
-                crowElement.classList.remove('bird-visible');
-                crowElement.classList.add('bird-hidden');
-                doveElement.classList.remove('bird-visible');
-                doveElement.classList.add('bird-hidden');
-                return;
+            const cache = dessinerCorbeau.cache || (dessinerCorbeau.cache = {
+                crow: document.getElementById('crow'), dove: document.getElementById('dove'),
+                visible: undefined, positions: {}, animations: {},
+                translate: !!window.CSS?.supports('translate', '1px 1px')
+            });
+            const id = corbeau.actif && !(phaseIntro && phaseIntro.active)
+                ? (corbeau.type === 'corbeau' ? 'crow' : 'dove') : null;
+            if (id !== cache.visible) {
+                for (const name of ['crow', 'dove']) {
+                    cache[name].classList.toggle('bird-visible', name === id);
+                    cache[name].classList.toggle('bird-hidden', name !== id);
+                }
+                cache.visible = id;
             }
-
-            // Positionner l'oiseau selon les coordonnées
-            const activeElement = corbeau.type === 'corbeau' ? crowElement : doveElement;
-            const inactiveElement = corbeau.type === 'corbeau' ? doveElement : crowElement;
-
-            // Masquer l'oiseau inactif
-            inactiveElement.classList.remove('bird-visible');
-            inactiveElement.classList.add('bird-hidden');
-
-            // Positionner et afficher l'oiseau actif avec transform au lieu de left/top
-            // Cela évite les reflows et utilise le GPU (pas de scintillement mer)
-            // IMPORTANT: On utilise left/top car l'animation CSS utilise déjà transform
-            activeElement.style.left = `${corbeau.x}px`;
-            activeElement.style.top = `${corbeau.y}px`;
-            activeElement.style.transform = `scale(var(--bird-scale))`; // Juste le scale
-
-            // Orienter l'oiseau selon sa direction avec l'animation appropriée
-            if (corbeau.vx < 0) {
-                // Va vers la gauche - utiliser animation retournée
-                activeElement.style.animation = 'crow-auto-flight-left calc(2s / var(--animation-speed)) infinite';
-                //console.log('🐦 Corbeau orienté GAUCHE ← (animation crow-auto-flight-left), x:', corbeau.x);
-            } else {
-                // Va vers la droite - animation normale
-                activeElement.style.animation = 'crow-auto-flight calc(2s / var(--animation-speed)) infinite';
-                //console.log('🐦 Corbeau orienté DROITE → (animation crow-auto-flight), x:', corbeau.x);
+            if (!id) return;
+            const element = cache[id];
+            const x = Math.round(corbeau.x), y = Math.round(corbeau.y);
+            const position = `${x}px ${y}px`;
+            if (cache.positions[id] !== position) {
+                if (cache.translate) {
+                    if (cache.positions[id] === undefined) {
+                        element.style.left = '0px'; element.style.top = '0px';
+                    }
+                    element.style.translate = position;
+                } else {
+                    element.style.left = x + 'px'; element.style.top = y + 'px';
+                }
+                cache.positions[id] = position;
             }
-
-            activeElement.classList.remove('bird-hidden');
-            activeElement.classList.add('bird-visible');
+            const animation = corbeau.vx < 0 ? 'crow-auto-flight-left' : 'crow-auto-flight';
+            if (cache.animations[id] !== animation) {
+                element.style.transform = 'scale(var(--bird-scale))';
+                element.style.animation = animation + ' calc(2s / var(--animation-speed)) infinite';
+                cache.animations[id] = animation;
+            }
         }
 
         // Textes volants qui grossissent et montent tout doucement vers le centre
@@ -21666,10 +21510,6 @@ Elle a besoin de ponts.`
 
         // Boucle de jeu
         function boucleJeu() {
-            // ⚡ OPTIMISATION #1 : CLEAR CANVAS AU DÉBUT DE CHAQUE FRAME
-            // Évite l'accumulation de dessins et surcharge GPU mobile
-            ctx.clearRect(0, 0, C.W, C.H);
-            
             // Animation du survol du drapeau (simple)
             if (flagHover && flagHoverAnimation < 1) {
                 flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
@@ -21679,7 +21519,7 @@ Elle a besoin de ponts.`
             
             // 🌍 SI LANGUE NON CHOISIE : dessiner seulement le sélecteur
             if (languageSelector.active && !languageSelector.languageChosen) {
-                // Canvas déjà clear en haut
+                // Le fond opaque ci-dessous remplace complètement l’image précédente.
 
                 // ⚡ OPTIMISATION: Créer gradient une seule fois
                 if (!fondAniméCache.gradients.languageSelector) {

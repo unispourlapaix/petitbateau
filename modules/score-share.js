@@ -143,7 +143,7 @@
   const share=overlay.querySelector('[data-action="share"]'),download=overlay.querySelector('[data-action="download"]'),change=overlay.querySelector('[data-action="change"]');
   const controller={overlay,blob:null,data,close,revision:0};current=controller;
   const setStatus=value=>status.textContent=value;
-  function close(){controller.revision++;overlay.remove();if(current===controller)current=null;document.removeEventListener('keydown',keyboard,true);options.onClose?.();previous?.focus?.();}
+  function close(reason){if(current!==controller)return;controller.revision++;overlay.remove();if(current===controller)current=null;document.removeEventListener('keydown',keyboard,true);options.onClose?.(reason);previous?.focus?.();}
   function keyboard(event){
    event.stopImmediatePropagation();
    if(event.key==='Escape'){event.preventDefault();close();return;}
@@ -182,7 +182,7 @@
   };
   download.onclick=save;change.onclick=regenerate;
   overlay.querySelector('.score-share-close').onclick=close;
-  const replay=overlay.querySelector('[data-action="restart"]');if(replay)replay.onclick=()=>{close();options.onRestart();};
+  const replay=overlay.querySelector('[data-action="restart"]');if(replay)replay.onclick=()=>{close('restart');options.onRestart();};
   document.addEventListener('keydown',keyboard,true);overlay.querySelector('.score-share-close').focus();regenerate();
  }
  window.ScoreShare={fontFamily,open,render,scene,normalize,close:()=>current?.close(),themes:themes.map(t=>t.name),gameUrl:GAME_URL};

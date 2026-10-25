@@ -1,7 +1,7 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.7.6-reset-menu'; // Compatible multi-domaines
-const CACHE_PREFIX = 'petitbateau-';
+const CACHE_NAME = 'petit-bateau-v2.8.12-wall-bonuses'; // Compatible multi-domaines
+const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
@@ -25,7 +25,6 @@ const urlsToCache = [
   './modules/kawaii_objects_module.js',
   './modules/language-selector.js',
   './modules/narration-bridge.js',
-  './modules/narration-data.json',
   './modules/narration-manager.js',
   './modules/phase-bonus-mur.js',
   './modules/phase1-intro.js',
@@ -39,6 +38,7 @@ const urlsToCache = [
   './modules/config/game-config.js',
   './modules/graphics/pixel-art.js',
   './modules/graphics/pixel-sprites.js',
+  './modules/graphics/pixel-hud.js',
   './modules/graphics/navigation-menu.js',
   './modules/styles/navigation-menu.css',
   // Graphiques
@@ -73,7 +73,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('✅ Installation terminée - 33 Millions de Raisons de Partager la Paix');
-        self.skipWaiting();
+        return self.skipWaiting();
       })
       .catch(error => {
         console.error('❌ Erreur lors de l\'installation:', error);
@@ -89,7 +89,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           // Ne supprimer que les caches de ce jeu spécifiquement
-          if (cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME) {
+          if ((cacheName.startsWith(CACHE_PREFIX) || cacheName.startsWith('petitbateau-')) && cacheName !== CACHE_NAME) {
             console.log('🗑️ Suppression du cache obsolète:', cacheName);
             return caches.delete(cacheName);
           }
@@ -97,7 +97,7 @@ self.addEventListener('activate', event => {
       );
     }).then(() => {
       console.log('✅ Activation terminée');
-      self.clients.claim();
+      return self.clients.claim();
     })
   );
 });
@@ -123,7 +123,8 @@ self.addEventListener('fetch', event => {
   }
   
   event.respondWith(
-    caches.match(event.request)
+    caches.open(CACHE_NAME)
+      .then(cache => cache.match(event.request))
       .then(response => {
         // Retourner la ressource mise en cache si disponible
         if (response) {
@@ -151,7 +152,7 @@ self.addEventListener('fetch', event => {
       .catch(() => {
         // En cas d'erreur, afficher une page d'erreur personnalisée
         if (event.request.destination === 'document') {
-          return caches.match('./petitbateauRouge.html');
+          return caches.open(CACHE_NAME).then(cache => cache.match('./petitbateauRouge.html'));
         }
         // Pour les autres ressources, retourner une réponse vide
         return new Response('{}', {

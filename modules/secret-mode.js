@@ -173,8 +173,8 @@ class SecretModeModule {
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: ${this.canvas.width}px;
-                height: ${this.canvas.height}px;
+                width: ${this.gameState.C.W}px;
+                height: ${this.gameState.C.H}px;
                 pointer-events: none;
                 z-index: 30;
                 overflow: visible;
@@ -357,8 +357,8 @@ class SecretModeModule {
 
             if (this.gameState.ajouterParticules) {
                 // Explosion de particules dorées pour la découverte
-                const centerX = this.canvas.width / 2;
-                const centerY = this.canvas.height / 2;
+                const centerX = this.gameState.C.W / 2;
+                const centerY = this.gameState.C.H / 2;
                 this.gameState.ajouterParticules(centerX, centerY, '#FFD700', 8);
             }
 
@@ -370,9 +370,9 @@ class SecretModeModule {
             this.clearKawaiiObjects(); // Nettoyer les anciens objets
             
             // 🔧 Mettre à jour les dimensions du conteneur pour matcher le canvas
-            this.kawaiiContainer.style.width = `${this.canvas.width}px`;
-            this.kawaiiContainer.style.height = `${this.canvas.height}px`;
-            console.log(`📐 Conteneur kawaii redimensionné: ${this.canvas.width}x${this.canvas.height}`);
+            this.kawaiiContainer.style.width = `${this.gameState.C.W}px`;
+            this.kawaiiContainer.style.height = `${this.gameState.C.H}px`;
+            console.log(`📐 Conteneur kawaii redimensionné: ${this.gameState.C.W}x${this.gameState.C.H}`);
         }
 
         console.log('🚀 Mode secret activé - Survie 60s !');
@@ -613,7 +613,7 @@ class SecretModeModule {
 
     // Mettre à jour les projectiles avec oscillation kawaii
     updateProjectiles() {
-        const C = { W: this.canvas.width, H: this.canvas.height };
+        const C = { W: this.gameState.C.W, H: this.gameState.C.H };
         
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
@@ -630,7 +630,7 @@ class SecretModeModule {
 
     // Mettre à jour les obstacles
     updateObstacles() {
-        const C = { W: this.canvas.width, H: this.canvas.height };
+        const C = { W: this.gameState.C.W, H: this.gameState.C.H };
 
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obs = this.obstacles[i];
@@ -932,14 +932,15 @@ class SecretModeModule {
     createProjectile(mouseX, mouseY) {
         if (!this.isActive) return;
 
-        // Si on est en phase de menu, vérifier le clic sur le bouton GO!
-        if (this.isMenuPhase && this.goButton && mouseX && mouseY) {
-            if (mouseX >= this.goButton.x && mouseX <= this.goButton.x + this.goButton.width &&
+        // Aucun tir pendant l'attente ou le menu ; GO accepte aussi les coordonnées à zéro.
+        if (this.waitingForGameReady) return;
+        if (this.isMenuPhase) {
+            if (this.goButton && Number.isFinite(mouseX) && Number.isFinite(mouseY) &&
+                mouseX >= this.goButton.x && mouseX <= this.goButton.x + this.goButton.width &&
                 mouseY >= this.goButton.y && mouseY <= this.goButton.y + this.goButton.height) {
-                this.startGame(); // Démarrer immédiatement
-                return;
+                this.startGame();
             }
-            return; // Ignorer les autres clics pendant le menu
+            return;
         }
 
         if (!this.gameState.raquette) return;
@@ -981,18 +982,18 @@ class SecretModeModule {
         console.log('🎨 render() mode secret - isMenuPhase:', this.isMenuPhase, 'waitingForGameReady:', this.waitingForGameReady);
 
         // ⚠️ IMPORTANT: Effacer tout le canvas et dessiner le fond
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.gameState.C.W, this.gameState.C.H);
         
         // ⚡ CACHE: Fond bleu mer
-        if (!this.bgGradientCache || this.bgGradientCache.height !== this.canvas.height) {
-            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        if (!this.bgGradientCache || this.bgGradientCache.height !== this.gameState.C.H) {
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.gameState.C.H);
             gradient.addColorStop(0, '#87CEEB');
             gradient.addColorStop(0.5, '#4A90E2');
             gradient.addColorStop(1, '#1E3A8A');
-            this.bgGradientCache = { gradient, height: this.canvas.height };
+            this.bgGradientCache = { gradient, height: this.gameState.C.H };
         }
         this.ctx.fillStyle = this.bgGradientCache.gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.gameState.C.W, this.gameState.C.H);
         if (window.PixelArt) {
             PixelArt.background(this.ctx, this.gameState.C, 'nuit', false);
             PixelArt.sea(this.ctx, this.gameState.C, 'nuit');
@@ -1295,7 +1296,7 @@ class SecretModeModule {
 
         // BANDEAU BLANC EN HAUT - Score et Timer (sous le header)
         const bandeauY = 60; // Décalé pour ne pas cacher le header
-        const bandeauW = this.canvas.width;
+        const bandeauW = this.gameState.C.W;
         const bandeauH = 35; // Plus compact
 
         // Fond blanc du bandeau avec transparence
@@ -1338,8 +1339,8 @@ class SecretModeModule {
 
     // Afficher le menu de démarrage (10 secondes) - Texte noir centré uniquement
     renderMenu() {
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
+        const centerX = this.gameState.C.W / 2;
+        const centerY = this.gameState.C.H / 2;
 
         // Tout le texte en noir gras, centré
         this.ctx.fillStyle = '#000000';
@@ -1446,7 +1447,7 @@ class SecretModeModule {
             return;
         }
 
-        const C = { W: this.canvas.width, H: this.canvas.height };
+        const C = { W: this.gameState.C.W, H: this.gameState.C.H };
         
         // ⚡ LIMITE: Maximum 3 objets à l'écran
         const maxActiveObjects = 3;
@@ -1508,7 +1509,7 @@ class SecretModeModule {
 
     // Mettre à jour les objets kawaii
     updateKawaiiObjects() {
-        const C = { W: this.canvas.width, H: this.canvas.height };
+        const C = { W: this.gameState.C.W, H: this.gameState.C.H };
 
         for (let i = this.activeKawaiiObjects.length - 1; i >= 0; i--) {
             const kawaiiObj = this.activeKawaiiObjects[i];

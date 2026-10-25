@@ -2,6 +2,7 @@
 (() => {
     'use strict';
     const cache = new Map();
+    let seaFrame = null, seaFrameKey = "";
     const palettes = {
         day: ['#367e98', '#4c93a5', '#6daab0', '#9bc5be', '#d3dbc0'],
         night: ['#121e38', '#192b47', '#223c55', '#31566a', '#517a86'],
@@ -58,7 +59,7 @@
             const radius = Math.max(3, Math.round(Math.min(C.W, C.H) * .06 / 3));
             ctx.save(); ctx.scale(3, 3);
             if (day) {
-                const wink = sun.clignotement && t - sun.tempsClignotement < 2000;
+                const wink = (sun.clignotement && t - sun.tempsClignotement < 2000) || t % 6200 < 180;
                 if (sun.clignotement && t - sun.tempsClignotement >= 2000) sun.clignotement = false;
                 const happy = broken > 0 || broken >= total;
                 const face = surface(`sun:${wink}:${happy}`, 40, 40, g => {
@@ -102,7 +103,9 @@
                     }
                 });
                 const diameter = Math.max(30, radius * 4);
-                blit(ctx, face, cx - diameter / 2, cy - diameter / 2, diameter, diameter);
+                // Balancement discret sur la grille : aucune nouvelle texture par image.
+                const bob = Math.round(Math.sin(t / 1100));
+                blit(ctx, face, cx - diameter / 2, cy - diameter / 2 + bob, diameter, diameter);
             } else {
                 for (let y = -radius; y <= radius; y++) for (let x = -radius; x <= radius; x++) {
                     if (x * x + y * y > radius * radius) continue;
@@ -123,22 +126,47 @@
             ctx.restore();
         },
         sea(ctx, C, period) {
-            const night = period !== 'jour', top = C.H - 60;
-            ctx.save();
-            for (let y = 0; y < 60; y += 3) {
-                ctx.fillStyle = (night ? ['#294b63','#203d57','#182f48','#12263d'] : ['#4d9ba3','#357f92','#286679','#204e68'])[Math.min(3, Math.floor(y / 15))];
-                ctx.fillRect(0, top + y, C.W, 3);
-            }
-            const t = Math.floor(Date.now() / 160);
-            for (let row = 0; row < 7; row++) {
-                for (let x = -40; x < C.W + 40; x += 39) {
-                    const px = x + ((t * (row % 2 ? 1 : -1) + row * 17) % 39);
-                    const py = top + row * 8 + Math.floor(Math.sin(x * .04 + t * .2 + row) * 2) * 2;
-                    dot(ctx, night ? '#507c90' : '#93d1c6', px, py, 15, 2);
-                    dot(ctx, night ? '#365c76' : '#61afa9', px + 15, py + 2, 6, 2);
+            const night = period !== 'jour', tick = Math.floor(Date.now() / 160);
+            const width = Math.max(1, Math.ceil(C.W));
+            const key = `${width}:${night}:${tick}`;
+            if (!seaFrame) seaFrame = document.createElement('canvas');
+            if (key !== seaFrameKey) {
+                if (seaFrame.width !== width || seaFrame.height !== 60) {
+                    seaFrame.width = width; seaFrame.height = 60;
                 }
+                const g = seaFrame.getContext('2d');
+                const colors = night ? ['#294b63','#203d57','#182f48','#12263d'] : ['#4d9ba3','#357f92','#286679','#204e68'];
+                for (let row = 0; row < 4; row++) {
+                    g.fillStyle = colors[row]; g.fillRect(0, row * 15, width, 15);
+                }
+                for (let row = 0; row < 7; row++) {
+                    const offset = ((tick * (row % 2 ? 1 : -1) + row * 8) % 20 + 20) % 20 * 2;
+                    for (let x = -80; x < width + 40; x += 40) {
+                        const py = row * 8 + Math.floor(Math.sin(x * .04 + tick * .2 + row) * 2) * 2;
+                        dot(g, night ? '#507c90' : '#93d1c6', x + offset, py, 16, 2);
+                        dot(g, night ? '#365c76' : '#61afa9', x + offset + 16, py + 2, 6, 2);
+                    }
+                }
+                seaFrameKey = key;
             }
-            ctx.restore();
+            blit(ctx, seaFrame, 0, C.H - 60, width, 60);
+        },
+        shark(ctx, x, y, size) {
+            const fin = surface('shark-fin', 16, 20, g => {
+                for (let row = 0; row < 20; row++) {
+                    const left = Math.max(0, 10 - Math.floor(row * .5));
+                    const right = Math.min(15, 10 + Math.floor(row * .2));
+                    dot(g, '#192d40', left, row, right - left + 1, 1);
+                    if (right - left > 2) dot(g, '#426376', left + 1, row, right - left - 1, 1);
+                }
+                dot(g, '#63808b', 9, 5, 1, 7);
+            });
+            const height = Math.max(8, Math.round(size * 1.8 / 2) * 2);
+            const width = Math.max(6, Math.round(height * .8 / 2) * 2);
+            const px = Math.round((x - width / 2) / 2) * 2, py = Math.round((y - size) / 2) * 2;
+            blit(ctx, fin, px, py, width, height);
+            dot(ctx, '#6d939d', px - 6, py + height, width + 8, 2);
+            dot(ctx, '#426b80', px - 12, py + height + 2, 8, 2);
         },
         boat(ctx, r, C, secret, time = Date.now()) {
             const sprite = surface(`boat:${secret}`, 64, 64, (g) => {

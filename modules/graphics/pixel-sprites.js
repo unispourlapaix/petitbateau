@@ -108,25 +108,35 @@
   }
  }
  const materials=new Map();
+ const brickImages=new Map();
  function brick(ctx,b,color,wall){
-  const key=`${color}:${wall}`;
-  if(!materials.has(key)){
-   const tile=document.createElement('canvas');tile.width=16;tile.height=16;const g=tile.getContext('2d');
-   for(let y=0;y<16;y++)for(let x=0;x<16;x++){
-    const mortar=wall&&(y%8===0||(x+(y<8?0:8))%16===0);
-    const n=(x*19+y*37)%23;
-    g.fillStyle=mortar?'#344957':shade(color,n<3?-28:n>19?25:-3);g.fillRect(x,y,1,1);
+  const w=Math.ceil(b.w),h=Math.ceil(b.h);
+  if(!(w>0&&h>0))return;
+  const damaged=!!(b.vieMax&&b.vie<b.vieMax);
+  const imageKey=`${color}:${wall}:${w}:${h}:${damaged}`;
+  if(!brickImages.has(imageKey)){
+   const materialKey=`${color}:${wall}`;
+   if(!materials.has(materialKey)){
+    const tile=document.createElement('canvas');tile.width=16;tile.height=16;const g=tile.getContext('2d');
+    for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+     const mortar=wall&&(y%8===0||(x+(y<8?0:8))%16===0);
+     const n=(x*19+y*37)%23;
+     g.fillStyle=mortar?'#344957':shade(color,n<3?-28:n>19?25:-3);g.fillRect(x,y,1,1);
+    }
+    if(materials.size>=64)materials.delete(materials.keys().next().value);
+    materials.set(materialKey,tile);
    }
-   if(materials.size>=64)materials.clear();materials.set(key,tile);
+   const image=document.createElement('canvas');image.width=w;image.height=h;
+   const g=image.getContext('2d');g.imageSmoothingEnabled=false;
+   g.fillStyle=g.createPattern(materials.get(materialKey),'repeat');g.fillRect(0,0,w,h);
+   g.fillStyle='#293d4b';g.fillRect(0,h-2,w,2);g.fillRect(w-2,0,2,h);
+   g.fillStyle=shade(color,40);g.fillRect(2,1,Math.max(0,w-4),2);
+   if(damaged){g.fillStyle='#394652';for(let i=0;i<5;i++)g.fillRect(Math.floor(w*.45+(i%2)*3),Math.floor(i*h/5),2,Math.ceil(h/5));}
+   if(brickImages.size>=256)brickImages.delete(brickImages.keys().next().value);
+   brickImages.set(imageKey,image);
   }
   ctx.save();ctx.shadowBlur=0;ctx.imageSmoothingEnabled=false;
-  const pattern=ctx.createPattern(materials.get(key),'repeat');ctx.fillStyle=pattern;
-  ctx.fillRect(Math.round(b.x),Math.round(b.y),b.w,b.h);
-  ctx.fillStyle='#293d4b';ctx.fillRect(b.x,b.y+b.h-2,b.w,2);ctx.fillRect(b.x+b.w-2,b.y,2,b.h);
-  ctx.fillStyle=shade(color,40);ctx.fillRect(b.x+2,b.y+1,Math.max(0,b.w-4),2);
-  if(b.vieMax&&b.vie<b.vieMax){
-   ctx.fillStyle='#394652';for(let i=0;i<5;i++)ctx.fillRect(Math.floor(b.x+b.w*.45+(i%2)*3),Math.floor(b.y+i*b.h/5),2,Math.ceil(b.h/5));
-  }
+  ctx.drawImage(brickImages.get(imageKey),Math.round(b.x),Math.round(b.y),b.w,b.h);
   ctx.restore();
  }
  function projectile(ctx,p,kind='star',size=20,color){
@@ -139,6 +149,8 @@
  // La couche de texte et les menus sont dessinés ensuite à leur résolution native.
  let frameBuffer;
  function finish(ctx,canvas){
+  // Les sprites sont déjà en pixels : éviter deux copies plein écran sur mobile.
+  if(window.PERF_IS_MOBILE)return;
   if(!frameBuffer)frameBuffer=document.createElement('canvas');
   const step=2*(window.PERF_PIXEL_RATIO||1);
   const w=Math.max(1,Math.round(canvas.width/step)),h=Math.max(1,Math.round(canvas.height/step));
@@ -148,20 +160,92 @@
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.imageSmoothingEnabled=false;
   ctx.drawImage(frameBuffer,0,0,canvas.width,canvas.height);ctx.restore();
  }
+ // Corbeau toon carré et dodu : plumage sombre, petit bec et grand œil doux.
+ function crowSprite(frame=0){
+  const key=`crow-toon:${frame}`;
+  if(cache.has(key))return cache.get(key);
+  const c=document.createElement('canvas');c.width=48;c.height=40;
+  const g=c.getContext('2d');
+  const r=(color,x,y,w,h)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+  // Corps presque carré, coins en marches et tête fondue dans la silhouette.
+  r('#151622',12,8,26,27);r('#151622',10,11,30,21);
+  r('#292a3e',14,11,22,21);r('#35364c',15,12,17,5);
+  r('#242537',14,24,22,9);r('#414057',18,29,12,3);
+  // Petite queue et toupet courts, sans pointes menaçantes.
+  r('#151622',5,26,9,6);r('#151622',3,29,8,3);
+  r('#151622',20,5,6,5);r('#151622',27,6,5,4);
+  // Bec court et arrondi par paliers.
+  r('#171824',37,20,8,7);r('#b49a70',38,21,6,4);
+  r('#ddc18d',38,21,5,1);r('#806d57',38,25,4,1);
+  // Grand œil rond, reflet crème et joue mauve.
+  r('#12131d',29,14,8,9);r('#12131d',28,16,10,5);
+  r('#dbb9ad',31,16,4,5);r('#f7e8cc',31,16,2,2);
+  r('#775c74',30,25,5,2);
+  if(frame===0){
+   r('#11131e',10,5,9,18);r('#11131e',6,1,5,14);r('#11131e',3,3,3,8);
+   r('#353448',11,8,4,12);r('#454256',8,5,2,8);
+  }else{
+   r('#11131e',9,22,14,12);r('#11131e',5,28,12,7);r('#11131e',3,33,10,4);
+   r('#353448',11,24,7,7);r('#454256',8,30,6,2);
+  }
+  r('#79717a',23,34,2,3);r('#79717a',30,34,2,3);
+  r('#22202d',20,37,6,2);r('#22202d',28,36,6,2);
+  cache.set(key,c);return c;
+ }
+ // Deux poses de colombe, réutilisées pendant le vol.
+ function doveSprite(frame=0){
+  const key=`dove-toon:${frame}`;
+  if(cache.has(key))return cache.get(key);
+  const c=document.createElement('canvas');c.width=48;c.height=40;
+  const g=c.getContext('2d');
+  const r=(color,x,y,w,h)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+  // Queue en éventail, contour bleu-gris doux.
+  r('#647f92',3,23,13,11);r('#647f92',0,20,7,7);
+  r('#d7e7e6',4,24,11,8);r('#fff7df',1,21,5,4);
+  r('#647f92',13,13,23,22);r('#647f92',10,17,29,15);
+  r('#e1edeb',14,15,21,18);r('#fff9e8',15,15,18,13);
+  r('#bdD4d8',16,30,17,3);r('#ffffff',18,16,10,3);
+  // Tête carrée aux coins adoucis et bec doré.
+  r('#647f92',26,7,13,19);r('#647f92',29,5,7,3);
+  r('#fff9e8',28,9,9,15);r('#ffffff',29,8,6,5);
+  r('#647f92',38,17,7,6);r('#e6b16d',38,18,7,3);
+  r('#ffe0a1',38,18,5,1);
+  r('#344b62',33,13,3,5);r('#ffffff',33,13,1,2);
+  r('#e5b9ae',32,21,4,2);
+  if(frame===0){
+   r('#647f92',11,4,10,22);r('#647f92',8,1,5,14);
+   r('#edf3eb',12,5,7,18);r('#fffdf1',9,2,3,11);
+   r('#bfd4da',15,9,2,13);
+  }else{
+   r('#647f92',9,22,15,12);r('#647f92',6,29,11,8);
+   r('#f6f7e9',11,23,11,9);r('#e0ece7',8,30,8,5);
+   r('#bfd4da',12,29,8,2);
+  }
+  r('#c29071',24,34,2,3);r('#c29071',30,34,2,3);
+  r('#866e67',21,37,6,2);r('#866e67',29,37,5,2);
+  cache.set(key,c);return c;
+ }
  function installDOM(){
   const style=document.createElement('style');
-  const mapping={crow:['bird','#526277'],dove:['bird','#e5e1c6']};
   let css='';
-  for(const [id,[kind,color]] of Object.entries(mapping)){
-   const url=sprite(kind,color).toDataURL();
-   css+=`#${id}{background:transparent url("${url}") center/contain no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;image-rendering:pixelated}#${id}::before,#${id}::after{display:none!important}`;
-  }
+  const doveUp=doveSprite(0).toDataURL(),doveDown=doveSprite(1).toDataURL();
+  css+=`#dove{width:96px;height:80px;background:none!important;clip-path:none!important;filter:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;image-rendering:pixelated}
+  #dove::after{display:none!important}
+  #dove::before{content:'';display:block!important;position:absolute;inset:0;width:100%;height:100%;background:transparent url("${doveUp}") center/contain no-repeat;clip-path:none;filter:none;z-index:0;image-rendering:pixelated;animation:pixel-dove-wings .8s steps(1,end) infinite}
+  @keyframes pixel-dove-wings{0%,100%{background-image:url("${doveUp}")}50%{background-image:url("${doveDown}")}}
+  @media(prefers-reduced-motion:reduce){#dove::before{animation:none}}`;
+  const crowUp=crowSprite(0).toDataURL(),crowDown=crowSprite(1).toDataURL();
+  css+=`#crow{width:96px;height:80px;background:none!important;clip-path:none!important;filter:none!important;border:0;box-shadow:none;image-rendering:pixelated}
+  #crow::after{display:none!important}
+  #crow::before{content:'';display:block!important;position:absolute;inset:0;width:100%;height:100%;background:transparent url("${crowUp}") center/contain no-repeat;clip-path:none;border-radius:0;filter:none;z-index:0;image-rendering:pixelated;animation:pixel-crow-wings .6s steps(1,end) infinite}
+  @keyframes pixel-crow-wings{0%,100%{background-image:url("${crowUp}")}50%{background-image:url("${crowDown}")}}
+  @media(prefers-reduced-motion:reduce){#crow::before{animation:none}}`;
   const objects={baleine:'whale',asteroide:'rock',etoile:'star',tank:'tank',lune:'moon',banane:'banana',smartphone:'phone',poubelle:'bin',avion:'plane'};
   for(const [name,kind] of Object.entries(objects)){
    const url=sprite(kind).toDataURL();css+=`.obj-${name}{background:transparent url("${url}") center/contain no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;clip-path:none!important;image-rendering:pixelated}.obj-${name}::before,.obj-${name}::after,.obj-${name}>*{display:none!important}`;
   }
   style.textContent=css;document.head.appendChild(style);
  }
- window.PixelSprites={kindFor:value=>symbols[String((Array.isArray(value)?value[0]:value)||'').replace(/[\uFE0E\uFE0F]/g,'')]||'star',draw,text,brick,projectile,finish,sprite,kinds:Object.keys(masks)};
+ window.PixelSprites={kindFor:value=>symbols[String((Array.isArray(value)?value[0]:value)||'').replace(/[\uFE0E\uFE0F]/g,'')]||'star',draw,text,brick,projectile,finish,sprite,crowSprite,doveSprite,kinds:Object.keys(masks)};
  installDOM();
 })();
