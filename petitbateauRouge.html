@@ -2053,6 +2053,7 @@ if (!MODE_DEV) {
         <script src="modules/graphics/navigation-menu.js"></script>
         <script src="modules/audio-manager.js"></script>
         <script src="modules/score-share.js"></script>
+        <script src="modules/performance-monitor.js"></script>
 
         <!-- MODULE OISEAUX VOLANTS CSS -->
         <div class="flying-birds-overlay">
@@ -2454,7 +2455,8 @@ if (!MODE_DEV) {
 
         // Détection mobile et tactile
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-                         || (window.innerWidth < 500);
+                         || (window.innerWidth < 500)
+                         || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         window.PERF_IS_MOBILE = isMobile;
 
@@ -2636,7 +2638,10 @@ if (!MODE_DEV) {
                 // ⚡ NOUVELLE LIMITE : max 1.5 au lieu de 1.0 grâce aux optimisations
                 // Sur iPhone 14 (ratio 3×): 3 × 0.75 = 2.25 → limité à 1.5
                 // Résolution finale: 393×852 × 1.5 = 590×1278 pixels (meilleure qualité!)
-                const pixelRatio = Math.min(basePixelRatio * quality.ratio, 1);
+                // Budget raster mobile : 75 % de la taille CSS, au plus 400 000 pixels.
+                const renderWidth = Math.max(1, Math.min(container?.clientWidth || window.innerWidth || 449, window.visualViewport?.width || window.innerWidth || 449));
+                const renderHeight = Math.max(1, Math.min(container?.clientHeight || window.innerHeight || 799, window.visualViewport?.height || window.innerHeight || 799));
+                const pixelRatio = Math.min(basePixelRatio * quality.ratio, .75, Math.sqrt(400000 / (renderWidth * renderHeight)));
                 
                 // console.log(`📱 Qualité adaptative: ${quality.name} (ratio: ${pixelRatio.toFixed(2)}×)`);
                 // console.log(`   RAM: ${navigator.deviceMemory || '?'}GB | Cores: ${navigator.hardwareConcurrency || '?'} | Écran: ${window.screen.width}×${window.screen.height}`);
@@ -8767,6 +8772,10 @@ if (!MODE_DEV) {
                 this.ensureInit();
                 if (this.muted) return;
 
+                // Un rebond ne doit pas empiler des voix sur un contact prolongé.
+                const now = this.ctx.currentTime;
+                if (this.lastBounceTime !== undefined && now - this.lastBounceTime < .045) return;
+                this.lastBounceTime = now;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 const filter = this.ctx.createBiquadFilter();
@@ -8786,6 +8795,7 @@ if (!MODE_DEV) {
                 gain.gain.setValueAtTime(this.masterVolume * 0.08, this.ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
 
+                osc.onended = () => { osc.disconnect(); filter.disconnect(); gain.disconnect(); };
                 osc.start();
                 osc.stop(this.ctx.currentTime + 0.08);
             },
@@ -16471,7 +16481,7 @@ if (!MODE_DEV) {
                 }
 
                 // Rebond sur le bateau
-                if(balle.y + C.BS >= raquette.y &&
+                if(balle.dy > 0 && balle.y + C.BS >= raquette.y &&
                    balle.x >= raquette.x && balle.x <= raquette.x + C.PW) {
                     balle.dy = -Math.abs(balle.dy); // Toujours vers le haut
                     balle.y = raquette.y - C.BS;
@@ -16509,31 +16519,11 @@ if (!MODE_DEV) {
                 return;
             }
 
-            // L'étoile traverse aussi le bateau sans rebondir
-            // Effet magique lors du passage
-            if(balle.y + C.BS >= raquette.y &&
-               balle.y <= raquette.y + C.PH + C.BS &&
-               balle.x >= raquette.x - C.BS &&
-               balle.x <= raquette.x + C.PW + C.BS) {
-
-                // Effet magique de passage
-                ajouterParticules(balle.x, balle.y, '#e74c3c', 10);
-                ajouterParticules(balle.x, balle.y, '#27ae60', 8);
-                ajouterParticules(balle.x, balle.y, '#FFD700', 12);
-
-                // Pas de rebond, l'étoile continue sa trajectoire
-            }
-
             // 🚀 OPTIMISATION : Collision balle-briques avec grille spatiale
             let briqueTouchee = false;
             
             // Obtenir seulement les briques candidates (performance O(1) au lieu de O(n))
             const briquesCandidates = grilleCollision.obtenirCandidates(balle.x, balle.y, C.BS);
-            
-            // Statistiques de performance (en mode debug temporaire)
-            if (briquesCandidates.length < briques.length) {
-                console.log(`🚀 Optimisation grille spatiale: ${briquesCandidates.length}/${briques.length} briques testées (${Math.round((1 - briquesCandidates.length/briques.length) * 100)}% économisé)`);
-            }
             
             briquesCandidates.forEach(brique => {
                 if(briqueTouchee) return; // Arrêter si on a déjà touché une brique
@@ -21511,7 +21501,26 @@ Elle a besoin de ponts.`
         }
 
         // Boucle de jeu
-        function boucleJeu() {
+        function autoriserImageJeu(timestamp) {
+            if (document.hidden) { autoriserImageJeu.dernier = undefined; return false; }
+            const intervalle = 1000 / 60;
+            const dernier = autoriserImageJeu.dernier;
+            if (dernier === undefined || timestamp < dernier) {
+                autoriserImageJeu.dernier = timestamp;
+                return true;
+            }
+            const ecoule = timestamp - dernier;
+            if (ecoule < intervalle - .25) return false;
+            // Conserver le reste pour les écrans 90/120/144 Hz, sans rattrapage coûteux.
+            autoriserImageJeu.dernier = dernier + Math.max(1, Math.floor((ecoule + .25) / intervalle)) * intervalle;
+            return true;
+        }
+
+        function boucleJeu(timestamp = performance.now()) {
+            if (!autoriserImageJeu(timestamp)) {
+                requestAnimationFrame(boucleJeu);
+                return;
+            }
             // Animation du survol du drapeau (simple)
             if (flagHover && flagHoverAnimation < 1) {
                 flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
@@ -21874,7 +21883,8 @@ Elle a besoin de ponts.`
                 if(jeu && !modeSecret && !(secretModeModule && secretModeModule.isActive)) {
                     mettreAJourStarsProjectiles(); // Système projectiles stars
                     mettreAJourProjectiles(); // Nouveau système de projectiles
-                    mettreAJourBulle(); // Ancien système pour les autres phases
+                    if (window.GamePerf) window.GamePerf.measure('ball', mettreAJourBulle);
+                    else mettreAJourBulle();
                     mettreAJourLaser(); // Laser phase 23
                     mettreAJourCoeursFlottants(); // 💖 Mode tir cœur libre
                     
@@ -21941,7 +21951,10 @@ Elle a besoin de ponts.`
                     }
                 }
             }
-            dessiner();
+            if (window.GamePerf) {
+                window.GamePerf.measure('render', dessiner);
+                window.GamePerf.frame(canvas);
+            } else dessiner();
             requestAnimationFrame(boucleJeu);
         }
 

@@ -140,9 +140,11 @@
   ctx.restore();
  }
  function projectile(ctx,p,kind='star',size=20,color){
+  // Sur mobile, une seule image de traînée suffit au lieu de trois.
+  const trailCount=window.PERF_IS_MOBILE?1:3;
   const length=Math.hypot(p.dx||0,p.dy||0)||1;
   ctx.save();
-  for(let i=3;i>0;i--){ctx.globalAlpha=.13+(3-i)*.1;draw(ctx,kind,p.x-(p.dx||0)/length*i*5,p.y-(p.dy||0)/length*i*5,size*(1-i*.16),color);}
+  for(let i=trailCount;i>0;i--){ctx.globalAlpha=.13+(3-i)*.1;draw(ctx,kind,p.x-(p.dx||0)/length*i*5,p.y-(p.dy||0)/length*i*5,size*(1-i*.16),color);}
   ctx.restore();draw(ctx,kind,p.x,p.y,size,color);
  }
  // Finition unique des effets existants (éclairs, feux d'artifice, mode secret).
@@ -244,6 +246,7 @@
   for(const [name,kind] of Object.entries(objects)){
    const url=sprite(kind).toDataURL();css+=`.obj-${name}{background:transparent url("${url}") center/contain no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;clip-path:none!important;image-rendering:pixelated}.obj-${name}::before,.obj-${name}::after,.obj-${name}>*{display:none!important}`;
   }
+  css+='.bird-hidden,.bird-hidden::before,.bird-hidden::after{animation-play-state:paused!important}';
   style.textContent=css;document.head.appendChild(style);
  }
  window.PixelSprites={kindFor:value=>symbols[String((Array.isArray(value)?value[0]:value)||'').replace(/[\uFE0E\uFE0F]/g,'')]||'star',draw,text,brick,projectile,finish,sprite,crowSprite,doveSprite,kinds:Object.keys(masks)};

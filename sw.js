@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.8.13-projectile-audit'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.8.15-lantern-loop'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
@@ -33,6 +33,7 @@ const urlsToCache = [
   './modules/saisonefect.js',
   './modules/secret-mode.js',
   './modules/score-share.js',
+  './modules/performance-monitor.js',
   './modules/styles/score-share.css',
   // Configuration
   './modules/config/game-config.js',
