@@ -169,38 +169,80 @@
             dot(ctx, '#426b80', px - 12, py + height + 2, 8, 2);
         },
         boat(ctx, r, C, secret, time = Date.now()) {
-            const sprite = surface(`boat:${secret}`, 64, 64, (g) => {
-                // Voile tissée : silhouette en marches et coutures ombrées.
-                for (let y = 4; y < 47; y++) {
-                    const left = 31 - Math.floor((y - 4) * .52);
-                    for (let x = left; x < 32; x++) {
-                        const edge = x === left || y === 46;
-                        dot(g, edge ? '#aa9a7b' : (x + y * 2) % 9 === 0 ? '#d4c8a6' : x > 27 ? '#ddd0ac' : '#fff0cc', x, y);
+            const spriteWidth = 80, spriteHeight = 68; // Débord du beaupré et coque jusqu’à l’eau.
+            const sprite = surface(`boat:${secret}`, spriteWidth, spriteHeight, (g) => {
+                // Dessiner le profil en miroir pour placer la proue à droite.
+                const pixel = (color, x, y, w = 1, h = 1) => dot(g, color, 64 - x - w, y, w, h);
+                // Polygones rasterisés sur la grille, une fois par palette.
+                function shape(points, colorAt) {
+                    for (let y = 0; y < spriteHeight; y++) {
+                        const cuts = [];
+                        for (let i = 0; i < points.length; i++) {
+                            const [x1, y1] = points[i], [x2, y2] = points[(i + 1) % points.length];
+                            if ((y1 > y + .5) !== (y2 > y + .5)) {
+                                cuts.push(x1 + (x2 - x1) * (y + .5 - y1) / (y2 - y1));
+                            }
+                        }
+                        cuts.sort((a, b) => a - b);
+                        for (let i = 0; i < cuts.length; i += 2) {
+                            const left = Math.ceil(cuts[i] - .5), right = Math.ceil(cuts[i + 1] - .5);
+                            for (let x = left; x < right; x++) {
+                                pixel(colorAt(x, y, x === left || x === right - 1), x, y);
+                            }
+                        }
                     }
                 }
-                dot(g, '#483b3d', 32, 3, 2, 48);
-                dot(g, '#b88855', 32, 4, 1, 45);
-                dot(g, '#a83745', 34, 4, 9, 3); dot(g, '#ef7856', 34, 4, 6, 1);
-                dot(g, '#48353c', 3, 49, 58, 3);
-                for (let y = 52; y < 63; y++) {
-                    const inset = Math.floor((y - 52) * .75);
-                    for (let x = 5 + inset; x < 59 - inset; x++) {
-                        const seam = y % 4 === 2;
-                        const color = secret ? (seam ? '#254456' : '#56859a') : seam ? '#8e303f' : y < 56 ? '#df5c50' : '#b93c48';
-                        dot(g, noise(x, y) > .89 ? (secret ? '#87a9ad' : '#f18a62') : color, x, y);
-                    }
+                const timber = '#654638', brass = '#c69a6d';
+                const canvasCloth = (seam, palette) => (x, y, edge) =>
+                    edge ? palette[0] : (y + Math.floor(x / 7)) % 10 === 0 ? seam :
+                    noise(x, y) > .91 ? palette[2] : x % 15 < 4 ? palette[1] : palette[3];
+                const whiteCloth = canvasCloth('#dddcd6', ['#a5a6a3','#e7e6e0','#ffffff','#faf9f4']);
+                const innerCloth = canvasCloth('#d1d5d4', ['#9ba5a7','#dfe4e2','#f9faf7','#f0f3f0']);
+                const jibCloth = canvasCloth('#e3ded3', ['#a9a296','#ebe7dd','#ffffff','#fffefa']);
+                // Tracé du gréement d’après le profil du « Cours Après ».
+                shape([[37,4],[48,12],[36,20]], whiteCloth);
+                shape([[34,21],[49,11],[63,46],[36,49]], whiteCloth);
+                shape([[35,6],[30,14],[24,22],[20,30],[17,37],[10,43],[3,49],[32,49],[32,39],[33,25]], innerCloth);
+                // Foc gonflé : bord avant bombé et bas de voile relevé comme sur la photo.
+                shape([[28,11],[18,18],[8,26],[-2,35],[-10,44],[-16,50],
+                       [-7,46],[2,41],[14,37],[15,31],[18,24],[22,17]], jibCloth);
+                // Point d’amure au bout du beaupré.
+                pixel('#ae9e82', -16, 49);
+                shape([[34,20],[50,10],[50,12],[34,23]], () => timber);
+                shape([[35,48],[63,45],[63,47],[35,50]], () => timber);
+                for (let y = 2; y < 53; y++) {
+                    const x = 33 + Math.round((52 - y) * .08);
+                    pixel(timber, x, y, y < 17 ? 1 : 2);
+                    if (y >= 17) pixel(brass, x, y);
                 }
-                dot(g, secret ? '#95b9bb' : '#ffb078', 5, 52, 53, 1);
-                for (let x = 17; x < 50; x += 13) {
-                    dot(g, '#efd09a', x, 54, 5, 5); dot(g, '#263b50', x + 1, 55, 3, 3);
-                    dot(g, '#8fc3bf', x + 1, 55);
-                }
+                pixel(timber,-16,50,37,2); // Beaupré
+                pixel(brass,-16,50,33,1);
+                pixel(timber,40,49,10,4); // Rouf
+                pixel('#c37a57',39,48,12,1);
+                pixel('#92afae',42,50,2,2);
+                pixel('#92afae',46,50,2,2);
+                // Étrave relevée, flanc bombé, poupe arrondie et livet de pont en creux.
+                shape([[-5,48],[1,49],[10,52],[24,54],[41,54],[53,52],[63,48],
+                       [62,54],[59,59],[54,63],[46,66],[35,68],[16,68],[8,66],
+                       [3,63],[-1,58],[-4,53]],
+                    (x,y,edge) => {
+                        const rail = Math.round(53 - 4 * ((x - 28) / 34) ** 2);
+                        if (edge || y >= 66) return secret ? '#253949' : '#482c38';
+                        if (y === rail + 2) return brass;
+                        if (y < rail + 2) return '#593e36';
+                        if (secret) return y < 61 ? '#56859a' : '#396677';
+                        if (noise(x,y) > .92 && y < 62) return '#dc8066';
+                        return y < 59 ? '#c05950' : y < 63 ? '#a74845' : '#78353d';
+                    });
             });
-            const height = C.PH * 4.8;
-            blit(ctx, sprite, r.x, r.y + C.PH - height, C.PW, height);
+            const height = C.PH * 5.65;
+            const width = C.PW * spriteWidth / 64;
+            const waterline = r.y + C.PH + C.PH * .3;
+            const drawHeight = height * spriteHeight / 64;
+            blit(ctx, sprite, r.x, waterline - drawHeight, width, drawHeight);
             for (let i = 0; i < 3; i++) {
                 const shift = Math.floor(Math.sin(time / 240 + i) * 3) * 2;
-                dot(ctx, ['#c3e3cd','#86b8b3','#65999e'][i], r.x - 5 + shift - i * 3, r.y + C.PH + 4 + i * 5, C.PW + 10 + i * 6, 2);
+                dot(ctx, ['#c3e3cd','#86b8b3','#65999e'][i], r.x - 5 + shift - i * 3, waterline - 1 + i * 5, C.PW + 10 + i * 6, 2);
             }
         }
     };
