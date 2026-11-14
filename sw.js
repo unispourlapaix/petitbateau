@@ -1,11 +1,17 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.8.30-coque-galbee'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.8.33-icones-ciel-clair'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
   './manifest.json',
+  './favicon.ico',
+  './icons/favicon-16.png',
+  './icons/favicon-32.png',
+  './icons/icon-180x180.png',
+  './icons/maskable-192.png',
+  './icons/maskable-512.png',
   // Icônes PWA
   './icons/icon-72x72.png',
   './icons/icon-96x96.png',
