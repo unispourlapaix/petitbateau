@@ -4242,21 +4242,21 @@ if (!MODE_DEV) {
             menuEnigmesCanvas.animation = 1 - Math.pow(1 - progress, 3);
         }
 
+        function zoneMenuEnigmes() {
+            const width = Math.min(C.W - 40, 800), height = Math.min(C.H - 60, 600);
+            return {x: (C.W - width) / 2, y: (C.H - height) / 2, width, height};
+        }
+
         // Dessiner le menu énigmes dans le canvas
         function dessinerMenuEnigmesCanvas() {
-            // Cacher le menu pendant les phases 17-22 (murs) UNIQUEMENT en mode 'mur'
-            const phaseActuelle = narrationManager ? narrationManager.currentPhase : 0;
-            if (phaseActuelle >= 17 && phaseActuelle <= 22 && phaseJeu === 'mur') {
-                NavigationMenu.hideReset();
-                return; // Ne pas afficher le menu pendant les phases de mur actives
-            }
-
             if (!menuEnigmesCanvas.visible) {
                 NavigationMenu.hideReset();
                 return;
             }
 
             ctx.save();
+
+            mettreAJourMenuEnigmesCanvas();
 
             // Arrière-plan avec transparence légère
             ctx.fillStyle = `rgba(0, 0, 0, ${0.4 * menuEnigmesCanvas.animation})`;
@@ -4267,10 +4267,7 @@ if (!MODE_DEV) {
             ctx.globalAlpha = containerAlpha;
 
             // Arrière-plan du menu - CENTRÉ et BLANC LUMINEUX
-            const menuWidth = Math.min(C.W - 40, 800); // Augmenté pour 4 onglets
-            const menuHeight = Math.min(C.H - 60, 600);
-            const menuX = (C.W - menuWidth) / 2;
-            const menuY = (C.H - menuHeight) / 2;
+            const {x: menuX, y: menuY, width: menuWidth, height: menuHeight} = zoneMenuEnigmes();
 
             NavigationMenu.paper(ctx, menuX, menuY, menuWidth, menuHeight);
 
@@ -19339,11 +19336,31 @@ Elle a besoin de ponts.`
             if (document.hidden) arreterTirSecretTactile();
         });
 
+        function activerLanguesHud(event) {
+            if (event.type === 'mousedown' && event.button !== 0) return;
+            const {x, y} = positionLogiqueSecret(event);
+            const zone = PixelHUD.layout(C).language;
+            if (!(x >= zone.x && x <= zone.x + zone.width &&
+                  y >= zone.y && y <= zone.y + zone.height)) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (event.type === 'mousedown') return; // Le clic ouvre le menu, sans déplacer le bateau.
+            ouvrirMenuEnigmesCanvas();
+            menuEnigmesCanvas.ongletActif = 'langues';
+            menuEnigmesCanvas.scrollY = 0;
+            menuEnigmesCanvas.needsRecalculation = true;
+            AudioSystem.playClick();
+        }
+
+        canvas.addEventListener('touchstart', activerLanguesHud, {capture: true, passive: false});
+        canvas.addEventListener('mousedown', activerLanguesHud, {capture: true});
+        canvas.addEventListener('click', activerLanguesHud, {capture: true});
+
         canvas.addEventListener('touchstart', async e => {
             e.preventDefault();
             tactile = true;
 
-            const pos = obtenirPosition(e);
+            const pos = positionLogiqueSecret(e);
             const x = pos.x;
             const y = pos.y || 0;
             
@@ -19351,11 +19368,7 @@ Elle a besoin de ponts.`
             // 🎯 PRIORITÉ 1: MENU ÉNIGMES OUVERT
             // ═══════════════════════════════════════════════════════════════
             if (menuEnigmesCanvas.visible) {
-                const menuPadding = 40;
-                const menuWidth = C.W - 2 * menuPadding;
-                const menuHeight = C.H - 2 * menuPadding;
-                const menuX = menuPadding;
-                const menuY = menuPadding;
+                const {x: menuX, y: menuY, width: menuWidth, height: menuHeight} = zoneMenuEnigmes();
                 
                 // Bouton fermer (X)
                 const closeBtn = menuEnigmesCanvas.closeButton;
@@ -19603,21 +19616,6 @@ Elle a besoin de ponts.`
             const hudTouch = positionLogiqueSecret(e);
             if (reglerAudioHud(hudTouch.x, hudTouch.y)) return;
 
-            // Zone drapeau (en haut à gauche) → ouvre menu langues
-            const statsY = getStatsBarLayout().y;
-            const flagZone = getStatsBarLayout().language;
-            
-            if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
-                y >= flagZone.y && y <= flagZone.y + flagZone.height) {
-                if (AudioSystem && AudioSystem.playClick) AudioSystem.playClick();
-                if (!menuEnigmesCanvas.visible && typeof ouvrirMenuEnigmesCanvas === 'function') {
-                    ouvrirMenuEnigmesCanvas();
-                }
-                menuEnigmesCanvas.ongletActif = 'langues';
-                menuEnigmesCanvas.scrollY = 0;
-                return;
-            }
-            
             // ═══════════════════════════════════════════════════════════════
             // 🎯 PRIORITÉ 3: BOUTON "PASSER" (si visible)
             // ═══════════════════════════════════════════════════════════════
@@ -20127,41 +20125,7 @@ Elle a besoin de ponts.`
         }, { capture: true });
 
         canvas.addEventListener('click', async (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // 🌍 Zone du drapeau - priorité absolue
-            const statsY = getStatsBarLayout().y;
-            const flagZone = getStatsBarLayout().language;
-            
-            if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
-                y >= flagZone.y && y <= flagZone.y + flagZone.height) {
-                
-                // Empêcher complètement la propagation
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                
-                // 🔊 Son de clic
-                AudioSystem.playClick();
-                
-                // Ouvrir le menu énigme sur l'onglet langues
-                if (!menuEnigmesCanvas.visible) {
-                    ouvrirMenuEnigmesCanvas();
-                }
-                menuEnigmesCanvas.ongletActif = 'langues';
-                menuEnigmesCanvas.scrollY = 0;
-                
-                return false; // Empêcher tout traitement ultérieur
-            }
-        }, { capture: true }); // Capture = priorité absolue
-
-        canvas.addEventListener('click', async (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Le drapeau est géré par le gestionnaire prioritaire ci-dessus
+            const {x, y} = positionLogiqueSecret(e);
 
             // Tirer une lanterne du mini-jeu "Briser les Frontières"
             if (briqueLangue.active && briqueLangue.game) {
@@ -20333,15 +20297,11 @@ Elle a besoin de ponts.`
             // Vérifier le clic sur les onglets du menu énigmes
             if (menuEnigmesCanvas.visible) {
                 // Calculer les dimensions du menu pour vérifier si le clic est à l'intérieur
-                const menuPadding = 40;
-                const menuWidth = canvas.width - 2 * menuPadding;
-                const menuHeight = canvas.height - 2 * menuPadding;
-                const menuX = menuPadding;
-                const menuY = menuPadding;
+                const {x: menuX, y: menuY, width: menuWidth, height: menuHeight} = zoneMenuEnigmes();
                 
                 // Vérifier le clic sur le bouton de fermeture (X)
                 const closeBtn = menuEnigmesCanvas.closeButton;
-                if (x >= closeBtn.x && x <= closeBtn.x + closeBtn.width &&
+                if (closeBtn && x >= closeBtn.x && x <= closeBtn.x + closeBtn.width &&
                     y >= closeBtn.y && y <= closeBtn.y + closeBtn.height) {
                     fermerMenuEnigmesCanvas();
                     return;
@@ -20765,10 +20725,7 @@ Elle a besoin de ponts.`
                 }
 
                     // Clic en dehors du menu centré = fermer
-                    const menuWidth = Math.min(C.W - 80, 600);
-                    const menuHeight = Math.min(C.H - 80, 500);
-                    const menuX = (C.W - menuWidth) / 2;
-                    const menuY = (C.H - menuHeight) / 2;
+                    const {x: menuX, y: menuY, width: menuWidth, height: menuHeight} = zoneMenuEnigmes();
 
                     if (x < menuX || x > menuX + menuWidth || y < menuY || y > menuY + menuHeight) {
                         fermerMenuEnigmesCanvas();
@@ -21913,11 +21870,6 @@ Elle a besoin de ponts.`
                 mettreAJourCorbeau(); // Vérifie en interne si actif
                 if (corbeau.actif) mettreAJourMessageCorbeauBas();
                 if (chauveSouris.active) mettreAJourChauveSouris();
-
-                // ⚡ OPTIMISATION: Animation menu - N'appeler que si visible
-                if (menuEnigmesCanvas.visible) {
-                    mettreAJourMenuEnigmesCanvas();
-                }
 
                 // Vérification automatique des énigmes (réduite à 0.5%)
                 if (enigmaCollector && Math.random() < 0.005) {
