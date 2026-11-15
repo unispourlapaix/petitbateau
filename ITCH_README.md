@@ -7,7 +7,7 @@ Ce package contient l'intégralité du jeu "Le Petit Bateau Rouge" - un voyage p
 **✨ Optimisations appliquées :**
 - 🎵 Musique MP3 compressée à 92 kbps (qualité radio, joint stéréo)
 - 💾 Réduction de 43 MB → 35 MB (-19% sur les MP3)
-- ⚡ Cache Supabase optimisé (95% moins de requêtes)
+- ⚡ Partage de score avec une carte générée localement
 - 📦 Package total : ~69 MB (compressé)
 
 ## 🚀 Installation sur itch.io
@@ -26,7 +26,6 @@ Compresse TOUS les fichiers et dossiers suivants dans un fichier ZIP :
 **Dossiers essentiels :**
 - `modules/` (tous les modules JS, CSS, JSON)
 - `icons/` (icônes PWA)
-- `supabase/` (configuration base de données)
 
 ### Étape 2 : Upload sur itch.io
 
@@ -73,7 +72,7 @@ Un voyage interactif unique qui combine énigmes philosophiques, poésie et musi
 🎵 Musique gospel originale d'Emmanuel Payet
 📖 Histoire poétique immersive
 🎮 Gameplay innovant avec système de tir progressif
-🏆 Classement mondial avec Supabase
+🏆 Carte de score à partager
 💾 Sauvegarde automatique
 📱 Compatible mobile & desktop
 
@@ -101,7 +100,6 @@ Objectif : Atteindre 33 millions de joueurs pour partager un message de paix uni
 ## ⚙️ Configuration Technique
 
 **Requis :**
-- Connexion internet (pour Supabase scores)
 - Navigateur moderne (Chrome, Firefox, Safari, Edge)
 - JavaScript activé
 - localStorage disponible
@@ -113,7 +111,7 @@ Objectif : Atteindre 33 millions de joueurs pour partager un message de paix uni
 
 ## 📝 Notes importantes
 
-1. Le jeu utilise Supabase pour les scores - assure-toi que les URLs Supabase dans `modules/supabase-scores.js` sont correctes
+1. Les cartes de score sont générées sans base de données
 2. Le Service Worker (`sw.js`) est configuré pour le caching offline
 3. Le jeu est PWA (Progressive Web App) compatible
 4. Toutes les traductions sont chargées dynamiquement depuis `modules/lang/`

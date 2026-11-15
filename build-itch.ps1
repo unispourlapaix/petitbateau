@@ -32,8 +32,7 @@ $filesToInclude = @(
 # Liste des dossiers à inclure
 $foldersToInclude = @(
     "modules",
-    "icons",
-    "supabase"
+    "icons"
 )
 
 # Créer un dossier temporaire

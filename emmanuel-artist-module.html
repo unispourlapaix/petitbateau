@@ -822,26 +822,13 @@
     </div>
 
     <script type="module">
-        // Import Supabase
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-        // Configuration Supabase - UTILISER LE MÊME QUE LE JEU
-        const SUPABASE_URL = 'https://dmszyxowetilvsanqsxm.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
-        
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let currentPage = 1;
         const perPage = 100;
         let totalScores = 0;
         let allScores = [];
         let loadedCount = 0;
-        const initialLoad = 100;
-        const loadMoreIncrement = 200;
 
         // ⚡ CACHE OPTIMISATION
-        const CACHE_KEY = 'emmanuel_artist_cache';
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
         let cacheData = null;
 
         // Niveaux de sagesse
@@ -882,140 +869,13 @@
             return badges;
         }
 
-        async function loadScores() {
-            try {
-                const t = window.translations?.[window.currentLanguage || 'en'] || window.translations.en;
-                document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
-
-                // ⚡ VÉRIFIER LE CACHE D'ABORD
-                const cached = getCache();
-                if (cached) {
-                    console.log('⚡ Cache valide, chargement instantané');
-                    allScores = cached.scores;
-                    loadedCount = cached.loadedCount;
-                    totalScores = cached.totalScores;
-                    updateStats();
-                    renderPage();
-                    showCacheIndicator(true);
-                    return;
-                }
-                showCacheIndicator(false);
-
-                console.log('📡 Cache expiré, fetch Supabase:', SUPABASE_URL);
-
-                // Charger depuis users + faithchronicles_game_progress
-                let data, error, count;
-                
-                try {
-                    console.log('🔍 Chargement optimisé: users + progress (JOIN)...');
-                    
-                    // ⚡ UNE SEULE REQUÊTE AVEC JOIN
-                    const { data: progressData, error: progressError, count: progressCount } = await supabase
-                        .from('faithchronicles_game_progress')
-                        .select(`
-                            wisdom_points,
-                            total_xp,
-                            current_level,
-                            current_grade,
-                            created_at,
-                            user_id,
-                            users!inner(id, email, pseudo, avatar)
-                        `, { count: 'exact' })
-                        .order('wisdom_points', { ascending: false })
-                        .limit(initialLoad);
-                    
-                    if (progressError) throw progressError;
-
-                    // ⚡ Transformer les données (JOIN déjà fait par Supabase)
-                    data = progressData?.map(progress => ({
-                        score: progress.wisdom_points || progress.total_xp || 0,
-                        wisdom_points: progress.wisdom_points || 0,
-                        total_xp: progress.total_xp || 0,
-                        current_level: progress.current_level || 1,
-                        current_grade: progress.current_grade || 0,
-                        created_at: progress.created_at,
-                        user_id: progress.user_id,
-                        users: {
-                            pseudo: progress.users?.pseudo || 'Joueur',
-                            avatar: progress.users?.avatar || '✨',
-                            email: progress.users?.email
-                        }
-                    })) || [];
-                    
-                    error = null;
-                    count = progressCount || data.length;
-                    
-                    console.log('✅ Données chargées en 1 requête:', data.length, '/', count);
-                    
-                } catch (loadError) {
-                    console.warn('⚠️ Erreur chargement données:', loadError.message);
-                    data = null;
-                    error = loadError;
-                }
-
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error);
-                    throw error;
-                }
-
-                console.log('✅ Données Supabase reçues:', data?.length || 0, 'records');
-                console.log('📊 Total count:', count);
-                console.log('🎮 Jeux trouvés:', [...new Set(data?.map(s => s.game_id) || [])]);
-
-                allScores = Array.isArray(data) ? data : [];
-                
-                // 💾 AJOUTER LES SCORES LOCAUX
-                const localScores = getLocalScores();
-                console.log('💾 Scores locaux trouvés:', localScores.length);
-                allScores = [...allScores, ...localScores];
-                
-                // Trier par score décroissant
-                allScores.sort((a, b) => b.score - a.score);
-                
-                loadedCount = allScores.length;
-                totalScores = count || 0;
-
-                // Si pas de données, utiliser des données de test
-                if (allScores.length === 0) {
-                    console.warn('⚠️ Aucune donnée trouvée, création de données de test...');
-                    allScores = createTestScores();
-                    loadedCount = allScores.length;
-                    totalScores = allScores.length;
-                }
-
-                console.log('✅ Scores chargés (Supabase + Local):', loadedCount, 'Total DB:', totalScores);
-                console.log('🏆 Top 3:', allScores.slice(0, 3).map(s => ({ 
-                    pseudo: s.users?.pseudo || s.user?.pseudo || s.donnees_extra?.pseudo, 
-                    score: s.score,
-                    game: s.game_id,
-                    local: s._isLocal || false
-                })));
-
-                // ⚡ SAUVEGARDER EN CACHE
-                setCache({ scores: allScores, loadedCount, totalScores });
-
-                updateStats();
-                renderPage();
-            } catch (error) {
-                console.error('❌ Erreur complète:', error);
-                console.log('📌 Tentative de chargement scores locaux uniquement...');
-                
-                // 💾 FALLBACK: Utiliser scores locaux + test
-                const localScores = getLocalScores();
-                const testScores = createTestScores();
-                allScores = [...localScores, ...testScores];
-                allScores.sort((a, b) => b.score - a.score);
-                
-                loadedCount = allScores.length;
-                totalScores = allScores.length;
-                
-                console.log('💾 Mode hors ligne:', loadedCount, 'scores (local + test)');
-                updateStats();
-                renderPage();
-            }
+        function loadScores() {
+            allScores = getLocalScores().sort((a, b) => b.score - a.score);
+            loadedCount = totalScores = allScores.length;
+            updateStats();
+            renderPage();
         }
 
-        // 💾 Récupérer les scores localStorage
         function getLocalScores() {
             try {
                 const data = localStorage.getItem('faithChroniclesProgress');
@@ -1056,169 +916,7 @@
         }
 
         // ⚡ FONCTIONS DE CACHE
-        function getCache() {
-            try {
-                const cached = sessionStorage.getItem(CACHE_KEY);
-                if (!cached) return null;
-                
-                const data = JSON.parse(cached);
-                const age = Date.now() - data.timestamp;
-                
-                if (age > CACHE_DURATION) {
-                    console.log('🕐 Cache expiré (', Math.floor(age / 1000), 's)');
-                    sessionStorage.removeItem(CACHE_KEY);
-                    return null;
-                }
-                
-                console.log('⚡ Cache valide (', Math.floor(age / 1000), 's/', Math.floor(CACHE_DURATION / 1000), 's)');
-                return data;
-            } catch (e) {
-                console.error('❌ Erreur lecture cache:', e);
-                return null;
-            }
-        }
-
-        function setCache(data) {
-            try {
-                const cacheObj = {
-                    ...data,
-                    timestamp: Date.now()
-                };
-                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
-                console.log('💾 Cache sauvegardé:', data.scores.length, 'scores');
-            } catch (e) {
-                console.error('❌ Erreur écriture cache:', e);
-            }
-        }
-
-        // ⚡ FONCTION REFRESH (exposée globalement)
-        window.refreshScores = async function() {
-            console.log('🔄 Force refresh...');
-            sessionStorage.removeItem(CACHE_KEY);
-            await loadScores();
-        };
-
-        // ⚡ INDICATEUR CACHE
-        function showCacheIndicator(fromCache) {
-            const existing = document.getElementById('cacheIndicator');
-            if (existing) existing.remove();
-
-            if (fromCache) {
-                const indicator = document.createElement('div');
-                indicator.id = 'cacheIndicator';
-                indicator.className = 'cache-indicator';
-                indicator.innerHTML = '⚡ Données en cache (5min)';
-                document.body.appendChild(indicator);
-
-                setTimeout(() => {
-                    indicator.style.opacity = '0';
-                    setTimeout(() => indicator.remove(), 300);
-                }, 3000);
-            }
-        }
-
-        function createTestScores() {
-            const pseudos = ['Marie', 'David', 'Sarah', 'Paul', 'Ruth', 'Jean', 'Esther', 'Pierre', 'Déborah', 'André'];
-            const avatars = ['�', '�‍�', '💫', '📖', '✨', '🙏', '💎', '⭐', '�', '�'];
-            const niveaux = [2400, 2100, 1800, 1500, 1200, 900, 600, 300, 150, 75];
-            
-            // 🎯 IMPORTANT: Scores de test pour FAITHCHRONICLES
-            // Sagesse comme score principal, commencer à 180000 et descendre
-            const maxTestScore = 180000;
-            
-            const testScores = [];
-            for (let i = 0; i < 50; i++) {
-                const pseudoIdx = i % pseudos.length;
-                // Score décroissant: 180000, 179500, 179000, etc.
-                const score = maxTestScore - (i * 500);
-                
-                testScores.push({
-                    id: `test-faithchronicles-${i}`,
-                    score: score,
-                    donnees_extra: {
-                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
-                        avatar: avatars[pseudoIdx],
-                        sagesse: score, // La sagesse = le score dans FAITHCHRONICLES
-                        enigmes: Math.floor(Math.random() * 18),
-                        niveau_atteint: Math.min(8, Math.floor(score / 1000))
-                    },
-                    game_id: 'faithchronicles',
-                    users: {
-                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
-                        avatar: avatars[pseudoIdx]
-                    },
-                    created_at: new Date(Date.now() - i * 86400000).toISOString()
-                });
-            }
-            console.log('🧪 Données de test FAITHCHRONICLES créées:', testScores.length, 'scores (max:', maxTestScore, ')');
-            console.log('📝 Les scores de test sont en secours si Supabase est vide');
-            return testScores;
-        }
-
-        async function loadMoreScores() {
-            try {
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (loadMoreBtn) {
-                    loadMoreBtn.disabled = true;
-                    loadMoreBtn.innerHTML = '⏳ Chargement...';
-                }
-
-                const start = loadedCount;
-                const end = Math.min(loadedCount + loadMoreIncrement - 1, totalScores - 1);
-
-                console.log('📥 LoadMore: range', start, '-', end);
-                
-                // ⚡ UNE SEULE REQUÊTE AVEC JOIN
-                const { data, error } = await supabase
-                    .from('faithchronicles_game_progress')
-                    .select(`
-                        wisdom_points,
-                        total_xp,
-                        current_level,
-                        current_grade,
-                        created_at,
-                        user_id,
-                        users!inner(id, email, pseudo, avatar)
-                    `)
-                    .order('wisdom_points', { ascending: false })
-                    .range(start, end);
-
-                if (error) throw error;
-
-                // ⚡ Transformer les données
-                const newData = data?.map(progress => ({
-                    score: progress.wisdom_points || progress.total_xp || 0,
-                    wisdom_points: progress.wisdom_points || 0,
-                    total_xp: progress.total_xp || 0,
-                    current_level: progress.current_level || 1,
-                    current_grade: progress.current_grade || 0,
-                    created_at: progress.created_at,
-                    user_id: progress.user_id,
-                    users: {
-                        pseudo: progress.users?.pseudo || 'Joueur',
-                        avatar: progress.users?.avatar || '✨',
-                        email: progress.users?.email
-                    }
-                })) || [];
-
-                allScores = [...allScores, ...newData];
-                loadedCount = allScores.length;
-
-                // ⚡ METTRE À JOUR LE CACHE
-                setCache({ scores: allScores, loadedCount, totalScores });
-
-                console.log('✅ LoadMore:', newData.length, 'nouveaux (total:', loadedCount, ')');
-                renderPage();
-            } catch (error) {
-                console.error('Erreur chargement supplémentaire:', error);
-                alert('❌ Erreur lors du chargement: ' + error.message);
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (loadMoreBtn) {
-                    loadMoreBtn.disabled = false;
-                    loadMoreBtn.innerHTML = '📥 Charger plus...';
-                }
-            }
-        }
+        window.refreshScores = loadScores;
 
         function updateStats() {
             document.getElementById('totalPlayers').textContent = totalScores.toLocaleString();
@@ -1251,21 +949,18 @@
             pageScores.forEach((entry, index) => {
                 const globalRank = start + index + 1;
                 
-                // Pour les données FAITHCHRONICLES depuis Supabase
                 let pseudo, avatar, sagesse, niveau, enigmes;
                 
                 // Le score est déjà calculé dans entry.score
                 const score = entry.score || 0;
                 
                 if (entry.users && entry.users.pseudo) {
-                    // Données depuis Supabase avec table USERS globale
                     pseudo = entry.users.pseudo;
                     avatar = entry.users.avatar || '✨';
                     sagesse = entry.wisdom_points || entry.total_xp || score;
                     niveau = entry.current_level || 1;
                     enigmes = 0;
                 } else if (entry.user_id) {
-                    // Données depuis Supabase SANS join users (fallback)
                     pseudo = `Joueur ${entry.user_id.slice(0, 8)}...`;
                     avatar = '✨';
                     sagesse = entry.wisdom_points || entry.total_xp || score;
@@ -1357,30 +1052,10 @@
             document.getElementById('leaderboardContent').innerHTML = html || '<div class="loading">Aucun score</div>';
             
             // Afficher le bouton "Voir plus" si nécessaire
-            renderLoadMoreButton();
+
             renderPagination();
         }
 
-        function renderLoadMoreButton() {
-            const loadMoreContainer = document.getElementById('loadMoreContainer');
-            if (!loadMoreContainer) return;
-
-            if (loadedCount < totalScores) {
-                const remaining = totalScores - loadedCount;
-                const nextLoad = Math.min(loadMoreIncrement, remaining);
-                loadMoreContainer.innerHTML = `
-                    <button id="loadMoreBtn" class="load-more-btn" onclick="window.loadMoreScores()">
-                        📥 Charger ${nextLoad} scores supplémentaires (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
-                    </button>
-                `;
-            } else {
-                loadMoreContainer.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #7f8c8d; font-size: 14px;">
-                        ✅ Tous les scores chargés (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
-                    </div>
-                `;
-            }
-        }
 
         function renderPagination() {
             const maxPossiblePages = Math.ceil(loadedCount / perPage);
@@ -1421,27 +1096,12 @@
             const maxPossiblePages = Math.ceil(loadedCount / perPage);
             if (page < 1 || page > maxPossiblePages) return;
             
-            // Si on essaie d'aller sur une page non chargée, proposer de charger plus
-            const neededScores = page * perPage;
-            if (neededScores > loadedCount && loadedCount < totalScores) {
-                if (confirm(`Vous devez charger plus de scores pour accéder à cette page.\nCharger ${loadMoreIncrement} scores supplémentaires ?`)) {
-                    loadMoreScores().then(() => {
-                        if (page <= Math.ceil(loadedCount / perPage)) {
-                            currentPage = page;
-                            renderPage();
-                            document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
-                        }
-                    });
-                }
-                return;
-            }
             
             currentPage = page;
             renderPage();
             document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.loadMoreScores = loadMoreScores;
 
         // Recherche
         document.getElementById('searchInput').addEventListener('input', (e) => {

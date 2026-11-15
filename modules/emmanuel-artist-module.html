@@ -926,29 +926,11 @@
     </div>
 
     <script type="module">
-        // Configuration Supabase
-        const SUPABASE_URL = 'https://dmszyxowetilvsanqsxm.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3p5eG93ZXRpbHZzYW5xc3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzM0NDUsImV4cCI6MjA3NTM0OTQ0NX0.EukDYFVt0sCrDb0_V4ZPMv5B4gkD43V8Cw7CEuvl0C8';
-        
-        let supabase = null;
-        
-        // Import Supabase depuis CDN (version stable)
-        try {
-            const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
-            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log('✅ Supabase chargé avec succès (esm.sh)');
-        } catch (error) {
-            console.warn('⚠️ Supabase non disponible, utilisation scores locaux uniquement:', error);
-            supabase = null;
-        }
-
         let currentPage = 1;
         const perPage = 100;
         let totalScores = 0;
         let allScores = [];
         let loadedCount = 0;
-        const initialLoad = 100;
-        const loadMoreIncrement = 200;
         
         // ⚡ Déclarer currentLang AVANT les fonctions (sera mis à jour après)
         let currentLang = 'fr'; // Valeur par défaut temporaire
@@ -978,134 +960,13 @@
             return badges;
         }
 
-        async function loadScores() {
-            try {
-                const t = translations[currentLang] || translations['fr'];
-                document.getElementById('leaderboardContent').innerHTML = `<div class="loading">${t.loading}</div>`;
-
-                // 🔥 CACHE CHECK: Vérifier si données récentes en localStorage
-                const CACHE_KEY = 'emmanuel_leaderboard_cache';
-                const CACHE_DURATION = 30 * 1000; // 30 secondes (scores fréquemment mis à jour)
-                
-                // Vérifier si paramètre URL force le refresh
-                const urlParams = new URLSearchParams(window.location.search);
-                const forceRefresh = urlParams.has('refresh');
-                
-                const cached = localStorage.getItem(CACHE_KEY);
-                if (cached && !forceRefresh) {
-                    try {
-                        const { data, count, timestamp } = JSON.parse(cached);
-                        const age = Date.now() - timestamp;
-                        
-                        if (age < CACHE_DURATION) {
-                            // ✅ Cache valide - utiliser les données sans requête Supabase
-                            allScores = Array.isArray(data) ? data : [];
-                            
-                            const localScores = getLocalScores();
-                            allScores = [...allScores, ...localScores];
-                            allScores.sort((a, b) => b.score - a.score);
-                            
-                            loadedCount = allScores.length;
-                            totalScores = count || 0;
-                            
-                            updateStats();
-                            renderPage();
-                            return; // Exit without Supabase request
-                        }
-                    } catch (e) {
-                        // Cache corrompu, continuer vers Supabase
-                    }
-                }
-
-                // ⚡ FETCH FROM SUPABASE (cache expiré ou absent)
-                // ⚠️ VÉRIFIER SI SUPABASE EST DISPONIBLE
-                if (!supabase) {
-                    console.warn('⚠️ Supabase non disponible, utilisation scores locaux uniquement');
-                    // 💾 FALLBACK: Utiliser scores locaux + test
-                    const localScores = getLocalScores();
-                    const testScores = createTestScores();
-                    allScores = [...localScores, ...testScores];
-                    allScores.sort((a, b) => b.score - a.score);
-                    
-                    loadedCount = allScores.length;
-                    totalScores = allScores.length;
-                    
-                    updateStats();
-                    renderPage();
-                    return;
-                }
-
-                // Charger seulement les 100 premiers au départ
-                // ⚠️ ON NE FILTRE PAS PAR GAME_ID - PRENDRE TOUS LES SCORES
-                const { data, error, count } = await supabase
-                    .from('scores')
-                    .select(`
-                        score,
-                        niveau_atteint,
-                        temps_jeu,
-                        created_at,
-                        donnees_extra,
-                        game_id,
-                        users (pseudo, avatar, pays)
-                    `, { count: 'exact' })
-                    .order('score', { ascending: false })
-                    .range(0, initialLoad - 1);
-
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error);
-                    throw error;
-                }
-
-                allScores = Array.isArray(data) ? data : [];
-                
-                // 💾 SAVE TO CACHE
-                try {
-                    localStorage.setItem(CACHE_KEY, JSON.stringify({
-                        data: allScores,
-                        count: count,
-                        timestamp: Date.now()
-                    }));
-                } catch (e) {
-                    // Quota dépassé, ignorer
-                }
-                
-                // 💾 AJOUTER LES SCORES LOCAUX
-                const localScores = getLocalScores();
-                allScores = [...allScores, ...localScores];
-                
-                // Trier par score décroissant
-                allScores.sort((a, b) => b.score - a.score);
-                
-                loadedCount = allScores.length;
-                totalScores = count || 0;
-
-                // Si pas de données, utiliser des données de test
-                if (allScores.length === 0) {
-                    allScores = createTestScores();
-                    loadedCount = allScores.length;
-                    totalScores = allScores.length;
-                }
-
-                updateStats();
-                renderPage();
-            } catch (error) {
-                console.error('❌ Erreur complète:', error);
-                
-                // 💾 FALLBACK: Utiliser scores locaux + test
-                const localScores = getLocalScores();
-                const testScores = createTestScores();
-                allScores = [...localScores, ...testScores];
-                allScores.sort((a, b) => b.score - a.score);
-                
-                loadedCount = allScores.length;
-                totalScores = allScores.length;
-                
-                updateStats();
-                renderPage();
-            }
+        function loadScores() {
+            allScores = getLocalScores().sort((a, b) => b.score - a.score);
+            loadedCount = totalScores = allScores.length;
+            updateStats();
+            renderPage();
         }
 
-        // 💾 Récupérer les scores localStorage
         function getLocalScores() {
             try {
                 const t = translations[currentLang] || translations['fr'];
@@ -1130,88 +991,6 @@
             } catch (e) {
                 console.error('❌ Erreur lecture localStorage:', e);
                 return [];
-            }
-        }
-
-        function createTestScores() {
-            const pseudos = ['Alice', 'Bob', 'Charlie', 'Diana', 'Emma', 'Frank', 'Grace', 'Henry', 'Iris', 'Jack'];
-            const avatars = ['👨‍🎨', '👩‍🎨', '🧙', '🎭', '🎪', '🎨', '🎬', '🎸', '🎹', '🎺'];
-            const niveaux = [2100, 1800, 1500, 1200, 900, 600, 300, 100, 50, 25];
-            
-            // 🎯 IMPORTANT: Scores de test PLUS BAS que Marie (~160000)
-            // Commencer à 150000 et descendre progressivement
-            const maxTestScore = 150000;
-            
-            const testScores = [];
-            for (let i = 0; i < 50; i++) {
-                const pseudoIdx = i % pseudos.length;
-                // Score décroissant: 150000, 149500, 149000, etc.
-                const score = maxTestScore - (i * 500);
-                
-                testScores.push({
-                    id: `test-${i}`,
-                    score: score,
-                    donnees_extra: {
-                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
-                        avatar: avatars[pseudoIdx],
-                        sagesse: niveaux[pseudoIdx % niveaux.length],
-                        enigmes: Math.floor(Math.random() * 18),
-                        niveau_atteint: Math.floor(Math.random() * 23)
-                    },
-                    users: {
-                        pseudo: pseudos[pseudoIdx] + (i > 9 ? ` #${Math.floor(i / 10)}` : ''),
-                        avatar: avatars[pseudoIdx]
-                    },
-                    created_at: new Date(Date.now() - i * 86400000).toISOString()
-                });
-            }
-            console.log('🧪 Données de test créées:', testScores.length, 'scores (max:', maxTestScore, ')');
-            console.log('📝 Les scores de test sont en secours si Supabase est vide');
-            return testScores;
-        }
-
-        async function loadMoreScores() {
-            try {
-                const t = translations[currentLang] || translations['fr'];
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (loadMoreBtn) {
-                    loadMoreBtn.disabled = true;
-                    loadMoreBtn.innerHTML = t.loading;
-                }
-
-                const start = loadedCount;
-                const end = Math.min(loadedCount + loadMoreIncrement - 1, totalScores - 1);
-
-                const { data, error } = await supabase
-                    .from('scores')
-                    .select(`
-                        score,
-                        niveau_atteint,
-                        temps_jeu,
-                        created_at,
-                        donnees_extra,
-                        game_id,
-                        users (pseudo, avatar, pays)
-                    `)
-                    .order('score', { ascending: false })
-                    .range(start, end);
-
-                if (error) throw error;
-
-                const newData = Array.isArray(data) ? data : [];
-                allScores = [...allScores, ...newData];
-                loadedCount = allScores.length;
-
-                renderPage();
-            } catch (error) {
-                console.error('Erreur chargement supplémentaire:', error);
-                const t = translations[currentLang] || translations['fr'];
-                alert(`❌ ${t.errorLoading}: ${error.message}`);
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (loadMoreBtn) {
-                    loadMoreBtn.disabled = false;
-                    loadMoreBtn.innerHTML = `📥 ${t.loadMore}`;
-                }
             }
         }
 
@@ -1291,28 +1070,10 @@
             document.getElementById('leaderboardContent').innerHTML = html || `<div class="loading">${t.noResults}</div>`;
             
             // Afficher le bouton "Voir plus" si nécessaire
-            renderLoadMoreButton();
+
             renderPagination();
         }
 
-        function renderLoadMoreButton() {
-            const loadMoreContainer = document.getElementById('loadMoreContainer');
-            if (!loadMoreContainer) return;
-
-            if (loadedCount < totalScores) {
-                const remaining = totalScores - loadedCount;
-                const nextLoad = Math.min(loadMoreIncrement, remaining);
-                const t = translations[currentLang] || translations['fr'];
-                loadMoreContainer.innerHTML = `
-                    <button id="loadMoreBtn" class="load-more-btn" onclick="window.loadMoreScores()">
-                        ${t.loadMoreScores} ${nextLoad} ${t.moreScores} (${loadedCount.toLocaleString()} / ${totalScores.toLocaleString()})
-                    </button>
-                `;
-            } else {
-                // Tous les scores chargés - ne rien afficher
-                loadMoreContainer.innerHTML = '';
-            }
-        }
 
         function renderPagination() {
             const maxPossiblePages = Math.ceil(loadedCount / perPage);
@@ -1350,28 +1111,12 @@
             const maxPossiblePages = Math.ceil(loadedCount / perPage);
             if (page < 1 || page > maxPossiblePages) return;
             
-            // Si on essaie d'aller sur une page non chargée, proposer de charger plus
-            const neededScores = page * perPage;
-            if (neededScores > loadedCount && loadedCount < totalScores) {
-                const t = translations[currentLang] || translations['fr'];
-                if (confirm(`${t.confirmLoadMore} ${loadMoreIncrement} ${t.moreScoresQuestion}`)) {
-                    loadMoreScores().then(() => {
-                        if (page <= Math.ceil(loadedCount / perPage)) {
-                            currentPage = page;
-                            renderPage();
-                            document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
-                        }
-                    });
-                }
-                return;
-            }
             
             currentPage = page;
             renderPage();
             document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.loadMoreScores = loadMoreScores;
 
         // Recherche
         document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -2196,8 +1941,8 @@
             
             // ✨ RECHARGER LES DONNÉES si déjà chargées (pour mise à jour traductions)
             if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
-                // Forcer le rechargement pour appliquer les traductions
-                loadScores();
+                updateStats();
+                renderPage();
             }
         }
 
@@ -2213,7 +1958,7 @@
             // 2. Rafraîchir le leaderboard avec la langue détectée
             if (typeof allScores !== 'undefined' && allScores && allScores.length > 0) {
                 renderPage();
-                renderLoadMoreButton();
+
             }
             
             // 3. Initialiser le sélecteur de langue

@@ -68,7 +68,7 @@ Support natif de 14 langues avec système i18n :
 - Décors aléatoires (aube, lagon, nuit étoilée…)
 - Partage natif de l’image ou téléchargement PNG, sans compte ni e-mail
 - Score du jeu, XP et sagesse sur une carte portrait 1080 × 1350
-- Le jeu ne charge plus le client Supabase et n’envoie plus les scores en base
+- Le jeu et les pages annexes ne chargent plus Supabase. Les cartes de score sont générées localement. Les anciens fichiers SQL sont conservés à titre historique et ne sont pas exécutés.
 - La sauvegarde locale de progression reste indépendante du partage
 
 ## 🚀 Installation
@@ -112,7 +112,6 @@ petitbateau/
     ├── game-manager.js            # Logique du jeu
     ├── i18n.js                    # Système de traduction
     ├── narration-manager.js       # Narration interactive
-    ├── supabase-scores.js         # Classement en ligne
     ├── config/
     │   └── game-config.js         # Configuration globale
     ├── graphics/

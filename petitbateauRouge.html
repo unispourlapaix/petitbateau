@@ -4122,7 +4122,7 @@ if (!MODE_DEV) {
                 { nom: '📜 Poème 1', action: () =>console.log('Poème 1 ouvert') },
                 { nom: '📖 Poème 2', action: () =>console.log('Poème 2 ouvert') },
                 { nom: '🎨 Info Artiste', action: () => ouvrirInfoArtiste() },
-                { nom: '� Top 10000', action: () => ouvrirTop10000() },
+                { nom: getTranslatedText('score_share.title', 'Partager mon score'), action: partagerScoreActuel },
                 { nom: '�🎬 Générique', action: () =>console.log('Générique ouvert') },
                 { nom: '🦇👼 Icônes', action: () =>console.log('Menu icônes ouvert') }
             ];
@@ -4136,13 +4136,6 @@ if (!MODE_DEV) {
             // Utiliser le fichier externe emmanuel-artist-module.html (plus fiable que document.write)
             const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
             window.location.href = `modules/emmanuel-artist-module.html?lang=${currentLang}`;
-        }
-
-        // Fonction pour ouvrir le Top 10000
-        async function ouvrirTop10000() {
-            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'fr';
-            // Ouvrir dans le même onglet pour éviter les popups
-            window.location.href = `modules/top-scores-module.html?lang=${currentLang}`;
         }
 
         // Fonction pour ouvrir les énigmes complètes avec le nouveau style
