@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.8.47-storyboard-apres-langue'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.8.49-intro-apres-validation'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
@@ -27,6 +27,7 @@ const urlsToCache = [
   './modules/corbeau-module.js',
   './modules/game-manager.js',
   './modules/i18n.js',
+  './modules/i18n-apply.js',
   './modules/index.js',
   './modules/info-auteur.js',
   './modules/kawaii_objects_module.js',
@@ -54,11 +55,21 @@ const urlsToCache = [
   './modules/graphics/environment-renderer.js',
   './modules/graphics/heart-renderer.js',
   './modules/graphics/lantern-renderer.js',
-  // ⚠️ LANGUES RETIRÉES DU CACHE - Toujours récupérées depuis le serveur
-  // './modules/lang/en.json',
-  // './modules/lang/fr.json',
-  // './modules/lang/jp.json',
-  // './modules/lang/uk.json',
+  './modules/lang/fr.json',
+  './modules/lang/en.json',
+  './modules/lang/es.json',
+  './modules/lang/de.json',
+  './modules/lang/it.json',
+  './modules/lang/pt.json',
+  './modules/lang/ru.json',
+  './modules/lang/uk.json',
+  './modules/lang/zh.json',
+  './modules/lang/jp.json',
+  './modules/lang/ko.json',
+  './modules/lang/rc.json',
+  './modules/lang/lg.json',
+  './modules/lang/ar.json',
+  './modules/lang/he.json',
   // Styles
   './modules/styles/ui-styles.css',
   // Systèmes
@@ -112,24 +123,6 @@ self.addEventListener('activate', event => {
 
 // Interception des requêtes
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  // ⚠️ NE JAMAIS METTRE EN CACHE LES FICHIERS DE LANGUE - Toujours récupérer depuis le serveur
-  if (url.pathname.includes('/modules/lang/') && url.pathname.endsWith('.json')) {
-    console.log('🌍 Langue demandée - bypass cache:', url.pathname);
-    event.respondWith(
-      fetch(event.request, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      })
-    );
-    return;
-  }
-  
   event.respondWith(
     caches.open(CACHE_NAME)
       .then(cache => cache.match(event.request))

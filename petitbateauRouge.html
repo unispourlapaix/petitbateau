@@ -2172,13 +2172,9 @@ if (!MODE_DEV) {
                         return false;
                     }
                     
-                    // ✅ SIMPLIFICATION: Sauvegarder SEULEMENT à partir de Phase 2
                     const currentPhase = narrationManager ? narrationManager.currentPhase : 1;
-                    if (currentPhase < 2) {
-                        console.log('ℹ️ Phase 1 (intro) - pas de sauvegarde nécessaire');
-                        return false;
-                    }
-                    
+                    if (currentPhase < 1 || (currentPhase === 1 && !storyboardInitialTermine)) return false;
+
                     // ✅ DONNÉES MINIMALES: Phase + Playlist uniquement
                     const saveData = {
                         version: this.VERSION,
@@ -2282,6 +2278,8 @@ if (!MODE_DEV) {
                         });
                     }
 
+                    storyboardInitialTermine = true;
+
                     // 📖 Restaurer la phase - le narrationManager gère le reste
                     if (narrationManager && gameState.currentPhase) {
                         narrationManager.currentPhase = gameState.currentPhase;
@@ -2364,7 +2362,7 @@ if (!MODE_DEV) {
 
         // 🎮 Sauvegarder automatiquement toutes les 30 secondes pendant le jeu
         setInterval(() => {
-            if (typeof jeu !== 'undefined' && jeu && !PRODUCTION_MODE) {
+            if (typeof jeu !== 'undefined' && jeu) {
                 GameSaveSystem.save();
             }
         }, 30000);
@@ -2389,6 +2387,8 @@ if (!MODE_DEV) {
                 GameSaveSystem.save();
             }
         });
+
+        window.addEventListener('pagehide', () => { if (jeu) GameSaveSystem.save(); });
 
         // 🎯 Fonctions globales accessibles
         window.saveGame = () => GameSaveSystem.save();
@@ -10348,15 +10348,17 @@ if (!MODE_DEV) {
 
         // Animation du bateau
         let animationBateau = {
-            active: langueDejaChoisie, // Actif si langue déjà choisie
+            active: false, // Armée après le choix et le chargement de la langue.
             phase: 'arrivee', // 'arrivee', 'arret', 'attente', 'depart'
             positionCible: 0,
-            tempsDebut: langueDejaChoisie ? Date.now() : 0,
+            tempsDebut: 0,
             dureeArret: 20000 // 20 secondes d'arrêt
         };
 
         // Initialisation
         let demarrageJeuAutorise = false;
+        let storyboardInitialTermine = false;
+        let storyboardInitialEnCours = false;
         function initJeu() {
             if (!demarrageJeuAutorise) return;
             // Recalculer les constantes
@@ -10537,7 +10539,7 @@ if (!MODE_DEV) {
 
         // Gestion de l'animation du bateau
         function gererAnimationBateau() {
-            if (!animationBateau.active) return;
+            if (!demarrageJeuAutorise || !animationBateau.active) return;
 
             const tempsActuel = Date.now();
             const tempsEcoule = tempsActuel - animationBateau.tempsDebut;
@@ -10608,6 +10610,7 @@ if (!MODE_DEV) {
 
         // Gestion de la phase d'introduction
         function gererPhaseIntro() {
+            if (!demarrageJeuAutorise || storyboardInitialEnCours) return;
             // 🔥 PROTECTION: Si phaseIntro n'est pas encore initialisé, ne rien faire
             if (!phaseIntro) {
                 // Log silencieux - normal avant le load event
@@ -19477,7 +19480,8 @@ Elle a besoin de ponts.`
                                 const targetFlag = flagMap[btn.code] || '🌍';
                                 
                                 // Vérifier s'il y a une sauvegarde en cours
-                                const savedData = localStorage.getItem('petit_bateau_save');
+                                if (jeu) GameSaveSystem.save();
+                                const savedData = localStorage.getItem(GameSaveSystem.SAVE_KEY);
                                 const hasSave = !!savedData;
                                 
                                 // 🎨 Popup unique avec icônes design (pas de texte à traduire)
@@ -19529,7 +19533,7 @@ Elle a besoin de ponts.`
                                         // 🔵 Continuer : mettre à jour la langue dans la sauvegarde
                                         const save = JSON.parse(savedData);
                                         save.language = btn.code;
-                                        localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                        localStorage.setItem(GameSaveSystem.SAVE_KEY, JSON.stringify(save));
                                         console.log('🌍 Langue changée → Progression conservée');
                                     } else {
                                         console.log('🌍 Langue changée → Pas de sauvegarde');
@@ -19539,7 +19543,7 @@ Elle a besoin de ponts.`
                                     setTimeout(() => {
                                         console.log('🔄 RECHARGEMENT MAINTENANT !');
                                         // Rechargement forcé du serveur (bypass cache complet)
-                                        location.reload(true);
+                                        window.location.href = window.location.pathname + '?lang=' + btn.code + '&reload=' + Date.now();
                                     }, 300);
                                 }).catch(err => {
                                     console.error('❌ ERREUR changement langue:', err);
@@ -20268,7 +20272,8 @@ Elle a besoin de ponts.`
                                 const targetFlag = flagMap[btn.code] || '🌍';
                                 
                                 // Vérifier s'il y a une sauvegarde en cours
-                                const savedData = localStorage.getItem('petit_bateau_save');
+                                if (jeu) GameSaveSystem.save();
+                                const savedData = localStorage.getItem(GameSaveSystem.SAVE_KEY);
                                 const hasSave = !!savedData;
                                 
                                 // 🎨 Popup unique avec icônes design (pas de texte à traduire)
@@ -20324,7 +20329,7 @@ Elle a besoin de ponts.`
                                         try {
                                             const save = JSON.parse(savedData);
                                             save.language = btn.code;
-                                            localStorage.setItem('petit_bateau_save', JSON.stringify(save));
+                                            localStorage.setItem(GameSaveSystem.SAVE_KEY, JSON.stringify(save));
                                             console.log('🌍 Langue changée → Progression conservée');
                                         } catch(e) {
                                             console.error('❌ Erreur mise à jour langue sauvegarde:', e);
@@ -21346,6 +21351,7 @@ Elle a besoin de ponts.`
         }
 
         function boucleJeu(timestamp = performance.now()) {
+            if (!demarrageJeuAutorise) return;
             if (!autoriserImageJeu(timestamp)) {
                 requestAnimationFrame(boucleJeu);
                 return;
@@ -21778,9 +21784,12 @@ Elle a besoin de ponts.`
         }
 
         function lancerStoryboardInitial() {
+            if (!demarrageJeuAutorise || storyboardInitialEnCours || storyboardInitialTermine) return;
+            storyboardInitialEnCours = true;
             setTimeout(() => {
                 // Double vérification au moment de l'exécution
                 if (window.isRestoringGame || window.narrationStarted || window.skipNarrationIntro) {
+                    storyboardInitialEnCours = false;
                     console.warn('⏭️ Intro programmée annulée - Flags de sauvegarde détectés');
                     return;
                 }
@@ -21861,6 +21870,8 @@ Elle a besoin de ponts.`
 
                 // 🎮 FORCER L'ACTIVATION DU JEU APRÈS L'INTRO
                 phaseIntro.active = false;
+                animationBateau.active = false;
+                animationBateau.phase = 'complete';
                 jeu = true;
 
                 // 🎬 CRÉER LES PETITS CŒURS POUR LA PHASE 1
@@ -21869,6 +21880,9 @@ Elle a besoin de ponts.`
                 phaseJeu = 'tir_coeurs_haut';
                 initJeu();
                 creerPetitsCoeurs();
+                storyboardInitialEnCours = false;
+                storyboardInitialTermine = true;
+                GameSaveSystem.save();
             }, 15000); // Déclencher après le message NON (12000ms + 3000ms)
 
             }, 500); // Attendre 0.5 seconde pour être sûr que l'interface est prête
@@ -22391,6 +22405,15 @@ Elle a besoin de ponts.`
 
         // L'animation démarre automatiquement via gererAnimationBateau()
         function choisirLangueAuDemarrage() {
+            const url = new URL(location.href);
+            const demande = url.searchParams.get('lang');
+            if (window.i18n && url.searchParams.has('reload') &&
+                Object.hasOwn(window.i18n.getSupportedLanguages(), demande)) {
+                url.searchParams.delete('lang');
+                url.searchParams.delete('reload');
+                history.replaceState(history.state, '', url);
+                return Promise.resolve(demande);
+            }
             if (!window.i18n || (langueDejaChoisie &&
                 localStorage.getItem('petit_bateau_skip_language_prompt') === 'true')) {
                 return Promise.resolve(currentLang);
@@ -22500,6 +22523,7 @@ Elle a besoin de ponts.`
                 isRestoring: window.isRestoringGame
             });
 
+            animationBateau.active = !skipIntro;
             demarrageJeuAutorise = true;
             initJeu();
 

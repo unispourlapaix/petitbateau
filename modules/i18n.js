@@ -38,37 +38,15 @@ class I18nManager {
      * Charger les traductions pour une langue
      */
     async loadLanguage(lang) {
-        // ⚡ TOUJOURS recharger depuis le serveur (pas de cache mémoire)
-        // On supprime les données en cache pour forcer le rechargement
-        if (this.translations[lang]) {
-            delete this.translations[lang];
-            console.log(`🔄 Cache mémoire supprimé pour ${lang}`);
-        }
-
-        // Charger les fichiers JSON pour TOUTES les langues (y compris le français)
+        if (this.translations[lang] && !this.translations[lang].loaded) return;
         try {
-            // 🔄 Cache-buster avec timestamp + random pour forcer le rechargement complet
-            const cacheBuster = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            
-            // 🦊 Configuration spéciale pour Firefox et autres navigateurs
-            const response = await fetch(`modules/lang/${lang}.json?v=${cacheBuster}`, {
-                method: 'GET',
-                cache: 'no-store', // Force no-cache
-                mode: 'cors', // Pour Firefox
-                credentials: 'same-origin',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                    'If-Modified-Since': '0' // Force Firefox à recharger
-                }
-            });
+            const response = await fetch(`modules/lang/${lang}.json`);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             const translations = await response.json();
             this.translations[lang] = translations;
-            console.log(`🌍 Langue ${lang} chargée avec succès depuis JSON (cache forcé: ${cacheBuster})`);
+            console.log(`🌍 Langue ${lang} chargée avec succès depuis JSON`);
         } catch (error) {
             console.warn(`⚠️ Impossible de charger la langue ${lang}:`, error.message);
             // Pour le français, utiliser un objet vide pour fallback aux textes HTML
