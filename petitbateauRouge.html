@@ -2035,63 +2035,23 @@ if (!MODE_DEV) {
 
     <!-- Initialisation du système de traduction -->
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            // 🗑️ FORCER LA SUPPRESSION DU CACHE NAVIGATEUR
-            console.log('🔄 Suppression forcée du cache des traductions...');
-            
-            // Vider le cache des traductions si présent
-            if (window.i18n && window.i18n.translations) {
-                window.i18n.translations = { fr: { loaded: true } };
-                console.log('✅ Cache mémoire i18n vidé');
-            }
-            
-            // Récupérer la langue sauvegardée ou utiliser français
-            const savedLang = localStorage.getItem('petit_bateau_lang') || 'fr';
-            console.log(`🌍 Langue détectée: ${savedLang}`);
-
-            // Initialiser i18n
-            await window.i18n.init();
-
-            // Créer l'applicateur
-            if (!window.i18nApplicator) {
-                window.i18nApplicator = new I18nApplicator(window.i18n);
-            }
-
-            // Appliquer les traductions
-            await window.i18nApplicator.applyAll(savedLang);
-
-            // Mettre à jour le titre du document
-            if (window.i18n && window.i18n.t) {
-                const docTitle = window.i18n.t('meta.document_title');
-                const docDescription = window.i18n.t('meta.description');
-                const ogTitle = window.i18n.t('meta.og_title');
-                const ogDescription = window.i18n.t('meta.og_description');
-                
-                if (docTitle) document.title = docTitle;
-                
-                // Mettre à jour meta description
-                const metaDesc = document.querySelector('meta[name="description"]');
-                if (metaDesc && docDescription) metaDesc.setAttribute('content', docDescription);
-                
-                // Mettre à jour Open Graph title
-                const ogTitleMeta = document.querySelector('meta[property="og:title"]');
-                if (ogTitleMeta && ogTitle) ogTitleMeta.setAttribute('content', ogTitle);
-                
-                // Mettre à jour Open Graph description
-                const ogDescMeta = document.querySelector('meta[property="og:description"]');
-                if (ogDescMeta && ogDescription) ogDescMeta.setAttribute('content', ogDescription);
-                
-                // Mettre à jour l'attribut lang du HTML
-                const htmlLang = savedLang === 'fr' ? 'fr' : savedLang === 'en' ? 'en' : savedLang === 'es' ? 'es' : 'fr';
-                document.documentElement.setAttribute('lang', htmlLang);
-            }
-
-            console.log(`🌍 Jeu chargé en ${window.i18n.supportedLanguages[savedLang]}`);
-        } catch (error) {
-            console.error('❌ Erreur initialisation i18n:', error);
+    async function appliquerLangueInitiale(langue) {
+        if (!window.i18n) return;
+        if (window.i18nApplicator) await window.i18nApplicator.applyAll(langue);
+        else await window.i18n.setLanguage(langue);
+        const htmlLang = {jp: 'ja', rc: 'rcf'}[langue] || langue;
+        document.documentElement.lang = htmlLang;
+        for (const [cle, selecteur, attribut] of [
+            ['meta.description', 'meta[name="description"]', 'content'],
+            ['meta.og_title', 'meta[property="og:title"]', 'content'],
+            ['meta.og_description', 'meta[property="og:description"]', 'content']
+        ]) {
+            const texte = window.i18n.t(cle);
+            if (texte && texte !== cle) document.querySelector(selecteur)?.setAttribute(attribut, texte);
         }
-    });
+        const titre = window.i18n.t('meta.document_title');
+        if (titre && titre !== 'meta.document_title') document.title = titre;
+    }
     </script>
 
         <script src="modules/kawaii_objects_module.js"></script>
@@ -2799,16 +2759,6 @@ if (!MODE_DEV) {
         // Déclaration des tableaux (seront initialisés après chargement des traductions)
         let JOUR = [];
         let NUIT = [];
-
-        // Chargement initial des traductions
-        window.translationsReady = (async () => {
-            try {
-                await loadTranslations(currentLang);
-                initializeBrickArrays();
-            } catch (error) {
-                console.error('❌ Erreur chargement traductions:', error);
-            }
-        })();
 
         // Fonction pour initialiser les tableaux de briques
         function initializeBrickArrays() {
@@ -22460,7 +22410,7 @@ Elle a besoin de ponts.`
         function choisirLangueAuDemarrage() {
             if (!window.i18n || (langueDejaChoisie &&
                 localStorage.getItem('petit_bateau_skip_language_prompt') === 'true')) {
-                return Promise.resolve();
+                return Promise.resolve(currentLang);
             }
 
             const choix = document.createElement('dialog');
@@ -22500,21 +22450,29 @@ Elle a besoin de ponts.`
             return new Promise(resolve => {
                 formulaire.addEventListener('submit', event => {
                     event.preventDefault();
-                    localStorage.setItem('petit_bateau_lang', liste.value);
                     if (ignorer.checked) localStorage.setItem('petit_bateau_skip_language_prompt', 'true');
                     else localStorage.removeItem('petit_bateau_skip_language_prompt');
                     choix.close();
                     choix.remove();
-                    resolve();
+                    resolve(liste.value);
                 }, {once: true});
                 choix.showModal();
             });
         }
 
         // Afficher dès que le DOM du jeu est prêt, sans attendre le chargement des médias.
-        const langueAuDemarrage = choisirLangueAuDemarrage();
+        window.translationsReady = choisirLangueAuDemarrage().then(async langue => {
+            try {
+                await appliquerLangueInitiale(langue);
+                currentLang = window.i18n?.getCurrentLanguage() || 'fr';
+            } catch (error) {
+                console.error('Erreur de chargement de la langue :', error);
+            }
+            clearTranslationCache();
+            initializeBrickArrays();
+        });
         window.addEventListener('load', async function() {
-            await langueAuDemarrage;
+            await window.translationsReady;
 
             // 🔥 Vérifier si un reset était en cours
             const resetInProgress = localStorage.getItem('gameResetInProgress');
@@ -22557,31 +22515,6 @@ Elle a besoin de ponts.`
                 hasSavedGame: hasSavedGame,
                 isRestoring: window.isRestoringGame
             });
-
-            // Initialiser le module i18n en premier
-            if (window.i18n) {
-                console.log('🌍 Initialisation du module i18n...');
-                await window.i18n.init();
-                console.log('🌍 Module i18n initialisé avec succès');
-                
-                // Synchroniser la langue actuelle
-                currentLang = window.i18n.getCurrentLanguage();
-                console.log(`🌍 Langue actuelle: ${currentLang}`);
-                
-                // Forcer le chargement des traductions si ce n'est pas le français
-                if (currentLang !== 'fr') {
-                    await window.i18n.loadLanguage(currentLang);
-                    console.log(`🌍 Traductions ${currentLang} chargées`);
-                }
-            } else {
-                console.warn('⚠️ Module i18n non disponible, utilisation du français par défaut');
-                currentLang = 'fr';
-            }
-
-            // Initialiser les tableaux de briques
-            if (JOUR.length === 0 || NUIT.length === 0) {
-                initializeBrickArrays();
-            }
 
             // 💾 Chargement automatique de la sauvegarde (si existe)
             // ✅ SIMPLIFICATION: Pas de confirmation - charge directement
