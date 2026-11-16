@@ -10356,7 +10356,9 @@ if (!MODE_DEV) {
         };
 
         // Initialisation
+        let demarrageJeuAutorise = false;
         function initJeu() {
+            if (!demarrageJeuAutorise) return;
             // Recalculer les constantes
             C.W = size.width; C.H = size.height;
             C.PW = Math.max(C.W * 0.3, 100);  // Plus large
@@ -21775,24 +21777,7 @@ Elle a besoin de ponts.`
             requestAnimationFrame(boucleJeu);
         }
 
-        // Démarrage avec intro forcée
-        initJeu();
-
-        // Initialiser le module secret
-        initSecretModeModule();
-
-        // 🔥 FORCER l'intro SEULEMENT si pas de sauvegarde (sera réécrasé dans le load event)
-        // Ce code s'exécute avant le load event, donc phaseIntro est encore null
-        // On laisse phaseIntro à null ici - il sera initialisé dans le load event
-        // phaseIntro = { active: true, etape: 'arrivee_bateau', tempsDebut: Date.now() };
-        // jeu = false;
-
-        // 🎯 AFFICHAGE IMMÉDIAT DE L'INTRO (solution radicale)
-        // 🔥 BLOQUÉ SI SAUVEGARDE - vérifier AVANT le setTimeout
-        const hasSaveBeforeTimeout = localStorage.getItem('petit_bateau_save') !== null;
-        
-        if (!hasSaveBeforeTimeout) {
-            console.warn('✅ Pas de sauvegarde - Lancement de l\'intro programmée');
+        function lancerStoryboardInitial() {
             setTimeout(() => {
                 // Double vérification au moment de l'exécution
                 if (window.isRestoringGame || window.narrationStarted || window.skipNarrationIntro) {
@@ -21887,8 +21872,6 @@ Elle a besoin de ponts.`
             }, 15000); // Déclencher après le message NON (12000ms + 3000ms)
 
             }, 500); // Attendre 0.5 seconde pour être sûr que l'interface est prête
-        } else {
-            console.warn('⏭️⏭️⏭️ SAUVEGARDE DÉTECTÉE - INTRO ENTIÈREMENT BLOQUÉE ⏭️⏭️⏭️');
         }
 
         // === RACCOURCIS TEST (ACTIVÉS POUR DEBUG MODE SECRET) ===
@@ -22469,6 +22452,7 @@ Elle a besoin de ponts.`
                 console.error('Erreur de chargement de la langue :', error);
             }
             clearTranslationCache();
+            narrationManager.reloadPhases();
             initializeBrickArrays();
         });
         window.addEventListener('load', async function() {
@@ -22516,6 +22500,9 @@ Elle a besoin de ponts.`
                 isRestoring: window.isRestoringGame
             });
 
+            demarrageJeuAutorise = true;
+            initJeu();
+
             // 💾 Chargement automatique de la sauvegarde (si existe)
             // ✅ SIMPLIFICATION: Pas de confirmation - charge directement
             if (hasSavedGame) {
@@ -22554,6 +22541,8 @@ Elle a besoin de ponts.`
 
             // ✅ NOTE: Pour effacer la sauvegarde, l'utilisateur peut vider le cache du navigateur
             // Ou utiliser la console: GameSaveSystem.clear()
+
+            if (!window.isRestoringGame && !window.skipNarrationIntro) lancerStoryboardInitial();
 
             // Attente pour s'assurer que tout est initialisé
             setTimeout(() => {
