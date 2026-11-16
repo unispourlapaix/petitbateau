@@ -171,6 +171,7 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
+        #hud-title { z-index: 220; pointer-events: auto; }
         .hud-control:focus-visible { outline: 2px solid #f5cd70; outline-offset: -2px; }
         .hud-control:active { background: rgba(255, 255, 255, .18); }
 
@@ -530,7 +531,8 @@
         }
 
         /* États de visibilité */
-        .bird-hidden {
+        .bird-base.bird-hidden {
+            pointer-events: none;
             opacity: 0;
         }
 
@@ -1736,6 +1738,7 @@ if (!MODE_DEV) {
     
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
+        <button type="button" id="hud-title" class="hud-control" aria-label="Petit Bateau Rouge" aria-expanded="false" hidden></button>
         <button type="button" id="hud-speaker" class="hud-control" aria-label="Son" aria-pressed="false" title="Son" hidden></button>
 
         <!-- CHARGER LES MODULES AVANT LE SCRIPT PRINCIPAL -->
@@ -2509,92 +2512,6 @@ if (!MODE_DEV) {
             };
             document.addEventListener('touchstart', activerPortraitAuTouch, { once: true });
             document.addEventListener('click', activerPortraitAuTouch, { once: true });
-        }
-        
-        // 📱 PLEIN ÉCRAN AUTOMATIQUE SUR MOBILE
-        if (isMobile) {
-            // Fonction pour activer le plein écran (DÉSACTIVÉE)
-            const activerPleinEcranMobile = async () => {
-                console.log('ℹ️ Mode plein écran désactivé');
-                return; // DÉSACTIVÉ
-                
-                /*
-                const elem = document.documentElement;
-                
-                // Vérifier si déjà en plein écran
-                if (document.fullscreenElement || document.webkitFullscreenElement || 
-                    document.mozFullScreenElement || document.msFullscreenElement) {
-                    console.log('✅ Déjà en plein écran');
-                    return;
-                }
-                
-                try {
-                    // Tenter avec les différentes API selon le navigateur
-                    if (elem.requestFullscreen) {
-                        await elem.requestFullscreen({ navigationUI: "hide" });
-                        console.log('✅ Plein écran activé (standard)');
-                    } else if (elem.webkitRequestFullscreen) { // Safari iOS
-                        await elem.webkitRequestFullscreen();
-                        console.log('✅ Plein écran activé (webkit)');
-                    } else if (elem.mozRequestFullScreen) { // Firefox
-                        await elem.mozRequestFullScreen();
-                        console.log('✅ Plein écran activé (moz)');
-                    } else if (elem.msRequestFullscreen) { // IE/Edge
-                        await elem.msRequestFullscreen();
-                        console.log('✅ Plein écran activé (ms)');
-                    } else {
-                        console.log('⚠️ Plein écran non supporté par ce navigateur');
-                    }
-                    
-                    // Masquer la barre d'adresse sur mobile (iOS Safari)
-                    window.scrollTo(0, 1);
-                    setTimeout(() => window.scrollTo(0, 0), 0);
-                    
-                } catch (err) {
-                    console.log('ℹ️ Plein écran non activable automatiquement:', err.message);
-                }
-                */
-                
-                // Retirer les écouteurs après tentative
-                document.removeEventListener('touchstart', activerPleinEcranMobile);
-                document.removeEventListener('click', activerPleinEcranMobile);
-                canvas.removeEventListener('touchstart', activerPleinEcranMobile);
-                canvas.removeEventListener('click', activerPleinEcranMobile);
-            };
-            
-            // Tenter immédiatement (ne fonctionnera que si appelé depuis un event user)
-            activerPleinEcranMobile();
-            
-            // Si échec, attendre le premier touch/click
-            document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
-            document.addEventListener('click', activerPleinEcranMobile, { once: true });
-            
-            // Aussi écouter sur le canvas directement
-            setTimeout(() => {
-                if (canvas) {
-                    canvas.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
-                    canvas.addEventListener('click', activerPleinEcranMobile, { once: true });
-                }
-            }, 100);
-            
-            // Réactiver le plein écran si l'utilisateur en sort
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    console.log('⚠️ Plein écran quitté - Réactivation au prochain touch');
-                    document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
-                    document.addEventListener('click', activerPleinEcranMobile, { once: true });
-                }
-            });
-            
-            // Pour webkit (Safari)
-            document.addEventListener('webkitfullscreenchange', () => {
-                if (!document.webkitFullscreenElement) {
-                    console.log('⚠️ Plein écran quitté (webkit) - Réactivation au prochain touch');
-                    document.addEventListener('touchstart', activerPleinEcranMobile, { once: true });
-                }
-            });
-            
-            console.log('📱 Système de plein écran automatique initialisé');
         }
         
         // Alternative : API ScreenOrientation pour PWA
@@ -4276,8 +4193,8 @@ if (!MODE_DEV) {
             const paddingTexteActif = 50;
             
             // OPTIMISATION: Cache des calculs de largeur d'onglets (recalculer seulement si changement de langue ou onglet)
-            const now = Date.now();
-            if (menuEnigmesCanvas.needsRecalculation || !menuEnigmesCanvas.cachedTabWidths || (now - menuEnigmesCanvas.lastCalculationTime) > 1000) {
+            const tabLayoutKey = [menuWidth, menuEnigmesCanvas.ongletActif, window.i18n?.getCurrentLanguage()].join(':');
+            if (menuEnigmesCanvas.needsRecalculation || menuEnigmesCanvas.tabLayoutKey !== tabLayoutKey) {
                 ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
                 const texteEnigmes = getTranslatedText('interface.tabs.enigmas', 'Énigmes');
                 const texteScores = getTranslatedText('score_share.tab', 'Partager');
@@ -4315,7 +4232,7 @@ if (!MODE_DEV) {
                     largeurTotaleReelle: (largeurEnigmes + largeurScores + largeurLangue + largeurInfo) * facteurReduction + (espacementOnglets * 3)
                 };
                 
-                menuEnigmesCanvas.lastCalculationTime = now;
+                menuEnigmesCanvas.tabLayoutKey = tabLayoutKey;
                 menuEnigmesCanvas.needsRecalculation = false;
             }
             
@@ -4324,218 +4241,16 @@ if (!MODE_DEV) {
             
             const offsetCentrage = (menuWidth - largeurTotaleReelle) / 2;
 
-            // Onglet Énigmes - CENTRÉ
-            const ongletEnigmesX = menuX + offsetCentrage;
-            menuEnigmesCanvas.onglets.enigmes.x = ongletEnigmesX;
-            menuEnigmesCanvas.onglets.enigmes.y = ongletY;
-            menuEnigmesCanvas.onglets.enigmes.width = ongletWidthEnigmes;
-            menuEnigmesCanvas.onglets.enigmes.height = ongletHeight;
-
+            let tabX = menuX + offsetCentrage;
+            for (const [id, width] of [
+                ['enigmes', ongletWidthEnigmes], ['classement', ongletWidthScores],
+                ['langues', ongletWidthLangue], ['info', ongletWidthInfo]
+            ]) {
+                Object.assign(menuEnigmesCanvas.onglets[id], {x: tabX, y: ongletY, width, height: ongletHeight});
+                tabX += width + espacementOnglets;
+            }
             const enigmesActif = menuEnigmesCanvas.ongletActif === 'enigmes';
-
-            // Design moderne et épuré
-            ctx.save();
-
-            // Onglet Énigmes - Style minimaliste
-            if (enigmesActif) {
-                // Onglet actif : fond blanc pur avec légère élévation
-                ctx.fillStyle = '#f8edd6';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 2;
-            } else {
-                // Onglet inactif : transparent avec bordure subtile
-                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-            }
-
-            ctx.beginPath();
-            ctx.roundRect(ongletEnigmesX, ongletY, ongletWidthEnigmes, ongletHeight, [8, 8, 0, 0]);
-            ctx.fill();
-
-            // Pas de bordure latérale - seulement ligne du bas pour onglet inactif
-            if (!enigmesActif) {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(ongletEnigmesX, ongletY + ongletHeight);
-                ctx.lineTo(ongletEnigmesX + ongletWidthEnigmes, ongletY + ongletHeight);
-                ctx.stroke();
-            }
-
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-
-            // Texte élégant - police adaptée - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
-            ctx.fillStyle = enigmesActif ? '#293f48' : '#6e6655';
-            ctx.textAlign = 'center';
-            ctx.fillText(texteEnigmes, ongletEnigmesX + ongletWidthEnigmes / 2, ongletY + 28);
-
-            // Indicateur actif sous le texte - ajusté dynamiquement
-            if (enigmesActif) {
-                ctx.fillStyle = '#365e6a';
-                const indicateurWidth = Math.min(40, ongletWidthEnigmes * 0.6);
-                ctx.fillRect(ongletEnigmesX + ongletWidthEnigmes / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
-            }
-
-            // Onglet Classement
-            const ongletClassementX = ongletEnigmesX + ongletWidthEnigmes + espacementOnglets;
-            menuEnigmesCanvas.onglets.classement.x = ongletClassementX;
-            menuEnigmesCanvas.onglets.classement.y = ongletY;
-            menuEnigmesCanvas.onglets.classement.width = ongletWidthScores;
-            menuEnigmesCanvas.onglets.classement.height = ongletHeight;
-
-            const classementActif = menuEnigmesCanvas.ongletActif === 'classement';
-
-            // Onglet Classement - Style minimaliste
-            if (classementActif) {
-                ctx.fillStyle = '#f8edd6';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 2;
-            } else {
-                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-            }
-
-            ctx.beginPath();
-            ctx.roundRect(ongletClassementX, ongletY, ongletWidthScores, ongletHeight, [8, 8, 0, 0]);
-            ctx.fill();
-
-            // Pas de bordure latérale - seulement ligne du bas pour onglet inactif
-            if (!classementActif) {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(ongletClassementX, ongletY + ongletHeight);
-                ctx.lineTo(ongletClassementX + ongletWidthScores, ongletY + ongletHeight);
-                ctx.stroke();
-            }
-
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-
-            // Texte élégant - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
-            ctx.fillStyle = classementActif ? '#293f48' : '#6e6655';
-            ctx.fillText(texteScores, ongletClassementX + ongletWidthScores / 2, ongletY + 28);
-
-            // Indicateur actif - ajusté dynamiquement
-            if (classementActif) {
-                ctx.fillStyle = '#FFD700';
-                const indicateurWidth = Math.min(50, ongletWidthScores * 0.6);
-                ctx.fillRect(ongletClassementX + ongletWidthScores / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
-            }
-
-            // Onglet Langues
-            const ongletLanguesX = ongletClassementX + ongletWidthScores + espacementOnglets;
-            menuEnigmesCanvas.onglets.langues.x = ongletLanguesX;
-            menuEnigmesCanvas.onglets.langues.y = ongletY;
-            menuEnigmesCanvas.onglets.langues.width = ongletWidthLangue;
-            menuEnigmesCanvas.onglets.langues.height = ongletHeight;
-
-            const languesActif = menuEnigmesCanvas.ongletActif === 'langues';
-
-            // Onglet Langues - Style minimaliste
-            if (languesActif) {
-                ctx.fillStyle = '#f8edd6';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 2;
-            } else {
-                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-            }
-
-            ctx.beginPath();
-            ctx.roundRect(ongletLanguesX, ongletY, ongletWidthLangue, ongletHeight, [8, 8, 0, 0]);
-            ctx.fill();
-
-            // Pas de bordure latérale - seulement ligne du bas pour onglet inactif
-            if (!languesActif) {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(ongletLanguesX, ongletY + ongletHeight);
-                ctx.lineTo(ongletLanguesX + ongletWidthLangue, ongletY + ongletHeight);
-                ctx.stroke();
-            }
-
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-
-            // Texte - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
-            ctx.fillStyle = languesActif ? '#293f48' : '#6e6655';
-            const currentFlag = getCurrentLanguageFlag();
-            ctx.fillText(`${currentFlag} ${texteLangue}`, ongletLanguesX + ongletWidthLangue / 2, ongletY + 28);
-
-            // Indicateur actif - ajusté dynamiquement
-            if (languesActif) {
-                ctx.fillStyle = '#58705b';
-                const indicateurWidth = Math.min(50, ongletWidthLangue * 0.6);
-                ctx.fillRect(ongletLanguesX + ongletWidthLangue / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
-            }
-
-            // Onglet Info
-            const ongletInfoX = ongletLanguesX + ongletWidthLangue + espacementOnglets;
-            menuEnigmesCanvas.onglets.info.x = ongletInfoX;
-            menuEnigmesCanvas.onglets.info.y = ongletY;
-            menuEnigmesCanvas.onglets.info.width = ongletWidthInfo;
-            menuEnigmesCanvas.onglets.info.height = ongletHeight;
-
             const infoActif = menuEnigmesCanvas.ongletActif === 'info';
-
-            // Onglet Info - Style minimaliste
-            if (infoActif) {
-                ctx.fillStyle = '#f8edd6';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 2;
-            } else {
-                ctx.fillStyle = 'rgba(212, 191, 151, 0.42)';
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-            }
-
-            ctx.beginPath();
-            ctx.roundRect(ongletInfoX, ongletY, ongletWidthInfo, ongletHeight, [8, 8, 0, 0]);
-            ctx.fill();
-
-            // Pas de bordure latérale - seulement ligne du bas pour onglet inactif
-            if (!infoActif) {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(ongletInfoX, ongletY + ongletHeight);
-                ctx.lineTo(ongletInfoX + ongletWidthInfo, ongletY + ongletHeight);
-                ctx.stroke();
-            }
-
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-
-            // Texte élégant - BOLD SANS ICÔNE
-            ctx.font = 'bold 14px Georgia, "Times New Roman", serif';
-            ctx.fillStyle = infoActif ? '#293f48' : '#6e6655';
-            ctx.fillText(texteInfo, ongletInfoX + ongletWidthInfo / 2, ongletY + 28);
-
-            // Indicateur actif - ajusté dynamiquement
-            if (infoActif) {
-                ctx.fillStyle = '#365e6a';
-                const indicateurWidth = Math.min(50, ongletWidthInfo * 0.6);
-                ctx.fillRect(ongletInfoX + ongletWidthInfo / 2 - indicateurWidth / 2, ongletY + ongletHeight - 3, indicateurWidth, 3);
-            }
-
-            ctx.restore();
 
             ctx.save();
             ctx.globalAlpha = containerAlpha * .55;
@@ -4616,7 +4331,7 @@ if (!MODE_DEV) {
                 ctx.clip();
 
                 // Dessiner les cartes d'énigmes
-                dessinerCartesEnigmes();
+                dessinerCartesEnigmes(menuY + 160, menuY + menuHeight - 30);
 
                 ctx.restore();
 
@@ -5034,12 +4749,12 @@ if (!MODE_DEV) {
         }
 
         // Dessiner les cartes d'énigmes avec système de liste déroulante
-        function dessinerCartesEnigmes() {
+        function dessinerCartesEnigmes(hautVisible, basVisible) {
             menuEnigmesCanvas.enigmaCards.forEach(card => {
                 let y = card.y - menuEnigmesCanvas.scrollY;
 
                 // Ne dessiner que les lignes visibles
-                if (y + card.height < 80 || y > C.H - 40) return;
+                if (y + card.height < hautVisible || y > basVisible) return;
 
                 const isCollected = enigmaCollector && enigmaCollector.enigmesCollectees.has(card.id);
                 const isExpanded = menuEnigmesCanvas.expandedCard === card.id;
@@ -5084,16 +4799,17 @@ if (!MODE_DEV) {
                     // ⚡ OPTIMISATION: Utiliser cache description (évite appel function)
                     const description = cachedEnigme.description;
 
-                    // Limiter la longueur
-                    if (ctx.measureText(description).width > maxWidth) {
-                        let truncated = description;
-                        while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
-                            truncated = truncated.slice(0, -1);
+                    if (card.descriptionSource !== description || card.descriptionWidth !== maxWidth) {
+                        card.descriptionSource = description;
+                        card.descriptionWidth = maxWidth;
+                        let extrait = description;
+                        if (ctx.measureText(extrait).width > maxWidth) {
+                            while (extrait.length && ctx.measureText(extrait + '...').width > maxWidth) extrait = extrait.slice(0, -1);
+                            extrait += '...';
                         }
-                        ctx.fillText(truncated + '...', card.x + 90, y + card.height/2 + 18);
-                    } else {
-                        ctx.fillText(description, card.x + 90, y + card.height/2 + 18);
+                        card.descriptionVisible = extrait;
                     }
+                    ctx.fillText(card.descriptionVisible, card.x + 90, y + card.height/2 + 18);
 
                     // Flèche déroulante à droite (pour les cartes collectées) - PLUS GROSSE
                     const arrowX = card.x + card.width - 30;
@@ -19280,31 +18996,55 @@ Elle a besoin de ponts.`
         }
 
         // Événements tactiles - REFONTE SIMPLIFIÉE
+        const boutonTitreHud = document.getElementById('hud-title');
         const boutonSonHud = document.getElementById('hud-speaker');
         let dispositionBoutonsHud = '';
         function masquerBoutonsHud() {
             boutonSonHud.hidden = true;
+            boutonTitreHud.hidden = true;
             dispositionBoutonsHud = '';
         }
         function synchroniserBoutonsHud(hud = PixelHUD.layout(C)) {
             const coupe = musicManager ? musicManager.isMuted : AudioSystem.muted;
-            const signature = [C.W, C.H, coupe].join(':');
+            const ouvert = menuEnigmesCanvas.visible;
+            const titre = getTranslatedText('ui.game_title', 'Petit Bateau Rouge');
+            const signature = [C.W, C.H, coupe, ouvert, titre].join(':');
             if (signature === dispositionBoutonsHud) return;
             dispositionBoutonsHud = signature;
             const sx = canvas.clientWidth / C.W, sy = canvas.clientHeight / C.H;
-            const box = hud.speaker;
-            boutonSonHud.style.left = (canvas.offsetLeft + box.x * sx) + 'px';
-            boutonSonHud.style.top = (canvas.offsetTop + box.y * sy) + 'px';
-            boutonSonHud.style.width = (box.w * sx) + 'px';
-            boutonSonHud.style.height = (box.h * sy) + 'px';
+            for (const [button, box] of [[boutonSonHud, hud.speaker], [boutonTitreHud, hud.title]]) {
+                button.style.left = (canvas.offsetLeft + box.x * sx) + 'px';
+                button.style.top = (canvas.offsetTop + box.y * sy) + 'px';
+                button.style.width = (box.w * sx) + 'px';
+                button.style.height = (box.h * sy) + 'px';
+                button.hidden = false;
+            }
             boutonSonHud.setAttribute('aria-pressed', String(coupe));
-            boutonSonHud.hidden = false;
+            boutonTitreHud.setAttribute('aria-label', titre + ' — ' + getTranslatedText('interface.tabs.enigmas', 'Énigmes'));
+            boutonTitreHud.setAttribute('aria-expanded', String(ouvert));
         }
         if (typeof ResizeObserver !== 'undefined') {
             const observer = new ResizeObserver(() => { dispositionBoutonsHud = ''; });
             observer.observe(canvas);
             observer.observe(canvas.parentElement);
         }
+        function basculerMenuDepuisTitre() {
+            if (menuEnigmesCanvas.visible) fermerMenuEnigmesCanvas();
+            else ouvrirMenuEnigmesCanvas();
+        }
+        boutonTitreHud.addEventListener('click', basculerMenuDepuisTitre);
+        function activerTitreDepuisCanvas(event) {
+            if (boutonTitreHud.hidden || (event.type === 'mousedown' && event.button !== 0)) return;
+            const {x, y} = positionLogiqueSecret(event);
+            const box = PixelHUD.layout(C).title;
+            if (!(x >= box.x && x < box.x + box.w && y >= box.y && y < box.y + box.h)) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (event.type !== 'mousedown') basculerMenuDepuisTitre();
+        }
+        canvas.addEventListener('mousedown', activerTitreDepuisCanvas, {capture: true});
+        canvas.addEventListener('click', activerTitreDepuisCanvas, {capture: true});
+        canvas.addEventListener('touchstart', activerTitreDepuisCanvas, {capture: true, passive: false});
         boutonSonHud.addEventListener('click', () => {
             if (musicManager) {
                 if (musicManager.isMuted && musicManager.volume.master === 0) musicManager.setVolume(.5);
@@ -20450,14 +20190,6 @@ Elle a besoin de ponts.`
                     window.isRestarting = true;
                     GameSaveSystem.clear();
                     location.reload();
-                    return; // Éviter l'exécution du reste
-                    
-                    // Code legacy (non exécuté)
-                    if (false) {
-                        console.log('🔄 Bouton [Recommencer] cliqué - Recréer la phase actuelle avec 3 vies');
-                        // ✅ Recréer la phase sans refaire l'intro, avec 3 vies
-                        recreerPhaseActuelle(true);
-                    }
                     return;
                 }
             }

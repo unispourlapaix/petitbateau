@@ -14,6 +14,7 @@
  function layout(C){
   const header=Math.round(Math.max(C.H*.045,32)),height=Math.round(Math.max(C.H*.025,26)),top=header;
   return {header,top,height,y:top+height/2,total:header+height,
+   title:{x:4,y:0,w:Math.max(0,C.W-46),h:header},
    speaker:{x:C.W-42,y:0,w:40,h:header}};
  }
  function frame(g,x,y,w,h,active=false){
@@ -70,6 +71,11 @@
    const textWidth=Math.min(titleWidth,g.measureText(state.title).width);
    PixelSprites.draw(g,'boat',center-textWidth/2-gap-boat/2,box.header/2,boat,'#d86757');
    PixelSprites.draw(g,'boat',center+textWidth/2+gap+boat/2,box.header/2,boat,'#86bdcf');
+   const gear=['....###....','.##.###.##.','.#########.','..#######..','####...####','####...####','####...####','..#######..','.#########.','.##.###.##.','....###....'];
+   g.fillStyle='#fff2ce';
+   for(let y=0;y<gear.length;y++)for(let x=0;x<gear[y].length;x++){
+    if(gear[y][x]==='#')g.fillRect(10+x*2,Math.floor((box.header-22)/2)+y*2,2,2);
+   }
    const speakerX=box.speaker.x+8,speakerY=Math.floor((box.header-16)/2);
    const pixel=(x,y,w,h)=>g.fillRect(speakerX+x,speakerY+y,w,h);
    g.fillStyle='#fffaf0';
