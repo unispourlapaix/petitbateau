@@ -174,6 +174,30 @@
         .hud-control:focus-visible { outline: 2px solid #f5cd70; outline-offset: -2px; }
         .hud-control:active { background: rgba(255, 255, 255, .18); }
 
+        .startup-language {
+            margin: auto;
+            width: min(92vw, 390px);
+            max-height: 90dvh;
+            padding: 18px;
+            background: #faf0dc;
+            color: #283d59;
+            border: 3px solid #9f8059;
+            text-align: center;
+            touch-action: pan-y;
+        }
+        .startup-language::backdrop { background: rgba(23, 44, 68, .72); }
+        .startup-language-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 14px; }
+        .startup-language button {
+            min-height: 42px;
+            padding: 4px;
+            color: inherit;
+            background: #fff8e7;
+            border: 1px solid #bca27e;
+            font: inherit;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
         .message {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: transparent;
@@ -1699,9 +1723,7 @@ if (!MODE_DEV) {
     
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
-        <button type="button" id="hud-language" class="hud-control" aria-label="Langues" aria-expanded="false" hidden></button>
-        <button type="button" id="hud-minus" class="hud-control" aria-label="Volume −" hidden></button>
-        <button type="button" id="hud-plus" class="hud-control" aria-label="Volume +" hidden></button>
+        <button type="button" id="hud-speaker" class="hud-control" aria-label="Son" aria-pressed="false" title="Son" hidden></button>
 
         <!-- CHARGER LES MODULES AVANT LE SCRIPT PRINCIPAL -->
         <script src="modules/i18n.js"></script>
@@ -2435,9 +2457,6 @@ if (!MODE_DEV) {
         let currentLang = localStorage.getItem('petit_bateau_lang') || 'fr';
         
         // État du survol du drapeau avec animation
-        let flagHover = false;
-        let flagHoverAnimation = 0; // 0 = normal, 1 = survolé
-        let flagHoverAnimationSpeed = 0.15; // Vitesse de transition
 
         // Charger l'icône du jeu pour le menu Info
         const gameIcon = new Image();
@@ -10756,8 +10775,6 @@ if (!MODE_DEV) {
         }
 
         // Interface intégrée complète
-        function getStatsBarLayout() { return PixelHUD.layout(C); }
-
         function dessinerInterface() {
             ctx.save();
             const currentLang = window.i18n?.getCurrentLanguage() || 'fr';
@@ -10767,7 +10784,7 @@ if (!MODE_DEV) {
                 score: phaseJeu === 'tir_coeurs_haut' ? pointsConnaissance : score,
                 phase: narrationManager?.currentPhase || 0,
                 bricks: brises, brickTotal: VOYAGE.length,
-                lives: vies, hover: flagHoverAnimation > 0
+                lives: vies, muted: musicManager ? musicManager.isMuted : AudioSystem.muted
             });
             synchroniserBoutonsHud(hud);
             if (titreVoyage.active) {
@@ -19295,58 +19312,40 @@ Elle a besoin de ponts.`
         }
 
         // Événements tactiles - REFONTE SIMPLIFIÉE
-        const boutonsHud = Object.fromEntries(['language', 'minus', 'plus'].map(
-            key => [key, document.getElementById('hud-' + key)]
-        ));
+        const boutonSonHud = document.getElementById('hud-speaker');
         let dispositionBoutonsHud = '';
         function masquerBoutonsHud() {
-            for (const button of Object.values(boutonsHud)) button.hidden = true;
+            boutonSonHud.hidden = true;
             dispositionBoutonsHud = '';
         }
         function synchroniserBoutonsHud(hud = PixelHUD.layout(C)) {
-            const ouvert = menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'langues';
-            const label = getTranslatedText('interface.tabs.language', 'Langues');
-            const signature = [C.W, C.H, ouvert, label].join(':');
+            const coupe = musicManager ? musicManager.isMuted : AudioSystem.muted;
+            const signature = [C.W, C.H, coupe].join(':');
             if (signature === dispositionBoutonsHud) return;
             dispositionBoutonsHud = signature;
             const sx = canvas.clientWidth / C.W, sy = canvas.clientHeight / C.H;
-            for (const [key, button] of Object.entries(boutonsHud)) {
-                const box = hud[key];
-                button.style.left = (canvas.offsetLeft + box.x * sx) + 'px';
-                button.style.top = (canvas.offsetTop + box.y * sy) + 'px';
-                button.style.width = ((box.width ?? box.w) * sx) + 'px';
-                button.style.height = ((box.height ?? box.h) * sy) + 'px';
-                button.hidden = false;
-            }
-            boutonsHud.language.setAttribute('aria-label', label);
-            boutonsHud.language.setAttribute('aria-expanded', String(ouvert));
+            const box = hud.speaker;
+            boutonSonHud.style.left = (canvas.offsetLeft + box.x * sx) + 'px';
+            boutonSonHud.style.top = (canvas.offsetTop + box.y * sy) + 'px';
+            boutonSonHud.style.width = (box.w * sx) + 'px';
+            boutonSonHud.style.height = (box.h * sy) + 'px';
+            boutonSonHud.setAttribute('aria-pressed', String(coupe));
+            boutonSonHud.hidden = false;
         }
         if (typeof ResizeObserver !== 'undefined') {
             const observer = new ResizeObserver(() => { dispositionBoutonsHud = ''; });
             observer.observe(canvas);
             observer.observe(canvas.parentElement);
         }
-        function changerVolumeHud(delta) {
-            if (!musicManager) return;
-            const volume = musicManager.isMuted ? 0 : musicManager.volume.master;
-            const suivant = Math.max(0, Math.min(1, volume + delta));
-            if (suivant > 0 && musicManager.isMuted) musicManager.toggleMute();
-            musicManager.setVolume(suivant);
-            if (suivant === 0 && !musicManager.isMuted) musicManager.toggleMute();
-            if (musicManager.musicPlayer) musicManager.musicPlayer.muted = suivant === 0;
-        }
-        boutonsHud.minus.addEventListener('click', () => changerVolumeHud(-.25));
-        boutonsHud.plus.addEventListener('click', () => changerVolumeHud(.25));
-        boutonsHud.language.addEventListener('click', () => {
-            if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'langues') {
-                fermerMenuEnigmesCanvas();
-                return;
+        boutonSonHud.addEventListener('click', () => {
+            if (musicManager) {
+                if (musicManager.isMuted && musicManager.volume.master === 0) musicManager.setVolume(.5);
+                musicManager.toggleMute();
+                musicManager.musicPlayer.muted = musicManager.isMuted;
+                AudioSystem.muted = musicManager.isMuted;
+            } else {
+                AudioSystem.muted = !AudioSystem.muted;
             }
-            ouvrirMenuEnigmesCanvas();
-            menuEnigmesCanvas.ongletActif = 'langues';
-            menuEnigmesCanvas.scrollY = 0;
-            menuEnigmesCanvas.needsRecalculation = true;
-            AudioSystem.playClick();
         });
 
         let tirSecretTactileTimer = null;
@@ -19770,21 +19769,6 @@ Elle a besoin de ponts.`
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // 🌍 Vérifier le survol du drapeau en haut
-            const statsY = getStatsBarLayout().y;
-            const flagZone = getStatsBarLayout().language;
-            
-            const wasHovering = flagHover;
-            flagHover = (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
-                        y >= flagZone.y && y <= flagZone.y + flagZone.height);
-            
-            // Changer le curseur
-            if (flagHover && !wasHovering) {
-                canvas.style.cursor = 'pointer';
-            } else if (!flagHover && wasHovering) {
-                canvas.style.cursor = 'default';
-            }
-
             // Contrôler le bateau du mini-jeu "Briser les Frontières"
             if (briqueLangue.active && briqueLangue.game) {
                 const game = briqueLangue.game;
@@ -19847,7 +19831,7 @@ Elle a besoin de ponts.`
                 // Changer curseur si hover
                 if (menuEnigmesCanvas.leaderboardScroll.scrollbarHover || menuEnigmesCanvas.refreshButtonHover) {
                     canvas.style.cursor = 'pointer';
-                } else if (!flagHover) {
+                } else {
                     canvas.style.cursor = 'default';
                 }
             }
@@ -19913,16 +19897,6 @@ Elle a besoin de ponts.`
                     return;
                 }
                 return; // Ignorer tous les autres clics en mode livre
-            }
-
-            // 🌍 Vérifier le clic sur le drapeau en haut (priorité absolue)
-            const statsY = getStatsBarLayout().y;
-            const flagZone = getStatsBarLayout().language;
-            
-            if (x >= flagZone.x && x <= flagZone.x + flagZone.width &&
-                y >= flagZone.y && y <= flagZone.y + flagZone.height) {
-                // Ne pas traiter comme swipe ou tir
-                return;
             }
 
             // ✅ DETECTION CLIC TITRE "SCORES MONDIAL" (dans mousedown)
@@ -21411,13 +21385,6 @@ Elle a besoin de ponts.`
                 requestAnimationFrame(boucleJeu);
                 return;
             }
-            // Animation du survol du drapeau (simple)
-            if (flagHover && flagHoverAnimation < 1) {
-                flagHoverAnimation = Math.min(1, flagHoverAnimation + flagHoverAnimationSpeed);
-            } else if (!flagHover && flagHoverAnimation > 0) {
-                flagHoverAnimation = Math.max(0, flagHoverAnimation - flagHoverAnimationSpeed);
-            }
-            
             // 🌍 SI LANGUE NON CHOISIE : dessiner seulement le sélecteur
             if (languageSelector.active && !languageSelector.languageChosen) {
                 masquerBoutonsHud();
@@ -22477,8 +22444,38 @@ Elle a besoin de ponts.`
         // SUPPRIMÉ: dessinerObstacles() - remplacé par le module secret
 
         // L'animation démarre automatiquement via gererAnimationBateau()
+        function choisirLangueAuDemarrage() {
+            if (langueDejaChoisie || !window.i18n) return Promise.resolve();
+            const choix = document.createElement('dialog');
+            choix.className = 'startup-language';
+            choix.setAttribute('aria-labelledby', 'startup-language-title');
+            const titre = document.createElement('h2');
+            titre.id = 'startup-language-title';
+            titre.textContent = 'Langue · Language';
+            const liste = document.createElement('div');
+            liste.className = 'startup-language-list';
+            choix.append(titre, liste);
+            choix.addEventListener('cancel', event => event.preventDefault());
+            document.body.appendChild(choix);
+            return new Promise(resolve => {
+                for (const langue of languageSelector.buttons) {
+                    const bouton = document.createElement('button');
+                    bouton.type = 'button';
+                    bouton.textContent = langue.nom;
+                    bouton.addEventListener('click', () => {
+                        localStorage.setItem('petit_bateau_lang', langue.code);
+                        choix.close();
+                        choix.remove();
+                        resolve();
+                    }, {once: true});
+                    liste.appendChild(bouton);
+                }
+                choix.showModal();
+            });
+        }
+
         window.addEventListener('load', async function() {
-            console.log('🚀 LOAD EVENT DÉCLENCHÉ');
+            await choisirLangueAuDemarrage();
 
             // 🔥 Vérifier si un reset était en cours
             const resetInProgress = localStorage.getItem('gameResetInProgress');
@@ -22511,9 +22508,9 @@ Elle a besoin de ponts.`
             // ✅ Désactiver intro si sauvegarde OU si restauration en cours
             const skipIntro = window.isRestoringGame || hasSavedGame;
             phaseIntro = { 
-                active: skipIntro ? false : langueDejaChoisie, 
+                active: !skipIntro,
                 etape: skipIntro ? 'terminee' : 'arrivee_bateau', 
-                tempsDebut: skipIntro ? 0 : (langueDejaChoisie ? Date.now() : 0)
+                tempsDebut: skipIntro ? 0 : Date.now()
             };
             console.log('🎬 Phase intro initialisée:', {
                 active: phaseIntro.active,

@@ -14,35 +14,7 @@
  function layout(C){
   const header=Math.round(Math.max(C.H*.045,32)),height=Math.round(Math.max(C.H*.025,26)),top=header;
   return {header,top,height,y:top+height/2,total:header+height,
-   language:{x:4,y:top+2,width:46,height:height-4},
-   minus:{x:6,y:2,w:32,h:header-4},plus:{x:C.W-38,y:2,w:32,h:header-4}};
- }
- // Drapeaux dessinés dans le cache du bandeau, indépendants des polices emoji.
- function flag(g,lang,cx,cy){
-  const x=Math.round(cx)-9,y=Math.round(cy)-6;
-  const r=(c,a,b,w,h)=>{g.fillStyle=c;g.fillRect(x+a,y+b,w,h);};
-  const navy='#214771',red='#cd3446',white='#fffaf3',gold='#f6cc53',green='#258858',blue='#367ac8';
-  const vertical=(a,b,c)=>{r(a,0,0,6,12);r(b,6,0,6,12);r(c,12,0,6,12);};
-  const horizontal=(a,b,c)=>{r(a,0,0,18,4);r(b,0,4,18,4);r(c,0,8,18,4);};
-  const diagonal=(c,offset,w,reverse=false)=>{for(let i=0;i<12;i++){const a=(reverse?11-i:i)*1.4+offset;r(c,Math.max(0,Math.floor(a)),i,Math.min(w,18-Math.max(0,Math.floor(a))),1);}};
-  r(navy,-1,-1,20,14);
-  switch(lang){
-   case 'en':r(navy,0,0,18,12);diagonal(white,0,3);diagonal(white,0,3,true);r(white,0,4,18,4);r(white,7,0,4,12);r(red,0,5,18,2);r(red,8,0,2,12);break;
-   case 'es':r(red,0,0,18,12);r(gold,0,3,18,6);r(red,5,5,2,3);break;
-   case 'de':horizontal('#29272d',red,gold);break;
-   case 'it':vertical(green,white,red);break;
-   case 'pt':r(red,0,0,18,12);r(green,0,0,7,12);r(gold,5,4,4,4);r(white,6,5,2,2);break;
-   case 'ru':horizontal(white,blue,red);break;
-   case 'uk':r(blue,0,0,18,6);r(gold,0,6,18,6);break;
-   case 'zh':r(red,0,0,18,12);r(gold,3,2,1,3);r(gold,2,3,3,1);r(gold,6,2,1,1);r(gold,7,4,1,1);break;
-   case 'jp':r(white,0,0,18,12);r(red,7,3,4,6);r(red,6,4,6,4);break;
-   case 'ko':r(white,0,0,18,12);r(red,6,3,6,3);r(blue,6,6,6,3);for(const a of [2,14])for(const b of [2,8])r('#29272d',a,b,2,2);break;
-   case 'ar':r(green,0,0,18,12);r(white,4,7,10,1);r(white,5,4,2,1);r(white,8,3,4,1);break;
-   case 'he':r(white,0,0,18,12);r(blue,0,1,18,2);r(blue,0,9,18,2);r(blue,7,5,4,2);r(blue,8,4,2,4);break;
-   case 'rc':r(blue,0,0,18,12);for(let i=0;i<5;i++){r(gold,8-i*2,i,2,1);r(gold,8+i*2,i,2,1);r(red,8-i*2,7+i,2+i*4,1);}break;
-   case 'lg':r(blue,0,0,18,12);diagonal(gold,0,4,true);diagonal(red,1,2,true);r(gold,3,2,2,2);break;
-   default:vertical('#315da7',white,red);
-  }
+   speaker:{x:C.W-42,y:0,w:40,h:header}};
  }
  function frame(g,x,y,w,h,active=false){
   g.fillStyle=active?'#b9cde2':'#eaf0f6';g.fillRect(x,y,w,h);
@@ -84,7 +56,7 @@
  }
  function render(ctx,C,state){
   const box=layout(C),lang=state.lang||'fr';
-  const key=JSON.stringify([C.W,box.header,box.height,state.title,lang,state.score,state.phase,state.bricks,state.brickTotal,state.lives,!!state.hover]);
+  const key=JSON.stringify([C.W,box.header,box.height,state.title,lang,state.score,state.phase,state.bricks,state.brickTotal,state.lives,!!state.muted]);
   if(!buffer)buffer=document.createElement('canvas');
   if(key!==lastKey){
    buffer.width=Math.round(C.W);buffer.height=box.total;const g=buffer.getContext('2d');g.imageSmoothingEnabled=false;
@@ -98,17 +70,19 @@
    const textWidth=Math.min(titleWidth,g.measureText(state.title).width);
    PixelSprites.draw(g,'boat',center-textWidth/2-gap-boat/2,box.header/2,boat,'#d86757');
    PixelSprites.draw(g,'boat',center+textWidth/2+gap+boat/2,box.header/2,boat,'#86bdcf');
-   for(const [name,b] of [['minus',box.minus],['plus',box.plus]]){
-    g.fillStyle='#ffffff';
-    g.fillRect(b.x+9,Math.round(b.y+(b.h-3)/2),14,3);
-    if(name==='plus')g.fillRect(b.x+15,Math.round(b.y+(b.h-15)/2),3,15);
+   const speakerX=box.speaker.x+8,speakerY=Math.floor((box.header-16)/2);
+   const pixel=(x,y,w,h)=>g.fillRect(speakerX+x,speakerY+y,w,h);
+   g.fillStyle='#fffaf0';
+   pixel(0,5,5,6);pixel(5,3,3,10);pixel(8,1,3,14);
+   if(state.muted){
+    for(let i=0;i<7;i++){pixel(15+i,4+i,2,2);pixel(21-i,4+i,2,2);}
+   }else{
+    pixel(14,4,2,2);pixel(16,6,2,4);pixel(14,10,2,2);
+    pixel(18,1,2,2);pixel(20,3,2,2);pixel(22,5,2,6);pixel(20,11,2,2);pixel(18,13,2,2);
    }
    g.fillStyle=colors.paper;g.fillRect(0,box.top,C.W,box.height);
    g.fillStyle='#e2e9f1';g.fillRect(0,box.total-1,C.W,1);
-   frame(g,box.language.x,box.language.y,box.language.width,box.language.height,!!state.hover);
-   flag(g,lang,box.language.x+13,box.y);
-   fit(g,lang.toUpperCase(),box.language.x+33,box.y,20,9,colors.ink,'monospace');
-   const scoreStart=58,scoreEnd=Math.floor(C.W*.48),phaseStart=scoreEnd+5;
+   const scoreStart=10,scoreEnd=Math.floor(C.W*.48),phaseStart=scoreEnd+5;
    PixelSprites.draw(g,'star',scoreStart+7,box.y,16);
    number(g,state.score,scoreStart+19,box.y,Math.max(24,scoreEnd-scoreStart-21));
    g.fillStyle='#e2e9f1';g.fillRect(scoreEnd,box.top+8,1,box.height-16);
