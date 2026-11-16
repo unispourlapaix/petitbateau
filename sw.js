@@ -1,11 +1,12 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.8.39-langue-accueil-son'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.8.44-noms-drapeaux'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning
   './petitbateauRouge.html',
   './manifest.json',
+  './icons/vagues-langues.svg',
   './favicon.ico',
   './icons/favicon-16.png',
   './icons/favicon-32.png',

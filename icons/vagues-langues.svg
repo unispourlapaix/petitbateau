@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 64" shape-rendering="crispEdges">
+  <defs>
+    <pattern id="water" width="28" height="16" patternUnits="userSpaceOnUse">
+      <path fill="#2475a0" d="M2 4h9v1H2zm16 8h7v1h-7z"/>
+      <path fill="#3998b9" d="M6 5h8v1H6zm14 8h6v1h-6z"/>
+      <path fill="#57abc3" d="M9 5h3v1H9zm12 8h2v1h-2z"/>
+    </pattern>
+  </defs>
+  <path fill="#17547e" d="M0 0h96v64H0z"/>
+  <path fill="#277ca5" d="M0 0h96v12H83v2H71v3H59v2H47v-1H35v-3H23v-2H12v1H0z"/>
+  <path fill="#398fb2" d="M0 0h96v7H84v2H72v3H60v2H48v-1H36v-3H24V8H12v1H0z"/>
+  <path fill="#a6deea" d="M0 8h12V7h12v2h12v3h12v1h12v-2h12V8h12V6h12v2H84v2H72v3H60v2H48v-1H36v-3H24V9H12v1H0z"/>
+  <path fill="url(#water)" d="M0 19h96v45H0z"/>
+  <path fill="#103e66" d="M0 55h12v-2h12v1h12v3h12v2h12v-1h12v-3h12v-2h12v11H0z"/>
+  <path fill="#6dbdce" d="M5 54h7v-2h12v1h-11v2H5zm38 4h5v1h12v-1h10v1H60v1H48v-1h-5z"/>
+</svg>

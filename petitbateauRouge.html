@@ -176,27 +176,40 @@
 
         .startup-language {
             margin: auto;
-            width: min(92vw, 390px);
-            max-height: 90dvh;
-            padding: 18px;
-            background: #faf0dc;
-            color: #283d59;
-            border: 3px solid #9f8059;
+            width: min(86vw, 330px);
+            padding: 54px 24px 24px;
+            color: #f4fbff;
+            background: #19547f url("./icons/vagues-langues.svg") center / cover no-repeat;
+            border: 3px solid #83cbdc;
+            box-shadow: 0 0 0 4px #133b60, 7px 9px 0 #0c304d;
             text-align: center;
-            touch-action: pan-y;
         }
-        .startup-language::backdrop { background: rgba(23, 44, 68, .72); }
-        .startup-language-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 14px; }
-        .startup-language button {
-            min-height: 42px;
-            padding: 4px;
-            color: inherit;
-            background: #fff8e7;
-            border: 1px solid #bca27e;
-            font: inherit;
+        .startup-language::backdrop { background: rgba(13, 43, 71, .68); }
+        .startup-language-list { display: grid; grid-template-columns: 1fr 48px; gap: 12px; align-items: center; }
+        .startup-language select, .startup-language button {
+            min-height: 48px;
+            color: #f4fbff;
+            background: #164368;
+            border: 2px solid #91d0de;
+            font: 24px system-ui, sans-serif;
+            touch-action: manipulation;
+        }
+        .startup-language select { width: 100%; min-width: 0; padding: 4px 10px; font-size: 16px; }
+        .startup-language button { cursor: pointer; }
+        .startup-language button svg { display: block; margin: auto; }
+        .startup-language label {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            min-height: 38px;
             cursor: pointer;
             touch-action: manipulation;
         }
+        .startup-language input { width: 22px; height: 22px; accent-color: #216b98; }
+        .startup-language :focus-visible { outline: 3px solid #ffe6a0; outline-offset: 3px; }
 
         .message {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -22445,37 +22458,63 @@ Elle a besoin de ponts.`
 
         // L'animation démarre automatiquement via gererAnimationBateau()
         function choisirLangueAuDemarrage() {
-            if (langueDejaChoisie || !window.i18n) return Promise.resolve();
+            if (!window.i18n || (langueDejaChoisie &&
+                localStorage.getItem('petit_bateau_skip_language_prompt') === 'true')) {
+                return Promise.resolve();
+            }
+
             const choix = document.createElement('dialog');
             choix.className = 'startup-language';
-            choix.setAttribute('aria-labelledby', 'startup-language-title');
-            const titre = document.createElement('h2');
-            titre.id = 'startup-language-title';
-            titre.textContent = 'Langue · Language';
-            const liste = document.createElement('div');
-            liste.className = 'startup-language-list';
-            choix.append(titre, liste);
+            choix.setAttribute('aria-label', 'Langue · Language');
+            const formulaire = document.createElement('form');
+            formulaire.className = 'startup-language-list';
+            const liste = document.createElement('select');
+            liste.setAttribute('aria-label', 'Langue · Language');
+            liste.autofocus = true;
+            for (const langue of languageSelector.buttons) {
+                const option = document.createElement('option');
+                option.value = langue.code;
+                option.textContent = langue.drapeau + '  ' + langue.nom;
+                liste.appendChild(option);
+            }
+            liste.value = languageSelector.buttons.some(langue => langue.code === currentLang) ? currentLang : 'fr';
+
+            const preference = document.createElement('label');
+            const ignorer = document.createElement('input');
+            ignorer.type = 'checkbox';
+            ignorer.setAttribute('aria-label', 'Ne plus demander');
+            preference.title = 'Ne plus demander';
+            const memo = document.createElement('span');
+            memo.setAttribute('aria-hidden', 'true');
+            memo.innerHTML = '<svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#d6f4f8" d="M2 1h10v2h2v12H2z"/><path fill="#164368" d="M4 2h6v5H4zm0 8h8v4H4z"/></svg>';
+            preference.append(ignorer, memo);
+            const continuer = document.createElement('button');
+            continuer.type = 'submit';
+            continuer.setAttribute('aria-label', 'Continuer');
+            continuer.title = 'Continuer';
+            continuer.innerHTML = '<svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M8 2h2v2h2v2h2v4h-2v2h-2v2H8v-4H2V6h6z"/></svg>';
+            formulaire.append(liste, continuer, preference);
+            choix.append(formulaire);
             choix.addEventListener('cancel', event => event.preventDefault());
             document.body.appendChild(choix);
             return new Promise(resolve => {
-                for (const langue of languageSelector.buttons) {
-                    const bouton = document.createElement('button');
-                    bouton.type = 'button';
-                    bouton.textContent = langue.nom;
-                    bouton.addEventListener('click', () => {
-                        localStorage.setItem('petit_bateau_lang', langue.code);
-                        choix.close();
-                        choix.remove();
-                        resolve();
-                    }, {once: true});
-                    liste.appendChild(bouton);
-                }
+                formulaire.addEventListener('submit', event => {
+                    event.preventDefault();
+                    localStorage.setItem('petit_bateau_lang', liste.value);
+                    if (ignorer.checked) localStorage.setItem('petit_bateau_skip_language_prompt', 'true');
+                    else localStorage.removeItem('petit_bateau_skip_language_prompt');
+                    choix.close();
+                    choix.remove();
+                    resolve();
+                }, {once: true});
                 choix.showModal();
             });
         }
 
+        // Afficher dès que le DOM du jeu est prêt, sans attendre le chargement des médias.
+        const langueAuDemarrage = choisirLangueAuDemarrage();
         window.addEventListener('load', async function() {
-            await choisirLangueAuDemarrage();
+            await langueAuDemarrage;
 
             // 🔥 Vérifier si un reset était en cours
             const resetInProgress = localStorage.getItem('gameResetInProgress');
