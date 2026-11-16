@@ -1,6 +1,6 @@
 // 🔄 VERSION AUTOMATIQUE - Lue depuis VERSION.json
 // Pour déployer une nouvelle version, modifie juste VERSION.json
-const CACHE_NAME = 'petit-bateau-v2.8.37-drapeau-langue'; // Compatible multi-domaines
+const CACHE_NAME = 'petit-bateau-v2.8.38-commandes-hud'; // Compatible multi-domaines
 const CACHE_PREFIX = 'petit-bateau-';
 const urlsToCache = [
   './VERSION.json', // Changelog et versioning

@@ -162,6 +162,18 @@
             image-rendering: crisp-edges; image-rendering: pixelated;
         }
 
+        .hud-control {
+            position: absolute;
+            z-index: 100;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hud-control:focus-visible { outline: 2px solid #f5cd70; outline-offset: -2px; }
+        .hud-control:active { background: rgba(255, 255, 255, .18); }
+
         .message {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: transparent;
@@ -1687,6 +1699,9 @@ if (!MODE_DEV) {
     
     <div class="game-container">
         <canvas id="gameCanvas" width="449" height="799" style="width: 449px; height: 799px;"></canvas>
+        <button type="button" id="hud-language" class="hud-control" aria-label="Langues" aria-expanded="false" hidden></button>
+        <button type="button" id="hud-minus" class="hud-control" aria-label="Volume −" hidden></button>
+        <button type="button" id="hud-plus" class="hud-control" aria-label="Volume +" hidden></button>
 
         <!-- CHARGER LES MODULES AVANT LE SCRIPT PRINCIPAL -->
         <script src="modules/i18n.js"></script>
@@ -10754,8 +10769,7 @@ if (!MODE_DEV) {
                 bricks: brises, brickTotal: VOYAGE.length,
                 lives: vies, hover: flagHoverAnimation > 0
             });
-            window.prevSongZone = hud.minus;
-            window.nextSongZone = hud.plus;
+            synchroniserBoutonsHud(hud);
             if (titreVoyage.active) {
                 if (Date.now() >= titreVoyage.fin) titreVoyage.active = false;
                 else {
@@ -19281,19 +19295,59 @@ Elle a besoin de ponts.`
         }
 
         // Événements tactiles - REFONTE SIMPLIFIÉE
-        function reglerAudioHud(x, y) {
-            const hud = PixelHUD.layout(C);
-            for (const [button, delta] of [[hud.minus, -0.25], [hud.plus, 0.25]]) {
-                if (x < button.x || x > button.x + button.w || y < button.y || y > button.y + button.h) continue;
-                if (musicManager) {
-                    if (delta > 0 && musicManager.isMuted) musicManager.toggleMute();
-                    musicManager.setVolume(Math.max(0, Math.min(1, musicManager.volume.master + delta)));
-                    AudioSystem.playClick();
-                }
-                return true;
-            }
-            return false;
+        const boutonsHud = Object.fromEntries(['language', 'minus', 'plus'].map(
+            key => [key, document.getElementById('hud-' + key)]
+        ));
+        let dispositionBoutonsHud = '';
+        function masquerBoutonsHud() {
+            for (const button of Object.values(boutonsHud)) button.hidden = true;
+            dispositionBoutonsHud = '';
         }
+        function synchroniserBoutonsHud(hud = PixelHUD.layout(C)) {
+            const ouvert = menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'langues';
+            const label = getTranslatedText('interface.tabs.language', 'Langues');
+            const signature = [C.W, C.H, ouvert, label].join(':');
+            if (signature === dispositionBoutonsHud) return;
+            dispositionBoutonsHud = signature;
+            const sx = canvas.clientWidth / C.W, sy = canvas.clientHeight / C.H;
+            for (const [key, button] of Object.entries(boutonsHud)) {
+                const box = hud[key];
+                button.style.left = (canvas.offsetLeft + box.x * sx) + 'px';
+                button.style.top = (canvas.offsetTop + box.y * sy) + 'px';
+                button.style.width = ((box.width ?? box.w) * sx) + 'px';
+                button.style.height = ((box.height ?? box.h) * sy) + 'px';
+                button.hidden = false;
+            }
+            boutonsHud.language.setAttribute('aria-label', label);
+            boutonsHud.language.setAttribute('aria-expanded', String(ouvert));
+        }
+        if (typeof ResizeObserver !== 'undefined') {
+            const observer = new ResizeObserver(() => { dispositionBoutonsHud = ''; });
+            observer.observe(canvas);
+            observer.observe(canvas.parentElement);
+        }
+        function changerVolumeHud(delta) {
+            if (!musicManager) return;
+            const volume = musicManager.isMuted ? 0 : musicManager.volume.master;
+            const suivant = Math.max(0, Math.min(1, volume + delta));
+            if (suivant > 0 && musicManager.isMuted) musicManager.toggleMute();
+            musicManager.setVolume(suivant);
+            if (suivant === 0 && !musicManager.isMuted) musicManager.toggleMute();
+            if (musicManager.musicPlayer) musicManager.musicPlayer.muted = suivant === 0;
+        }
+        boutonsHud.minus.addEventListener('click', () => changerVolumeHud(-.25));
+        boutonsHud.plus.addEventListener('click', () => changerVolumeHud(.25));
+        boutonsHud.language.addEventListener('click', () => {
+            if (menuEnigmesCanvas.visible && menuEnigmesCanvas.ongletActif === 'langues') {
+                fermerMenuEnigmesCanvas();
+                return;
+            }
+            ouvrirMenuEnigmesCanvas();
+            menuEnigmesCanvas.ongletActif = 'langues';
+            menuEnigmesCanvas.scrollY = 0;
+            menuEnigmesCanvas.needsRecalculation = true;
+            AudioSystem.playClick();
+        });
 
         let tirSecretTactileTimer = null;
         function positionLogiqueSecret(event) {
@@ -19335,26 +19389,6 @@ Elle a besoin de ponts.`
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) arreterTirSecretTactile();
         });
-
-        function activerLanguesHud(event) {
-            if (event.type === 'mousedown' && event.button !== 0) return;
-            const {x, y} = positionLogiqueSecret(event);
-            const zone = PixelHUD.layout(C).language;
-            if (!(x >= zone.x && x <= zone.x + zone.width &&
-                  y >= zone.y && y <= zone.y + zone.height)) return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            if (event.type === 'mousedown') return; // Le clic ouvre le menu, sans déplacer le bateau.
-            ouvrirMenuEnigmesCanvas();
-            menuEnigmesCanvas.ongletActif = 'langues';
-            menuEnigmesCanvas.scrollY = 0;
-            menuEnigmesCanvas.needsRecalculation = true;
-            AudioSystem.playClick();
-        }
-
-        canvas.addEventListener('touchstart', activerLanguesHud, {capture: true, passive: false});
-        canvas.addEventListener('mousedown', activerLanguesHud, {capture: true});
-        canvas.addEventListener('click', activerLanguesHud, {capture: true});
 
         canvas.addEventListener('touchstart', async e => {
             e.preventDefault();
@@ -19613,8 +19647,6 @@ Elle a besoin de ponts.`
             // 🎯 PRIORITÉ 2: BOUTONS D'INTERFACE (menu fermé)
             // ═══════════════════════════════════════════════════════════════
             
-            const hudTouch = positionLogiqueSecret(e);
-            if (reglerAudioHud(hudTouch.x, hudTouch.y)) return;
 
             // ═══════════════════════════════════════════════════════════════
             // 🎯 PRIORITÉ 3: BOUTON "PASSER" (si visible)
@@ -20197,98 +20229,6 @@ Elle a besoin de ponts.`
                     musicManager: !!musicManager,
                     musicStartedOnce: window.musicStartedOnce
                 });
-            }
-
-            // 🔊 Vérifier les clics sur les boutons audio
-            
-            // Volume − (diminuer)
-            if (window.prevSongZone) {
-                const btn = window.prevSongZone;
-                if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
-                    if (musicManager) {
-                        const volumes = [0, 0.25, 0.5, 0.75, 1.0];
-                        const currentVol = musicManager.volume.master;
-                        
-                        // Trouver l'index actuel
-                        let currentIndex = -1;
-                        for (let i = 0; i < volumes.length; i++) {
-                            if (Math.abs(volumes[i] - currentVol) < 0.05) {
-                                currentIndex = i;
-                                break;
-                            }
-                        }
-                        
-                        // Si pas trouvé, trouver le niveau le plus proche
-                        if (currentIndex === -1) {
-                            for (let i = volumes.length - 1; i >= 0; i--) {
-                                if (currentVol >= volumes[i]) {
-                                    currentIndex = i;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // Diminuer le volume
-                        const newIndex = Math.max(0, currentIndex - 1);
-                        const newVol = volumes[newIndex];
-                        
-                        musicManager.setVolume(newVol);
-                        
-                        // Si on passe à 0, muter
-                        if (newVol === 0 && !musicManager.isMuted) {
-                            musicManager.toggleMute();
-                        }
-                        
-                        AudioSystem.playClick();
-                        console.log(`🔉 Volume: ${Math.round(newVol * 100)}%`);
-                    }
-                    return;
-                }
-            }
-
-            // Volume + (augmenter)
-            if (window.nextSongZone) {
-                const btn = window.nextSongZone;
-                if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
-                    if (musicManager) {
-                        const volumes = [0, 0.25, 0.5, 0.75, 1.0];
-                        const currentVol = musicManager.volume.master;
-                        
-                        // Si muté, démuter d'abord
-                        if (musicManager.isMuted) {
-                            musicManager.toggleMute();
-                            console.log('🔊 Démute automatique');
-                        }
-                        
-                        // Trouver l'index actuel
-                        let currentIndex = -1;
-                        for (let i = 0; i < volumes.length; i++) {
-                            if (Math.abs(volumes[i] - currentVol) < 0.05) {
-                                currentIndex = i;
-                                break;
-                            }
-                        }
-                        
-                        // Si pas trouvé, trouver le niveau le plus proche
-                        if (currentIndex === -1) {
-                            for (let i = 0; i < volumes.length; i++) {
-                                if (currentVol <= volumes[i]) {
-                                    currentIndex = i;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // Augmenter le volume
-                        const newIndex = Math.min(volumes.length - 1, currentIndex + 1);
-                        const newVol = volumes[newIndex];
-                        
-                        musicManager.setVolume(newVol);
-                        AudioSystem.playClick();
-                        console.log(`🔊 Volume: ${Math.round(newVol * 100)}%`);
-                    }
-                    return;
-                }
             }
 
             // 🔊 Son de clic sur tout clic
@@ -21480,6 +21420,7 @@ Elle a besoin de ponts.`
             
             // 🌍 SI LANGUE NON CHOISIE : dessiner seulement le sélecteur
             if (languageSelector.active && !languageSelector.languageChosen) {
+                masquerBoutonsHud();
                 // Le fond opaque ci-dessous remplace complètement l’image précédente.
 
                 // ⚡ OPTIMISATION: Créer gradient une seule fois
@@ -21808,6 +21749,7 @@ Elle a besoin de ponts.`
                 }
 
                 requestAnimationFrame(boucleJeu);
+                masquerBoutonsHud();
                 return; // NE PAS CONTINUER
             }
 
