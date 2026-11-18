@@ -3960,52 +3960,30 @@ if (!MODE_DEV) {
             ctx.restore();
         }
 
-        // Fonction pour basculer le plein écran (DÉSACTIVÉE)
-        function toggleFullscreen() {
-            console.log('ℹ️ Mode plein écran désactivé');
-            return; // DÉSACTIVÉ
-            
-            /*
-            const elem = document.documentElement;
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Entrer en plein écran
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) { // Safari
-                    elem.webkitRequestFullscreen();
-                } else if (elem.mozRequestFullScreen) { // Firefox
-                    elem.mozRequestFullScreen();
-                } else if (elem.msRequestFullscreen) { // IE/Edge
-                    elem.msRequestFullscreen();
-                }
-                boutonPleinEcran.isFullscreen = true;
-                
-                // 🔊 Son de succès
-                if (AudioSystem && AudioSystem.playPowerUp) {
-                    AudioSystem.playPowerUp();
-                }
-            } else {
-                // Sortir du plein écran
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                boutonPleinEcran.isFullscreen = false;
-                
-                // 🔊 Son de clic
-                if (AudioSystem && AudioSystem.playClick) {
-                    AudioSystem.playClick();
-                }
+        let pleinEcranEnCours = false;
+        async function demanderPleinEcranAutomatique() {
+            const doc = document;
+            if (pleinEcranEnCours || doc.fullscreenElement || doc.webkitFullscreenElement) return;
+            const element = doc.documentElement;
+            const demander = element.requestFullscreen || element.webkitRequestFullscreen;
+            if (!demander) return;
+            pleinEcranEnCours = true;
+            try {
+                await demander.call(element);
+            } catch (_) {
+                // Le navigateur peut refuser; réessayer à la prochaine interaction.
+            } finally {
+                pleinEcranEnCours = false;
             }
-            */
         }
+        function toggleFullscreen() { demanderPleinEcranAutomatique(); }
+        document.addEventListener('pointerdown', demanderPleinEcranAutomatique, {capture: true, passive: true});
+        document.addEventListener('click', demanderPleinEcranAutomatique, {capture: true, passive: true});
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') demanderPleinEcranAutomatique();
+        }, {capture: true});
+
+
 
         // Écouter les changements d'état du plein écran
         document.addEventListener('fullscreenchange', () => {
@@ -4384,84 +4362,22 @@ if (!MODE_DEV) {
                 ctx.fillText(getTranslatedText('game.canvas.dreamer', 'Dreamer Unisona'), C.W / 2, yPos);
                 yPos += 35;
 
-                // Section des projets - PLUS GROS
-                ctx.font = `bold 20px ${infoFont}`;
-                ctx.fillStyle = '#293f48';
-                ctx.fillText(getTranslatedText('game.canvas.projects', '📂 Projets'), C.W / 2, yPos);
-                yPos += 25;
-
-                // Créer les boutons des projets s'ils n'existent pas
-                if (!menuEnigmesCanvas.projectButtons) {
-                    menuEnigmesCanvas.projectButtons = [];
-                    
-                    const projects = [
-                        {
-                            titleKey: 'game.projects.games_deco',
-                            titleFallback: 'Jeux & Déco',
-                            link: 'https://emmanuel.gallery',
-                            color: '#845746'
-                        },
-                        {
-                            titleKey: 'game.projects.unispourlapaix',
-                            titleFallback: 'UnisPourLaPaix',
-                            link: 'https://www.tiktok.com/@unispourlapaix',
-                            color: '#059669'
-                        },
-                        {
-                            titleKey: 'game.projects.free_gospel',
-                            titleFallback: 'Free Gospel',
-                            link: 'https://audiomack.com/emmanuelpayet888',
-                            color: '#98483f'
-                        },
-                        {
-                            titleKey: 'game.projects.books_art',
-                            titleFallback: 'Livres & Art',
-                            link: 'https://emmanuelpayet.art',
-                            color: '#0891b2'
-                        },
-                        {
-                            titleKey: 'game.projects.good_time',
-                            titleFallback: 'La Bonne Heure',
-                            link: 'https://www.redbubble.com/fr/people/h777plx/shop',
-                            color: '#8b5cf6'
-                        }
-                    ];
-
-                    const buttonWidth = 200;
-                    const buttonHeight = 35;
-                    const spacing = 12;
-                    const startX = C.W / 2 - buttonWidth / 2;
-
-                    projects.forEach((project, index) => {
-                        const x = startX;
-                        const y = yPos + index * (buttonHeight + spacing);
-                        
-                        menuEnigmesCanvas.projectButtons.push({
-                            x, y, width: buttonWidth, height: buttonHeight,
-                            ...project
-                        });
-                    });
-                }
-
-                // Dessiner les boutons des projets (compacts)
-                menuEnigmesCanvas.projectButtons.forEach((btn, index) => {
-                    // Style du bouton simple et élégant
-                    ctx.fillStyle = '#f8edd6';
-                    ctx.strokeStyle = btn.color;
-                    ctx.lineWidth = 2;
-
-                    ctx.beginPath();
-                    ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 8);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Titre du projet centré - PLUS GROS
-                    ctx.font = `bold 17px ${infoFont}`;
-                    ctx.fillStyle = btn.color;
-                    ctx.textAlign = 'center';
-                    const projectTitle = getTranslatedText(btn.titleKey, btn.titleFallback);
-                    ctx.fillText(projectTitle, btn.x + btn.width / 2, btn.y + btn.height / 2 + 4);
-                });
+                const buttonWidth = Math.min(240, menuWidth - 40);
+                const bouton = {
+                    x: C.W / 2 - buttonWidth / 2,
+                    y: Math.min(yPos, menuY + menuHeight - 100),
+                    width: buttonWidth, height: 44,
+                    link: 'https://emmanuel.gallery/'
+                };
+                menuEnigmesCanvas.projectButtons = [bouton];
+                ctx.fillStyle = '#f8edd6';
+                ctx.strokeStyle = '#365e6a';
+                ctx.lineWidth = 2;
+                ctx.fillRect(bouton.x, bouton.y, bouton.width, bouton.height);
+                ctx.strokeRect(bouton.x, bouton.y, bouton.width, bouton.height);
+                ctx.font = `bold 17px ${infoFont}`;
+                ctx.fillStyle = '#365e6a';
+                ctx.fillText('emmanuel.gallery', C.W / 2, bouton.y + 27, bouton.width - 16);
 
                 ctx.restore();
             } else if (menuEnigmesCanvas.ongletActif === 'classement') {
